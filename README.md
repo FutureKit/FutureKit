@@ -6,7 +6,6 @@ FutureKit is a iOS implementation of Futures and Promises, but modified specific
 
 
 # Some background - 
-=========
 
 There are number of different Future/Promise varients for different langauages.
 You can read about some here:

@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Michael Gray. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 // this adds some missing feature that we don't have with normal dispatch_queue_t
 // like .. what DispatchQueue am I currently running in?

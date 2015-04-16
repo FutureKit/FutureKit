@@ -7,6 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D533D5D1ADF530700FDF101 /* FutureKitOsx.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D533D5C1ADF530700FDF101 /* FutureKitOsx.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0D533D631ADF530700FDF101 /* FutureKitOsx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D533D581ADF530700FDF101 /* FutureKitOsx.framework */; };
+		0D533D6A1ADF530700FDF101 /* FutureKitOsxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D533D691ADF530700FDF101 /* FutureKitOsxTests.swift */; };
+		0D533D711ADF532700FDF101 /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCE1ADAFE5A00B58B0B /* Future.swift */; };
+		0D533D721ADF532700FDF101 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
+		0D533D731ADF532700FDF101 /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6D1ADCB55C000345AD /* Executor.swift */; };
+		0D533D741ADF532700FDF101 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DA41FCA1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0D533D751ADF532700FDF101 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCB1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.m */; };
+		0D533D761ADF532700FDF101 /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */; };
+		0D533D771ADF532700FDF101 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */; };
+		0D533D781ADF532700FDF101 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCD1ADAFE5A00B58B0B /* Common.swift */; };
+		0D533D791ADF532700FDF101 /* FutureSequences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureSequences.swift */; };
+		0D533D7A1ADF532700FDF101 /* FutureWait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* FutureWait.swift */; };
+		0D533D7B1ADF532700FDF101 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */; };
+		0D533D7C1ADF532700FDF101 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */; };
+		0D533D7D1ADF532700FDF101 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */; };
 		0DA41FB41ADAFE3D00B58B0B /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DA41FB31ADAFE3D00B58B0B /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DA41FBA1ADAFE3D00B58B0B /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA41FAE1ADAFE3D00B58B0B /* FutureKit.framework */; };
 		0DA41FC11ADAFE3D00B58B0B /* FutureKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FC01ADAFE3D00B58B0B /* FutureKitTests.swift */; };
@@ -26,6 +42,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0D533D641ADF530700FDF101 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0D533D571ADF530700FDF101;
+			remoteInfo = FutureKitOsx;
+		};
 		0DA41FBB1ADAFE3D00B58B0B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
@@ -36,6 +59,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0D533D581ADF530700FDF101 /* FutureKitOsx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKitOsx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D533D5B1ADF530700FDF101 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0D533D5C1ADF530700FDF101 /* FutureKitOsx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FutureKitOsx.h; sourceTree = "<group>"; };
+		0D533D621ADF530700FDF101 /* FutureKitOsxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FutureKitOsxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D533D681ADF530700FDF101 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0D533D691ADF530700FDF101 /* FutureKitOsxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureKitOsxTests.swift; sourceTree = "<group>"; };
 		0DA41FAE1ADAFE3D00B58B0B /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DA41FB21ADAFE3D00B58B0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DA41FB31ADAFE3D00B58B0B /* FutureKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FutureKit.h; sourceTree = "<group>"; };
@@ -58,6 +87,21 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0D533D541ADF530700FDF101 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0D533D5F1ADF530700FDF101 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D533D631ADF530700FDF101 /* FutureKitOsx.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DA41FAA1ADAFE3D00B58B0B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -76,11 +120,47 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0D533D591ADF530700FDF101 /* FutureKitOsx */ = {
+			isa = PBXGroup;
+			children = (
+				0D533D5C1ADF530700FDF101 /* FutureKitOsx.h */,
+				0D533D5A1ADF530700FDF101 /* Supporting Files */,
+			);
+			path = FutureKitOsx;
+			sourceTree = "<group>";
+		};
+		0D533D5A1ADF530700FDF101 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0D533D5B1ADF530700FDF101 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0D533D661ADF530700FDF101 /* FutureKitOsxTests */ = {
+			isa = PBXGroup;
+			children = (
+				0D533D691ADF530700FDF101 /* FutureKitOsxTests.swift */,
+				0D533D671ADF530700FDF101 /* Supporting Files */,
+			);
+			path = FutureKitOsxTests;
+			sourceTree = "<group>";
+		};
+		0D533D671ADF530700FDF101 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0D533D681ADF530700FDF101 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,
 				0DA41FBD1ADAFE3D00B58B0B /* FutureKitTests */,
+				0D533D591ADF530700FDF101 /* FutureKitOsx */,
+				0D533D661ADF530700FDF101 /* FutureKitOsxTests */,
 				0DA41FAF1ADAFE3D00B58B0B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +170,8 @@
 			children = (
 				0DA41FAE1ADAFE3D00B58B0B /* FutureKit.framework */,
 				0DA41FB91ADAFE3D00B58B0B /* FutureKitTests.xctest */,
+				0D533D581ADF530700FDF101 /* FutureKitOsx.framework */,
+				0D533D621ADF530700FDF101 /* FutureKitOsxTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -144,6 +226,15 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		0D533D551ADF530700FDF101 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D533D5D1ADF530700FDF101 /* FutureKitOsx.h in Headers */,
+				0D533D741ADF532700FDF101 /* ObjectiveCExceptionHandler.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DA41FAB1ADAFE3D00B58B0B /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -156,6 +247,42 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0D533D571ADF530700FDF101 /* FutureKitOsx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0D533D6B1ADF530700FDF101 /* Build configuration list for PBXNativeTarget "FutureKitOsx" */;
+			buildPhases = (
+				0D533D531ADF530700FDF101 /* Sources */,
+				0D533D541ADF530700FDF101 /* Frameworks */,
+				0D533D551ADF530700FDF101 /* Headers */,
+				0D533D561ADF530700FDF101 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FutureKitOsx;
+			productName = FutureKitOsx;
+			productReference = 0D533D581ADF530700FDF101 /* FutureKitOsx.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		0D533D611ADF530700FDF101 /* FutureKitOsxTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0D533D6E1ADF530700FDF101 /* Build configuration list for PBXNativeTarget "FutureKitOsxTests" */;
+			buildPhases = (
+				0D533D5E1ADF530700FDF101 /* Sources */,
+				0D533D5F1ADF530700FDF101 /* Frameworks */,
+				0D533D601ADF530700FDF101 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0D533D651ADF530700FDF101 /* PBXTargetDependency */,
+			);
+			name = FutureKitOsxTests;
+			productName = FutureKitOsxTests;
+			productReference = 0D533D621ADF530700FDF101 /* FutureKitOsxTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		0DA41FAD1ADAFE3D00B58B0B /* FutureKit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0DA41FC41ADAFE3D00B58B0B /* Build configuration list for PBXNativeTarget "FutureKit" */;
@@ -201,6 +328,12 @@
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
+					0D533D571ADF530700FDF101 = {
+						CreatedOnToolsVersion = 6.3;
+					};
+					0D533D611ADF530700FDF101 = {
+						CreatedOnToolsVersion = 6.3;
+					};
 					0DA41FAD1ADAFE3D00B58B0B = {
 						CreatedOnToolsVersion = 6.3;
 					};
@@ -223,11 +356,27 @@
 			targets = (
 				0DA41FAD1ADAFE3D00B58B0B /* FutureKit */,
 				0DA41FB81ADAFE3D00B58B0B /* FutureKitTests */,
+				0D533D571ADF530700FDF101 /* FutureKitOsx */,
+				0D533D611ADF530700FDF101 /* FutureKitOsxTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0D533D561ADF530700FDF101 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0D533D601ADF530700FDF101 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DA41FAC1ADAFE3D00B58B0B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -245,6 +394,33 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0D533D531ADF530700FDF101 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D533D7C1ADF532700FDF101 /* ExtensionVars.swift in Sources */,
+				0D533D711ADF532700FDF101 /* Future.swift in Sources */,
+				0D533D731ADF532700FDF101 /* Executor.swift in Sources */,
+				0D533D771ADF532700FDF101 /* OSAtomicInt.swift in Sources */,
+				0D533D761ADF532700FDF101 /* Synchronization.swift in Sources */,
+				0D533D751ADF532700FDF101 /* ObjectiveCExceptionHandler.m in Sources */,
+				0D533D7D1ADF532700FDF101 /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0D533D721ADF532700FDF101 /* Promise.swift in Sources */,
+				0D533D7A1ADF532700FDF101 /* FutureWait.swift in Sources */,
+				0D533D7B1ADF532700FDF101 /* FTask.swift in Sources */,
+				0D533D781ADF532700FDF101 /* Common.swift in Sources */,
+				0D533D791ADF532700FDF101 /* FutureSequences.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0D533D5E1ADF530700FDF101 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D533D6A1ADF530700FDF101 /* FutureKitOsxTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DA41FA91ADAFE3D00B58B0B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -275,6 +451,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0D533D651ADF530700FDF101 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0D533D571ADF530700FDF101 /* FutureKitOsx */;
+			targetProxy = 0D533D641ADF530700FDF101 /* PBXContainerItemProxy */;
+		};
 		0DA41FBC1ADAFE3D00B58B0B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0DA41FAD1ADAFE3D00B58B0B /* FutureKit */;
@@ -283,6 +464,86 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0D533D6C1ADF530700FDF101 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = FutureKitOsx/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		0D533D6D1ADF530700FDF101 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = FutureKitOsx/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		0D533D6F1ADF530700FDF101 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = FutureKitOsxTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0D533D701ADF530700FDF101 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = FutureKitOsxTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		0DA41FC21ADAFE3D00B58B0B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -438,6 +699,22 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0D533D6B1ADF530700FDF101 /* Build configuration list for PBXNativeTarget "FutureKitOsx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D533D6C1ADF530700FDF101 /* Debug */,
+				0D533D6D1ADF530700FDF101 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		0D533D6E1ADF530700FDF101 /* Build configuration list for PBXNativeTarget "FutureKitOsxTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D533D6F1ADF530700FDF101 /* Debug */,
+				0D533D701ADF530700FDF101 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		0DA41FA81ADAFE3D00B58B0B /* Build configuration list for PBXProject "FutureKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

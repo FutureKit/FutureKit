@@ -6,8 +6,9 @@
 //  Copyright (c) 2014 FlybyMedia. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
+#if os(iOS)
 // UI
 let IS_SMALLSCREEN = ( UIScreen.mainScreen().bounds.size.height < 568.0)
 let SCREEN_WIDTH = UIScreen.mainScreen().bounds.size.width
@@ -40,7 +41,8 @@ func SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(version: String) -> Bool {
         options: NSStringCompareOptions.NumericSearch) != NSComparisonResult.OrderedDescending
 }
 
-
+#endif
+    
 // Enums
 func LocalizedString(key: String) -> String {
     return NSLocalizedString(key, comment: key)

@@ -32,14 +32,26 @@ public class Promise<T>  {
     public final func completeWithFail(e : NSError) {
         self.future.completeWith(.Fail(e))
     }
+    public final func completeWithFail(errorMessage : String) {
+        self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
+    }
     public final func completeWithException(e : NSException) {
         self.future.completeWith(Completion<T>(exception: e))
     }
     public final func completeWithCancel() {
-        self.future.completeWith(.Cancelled)
+        self.future.completeWith(.Cancelled(()))
+    }
+    public final func completeWithCancel(token:Any?) {
+        self.future.completeWith(.Cancelled(token))
     }
     public final func continueWithFuture(f : Future<T>) {
         self.future.completeWith(.ContinueWith(f))
+    }
+    
+    public var isCompleted : Bool {
+        get {
+            return self.future.isCompleted
+        }
     }
     
     

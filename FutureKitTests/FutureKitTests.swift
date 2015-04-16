@@ -59,7 +59,7 @@ func divideAndConquer(x: Int, y: Int,iterationsDesired : Int) -> Future<Int> // 
         
         let all = sequenceFutures(subFutures)
         
-        all.onSuccessResult({ (result) -> Void in
+        all.onSuccess({ (result) -> Void in
             var sum = 0
             for i in result {
                 sum += i

@@ -37,7 +37,7 @@ private func sequenceCompletionsWithLocks<T>(array : [Future<T>]) -> Future<[Com
         var total = OSAtomicInt32(Int32(array.count))
         let lock = NSObject()
         
-        var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled)
+        var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled(()))
         
         for (index, future) in enumerate(array) {
             future.onComplete({ (completion: Completion<T>) -> Void in
@@ -71,7 +71,7 @@ private func sequenceCompletionsWithRecursion<T>(array : [Future<T>]) -> Future<
         var firstFutures = array
         firstFutures.removeLast()
         
-        return FutureKit.sequenceCompletionsWithRecursion(firstFutures).onSuccessResult({ (resultsFromFirstFutures : [Completion<T>]) -> Future<[Completion<T>]> in
+        return sequenceCompletionsWithRecursion(firstFutures).onSuccess({ (resultsFromFirstFutures : [Completion<T>]) -> Future<[Completion<T>]> in
             return lastFuture.onComplete { (lastCompletionValue : Completion<T>) -> [Completion<T>] in
                 var allTheResults = resultsFromFirstFutures
                 allTheResults.append(lastCompletionValue)
@@ -85,7 +85,7 @@ private func sequenceCompletionsWithRecursion<T>(array : [Future<T>]) -> Future<
 // should we use locks or recursion?
 // After a lot of thinking, I think it's probably identical performance
 public func sequenceCompletions<T>(array : [Future<T>]) -> Future<[Completion<T>]> {
-    return FutureKit.sequenceCompletionsWithLocks(array)
+    return sequenceCompletionsWithLocks(array)
 }
 
 
@@ -109,10 +109,10 @@ public func sequenceFutures<T>(array : [Future<T>]) -> Future<[T]> {
     
     let f = sequenceCompletions(array)
     
-    return f.onSuccessResult { (completions:[Completion<T>]) -> Completion<[T]> in
+    return f.onSuccess { (completions:[Completion<T>]) -> Completion<[T]> in
         var results = [T]()
         var errors = [NSError]()
-        var cancellations = 0
+        var cancellations = [Any?]()
         
         for completion in completions {
             switch completion.state {
@@ -120,8 +120,8 @@ public func sequenceFutures<T>(array : [Future<T>]) -> Future<[T]> {
                 results.append(completion.result)
             case let .Fail:
                 errors.append(completion.error)
-            case .Cancelled:
-                cancellations++
+            case let .Cancelled(token):
+                cancellations.append(token)
             }
         }
         if (errors.count > 0) {
@@ -132,8 +132,8 @@ public func sequenceFutures<T>(array : [Future<T>]) -> Future<[T]> {
                 return .Fail(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
             }
         }
-        if (cancellations > 0) {
-            return .Cancelled
+        if (cancellations.count > 0) {
+            return .Cancelled(cancellations)
         }
         return .Success(results)
     }
@@ -174,11 +174,5 @@ public func sequenceTask(array : [FutureProtocol]) -> Future<AnyObject?> {
     }
 }
 
-
-public func toFutureAnyObjectXXX<T : AnyObject>(f : Future<T>) -> Future<AnyObject> {
-    return f.onSuccessResult { tval -> AnyObject in
-        return tval
-    }
-}
 
 

@@ -12,7 +12,7 @@ import CoreData
 
 public class FTaskCompletion : NSObject {
     
-    typealias rtype = FTask.resultType
+    public typealias rtype = FTask.resultType
     
     var completion : Completion<rtype>
  
@@ -26,8 +26,8 @@ public class FTaskCompletion : NSObject {
     init(success : rtype) {
         self.completion = .Success(success)
     }
-    init(cancelled : Void) {
-        self.completion = .Cancelled
+    init(cancelled : Any?) {
+        self.completion = .Cancelled(cancelled)
     }
     init (fail : NSError) {
         self.completion = .Fail(fail)
@@ -53,32 +53,37 @@ public class FTaskCompletion : NSObject {
 
 public class FTaskPromise : NSObject {
     
-    typealias rtype = FTask.resultType
+    public override init() {
+        super.init()
+    }
+    
+    public typealias rtype = FTask.resultType
     
     var promise =  Promise<rtype>()
     
-    final func complete(completion c: FTaskCompletion) {
-        self.promise.complete(c.completion)
+    public var ftask : FTask {
+        get {
+            return FTask(self.promise.future)
+        }
     }
-
-    final func completeWithBlockCompletion(completion c: FTaskCompletion) {
-        self.promise.complete(c.completion)
-    }
-
     
-    final func completeWithSuccess(result : rtype) {
+    public final func complete(completion c: FTaskCompletion) {
+        self.promise.complete(c.completion)
+    }
+
+    public final func completeWithSuccess(result : rtype) {
         self.promise.completeWithSuccess(result)
     }
-    final func completeWithFail(e : NSError) {
+    public final func completeWithFail(e : NSError) {
         self.promise.completeWithFail(e)
     }
-    final func completeWithException(e : NSException) {
+    public final func completeWithException(e : NSException) {
         self.promise.completeWithException(e)
     }
-    final func completeWithCancel() {
+    public final func completeWithCancel() {
         self.promise.completeWithCancel()
     }
-    final func continueWithFuture(f : FTask) {
+    public final func continueWithFuture(f : FTask) {
         self.promise.continueWithFuture(f.future)
     }
     
@@ -89,13 +94,27 @@ public class FTaskPromise : NSObject {
         return self.promise.syncComplete(c.completion)
     }
     
-    typealias completionErrorHandler = Promise<rtype>.completionErrorHandler
+    public typealias completionErrorHandler = Promise<rtype>.completionErrorHandler
 
     // execute a block if the completion "fails" because the future is already completed.
-    final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: completionErrorHandler) {
+    public final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: completionErrorHandler) {
         self.promise.complete(c.completion, onCompletionError: errorBlock)
     }
+    
+}
 
+extension FTaskPromise : Printable, DebugPrintable {
+    
+    public override var description: String {
+        return "FTaskPromise!"
+    }
+    public override var debugDescription: String {
+        return "FTaskPromise! - \(self.promise.future.debugDescription)"
+    }
+    
+    public func debugQuickLookObject() -> AnyObject? {
+        return self.debugDescription + "QL"
+    }
     
 }
 

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 FlybyMedia. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 
 

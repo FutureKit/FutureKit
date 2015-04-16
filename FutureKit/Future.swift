@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 FlybyMedia. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 public struct FUTUREKIT_GLOBAL_PARMS {
     // WOULD LOVE TO TURN THESE INTO COMPILE TIME PROPERTIES
@@ -33,14 +33,14 @@ public enum FErrors : Int {
 
 public class FutureNSError : NSError {
 
-    init(genericError : String) {
+    public init(genericError : String) {
         super.init(domain: FErrors.errorDomain, code: FErrors.GenericException.rawValue, userInfo: ["genericError" : genericError])
     }
 
-    init(error : FErrors, userInfo: [NSObject : AnyObject]?) {
+    public init(error : FErrors, userInfo: [NSObject : AnyObject]?) {
         super.init(domain: FErrors.errorDomain, code: error.rawValue, userInfo: userInfo)
     }
-    init(exception: NSException) {
+    public init(exception: NSException) {
         var userInfo : [NSObject : AnyObject]
         if (exception.userInfo != nil) {
             userInfo = exception.userInfo!
@@ -77,7 +77,7 @@ public enum CompletionState : Int {
     case Cancelled
 }
 
-public enum Completion<T> {
+public enum Completion<T> : Printable, DebugPrintable {
     // typealias SuccessPayloadType = T           // PERFECT! - But it CRASHES
     // typealias SuccessPayloadType = T!          // OK.  But it STILL Crashes
     // typealias SuccessPayloadType = _FResult<T>     // Confusing.  But is type safe.
@@ -90,23 +90,8 @@ public enum Completion<T> {
                                             //  In a future version this will probably work, so we are using the SuccessPayloadType alias
                                             //  We are adding a assertion check inside of
     case Fail(NSError)
-    case Cancelled
+    case Cancelled(Any?)
     case ContinueWith(Future<T>)
-    
-/*    public init?(completion : BlockResult<T>)
-    {
-        switch completion {
-        case let .Success(t):
-            self = .Success(t)
-        case let .Fail(f):
-            self = .Fail(f)
-        case .Cancelled:
-            self = .Cancelled
-        case let .ContinueWith(f):
-            assertionFailure("can't convert ContinueWith to FCompletion")
-            return nil
-        }
-    } */
     
     public init(exception ex:NSException) {
         self = .Fail(FutureNSError(exception: ex))
@@ -114,8 +99,8 @@ public enum Completion<T> {
     public init(success : T) {
         self = .Success(success)
     }
-    public init(failWithGenericError : String) {
-        self = .Fail(FutureNSError(genericError: failWithGenericError))
+    public init(failWithErrorMessage : String) {
+        self = .Fail(FutureNSError(genericError: failWithErrorMessage))
     }
     
     public func isSuccess() -> Bool {
@@ -187,8 +172,17 @@ public enum Completion<T> {
         get {
             switch self {
             case let .Fail(e):
-                // if you crash here, it's because the result passsed to the future wasn't of type T!
                 return e
+            default:
+                return nil
+            }
+        }
+    }
+    public var cancelToken:Any? {
+        get {
+            switch self {
+            case let .Cancelled(token):
+                return token
             default:
                 return nil
             }
@@ -202,37 +196,56 @@ public enum Completion<T> {
         return self.convert()
     }
     
-    public func convert<S>() -> Completion<S> {
+    public func convert<_ANewType>() -> Completion<_ANewType> {
         switch self {
         case let .Success(t):
-            let r = t as! S
+            let r = t as! _ANewType
             return .Success(r)
         case let .Fail(f):
             return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
+        case let .Cancelled(reason):
+            return .Cancelled(reason)
         case let .ContinueWith(f):
-            let s : Future<S> = f.convert()
+            let s : Future<_ANewType> = f.convert()
             return .ContinueWith(s)
         }
     }
     
     // warning S should NOT BE OPTIONAL!  Or you are doing it wrong.
-    public func convertOptional<S>() -> Completion<S?> {
+    public func convertOptional<_ANewType>() -> Completion<_ANewType?> {
         switch self {
         case let .Success(t):
-            let r = t as? S
+            let r = t as? _ANewType
             return .Success(r)
         case let .Fail(f):
             return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
+        case let .Cancelled(reason):
+            return .Cancelled(reason)
         case let .ContinueWith(f):
-            let s : Future<S?> = f.convertOptional()
+            let s : Future<_ANewType?> = f.convertOptional()
             return .ContinueWith(s)
         }
     }
-
+    
+    public var description: String {
+        switch self {
+        case let .Success(t):
+            return ".Success(\(t))"
+        case let .Fail(f):
+            return ".Fail(\(f))"
+        case let .Cancelled(reason):
+            return ".Cancelled(\(reason))"
+        case let .ContinueWith(f):
+            return ".ContinueWith(\(f))"
+        }
+    }
+    public var debugDescription: String {
+        return self.description
+    }
+    
+    func debugQuickLookObject() -> AnyObject? {
+        return self.debugDescription
+    }
 }
 
 
@@ -325,7 +338,28 @@ public class Future<T> : FutureProtocol {
         }
     }
     
-    public final var hasCompleted : Bool {
+    public var result : T? {
+        get {
+            return self.completion?.result
+        }
+    }
+    public var error : NSError? {
+        get {
+            return self.completion?.error
+        }
+    }
+    public var cancelToken:Any? {
+        get {
+            return self.completion?.cancelToken
+        }
+    }
+    public var completionState : CompletionState? {
+        get {
+            return self.completion?.state
+        }
+    }
+    
+    public final var isCompleted : Bool {
         get {
             return self.synchObject.readSync { () -> Bool in
                 return (self.__completion != nil)
@@ -347,8 +381,14 @@ public class Future<T> : FutureProtocol {
     public init(failed:NSError) {  // returns an completed Task that has Failed with this error
         self.__completion = .Fail(failed)
     }
+    public init(failWithErrorMessage errorMessage: String) {
+        self.__completion = Completion<T>(failWithErrorMessage:errorMessage)
+    }
     public init(exception:NSException) {  // returns an completed Task that has Failed with this error
         self.__completion = Completion<T>(exception:exception)
+    }
+    public init(cancelled:Any?) {  // returns an completed Task that has Failed with this error
+        self.__completion = .Cancelled(cancelled)
     }
     
     public init(@noescape block :() -> Completion<T>) {
@@ -507,13 +547,13 @@ extension Future {
     }
     
     
-    internal final func createPromiseAndCallback<S>(forBlock: ((Completion<T>)-> Completion<S>)) -> (promise : Promise<S> , completionCallback :completion_block_type) {
+    internal final func createPromiseAndCallback<_ANewType>(forBlock: ((Completion<T>)-> Completion<_ANewType>)) -> (promise : Promise<_ANewType> , completionCallback :completion_block_type) {
         
-        var promise = Promise<S>()
+        var promise = Promise<_ANewType>()
         
         if (FUTUREKIT_GLOBAL_PARMS.WRAP_DEPENDENT_BLOCKS_WITH_OBJC_EXCEPTION_HANDLING) {
             let completionCallback :completion_block_type  = {(comp) -> Void in
-                var blockCompletion : Completion<S>?
+                var blockCompletion : Completion<_ANewType>?
                 ObjectiveCExceptionHandler.Try({ () -> Void in
                     blockCompletion = forBlock(comp)
                     }, catch: { (exception : NSException!) -> Void in
@@ -569,15 +609,15 @@ extension Future {
 
 extension Future {
 
-    public func convert<S>() -> Future<S> {
-        return self.map { (result) -> S in
-            return result as! S
+    public func convert<_ANewType>() -> Future<_ANewType> {
+        return self.map { (result) -> _ANewType in
+            return result as! _ANewType
         }
     }
     
-    public func convertOptional<S>() -> Future<S?> {
-        return self.map { (result) -> S? in
-            return result as? S
+    public func convertOptional<_ANewType>() -> Future<_ANewType?> {
+        return self.map { (result) -> _ANewType? in
+            return result as? _ANewType
         }
     }
     
@@ -596,7 +636,7 @@ extension Future {
     // ---------------------------------------------------------------------------------------------------
 
     // return a Future that can return all Completion Values (Result,Failed,Cancelled,ContiueWith)
-    public final func onCompleteWith<S>(executor : Executor,block:( (completion:Completion<T>)-> Completion<S>)) -> Future<S> {
+    public final func onCompleteWith<_ANewType>(executor : Executor,block:( (completion:Completion<T>)-> Completion<_ANewType>)) -> Future<_ANewType> {
         
         let (promise, completionCallback) = self.createPromiseAndCallback(block)
         
@@ -606,7 +646,7 @@ extension Future {
         return promise.future
     }
 
-    public final func onComplete<S>(block:( (completion:Completion<T>)-> Completion<S>)) -> Future<S> {
+    public final func onComplete<_ANewType>(block:( (completion:Completion<T>)-> Completion<_ANewType>)) -> Future<_ANewType> {
         return self.onCompleteWith(.Primary, block: block)
     }
  
@@ -617,229 +657,231 @@ extension Future {
     // return a Future that can return all Completion Values (.Success,.Fail,.Cancelled,.ContiueWith)
 
     // so this function doesn't work when T == Void. (and itsn't very useful, since result = Void())
-    // you must use onSuccessWith() if you are returning Future<Void>
-    
-    public final func onSuccessResultWith<S>(executor : Executor, _ block:((result:T) -> Completion<S>)) -> Future<S> {
-        return self.onCompleteWith(executor)  { (completion) -> Completion<S> in
+    // you must use onAnySuccessWith() if you are returning Future<Void>
+    public final func onSuccessWith<_ANewType>(executor : Executor, _ block:((result:T) -> Completion<_ANewType>)) -> Future<_ANewType> {
+        return self.onCompleteWith(executor)  { (completion) -> Completion<_ANewType> in
             switch completion.state {
             case .Success:
                 return block(result: completion.result)
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled
+                return .Cancelled(completion.cancelToken)
             }
         }
     }
 
-    public final func onSuccessWith<S>(executor : Executor, block:(() -> Completion<S>)) -> Future<S> {
-        return self.onCompleteWith(executor)  { (completion) -> Completion<S> in
+    // You can use onAnySuccess() with ANY Future (it just throws away the result)
+    // You MUST to use onAnySuccess() if you are using a Future<Void>.   Swift just can't seem to handle
+    // the regular onSuccess() methods with a Void result type. And it will give you a cryptic error.
+    public final func onAnySuccessWith<_ANewType>(executor : Executor, block:(() -> Completion<_ANewType>)) -> Future<_ANewType> {
+        return self.onCompleteWith(executor)  { (completion) -> Completion<_ANewType> in
             switch completion.state {
-            case let .Success:
+            case .Success:
                 return block()
-            case let .Fail:
+            case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled
+                return .Cancelled(completion.cancelToken)
             }
         }
     }
 
-    public final func onSuccessResult<S>(block:((result:T)-> Completion<S>)) -> Future<S> {
-        return self.onSuccessResultWith(.Primary,block)
+    public final func onSuccess<_ANewType>(block:((result:T)-> Completion<_ANewType>)) -> Future<_ANewType> {
+        return self.onSuccessWith(.Primary,block)
     }
 
-    public final func onSuccess<S>(block:(() -> Completion<S>)) -> Future<S> {
-        return self.onSuccessWith(.Primary,block: block)
+    public final func onAnySuccess<_ANewType>(block:(() -> Completion<_ANewType>)) -> Future<_ANewType> {
+        return self.onAnySuccessWith(.Primary,block: block)
     }
 
     
     
     // block only executes if this Future<T> returns .Fail
     // return a Future that can return all Completion Values (Result,Failed,Cancelled,ContiueWith)
-    public final func onFailWith<S>(executor : Executor, _ block:( (error:NSError)-> Completion<S>)) -> Future<S>
+    public final func onFailWith<_ANewType>(executor : Executor, _ block:( (error:NSError)-> Completion<_ANewType>)) -> Future<_ANewType>
     {
-        return self.onCompleteWith(executor) { (completion) -> Completion<S> in
+        return self.onCompleteWith(executor) { (completion) -> Completion<_ANewType> in
             switch completion {
             case let .Fail(e):
                 return block(error: e)
             default:
-                return .Cancelled
+                return .Cancelled("dependent task didn't fail")
             }
         }
     }
-    public final func onFail<S>(block:( (error:NSError)-> Completion<S>)) -> Future<S> {
+    public final func onFail<_ANewType>(block:( (error:NSError)-> Completion<_ANewType>)) -> Future<_ANewType> {
         return self.onFailWith(.Primary,block)
     }
 
     // block only executes if this Future<T> returns .Cancelled
     // return a Future that can return all Completion Values (Result,Failed,Cancelled,ContiueWith)
-    public final func onCancelWith<S>(executor : Executor, _ block:( ()-> Completion<S>)) -> Future<S>
+    public final func onCancelWith<_ANewType>(executor : Executor, _ block:( (Any?)-> Completion<_ANewType>)) -> Future<_ANewType>
     {
-        return self.onCompleteWith(executor) { (completion) -> Completion<S> in
+        return self.onCompleteWith(executor) { (completion) -> Completion<_ANewType> in
             switch completion {
-            case .Cancelled:
-                return block()
+            case let .Cancelled(cancelToken):
+                return block(cancelToken)
             default:
-                return .Cancelled
+                return .Cancelled("dependent task wasn't cancelled")
             }
         }
     }
-    public final func onCancel<S>(block:( ()-> Completion<S>)) -> Future<S> {
+    public final func onCancel<_ANewType>(block:( (Any?)-> Completion<_ANewType>)) -> Future<_ANewType> {
         return self.onCancelWith(.Primary,block)
     }
 
     // ---------------------------------------------------------------------------------------------------
     // Just do this next thing, when this one is done.
     // ---------------------------------------------------------------------------------------------------
-    public final func continueWith<S>(future:Future<S>) -> Future<S> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<S> in
+    public final func continueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
+        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
             return .ContinueWith(future)
         }
     }
-   public  final func OnSuccessContinueWith<S>(future:Future<S>) -> Future<S> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<S> in
+   public  final func OnSuccessContinueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
+        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
             switch completion {
             case let .Success(t):
                 return .ContinueWith(future)
             default:
-                return .Cancelled
+                return completion.convert()
             }
         }
     }
-    public final func OnFailContinueWith<S>(future:Future<S>) -> Future<S> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<S> in
+    public final func OnFailContinueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
+        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
             switch completion {
             case let .Fail(e):
                 return .ContinueWith(future)
             default:
-                return .Cancelled
+                return .Cancelled("dependent task didn't fail")
             }
         }
     }
-    public final func OnCancelContinueWith<S>(future:Future<S>) -> Future<S> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<S> in
+    public final func OnCancelContinueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
+        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
             switch completion {
             case let .Cancelled:
                 return .ContinueWith(future)
             default:
-                return .Cancelled
+                return .Cancelled("dependent task wasn't cancelled")
             }
         }
     }
 
 
     // ---------------------------------------------------------------------------------------------------
-    // THESE GUYS always return a .Success(S)
+    // THESE GUYS always return a new Future<_ANewType> with a completion of .Success(S)
     // ---------------------------------------------------------------------------------------------------
-    public final func onCompleteWith<S>(executor: Executor, _ block:( (completion:Completion<T>)-> S)) -> Future<S> {
-        return self.onCompleteWith(executor) { (c) -> Completion<S> in
+    public final func onCompleteWith<_ANewType>(executor: Executor, _ block:( (completion:Completion<T>)-> _ANewType)) -> Future<_ANewType> {
+        return self.onCompleteWith(executor) { (c) -> Completion<_ANewType> in
             return .Success(block(completion:c))
             }
     }
-    public final func onComplete<S>(block:( (completion:Completion<T>)-> S)) -> Future<S> {
+    public final func onComplete<_ANewType>(block:( (completion:Completion<T>)-> _ANewType)) -> Future<_ANewType> {
         return self.onCompleteWith(.Primary,block)
     }
 
-    public final func onSuccessResultWith<S>(executor : Executor, _ block:(result:T)-> S) -> Future<S> {
-        return self.onSuccessResultWith(executor) { (s : T) -> Completion<S> in
+    public final func onSuccessWith<_ANewType>(executor : Executor, _ block:(result:T)-> _ANewType) -> Future<_ANewType> {
+        return self.onSuccessWith(executor) { (s : T) -> Completion<_ANewType> in
             return .Success(block(result: s))
         }
     }
     
-    public final func onSuccessResult<S>(block:(result:T)-> S) -> Future<S> {
-        return self.onSuccessResultWith(.Primary,block)
+    public final func onSuccess<_ANewType>(block:(result:T)-> _ANewType) -> Future<_ANewType> {
+        return self.onSuccessWith(.Primary,block)
     }
 
     
-    public final func onSuccessWith<S>(executor : Executor, _ block:()-> S) -> Future<S> {
-        return self.onSuccessWith(executor) { () -> Completion<S> in
+    public final func onAnySuccessWith<_ANewType>(executor : Executor, _ block:()-> _ANewType) -> Future<_ANewType> {
+        return self.onAnySuccessWith(executor) { () -> Completion<_ANewType> in
             return .Success(block())
         }
     }
     
-    public final func onSuccess<S>(block:()-> S) -> Future<S> {
-        return self.onSuccessWith(.Primary,block)
+    public final func onAnySuccess<_ANewType>(block:()-> _ANewType) -> Future<_ANewType> {
+        return self.onAnySuccessWith(.Primary,block)
     }
 
     // rather use map?  Sure!
-    public final func mapWith<S>(executor : Executor, block:((success:T)-> S)) -> Future<S> {
-        return self.onSuccessResultWith(executor,block)
+    public final func mapWith<_ANewType>(executor : Executor, block:((result:T)-> _ANewType)) -> Future<_ANewType> {
+        return self.onSuccessWith(executor,block)
     }
-    public final func map<S>(block:(success:T) -> S) -> Future<S> {
-        return self.onSuccessResultWith(.Primary,block)
+    public final func map<_ANewType>(block:(success:T) -> _ANewType) -> Future<_ANewType> {
+        return self.onSuccess(block)
     }
 
     
-    public final func onFailWith<S>(executor : Executor, _ block:((error:NSError)-> S)) -> Future<S> {
-        return self.onFailWith(executor) { (e) -> Completion<S> in
+    public final func onFailWith<_ANewType>(executor : Executor, _ block:((error:NSError)-> _ANewType)) -> Future<_ANewType> {
+        return self.onFailWith(executor) { (e) -> Completion<_ANewType> in
             return .Success(block(error:e))
         }
     }
-    public final func onFail<S>(block:((error:NSError)-> S)) -> Future<S> {
+    public final func onFail<_ANewType>(block:((error:NSError)-> _ANewType)) -> Future<_ANewType> {
         return self.onFailWith(.Primary,block)
     }
     
 
     
-    public final func onCancelWith<S>(executor : Executor, _ block:(()-> S)) -> Future<S> {
-        return self.onCancelWith(executor) { () -> Completion<S> in
-            return .Success(block())
+    public final func onCancelWith<_ANewType>(executor : Executor, _ block:((Any?)-> _ANewType)) -> Future<_ANewType> {
+        return self.onCancelWith(executor) { (a) -> Completion<_ANewType> in
+            return .Success(block(a))
         }
     }
-    public final func onCancel<S>(block:(()-> S)) -> Future<S> {
+    public final func onCancel<_ANewType>(block:((Any?)-> _ANewType)) -> Future<_ANewType> {
         return self.onCancelWith(.Primary,block)
     }
     
     // ---------------------------------------------------------------------------------------------------
-    // THESE GUYS always return a .ContinueWith((Future<S>) ------
+    // THESE GUYS always return a .ContinueWith((Future<_ANewType>) ------
     // ---------------------------------------------------------------------------------------------------
-    public final func onCompleteWith<S>(executor: Executor, _ block:( (completion:Completion<T>)-> Future<S>)) -> Future<S> {
-        return self.onCompleteWith(executor, block: { (c) -> Completion<S> in
+    public final func onCompleteWith<_ANewType>(executor: Executor, _ block:( (completion:Completion<T>)-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onCompleteWith(executor, block: { (c) -> Completion<_ANewType> in
             return .ContinueWith(block(completion:c))
         })
     }
-    public final func onComplete<S>(block:( (conpletion:Completion<T>)-> Future<S>)) -> Future<S> {
+    public final func onComplete<_ANewType>(block:( (conpletion:Completion<T>)-> Future<_ANewType>)) -> Future<_ANewType> {
         return self.onCompleteWith(.Primary,block)
     }
     
 
-    public final func onSuccessResultWith<S>(executor : Executor, _ block:( (result:T)-> Future<S>)) -> Future<S> {
-        return self.onSuccessResultWith(executor) { (s:T) -> Completion<S> in
+    public final func onSuccessWith<_ANewType>(executor : Executor, _ block:( (result:T)-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onSuccessWith(executor) { (s:T) -> Completion<_ANewType> in
             return .ContinueWith(block(result:s))
         }
     }
     
-    public func onSuccessResult<S>(block:( (success:T)-> Future<S>)) -> Future<S> {
-        return self.onSuccessResultWith(.Primary,block)
+    public func onSuccess<_ANewType>(block:( (success:T)-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onSuccessWith(.Primary,block)
     }
 
-    public func onSuccessWith<S>(executor : Executor, _ block:( ()-> Future<S>)) -> Future<S> {
-        return self.onSuccessWith(executor) { () -> Completion<S> in
+    public func onAnySuccessWith<_ANewType>(executor : Executor, _ block:( ()-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onAnySuccessWith(executor) { () -> Completion<_ANewType> in
             return .ContinueWith(block())
         }
     }
-    public final func onSuccess<S>(block:( ()-> Future<S>)) -> Future<S> {
-        return self.onSuccessWith(.Primary,block)
+    public final func onAnySuccess<_ANewType>(block:( ()-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onAnySuccessWith(.Primary,block)
     }
     
     
-    public final func onFailWith<S>(executor : Executor, _ block:( (error:NSError)-> Future<S>)) -> Future<S> {
-        return self.onFailWith(executor) { (e) -> Completion<S> in
+    public final func onFailWith<_ANewType>(executor : Executor, _ block:( (error:NSError)-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onFailWith(executor) { (e) -> Completion<_ANewType> in
             return .ContinueWith(block(error:e))
         }
     }
-    public final func onFail<S>(block:( (error:NSError)-> Future<S>)) -> Future<S> {
+    public final func onFail<_ANewType>(block:( (error:NSError)-> Future<_ANewType>)) -> Future<_ANewType> {
         return self.onFailWith(.Primary,block)
     }
     
     
-    public final func onCancelWith<S>(executor : Executor, _ block:( ()-> Future<S>)) -> Future<S> {
-        return self.onCancelWith(executor) { () -> Completion<S> in
-            return .ContinueWith(block())
+    public final func onCancelWith<_ANewType>(executor : Executor, _ block:( (Any?)-> Future<_ANewType>)) -> Future<_ANewType> {
+        return self.onCancelWith(executor) { (a) -> Completion<_ANewType> in
+            return .ContinueWith(block(a))
         }
     }
-    public final func onCancel<S>(block:( ()-> Future<S>)) -> Future<S> {
+    public final func onCancel<_ANewType>(block:( (Any?)-> Future<_ANewType>)) -> Future<_ANewType> {
         return self.onCancelWith(.Primary,block)
     }
     
@@ -853,6 +895,21 @@ extension Future {
         return self.waitUntilCompleted().result
     }
 
+}
+
+extension Future : Printable, DebugPrintable {
+    
+    public var description: String {
+        return "Future"
+    }
+    public var debugDescription: String {
+        return "Future<\(toString(T.self))> - \(self.__completion)"
+    }
+
+    public func debugQuickLookObject() -> AnyObject? {
+        return self.debugDescription
+    }
+    
 }
 
 
@@ -913,18 +970,13 @@ func convertFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f :
 
 
 public func toFutureAnyObject<T : AnyObject>(f : Future<T>) -> Future<AnyObject> {
-    return f.onSuccessResult { tval -> AnyObject in
-        return tval
-    }
+    return f.convert()
 }
 
 public func toFutureAnyObjectOpt<T : AnyObject>(f : Future<T?>) -> Future<AnyObject?> {
-    return f.onSuccessResult { tval -> AnyObject? in
-        return tval
-    }
+    return f.convertOptional()
 }
 
-typealias legacyTask = Future<AnyObject?>
 
 public extension Future {
     
@@ -1000,7 +1052,7 @@ class classWithMethodsThatReturnFutures {
             case 0:
                 return .Fail(FutureNSError(error: .GenericException, userInfo: nil))
             case 1:
-                return .Cancelled
+                return .Cancelled(())
             default:
                 return .Success(["Hi" : 5])
             }
@@ -1020,32 +1072,32 @@ class classWithMethodsThatReturnFutures {
                 return .Success(Void())
             case let .Fail(e):
                 return .Fail(e)
-            case .Cancelled:
-                return .Cancelled
+            case let .Cancelled(token):
+                return .Cancelled(token)
             default:
                 assertionFailure("This shouldn't happen!")
-                return Completion<Void>(failWithGenericError: "something bad happened")
+                return Completion<Void>(failWithErrorMessage: "something bad happened")
             }
         }
         
         self.iMayFailRandomly().onComplete { (completion) -> Completion<Void> in
             switch completion.state {
-            case let .Success:
+            case .Success:
                 return .Success(Void())
-            case let .Fail:
+            case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled
+                return .Cancelled(completion.cancelToken)
             }
         }
         
         
-        self.iMayFailRandomly().onSuccess { () -> Completion<Int> in
+        self.iMayFailRandomly().onAnySuccess { () -> Completion<Int> in
             return .Success(5)
         }
             
         
-        self.iMayFailRandomly().onSuccessResult { (x) -> Void in
+        self.iMayFailRandomly().onSuccess { (x) -> Void in
             NSLog("\(x)")
         }
         
@@ -1058,7 +1110,7 @@ class classWithMethodsThatReturnFutures {
         
         let p = Promise<Void>()
         
-        f.onSuccessResult { (result) -> Void in
+        f.onSuccess { (result) -> Void in
             dispatch_main_async {
                 p.completeWithSuccess()
             }
@@ -1070,12 +1122,12 @@ class classWithMethodsThatReturnFutures {
     func imGonnaMapAVoidToAnInt() -> Future<Int> {
         
         
-        let f = self.iDontReturnValues().onSuccess { () -> Int in
+        let f = self.iDontReturnValues().onAnySuccess { () -> Int in
             return 5
         }
             
         
-        let g : Future<Int> = f.onSuccessResult({(fffive : Int) -> Float in
+        let g : Future<Int> = f.onSuccess({(fffive : Int) -> Float in
             Float(fffive + 10)
         }).onSuccess { (floatFifteen) ->  Int in
             Int(floatFifteen) + 5
@@ -1084,13 +1136,13 @@ class classWithMethodsThatReturnFutures {
     }
     
     func adding5To5Makes10() -> Future<Int> {
-        return self.imGonnaMapAVoidToAnInt().onSuccessResult { (value) -> Int in
+        return self.imGonnaMapAVoidToAnInt().onSuccess { (value) -> Int in
             return value + 5
         }
     }
 
     func convertNumbersToString() -> Future<String> {
-        return self.imGonnaMapAVoidToAnInt().onSuccessResult { (value) -> String in
+        return self.imGonnaMapAVoidToAnInt().onSuccess { (value) -> String in
             return "\(value)"
         }
     }

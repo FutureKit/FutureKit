@@ -1,4 +1,4 @@
-//: Playground - noun: a place where people can play
+//: FutureKit playground
 
 import Foundation
 #if os(iOS)
@@ -7,7 +7,21 @@ import Foundation
     import FutureKitOsx
 #endif
 import XCPlayground
-// If this seems hard to ready, try enabling Markup.
+
+// Some stuff to make this playground work better in XCode:
+// Cause we are doing lots of Async code, we need this:
+var count = 0
+//: Turn on the Timeline! select View -> Assistant Editor -> Show Assistant Editor (keyboard shortcut: Option + Command + Return).
+func showInTimeLine<T>(identifier: String, value: T, line : Int32 = __LINE__) {
+    Executor.Main.execute {
+        let s = "\(count++):-\(identifier) - lineNo:\(line)"
+        println(s)
+        XCPCaptureValue(s,value)
+    }
+}
+
+
+// ENABLE MARkEUP (if This is hard to read)
 // in XCode, select "Editor"..."Show Rendered Markup"
 
 //: This is a future.
@@ -20,12 +34,16 @@ future5 = Future(success: 5)
 let answer = future5.result!
 // answer is 5
 
+showInTimeLine("answer",answer)
+//:Gonna add these XCPCaptureValue lines so you can see the order of exeuction.  Make sure to turn on the execution timeline.  In XCode Turn on the Assistant Editor (View..Assistant Editor...Show Assistant Editor).
+
 //: Sometimes you can't get an answer.  So instead of 5, we are gonna return a failure.  No number 5 for you.
 let futureFail = Future<Int>(failWithErrorMessage:"I am a failure.  No 5 for you.")
 let failed5result = futureFail.result
 // nil
 let e = futureFail.error
 // NSError
+showInTimeLine("futureFail.error",e)
 
 
 //: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.  Optionally you can send a reason, but it's not required.
@@ -34,6 +52,7 @@ let cancelledResult = cancelledFuture.result
 // nil
 let cancelationToken = cancelledFuture.cancelToken
 // "token!"
+showInTimeLine("cancelledFuture",cancelledFuture)
 
 
 
@@ -55,17 +74,17 @@ let answerAsync2 = asyncFuture5.result
 
 asyncFuture5.onSuccess { (result) -> Void in
     let five = result
-    print(result)
+//    println(result)
 }
 //: Now we have a result!
 //: We can also add handlers for Fail and Cancel:
 futureFail.onFail { (error) -> Void in
     let e = error
-    print(e)
+//    println(e)
 }
 cancelledFuture.onCancel { (token) -> Void in
     let t = token as! String
-    print(t)
+//    println(t)
 }
 
 //: But if you don't want to add 3 handlers, it's more common to just add a single onComplete handler
@@ -74,13 +93,13 @@ asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
     switch completion.state {
     case .Success:
         let five = completion.result
-        print(five)
+        println(five)
     case .Fail:
         let e = completion.error
-        print(e)
+        println(e)
     case .Cancelled:
         let c = completion.cancelToken
-        print(c)
+        println(c)
     }
 }
 
@@ -99,7 +118,7 @@ let namesFuture :Future<[String]> = namesPromise.future
 
 namesFuture.onSuccess { (names : [String]) -> Void in
     for name in names {
-        let greeting = "Happy Future Day \(name)!"
+        let greeting = "Happy Future Day \(name)!\n"
         print(greeting)
     }
 }
@@ -117,7 +136,9 @@ let catPicturePromise = Promise<UIImage>()
 
 let catPictureFuture = catPicturePromise.future
 
+
 //: I need a cat Picture.  I want to see my cats!  So go get me some!  But don't run in the mainQ, cause I'm busy scrolling things and looking at other cats.
+//: Warning - the cat picture never loads when running this as an IOS Playground
 
 dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 
@@ -146,8 +167,42 @@ dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
     })
 
     task.resume()
-    
+
 }
+
+catPictureFuture.onComplete { (completion) -> Void in
+    switch completion.state {
+    case .Success:
+        let i = completion.result
+        showInTimeLine("catPictureFuture:image",i)
+    case .Fail:
+        let e = completion.error
+        showInTimeLine("catPictureFuture:image_error",e)
+    case .Cancelled:
+        showInTimeLine("catPictureFuture:cancelled",completion.cancelToken)
+    }
+}
+
+
+catPictureFuture.onSuccess { (result : UIImage) -> Void in
+    let i = result
+    showInTimeLine("image",i)
+}
+
+
+
+
+
+
+
+// Cleaning up the Playground to let it exit gracefully
+// this lets me NOT have to use XCPSetExecutionShouldContinueIndefinitely.
+// If you much
+var allTheAsyncFuturesInThisPlayGround : [FutureProtocol] =
+        [asyncFuture5,namesFuture,catPictureFuture]
+
+
+sequence(allTheAsyncFuturesInThisPlayGround)._waitUntilCompletedOnMainQueue()
 
 /*
 future5.onSuccessResult { (result:Int) -> Void in
@@ -327,4 +382,7 @@ func testing() {
 }
 */
 
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+
+
+
+

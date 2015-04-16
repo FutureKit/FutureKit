@@ -6,9 +6,13 @@
 //  Copyright (c) 2015 Michael Gray. All rights reserved.
 //
 
-import UIKit
+//import UIKit
 import XCTest
-import FutureKit
+#if os(iOS)
+    import FutureKit
+    #else
+    import FutureKitOsx
+#endif
 
 
 let executor = Executor.createConcurrentQueue(label: "FuturekitTests")
@@ -57,7 +61,7 @@ func divideAndConquer(x: Int, y: Int,iterationsDesired : Int) -> Future<Int> // 
             }
         }
         
-        let all = sequenceFutures(subFutures)
+        let all = FutureBatch<Int>.sequenceFutures(subFutures)
         
         all.onSuccess({ (result) -> Void in
             var sum = 0
@@ -183,8 +187,10 @@ class FutureKitTests: XCTestCase {
         
     }
 
-    func doATestCase(x : Int, y: Int, iterations : Int) {
+    func doATestCase(lockStategy: SynchronizationType, chaining : Bool, x : Int, y: Int, iterations : Int) {
         
+        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = lockStategy
+        FUTUREKIT_GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
         
         let f = divideAndConquer(x,y,iterations)
         
@@ -192,49 +198,65 @@ class FutureKitTests: XCTestCase {
             return (result == (x+y)*iterations)
         }
         
-        self.waitForExpectationsWithTimeout(30.0, handler: nil)
+        self.waitForExpectationsWithTimeout(120.0, handler: nil)
         
     }
     
     let million = 20000
     
     func testMillionWithBarrierConcurrent() {
-        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = .BarrierConcurrent
-        
         self.measureBlock() {
-            self.doATestCase(0, y: 1, iterations: self.million)
+            self.doATestCase(.BarrierConcurrent, chaining: false, x: 0, y: 1, iterations: self.million)
         }
     }
 
-    
-/*    func testMillionWithBarrierSerial() {
-        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = .BarrierSerial
-        
-        self.measureBlock() {
-            self.doATestCase(0, y: 1, iterations: self.million)
-        }
-    } */
-    
     func testMillionWithSerialQueue() {
-        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = .SerialQueue
-        
         self.measureBlock() {
-            self.doATestCase(0, y: 1, iterations: self.million)
+            self.doATestCase(.SerialQueue, chaining: false,x: 0, y: 1, iterations: self.million)
         }
     }
     func testMillionWithNSObjectLock() {
-        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = .NSObjectLock
-        
         self.measureBlock() {
-            self.doATestCase(0, y: 1, iterations: self.million)
+            self.doATestCase(.NSObjectLock, chaining: false,x:0, y: 1, iterations: self.million)
         }
     }
     
     func testMillionWithNSLock() {
-        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = .NSLock
-        
         self.measureBlock() {
-            self.doATestCase(0, y: 1, iterations: self.million)
+            self.doATestCase(.NSLock, chaining: false,x:0, y: 1, iterations: self.million)
+        }
+    }
+    func testMillionWithNSRecursiveLock() {
+        self.measureBlock() {
+            self.doATestCase(.NSRecursiveLock, chaining: false,x:0, y: 1, iterations: self.million)
+        }
+    }
+
+    func testMillionWithBarrierConcurrentChained() {
+        self.measureBlock() {
+            self.doATestCase(.BarrierConcurrent, chaining: true, x: 0, y: 1, iterations: self.million)
+        }
+    }
+    
+    func testMillionWithSerialQueueChained() {
+        self.measureBlock() {
+            self.doATestCase(.SerialQueue, chaining: true,x: 0, y: 1, iterations: self.million)
+        }
+    }
+    func testMillionWithNSObjectLockChained() {
+        self.measureBlock() {
+            self.doATestCase(.NSObjectLock, chaining: true,x:0, y: 1, iterations: self.million)
+        }
+    }
+    
+    func testMillionWithNSLockChained() {
+        self.measureBlock() {
+            self.doATestCase(.NSLock, chaining: true,x:0, y: 1, iterations: self.million)
+        }
+    }
+    func testMillionWithNSRecursiveLockChained() {
+        self.measureBlock() {
+            self.doATestCase(.NSRecursiveLock, chaining: true,x:0, y: 1, iterations: self.million)
         }
     }
 

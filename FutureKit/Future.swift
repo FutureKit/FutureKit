@@ -18,6 +18,7 @@ public struct FUTUREKIT_GLOBAL_PARMS {
     static let STACK_CHECKING_MAX_DEPTH = 20
     
     public static var LOCKING_STRATEGY : SynchronizationType = .NSLock
+    public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
     
 }
 
@@ -314,7 +315,10 @@ public class Future<T> : FutureProtocol {
     private final var __completion : Completion<T>?
     
 //    private final let lock = NSObject()
-    private final let synchObject : SynchronizationProtocol = FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
+    
+    // Warning - reusing this lock for other purposes is dangerous when using LOCKING_STRATEGY.NSLock
+    // don't read or write values Future
+    internal final let synchObject : SynchronizationProtocol = FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
     
     
     // This is a thread-safe property to query the completion of a Future.
@@ -441,7 +445,7 @@ extension Future {
     internal final func completeAndNotify(completion : Completion<T>) {
         assert(completion.isComplete, "You can't complete a Future with ContinueWith!")
         
-        self.synchObject.writeAsync({ () -> [completion_block_type]? in
+        self.synchObject.modifyAsync({ () -> [completion_block_type]? in
             if (self.__completion != nil) {
                 return nil
             }
@@ -463,7 +467,7 @@ extension Future {
     internal final func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
         assert(completion.isComplete, "You can't complete a Future with ContinueWith!")
         
-        self.synchObject.writeAsync({ () -> (cbs:[completion_block_type]?,success:Bool) in
+        self.synchObject.modifyAsync({ () -> (cbs:[completion_block_type]?,success:Bool) in
             if let c = self.__completion {
                 return (nil,false)
             }
@@ -491,7 +495,7 @@ extension Future {
         
         assert(completion.isComplete, "You can't complete a Future with ContinueWith!")
         
-        let tuple = self.synchObject.writeSync { () -> (cbs:[completion_block_type]?,success:Bool) in
+        let tuple = self.synchObject.modifySync { () -> (cbs:[completion_block_type]?,success:Bool) in
             if (self.__completion != nil) {
                 return (nil,false)
             }
@@ -575,7 +579,7 @@ extension Future {
     }
     internal final func runThisCompletionBlockNowOrLater(callback : completion_block_type) {
         
-        self.synchObject.writeAsync({ () -> Completion<T>? in
+        self.synchObject.modifyAsync({ () -> Completion<T>? in
             if let c = self.__completion {
                 return c
             }
@@ -600,7 +604,7 @@ extension Future {
     
     //experiemental.  Probably not a good idea
     func __reset() {
-        return self.synchObject.write {
+        return self.synchObject.modify {
             self.__callbacks = nil
             self.__completion = nil
         }
@@ -888,11 +892,16 @@ extension Future {
     
     public func waitUntilCompleted() -> Completion<T> {
         let s = FutureWaitHandler<T>(waitingOnFuture: self)
-        return s.waitUntilCompleted()
+        return s.waitUntilCompleted(doMainQWarning: true)
     }
     
     public func waitForResult() -> T? {
         return self.waitUntilCompleted().result
+    }
+
+    public func _waitUntilCompletedOnMainQueue() -> Completion<T> {
+        let s = FutureWaitHandler<T>(waitingOnFuture: self)
+        return s.waitUntilCompleted(doMainQWarning: false)
     }
 
 }

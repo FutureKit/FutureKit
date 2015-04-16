@@ -27,13 +27,13 @@ class FutureWaitHandler<T>  {
         }
     }
     
-    final func waitUntilCompleted() -> Completion<T> {
-        if (NSThread.isMainThread()) {
-            warnOperationOnMainThread()
-        }
-        
+    final func waitUntilCompleted(doMainQWarning : Bool = true) -> Completion<T> {
         self.condition.lock()
-        
+        if (doMainQWarning && NSThread.isMainThread()) {
+            if (self.completion == nil) {
+                warnOperationOnMainThread()
+            }
+        }
         while (self.completion == nil) {
             self.condition.wait()
         }

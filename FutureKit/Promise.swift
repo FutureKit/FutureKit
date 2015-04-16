@@ -10,6 +10,14 @@ import Foundation
 
 public class Promise<T>  {
     
+    // Warning - reusing this lock for other purposes is danger when using LOCKING_STRATEGY.NSLock
+    // don't read or write values on the Promise or Future
+    internal var synchObject : SynchronizationProtocol  {
+        get {
+            return future.synchObject
+        }
+    }
+
     public typealias completionErrorHandler = (() -> Void)
     
     public var future =  Future<T>()

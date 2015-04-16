@@ -6,24 +6,50 @@
 //  Copyright (c) 2015 Michael Gray. All rights reserved.
 //
 
-import Foundation
+#if os(iOS)
+    import UIKit
+    #else
+    import Foundation
+#endif
 import CoreData
+
+extension NSQualityOfService {
+    
+    var qos_class : qos_class_t {
+        get {
+            switch self {
+            case UserInteractive:
+                return QOS_CLASS_USER_INTERACTIVE
+            case .UserInitiated:
+                return QOS_CLASS_USER_INITIATED
+            case .Default:
+                return QOS_CLASS_DEFAULT
+            case .Utility:
+                return QOS_CLASS_UTILITY
+            case .Background:
+                return QOS_CLASS_BACKGROUND
+            }
+        }
+    }
+}
 
 public enum Executor {
     case Primary                    // use the default configured executor.  Current set to Immediate.
                                     // There are deep philosphical arguments about Immediate vs Async.
                                     // So whenever we figure out what's better we will set the Primary to that!
     
-    case Immediate                  // Never performs an Async Dispatch, Ok for simple mappings. But use with care!
-                                    // Blocks using the Immediate executor can run in ANY Block
-    
+    case Main                       // will use MainAsync or MainImmediate based on MainStrategy
+
     case Async                      // Always performs an Async Dispatch to some non-main q (usually Default)
+                                    // If you want to put all of these in a custom queue, you can set AsyncStrategy to .Queue(q)
     
+    case Immediate                  // Never performs an Async Dispatch, Ok for simple mappings. But use with care!
+    // Blocks using the Immediate executor can run in ANY Block
+
     case StackCheckingImmediate     // Will try to perform immediate, but does some stack checking.  Safer than Immediate
                                     // But is less efficient.  
                                     // Maybe useful if an Immediate handler is somehow causing stack overflow issues
     
-    case Main                       // will use MainAsync or MainImmediate based on MainStrategy
     
     case MainAsync                  // will always do a dispatch_async to the mainQ
     case MainImmediate              // will try to avoid dispatch_async if already on the MainQ
@@ -66,9 +92,7 @@ public enum Executor {
     public static var MainStrategy = Executor.MainImmediate {
         willSet(newValue) {
             switch newValue {
-            case .MainImmediate:
-                break
-            case .MainAsync:
+            case .MainImmediate, .MainAsync:
                 break
             default:
                 assertionFailure("MainStrategy must be either .MainImmediate or .MainAsync")
@@ -78,14 +102,16 @@ public enum Executor {
     public static var AsyncStrategy = Executor.Default {
         willSet(newValue) {
             switch newValue {
-            case .Main:
-                break
-            case .MainImmediate:
-                break
-            case .MainAsync:
-                break
+            case .Immediate, .StackCheckingImmediate,.MainImmediate:
+                assertionFailure("AsyncStrategy can't be Immediate!")
+            case .Async, .Main, .Primary:
+                assertionFailure("Nope.  Nope. Nope.")
+
+            case .Main,.MainAsync:
+                NSLog("it's probably a bad idea to set .Async to the Main Queue")
+                
             default:
-                assertionFailure("MainStrategy must be either .MainImmediate or .MainAsync")
+                break
             }
         }
     }
@@ -97,12 +123,70 @@ public enum Executor {
     private static let utilityQ         = dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
     private static let backgroundQ      = dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
     
+    init(qos: NSQualityOfService) {
+        switch qos {
+        case .UserInteractive:
+            self = .UserInteractive
+        case .UserInitiated:
+            self = .UserInitiated
+        case .Default:
+            self = .Default
+        case .Utility:
+            self = .Utility
+        case .Background:
+            self = .Background
+        }
+    }
+    
+    init(qos_class: qos_class_t) {
+        switch qos_class.value {
+        case QOS_CLASS_USER_INTERACTIVE.value:
+            self = .UserInteractive
+        case QOS_CLASS_USER_INITIATED.value:
+            self = .UserInitiated
+        case QOS_CLASS_DEFAULT.value:
+            self = .Default
+        case QOS_CLASS_UTILITY.value:
+            self = .Utility
+        case QOS_CLASS_BACKGROUND.value:
+            self = .Background
+        case QOS_CLASS_UNSPECIFIED.value:
+            self = .Default
+        default:
+            assertionFailure("invalid argument \(qos_class)")
+            self = .Default
+        }
+    }
+    init(queue: dispatch_queue_t) {
+        self = .Queue(queue)
+    }
+    init(opqueue: NSOperationQueue) {
+        self = .OperationQueue(opqueue)
+    }
+
     public static func createQueue(label: String?,
         q_attr : dispatch_queue_attr_t,
-        qos : qos_class_t = QOS_CLASS_DEFAULT,
+        qos : NSQualityOfService = .Default,
         relative_priority: Int32 = 0) -> Executor {
             
-            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos, relative_priority)
+            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos.qos_class, relative_priority)
+            let q : dispatch_queue_t
+            if let l = label {
+                q = dispatch_queue_create(l, c_attr)
+            }
+            else {
+                q = dispatch_queue_create(nil, c_attr)
+            }
+            return .Queue(q)
+    }
+    public static func createOperationQueue(label: String?,
+        q_attr : dispatch_queue_attr_t,
+        qos : NSQualityOfService = .Default,
+        relative_priority: Int32 = 0) -> Executor {
+            
+            let oq = NSOperationQueue()
+            
+            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos.qos_class, relative_priority)
             let q : dispatch_queue_t
             if let l = label {
                 q = dispatch_queue_create(l, c_attr)
@@ -113,19 +197,23 @@ public enum Executor {
             return .Queue(q)
     }
     
-    public static func createConcurrentQueue(label : String? = nil,qos : qos_class_t = QOS_CLASS_DEFAULT) -> Executor  {
+    public static func createConcurrentQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
         return self.createQueue(label, q_attr: DISPATCH_QUEUE_CONCURRENT, qos: qos, relative_priority: 0)
     }
     public static func createConcurrentQueue() -> Executor  {
-        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_CONCURRENT, qos: QOS_CLASS_DEFAULT, relative_priority: 0)
+        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_CONCURRENT, qos: .Default, relative_priority: 0)
     }
-    public static func createSerialQueue(label : String? = nil,qos : qos_class_t = QOS_CLASS_DEFAULT) -> Executor  {
+    public static func createSerialQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
         return self.createQueue(label, q_attr: DISPATCH_QUEUE_SERIAL, qos: qos, relative_priority: 0)
     }
     public static func createSerialQueue() -> Executor  {
-        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: QOS_CLASS_DEFAULT, relative_priority: 0)
+        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: .Default, relative_priority: 0)
     }
-    
+
+    public static func createOperationQueue(label : String? = nil) -> Executor  {
+        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: .Default, relative_priority: 0)
+    }
+
     // immediately 'dispatches' and executes a block on an Executor
     // example:
     //

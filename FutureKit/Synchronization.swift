@@ -16,29 +16,33 @@ import Foundation
 // Don't know what sort of synchronization is perfect?
 // try them all!
 // testing different strategys may result in different performances (depending on your implementations)
-protocol SynchronizationProtocol {
+public protocol SynchronizationProtocol {
     init()
     
-    // perform a readonly query of your object and return some value/element T
-    // current thread may block until the read block is done running.
-    func readSync<T>(block:() -> T) -> T
+    // modify your object.  The block() code may run asynchronously, but doesn't return any result
+    func modify(block:() -> Void)
     
-    // perform a readonly query of your object and return some value/element T
-    // results are delieverd async inside the done() block.
-    // the done block could execute inside ANY thread/queue so care should be taken
-    func readAsync<T>(block:() -> T, done : (T) -> Void)
-
-    // modify your object (possible asynchronously)
-    func write(block:() -> Void)
-
-    // modify your container and retrieve a result in the process
-    // done block could execute inside ANY thread/queue so care should be taken
-    // may be slightly faster than writeSync() (for Queue basd synch protocols)
-    func writeAsync<T>(block:() -> T, done : (T) -> Void)
-
+    // modify your shared object and return some value in the process
+    // the "done" block could execute inside ANY thread/queue so care should be taken.
+    // will try NOT to block the current thread (for Barrier/Queue strategies)
+    // Lock strategies may still end up blocking the calling thread.
+    func modifyAsync<_ANewType>(block:() -> _ANewType, done : (_ANewType) -> Void)
+    
     // modify your container and retrieve a result/element to the same calling thread
-    // current thread may block until the writeBlock is done running.
-    func writeSync<T>(block:() -> T) -> T
+    // current thread will block until the modifyBlock is done running.
+    func modifySync<_ANewType>(block:() -> _ANewType) -> _ANewType
+
+    // perform a readonly query of your shared object and return some value/element T
+    // current thread may block until the read block is done running.
+    // do NOT modify your object inside this block
+    func readSync<_ANewType>(block:() -> _ANewType) -> _ANewType
+    
+    // perform a readonly query of your object and return some value/element of type _ANewType.
+    // the results are delivered async inside the done() block.
+    // the done block is NOT protected by the synchronization - do not modify your shared data inside the "done:" block
+    // the done block could execute inside ANY thread/queue so care should be taken
+    // do NOT modify your object inside this block
+    func readAsync<_ANewType>(block:() -> _ANewType, done : (_ANewType) -> Void)
 
 }
 
@@ -48,6 +52,7 @@ public enum SynchronizationType {
     case SerialQueue
     case NSObjectLock
     case NSLock
+    case NSRecursiveLock
     
     func lockObject() -> SynchronizationProtocol {
         switch self {
@@ -61,6 +66,8 @@ public enum SynchronizationType {
             return NSObjectLockSynchronization()
         case NSLock:
             return NSLockSynchronization()
+        case NSRecursiveLock:
+            return NSRecursiveLockSynchronization()
         }
     }
 }
@@ -97,7 +104,7 @@ class DispatchQueuePool {
     
     func getQueue() -> dispatch_queue_t {
         if (DispatchQueuePoolIsActive) {
-            let queue = self.syncObject.writeSync { () -> dispatch_queue_t? in
+            let queue = self.syncObject.modifySync { () -> dispatch_queue_t? in
                 if let q = self.queues.last {
                     self.queues.removeLast()
                     return q
@@ -115,13 +122,13 @@ class DispatchQueuePool {
     
     func recycleQueue(q: dispatch_queue_t) {
         if (DispatchQueuePoolIsActive) {
-            self.syncObject.write { () -> Void in
+            self.syncObject.modify { () -> Void in
                 self.queues.append(q)
             }
         }
     }
     func flushQueue(keepCapacity : Bool = false) {
-        self.syncObject.write { () -> Void in
+        self.syncObject.modify { () -> Void in
             self.queues.removeAll(keepCapacity: keepCapacity)
         }
         
@@ -154,7 +161,7 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
     }
 
     
-    func readSync<T>(block:() -> T) -> T {
+    public func readSync<T>(block:() -> T) -> T {
         var ret : T?
         dispatch_sync(self.q) {
             ret = block()
@@ -162,23 +169,23 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
         return ret!
     }
     
-    func readAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
         dispatch_async(self.q) {
             done(block())
         }
     }
     
-    func write(block:() -> Void) {
+    public func modify(block:() -> Void) {
         dispatch_barrier_async(self.q,block)
     }
     
-    func writeAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
         dispatch_barrier_async(self.q) {
             done(block())
         }
     }
     
-    func writeSync<T>(block:() -> T) -> T {
+    public func modifySync<T>(block:() -> T) -> T {
         var ret : T?
         dispatch_barrier_sync(self.q) {
             ret = block()
@@ -201,7 +208,7 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
         self.q = dispatch_queue_create("QueueSynchronization", c_attr)
     }
     
-    func readSync<T>(block:() -> T) -> T {
+    public func readSync<T>(block:() -> T) -> T {
         var ret : T?
         dispatch_sync(self.q) {
             ret = block()
@@ -209,23 +216,23 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
         return ret!
     }
     
-    func readAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
         dispatch_async(self.q) {
             done(block())
         }
     }
     
-    func write(block:() -> Void) {
+    public func modify(block:() -> Void) {
         dispatch_async(self.q,block)
     }
     
-    func writeAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
         dispatch_async(self.q) {
             done(block())
         }
     }
     
-    func writeSync<T>(block:() -> T) -> T {
+    public func modifySync<T>(block:() -> T) -> T {
         var ret : T?
         dispatch_sync(self.q) {
             ret = block()
@@ -234,8 +241,6 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
     }
     
 }
-
-
 
 class NSObjectLockSynchronization : SynchronizationProtocol {
 
@@ -265,15 +270,15 @@ class NSObjectLockSynchronization : SynchronizationProtocol {
         done(ret)
     }
 
-    func write(block:() -> Void) {
+    func modify(block:() -> Void) {
         self.synchronized(block)
     }
 
-    func writeSync<T>(block:() -> T) -> T {
+    func modifySync<T>(block:() -> T) -> T {
         return self.synchronized(block)
     }
     
-    func writeAsync<T>(block:() -> T, done : (T) -> Void) {
+    func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
         let ret = self.synchronized(block)
         done(ret)
     }
@@ -286,91 +291,128 @@ func synchronizedWithLock<T>(l: NSLocking, @noescape closure:  ()->T) -> T {
     return retVal
 }
 
-class NSLockSynchronization : SynchronizationProtocol {
+public class NSLockSynchronization : SynchronizationProtocol {
     
     var lock = NSLock()
     
-    required init() {
+    required public init() {
     }
     
-    func synchronized<T>(block:() -> T) -> T {
+    final func synchronized<T>(block:() -> T) -> T {
         return synchronizedWithLock(self.lock) { () -> T in
             return block()
         }
     }
     
-    func readSync<T>(block:() -> T) -> T {
+    public func readSync<T>(block:() -> T) -> T {
         return synchronizedWithLock(lock,block)
     }
     
-    func readAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
         let ret = synchronizedWithLock(lock,block)
         done(ret)
     }
     
-    func write(block:() -> Void) {
+    public func modify(block:() -> Void) {
         synchronizedWithLock(lock,block)
     }
     
-    func writeSync<T>(block:() -> T) -> T {
+    public func modifySync<T>(block:() -> T) -> T {
         return synchronizedWithLock(lock,block)
     }
     
-    func writeAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithLock(lock,block)
+        done(ret)
+    }
+}
+
+public class NSRecursiveLockSynchronization : SynchronizationProtocol {
+    
+    var lock = NSRecursiveLock()
+    
+    required public init() {
+    }
+    
+    final func synchronized<T>(block:() -> T) -> T {
+        return synchronizedWithLock(self.lock) { () -> T in
+            return block()
+        }
+    }
+    
+    public func readSync<T>(block:() -> T) -> T {
+        return synchronizedWithLock(lock,block)
+    }
+    
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithLock(lock,block)
+        done(ret)
+    }
+    
+    public func modify(block:() -> Void) {
+        synchronizedWithLock(lock,block)
+    }
+    
+    public func modifySync<T>(block:() -> T) -> T {
+        return synchronizedWithLock(lock,block)
+    }
+    
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
         let ret = synchronizedWithLock(lock,block)
         done(ret)
     }
 }
 
 
+
 // wraps your synch strategy into a Future
 // increases 'composability'
 // warning: Future has it's own lockObject (usually NSLock)
-class SynchronizationObject<P : SynchronizationProtocol> {
+public class SynchronizationObject<P : SynchronizationProtocol> {
     
     let sync : P
     let defaultExecutor : Executor // used to execute 'done' blocks for async lookups
     
-    init(_ p : P) {
+    public init(_ p : P) {
         self.sync = p
         self.defaultExecutor = Executor.Immediate
     }
     
-    init(_ p : P, _ executor : Executor) {
+    public init(_ p : P, _ executor : Executor) {
         self.sync = p
         self.defaultExecutor = executor
     }
     
-    func readSync<T>(block:() -> T) -> T {
+    public func readSync<T>(block:() -> T) -> T {
         return self.sync.readSync(block)
     }
     
-    func readAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
         return self.sync.readAsync(block,done: done)
     }
     
-    func write(block:() -> Void) {
-        self.sync.write(block)
+    public func modify(block:() -> Void) {
+        self.sync.modify(block)
     }
     
-    func writeSync<T>(block:() -> T) -> T {
-        return self.sync.writeSync(block)
+    public func modifySync<T>(block:() -> T) -> T {
+        return self.sync.modifySync(block)
     }
     
-    func writeAsync<T>(block:() -> T, done : (T) -> Void) {
-        return self.sync.writeAsync(block,done: done)
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+        return self.sync.modifyAsync(block,done: done)
     }
 
     
-    func write<T>(future b:() -> T) -> Future<T> {
-        return self.write(b, executor: self.defaultExecutor)
+    public func modify<T>(future b:() -> T) -> Future<T> {
+        return self.modify(b, executor: self.defaultExecutor)
     }
     
-    func read<T>(future b:() -> T) -> Future<T> {
+    public func read<T>(future b:() -> T) -> Future<T> {
         return self.read(b, executor: self.defaultExecutor)
     }
     
-    func read<T>(block:() -> T, executor : Executor) -> Future<T> {
+    public func read<T>(block:() -> T, executor : Executor) -> Future<T> {
         let p = Promise<T>()
         
         self.sync.readAsync({ () -> T in
@@ -381,9 +423,9 @@ class SynchronizationObject<P : SynchronizationProtocol> {
         
         return p.future
     }
-    func write<T>(block:() -> T, executor : Executor) -> Future<T> {
+    public func modify<T>(block:() -> T, executor : Executor) -> Future<T> {
         let p = Promise<T>()
-        self.sync.writeAsync({ () -> T in
+        self.sync.modifyAsync({ () -> T in
             return block()
         }, done: { (t) -> Void in
             p.completeWithSuccess(t)
@@ -420,7 +462,7 @@ class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProto
             }
         }
         set(newValue) {
-            self.syncObject.writeSync {
+            self.syncObject.modifySync {
                 self.collection[key] = newValue
             }
         }
@@ -477,7 +519,7 @@ class DictionaryAccessControl<Key : Hashable, Value, S: SynchronizationProtocol>
             }
         }
         set(newValue) {
-            self.syncObject.writeSync {
+            self.syncObject.modifySync {
                 self.dictionary[key] = newValue
             }
         }
@@ -534,25 +576,25 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
     }
     
     func append(newElement: T) {
-        self.syncObject.write {
+        self.syncObject.modify {
             self.collection.append(newElement)
         }
     }
     
     func removeLast() -> T {
-        return self.syncObject.writeSync {
+        return self.syncObject.modifySync {
             self.collection.removeLast()
         }
     }
     
     func insert(newElement: T, atIndex i: Int) {
-        self.syncObject.write {
+        self.syncObject.modify {
             self.collection.insert(newElement,atIndex: i)
         }
     }
     
     func removeAtIndex(index: Int) -> T {
-        return self.syncObject.writeSync {
+        return self.syncObject.modifySync {
             self.collection.removeAtIndex(index)
         }
     }

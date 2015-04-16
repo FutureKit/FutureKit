@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D197DEB1AE01D4500EA55DA /* FutureKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FC01ADAFE3D00B58B0B /* FutureKitTests.swift */; };
 		0D533D5D1ADF530700FDF101 /* FutureKitOsx.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D533D5C1ADF530700FDF101 /* FutureKitOsx.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0D533D631ADF530700FDF101 /* FutureKitOsx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D533D581ADF530700FDF101 /* FutureKitOsx.framework */; };
 		0D533D6A1ADF530700FDF101 /* FutureKitOsxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D533D691ADF530700FDF101 /* FutureKitOsxTests.swift */; };
@@ -18,7 +19,7 @@
 		0D533D761ADF532700FDF101 /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */; };
 		0D533D771ADF532700FDF101 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */; };
 		0D533D781ADF532700FDF101 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCD1ADAFE5A00B58B0B /* Common.swift */; };
-		0D533D791ADF532700FDF101 /* FutureSequences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureSequences.swift */; };
+		0D533D791ADF532700FDF101 /* FutureBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */; };
 		0D533D7A1ADF532700FDF101 /* FutureWait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* FutureWait.swift */; };
 		0D533D7B1ADF532700FDF101 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */; };
 		0D533D7C1ADF532700FDF101 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */; };
@@ -38,7 +39,7 @@
 		0DA41FE31ADB483C00B58B0B /* FutureWait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* FutureWait.swift */; };
 		0DE3AD6E1ADCB55C000345AD /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6D1ADCB55C000345AD /* Executor.swift */; };
 		0DE3AD701ADCBBF8000345AD /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
-		0DE3AD721ADCBCBA000345AD /* FutureSequences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureSequences.swift */; };
+		0DE3AD721ADCBCBA000345AD /* FutureBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,7 +84,7 @@
 		0DA41FE21ADB483C00B58B0B /* FutureWait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureWait.swift; sourceTree = "<group>"; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
-		0DE3AD711ADCBCBA000345AD /* FutureSequences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureSequences.swift; sourceTree = "<group>"; };
+		0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureBatch.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,7 +188,7 @@
 				0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */,
 				0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */,
 				0DA41FCD1ADAFE5A00B58B0B /* Common.swift */,
-				0DE3AD711ADCBCBA000345AD /* FutureSequences.swift */,
+				0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */,
 				0DA41FE21ADB483C00B58B0B /* FutureWait.swift */,
 				0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */,
 				0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */,
@@ -409,7 +410,7 @@
 				0D533D7A1ADF532700FDF101 /* FutureWait.swift in Sources */,
 				0D533D7B1ADF532700FDF101 /* FTask.swift in Sources */,
 				0D533D781ADF532700FDF101 /* Common.swift in Sources */,
-				0D533D791ADF532700FDF101 /* FutureSequences.swift in Sources */,
+				0D533D791ADF532700FDF101 /* FutureBatch.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -418,6 +419,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D533D6A1ADF530700FDF101 /* FutureKitOsxTests.swift in Sources */,
+				0D197DEB1AE01D4500EA55DA /* FutureKitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,7 +427,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DE3AD721ADCBCBA000345AD /* FutureSequences.swift in Sources */,
+				0DE3AD721ADCBCBA000345AD /* FutureBatch.swift in Sources */,
 				0DE3AD6E1ADCB55C000345AD /* Executor.swift in Sources */,
 				0DA41FD41ADAFE5A00B58B0B /* OSAtomicInt.swift in Sources */,
 				0DA41FD81ADAFE5A00B58B0B /* ExtensionVars.swift in Sources */,
@@ -485,6 +487,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Debug;
 		};
@@ -504,6 +507,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Release;
 		};
@@ -647,6 +651,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Debug;
 		};
@@ -663,6 +668,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Release;
 		};
@@ -706,6 +712,7 @@
 				0D533D6D1ADF530700FDF101 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0D533D6E1ADF530700FDF101 /* Build configuration list for PBXNativeTarget "FutureKitOsxTests" */ = {
 			isa = XCConfigurationList;
@@ -714,6 +721,7 @@
 				0D533D701ADF530700FDF101 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DA41FA81ADAFE3D00B58B0B /* Build configuration list for PBXProject "FutureKit" */ = {
 			isa = XCConfigurationList;

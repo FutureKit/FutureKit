@@ -13,9 +13,10 @@
 #endif
 import CoreData
 
-extension NSQualityOfService {
+
+public extension NSQualityOfService {
     
-    var qos_class : qos_class_t {
+    public var qos_class : qos_class_t {
         get {
             switch self {
             case UserInteractive:
@@ -31,6 +32,42 @@ extension NSQualityOfService {
             }
         }
     }
+}
+
+
+private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> ((T) -> Void) {
+    
+    let newblock = { (t:T) -> Void in
+        dispatch_async(q) {
+            block(t)
+        }
+    }
+    return newblock
+}
+
+private func make_dispatch_block<T>(q: NSOperationQueue, block: (T) -> Void) -> ((T) -> Void) {
+    
+    let newblock = { (t:T) -> Void in
+        q.addOperationWithBlock({ () -> Void in
+            block(t)
+        })
+    }
+    return newblock
+}
+
+public enum SerialOrConcurrent: Int {
+    case Serial
+    case Concurrent
+    
+    public var q_attr : dispatch_queue_attr_t {
+        switch self {
+        case .Serial:
+            return DISPATCH_QUEUE_SERIAL
+        case .Concurrent:
+            return DISPATCH_QUEUE_CONCURRENT
+        }
+    }
+    
 }
 
 public enum Executor {
@@ -84,32 +121,34 @@ public enum Executor {
             switch newValue {
             case .Primary:
                 assertionFailure("Nope.  Nope. Nope.")
+            case .Main,.MainAsync,MainImmediate:
+                NSLog("it's probably a bad idea to set .Primary to the Main Queue. You have been warned")
             default:
                 break
             }
         }
     }
-    public static var MainStrategy = Executor.MainImmediate {
+    public static var MainExecutor = Executor.MainImmediate {
         willSet(newValue) {
             switch newValue {
-            case .MainImmediate, .MainAsync:
+            case .MainImmediate, .MainAsync, .Custom:
                 break
             default:
                 assertionFailure("MainStrategy must be either .MainImmediate or .MainAsync")
             }
         }
     }
-    public static var AsyncStrategy = Executor.Default {
+    public static var AsyncExecutor = Executor.Default {
         willSet(newValue) {
             switch newValue {
             case .Immediate, .StackCheckingImmediate,.MainImmediate:
                 assertionFailure("AsyncStrategy can't be Immediate!")
             case .Async, .Main, .Primary:
                 assertionFailure("Nope.  Nope. Nope.")
-
             case .Main,.MainAsync:
-                NSLog("it's probably a bad idea to set .Async to the Main Queue")
-                
+                NSLog("it's probably a bad idea to set .Async to the Main Queue. You have been warned")
+            case let .Queue(q):
+                assert(q != dispatch_get_main_queue(), "Async is not for the mainq")
             default:
                 break
             }
@@ -165,11 +204,12 @@ public enum Executor {
     }
 
     public static func createQueue(label: String?,
-        q_attr : dispatch_queue_attr_t,
+        type : SerialOrConcurrent,
         qos : NSQualityOfService = .Default,
         relative_priority: Int32 = 0) -> Executor {
-            
-            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos.qos_class, relative_priority)
+            let qos_class = qos.qos_class
+            let q_attr = type.q_attr
+            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             let q : dispatch_queue_t
             if let l = label {
                 q = dispatch_queue_create(l, c_attr)
@@ -180,13 +220,16 @@ public enum Executor {
             return .Queue(q)
     }
     public static func createOperationQueue(label: String?,
-        q_attr : dispatch_queue_attr_t,
+        type : SerialOrConcurrent,
         qos : NSQualityOfService = .Default,
         relative_priority: Int32 = 0) -> Executor {
             
             let oq = NSOperationQueue()
             
-            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos.qos_class, relative_priority)
+            let qos_class = qos.qos_class
+            let q_attr = type.q_attr
+            
+            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             let q : dispatch_queue_t
             if let l = label {
                 q = dispatch_queue_create(l, c_attr)
@@ -198,21 +241,21 @@ public enum Executor {
     }
     
     public static func createConcurrentQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
-        return self.createQueue(label, q_attr: DISPATCH_QUEUE_CONCURRENT, qos: qos, relative_priority: 0)
+        return self.createQueue(label, type: .Concurrent, qos: qos, relative_priority: 0)
     }
     public static func createConcurrentQueue() -> Executor  {
-        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_CONCURRENT, qos: .Default, relative_priority: 0)
+        return self.createQueue(nil, type: .Concurrent, qos: .Default, relative_priority: 0)
     }
     public static func createSerialQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
-        return self.createQueue(label, q_attr: DISPATCH_QUEUE_SERIAL, qos: qos, relative_priority: 0)
+        return self.createQueue(label, type: .Serial, qos: qos, relative_priority: 0)
     }
     public static func createSerialQueue() -> Executor  {
-        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: .Default, relative_priority: 0)
+        return self.createQueue(nil, type: .Serial, qos: .Default, relative_priority: 0)
     }
 
-    public static func createOperationQueue(label : String? = nil) -> Executor  {
-        return self.createQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: .Default, relative_priority: 0)
-    }
+//    public static func createOperationQueue(label : String? = nil) -> Executor  {
+//        return self.createOperationQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: .Default, relative_priority: 0)
+//    }
 
     // immediately 'dispatches' and executes a block on an Executor
     // example:
@@ -234,9 +277,9 @@ public enum Executor {
         case .Primary:
             return Executor.PrimaryExecutor.callbackBlockFor(block)
         case .Main:
-            return Executor.MainStrategy.callbackBlockFor(block)
+            return Executor.MainExecutor.callbackBlockFor(block)
         case .Async:
-            return Executor.AsyncStrategy.callbackBlockFor(block)
+            return Executor.AsyncExecutor.callbackBlockFor(block)
             
         case .MainImmediate:
             let newblock = { (t:T) -> Void in
@@ -272,7 +315,7 @@ public enum Executor {
             
         case let .ManagedObjectContext(context):
             if (context.concurrencyType == .MainQueueConcurrencyType) {
-                return Executor.MainStrategy.callbackBlockFor(block)
+                return Executor.MainExecutor.callbackBlockFor(block)
             }
             else {
                 let newblock = { (t:T) -> Void in

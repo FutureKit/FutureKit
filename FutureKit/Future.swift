@@ -272,26 +272,6 @@ public enum Completion<T> : Printable, DebugPrintable {
     }
 } */
 
-func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> ((T) -> Void) {
-    
-    let newblock = { (t:T) -> Void in
-        dispatch_async(q) {
-            block(t)
-        }
-    }
-    return newblock
-}
-
-func make_dispatch_block<T>(q: NSOperationQueue, block: (T) -> Void) -> ((T) -> Void) {
-    
-    let newblock = { (t:T) -> Void in
-        q.addOperationWithBlock({ () -> Void in
-            block(t)
-        })
-    }
-    return newblock
-}
-
 
 
 

@@ -14,20 +14,77 @@ import Foundation
 //
 // ---------------------------------------------------------------------------------------------------
 
-public class FutureBatch<T> {
-    
-    var subFutures  = [Future<T>]()
-    var completions = [Completion<T>]()
-    var future : Future<[Completion<T>]>
-    
-    private final let synchObject : SynchronizationProtocol = FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
+public typealias FutureBatch = FutureBatchOf<Any>
 
-    init(f : [Future<T>]) {
+public class FutureBatchOf<T> {
+    
+    public var subFutures  = [Future<T>]()
+
+    // this future always succeeds.  Returns an array of the individual Future.Completion values
+    // for each subFuture.  use future to access
+    public var completionsFuture : Future<[Completion<T>]>
+    
+    // this future succeeds iff all subFutues succeed.
+    public lazy var future : Future<[T]> = FutureBatchOf.checkAllCompletionsSucceeded(self.completionsFuture)
+    
+    internal final let synchObject : SynchronizationProtocol = FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
+
+    public init(f : [Future<T>]) {
         self.subFutures = f
-        self.future = FutureBatch.sequenceCompletions(f)
-        
+        self.completionsFuture = FutureBatchOf.futureWithSubFutures(f)
     }
     
+    public convenience init(futures : [AnyObject]) {
+        let f : [Future<T>] = FutureBatch.convertArray(futures)
+        self.init(f:f)
+    }
+    
+    public convenience init(array : NSArray) {
+        let f : [Future<T>] = FutureBatch.convertArray(array as [AnyObject])
+        self.init(f:f)
+    }
+    
+    func append(f : Future<T>) -> Future<[T]> {
+        self.subFutures.append(f)
+        self.completionsFuture = self.completionsFuture.onSuccess { (var completions) -> Future<[Completion<T>]> in
+            return f.onComplete { (c) -> [Completion<T>] in
+                completions.append(c)
+                return completions
+            }
+        }
+        self.future = self.future.onSuccess({ (var results) -> Future<[T]> in
+            return f.onSuccess { (result) -> [T] in
+                results.append(result)
+                return results
+            }
+        })
+        return self.future
+    }
+    
+    func append(f : AnyObject) -> Future<[T]> {
+        let future : Future<[T]> = (f as! FutureProtocol).convert()
+        return self.append(future)
+    }
+    
+    public class func convertArray<S>(array:[Future<T>]) -> [Future<S>] {
+        var futures = [Future<S>]()
+        for a in array {
+            futures.append(a.convert())
+        }
+        return futures
+        
+    }
+    public class func convertArray<S>(array:[AnyObject]) -> [Future<S>] {
+        
+        var futures = [Future<S>]()
+        for a in array {
+            let f = a as! FutureProtocol
+            futures.append(f.convert())
+        }
+        return futures
+        
+    }
+
     // this always 'succeeds' once all Futures have finished
     // each individual future in the array may succeed or fail
     // you have to check the result of the array individually if you care
@@ -89,9 +146,13 @@ public class FutureBatch<T> {
         }
     }
 
+    public class func futureWithSubFuturesAndSuccessChecks<T>(array : [Future<T>]) -> Future<[T]> {
+        return checkAllCompletionsSucceeded(futureWithSubFutures(array))
+    }
+
     // should we use locks or recursion?
     // After a lot of thinking, I think it's probably identical performance
-    public class func sequenceCompletions<T>(array : [Future<T>]) -> Future<[Completion<T>]> {
+    public class func futureWithSubFutures<T>(array : [Future<T>]) -> Future<[Completion<T>]> {
         if (FUTUREKIT_GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING) {
             return sequenceCompletionsByChaining(array)
         }
@@ -100,26 +161,57 @@ public class FutureBatch<T> {
         }
     }
 
-
-    // this is the same as above, but is less type safe (everything is converted to Any)
-    // this is useful if you have an array of Futures with mixed types
-    public class func sequenceCompletionsOfAny(array : [FutureProtocol]) -> Future<[Completion<Any>]> {
-        
-        var futures = [Future<Any>]()
-        for a in array {
-            futures.append(a.asFutureAny())
-        }
-        return sequenceCompletions(futures)
-    }
-
-
-
     // will fail if any Future in the array fails.
     // .Success means they all succeeded.
     // the result is an array of each Future's result
-    public class func sequenceFutures<T>(array : [Future<T>]) -> Future<[T]> {
+    
+
+/*    public class func checkRollup<T>(f:Future<([T],[NSError],[Any?])>) -> Future<[T]> {
         
-        let f = sequenceCompletions(array)
+        let ret = f.onSuccess { (rollup) -> Completion<[T]> in
+            
+            let (results,errors,cancellations) = rollup
+
+            if (errors.count > 0) {
+                if (errors.count == 1) {
+                    return .Fail(errors.first!)
+                }
+                else  {
+                    return .Fail(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
+                }
+            }
+            if (cancellations.count > 0) {
+                return .Cancelled(cancellations)
+            }
+            return .Success(results)
+        }
+        
+    }
+
+    
+    public class func rollupCompletions<T>(f : Future<[Completion<T>]>) -> Future<([T],[NSError],[Any?])> {
+        
+        return f.map { (completions:[Completion<T>]) -> ([T],[NSError],[Any?]) in
+            var results = [T]()
+            var errors = [NSError]()
+            var cancellations = [Any?]()
+            
+            for completion in completions {
+                switch completion.state {
+                case let .Success:
+                    results.append(completion.result)
+                case let .Fail:
+                    errors.append(completion.error)
+                case let .Cancelled(token):
+                    cancellations.append(token)
+                }
+            }
+            return (results,errors,cancellations)
+        }
+    } */
+
+    
+    public class func checkAllCompletionsSucceeded<T>(f : Future<[Completion<T>]>) -> Future<[T]> {
         
         return f.onSuccess { (completions:[Completion<T>]) -> Completion<[T]> in
             var results = [T]()
@@ -151,6 +243,7 @@ public class FutureBatch<T> {
         }
         
     }
+    
 
 /*    class func toTask<T : AnyObject>(future : Future<T>) -> Task {
 return future.onSuccess({ (success) -> AnyObject? in
@@ -158,33 +251,6 @@ return success
 })
 } */
 
-
-    // this is the same as above, but is less type safe (everything is converted to Any)
-    // this is useful if you have an array of Futures with mixed types
-    public class func sequenceAnyFutures(array : [FutureProtocol]) -> Future<[Any]> {
-        
-        var futures = [Future<Any>]()
-        for a in array {
-            futures.append(a.asFutureAny())
-        }
-        return sequenceFutures(futures)
-    }
-    // Takes a sequence of Futures and turns them into a single future
-    public class func sequence(array : [FutureProtocol]) -> Future<Void> {
-        
-        return sequenceAnyFutures(array).convert()
-    }
-    public class func sequenceOptionals(array : [FutureProtocol?]) -> Future<Void> {
-        
-        return sequence(unwindArrayOfOptionals(array))
-    }
-
-    public class func sequenceTask(array : [FutureProtocol]) -> Future<AnyObject?> {
-        
-        return sequenceAnyFutures(array).onSuccess { (success) -> AnyObject? in
-            return nil
-        }
-    }
 }
 
 

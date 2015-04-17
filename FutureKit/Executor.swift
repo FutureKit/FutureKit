@@ -269,8 +269,59 @@ public enum Executor {
         executionBlock()
     }
     
+    public func executeAfterDelay(nanosecs : Int64, block b: dispatch_block_t)  {
+        let executionBlock = self.callbackBlockFor(b)
+        let popTime = dispatch_time(DISPATCH_TIME_NOW, nanosecs)
+        let q = self.underlyingQueue ?? Executor.defaultQ
+        dispatch_after(popTime, q, {
+            executionBlock()
+        });
+    }
+    public func executeAfterDelay(secs : NSTimeInterval,block b: dispatch_block_t)  {
+        let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
+        let nanosecs = Int64(nanosecsDouble)
+        self.executeAfterDelay(nanosecs,block: b)
+    }
+
     // This converts a generic block (T) -> Void,
     //
+    var underlyingQueue: dispatch_queue_t? {
+        get {
+            switch self {
+            case .Primary:
+                return Executor.PrimaryExecutor.underlyingQueue
+            case .Main, MainImmediate, MainAsync:
+                return Executor.mainQ
+            case .Async:
+                return Executor.AsyncExecutor.underlyingQueue
+            case UserInteractive:
+                return Executor.userInteractiveQ
+            case UserInitiated:
+                return Executor.userInitiatedQ
+            case Default:
+                return Executor.defaultQ
+            case Utility:
+                return Executor.utilityQ
+            case Background:
+                return Executor.backgroundQ
+            case let .Queue(q):
+                return q
+            case let .OperationQueue(opQueue):
+                return opQueue.underlyingQueue
+            case let .ManagedObjectContext(context):
+                if (context.concurrencyType == .MainQueueConcurrencyType) {
+                    return Executor.mainQ
+                }
+                else {
+                    return nil
+                }
+            default:
+                return nil
+            }
+        }
+    }
+    
+    
     public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {
         
         switch self {

@@ -61,9 +61,10 @@ func divideAndConquer(x: Int, y: Int,iterationsDesired : Int) -> Future<Int> // 
             }
         }
         
-        let all = FutureBatch<Int>.sequenceFutures(subFutures)
+        let batch = FutureBatchOf<Int>(f: subFutures)
+        let f = batch.future
         
-        all.onSuccess({ (result) -> Void in
+        f.onSuccess({ (result) -> Void in
             var sum = 0
             for i in result {
                 sum += i

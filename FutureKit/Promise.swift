@@ -23,7 +23,22 @@ public class Promise<T>  {
     public var future =  Future<T>()
     
     public init() {
-        
+    }
+    
+    public init(automaticallyFailAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
+        Executor.Default.executeAfterDelay(automaticallyFailAfter) { () -> Void in
+            self.failIfNotCompleted("Promise created on \(file):line\(line) timed out")
+        }
+    }
+    public init(automaticallyAssertAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
+        Executor.Default.executeAfterDelay(automaticallyAssertAfter) { () -> Void in
+            if (!self.isCompleted) {
+                let message = "Promise created on \(file):line\(line) timed out"
+                if (self.failIfNotCompleted(message)) {
+                    assertionFailure(message)
+                }
+            }
+        }
     }
     
     public final func complete(completion : Completion<T>) {
@@ -56,6 +71,19 @@ public class Promise<T>  {
         self.future.completeWith(.ContinueWith(f))
     }
     
+    public final func failIfNotCompleted(e : NSError) -> Bool {
+        if (!self.isCompleted) {
+            return self.future.completeWithSync(.Fail(e))
+        }
+        return false
+    }
+    public final func failIfNotCompleted(errorMessage : String) -> Bool {
+        if (!self.isCompleted) {
+            return self.future.completeWithSync(Completion<T>(failWithErrorMessage: errorMessage))
+        }
+        return false
+    }
+
     public var isCompleted : Bool {
         get {
             return self.future.isCompleted

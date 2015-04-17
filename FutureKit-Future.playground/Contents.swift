@@ -171,6 +171,7 @@ func getCoolCatPic(url: NSURL) -> Future<NSImage> {
         }
     })
     task.resume()
+    
     // return the promise's future.
     return catPicturePromise.future
 }
@@ -193,5 +194,68 @@ getCoolCatPic(catUrl).onCompleteWith(.Main) { (completion) -> Void in
     }
 }
 //: what is onCompleteWith(.Main)?  This means we want to run this completion block inside the Main queue.  We have to do that, cause we are gonna mess with views (XCPShowView must run the main queue).
+
+
+//: # Futures are composable.
+
+//: adding a block handler to a Future via onComplete/onSuccess doesn't just give you a way to get a result from a future.  It's also a way to create a new Future.
+
+let stringFuture = Future<String>(success: "5")
+
+let intOptFuture : Future<Int?>
+intOptFuture  = stringFuture.onSuccess { (stringResult) -> Int? in
+    return stringResult.toInt()
+}
+intOptFuture.onSuccess { (intResult : Int?) -> Void in
+    let i = intResult
+    print("\(i!)")
+}
+
+//: Knowing this we can "chain" futures together to make a complex set of dependencies...
+
+
+stringFuture.onSuccess { (stringResult:String) -> Int in
+        return stringResult.toInt()!
+    }.onSuccess { (intResult:Int) -> [Int] in
+        let i = intResult
+        return [i]
+    }
+    .onSuccess { (arrayResult : [Int]) -> Void in
+        let a = arrayResult
+        print("got an array: \(arrayResult)")
+    }
+
+//: You can see how we can use the result of the first future, to generate the result of the second, etc.
+//: This is such a common and powerful feature of futures there is an alternate version of the same command called 'map'.  The generic signature of map looks like:
+//: 'func map<S>((T) -> S) -> Future<S>'
+
+let futureInt = stringFuture.map { (stringResult) -> Int in
+                                        stringResult.toInt()!
+                                    }
+
+//: futureOptInt will automatically be inferred as Future<Int>.
+//:  when "chaining" futures together via onSuccess (or map), Failures and Cancellations will automatically be 'forwarded' to any dependent tasks.   So if the first future returns Fail, than all of the dependent futures will automatically fail.
+
+//: #Completion
+//: Sometimes you want to create a dependent Future but conditionally decide inside the block whether the dependent block should Succeed or Fail, etc.   For this we have use a handler block with a different generic signature:
+
+//: 'func onComplete<S>((Completion<T>) -> Completion<S>) -> Future<S>'
+//:  Don't worry if that seems hard to understand.  It's actually pretty straightforward.
+
+//: A Completion is a enumeration that is used to 'complete' a future.  A Future has a var
+//: `var completion : Completion<T>?`
+//: this var stores the completion value of the Future.  Note that it's optional.  That's because a Future may not be 'completed' yet.  When it's in an uncompleted state, it's completion var will be nil.  
+
+//: If you examine the contents of a completed Future<T>, you will find a Completion<T> enumeration that must be one of the 3 possible values: .Success(Any), .Fail(NSError), .Cancel(Any?)
+
+let anotherFuture5 = Future(success: 5)
+let completionOf5 = anotherFuture5.completion!
+assert(completionOf5.isSuccess() == true)
+assert(completionOf5.result == 5)
+
+
+
+
+
 
 

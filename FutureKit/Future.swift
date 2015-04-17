@@ -72,6 +72,10 @@ class _FResult<T> {
 
 // this doesn't include ContinueWith intentionally!
 // Tasks must complete in one these states
+
+/**
+    Defines a simple enumeration of the legal Completion states of a Future.
+*/
 public enum CompletionState : Int {
     case Success
     case Fail
@@ -189,6 +193,16 @@ public enum Completion<T> : Printable, DebugPrintable {
             }
         }
     }
+    public var continueWithFuture:Future<T>? {
+        get {
+            switch self {
+            case let .ContinueWith(f):
+                return f
+            default:
+                return nil
+            }
+        }
+    }
     
     public func asVoid() -> Completion<Void> {
         return self.convert()
@@ -248,31 +262,6 @@ public enum Completion<T> : Printable, DebugPrintable {
         return self.debugDescription
     }
 }
-
-
-/* public enum BlockResult<T> {
-    
-    case Success(Any)  // must be the same as FCompletion<T>.
-    case Fail(NSError)
-    case Cancelled
-    case ContinueWith(Future<T>)
-    
-    init(_ completion : Completion<T>) {
-        switch completion {
-        case let .Success(t):
-            self = .Success(t)
-        case let .Fail(f):
-            self = .Fail(f)
-        case .Cancelled:
-            self = .Cancelled
-        }
-    }
-    init(exception ex:NSException) {
-        self = .Fail(FutureNSError(exception: ex))
-    }
-} */
-
-
 
 
 public protocol FutureProtocol {
@@ -779,7 +768,7 @@ extension Future {
     public final func mapWith<_ANewType>(executor : Executor, block:(result:T)-> _ANewType) -> Future<_ANewType> {
         return self.onSuccessWith(executor,block)
     }
-    public final func map<_ANewType>(block:(success:T) -> _ANewType) -> Future<_ANewType> {
+    public final func map<_ANewType>(block:(result:T) -> _ANewType) -> Future<_ANewType> {
         return self.onSuccess(block)
     }
 
@@ -823,7 +812,7 @@ extension Future {
         }
     }
     
-    public func onSuccess<_ANewType>(block:(success:T)-> Future<_ANewType>) -> Future<_ANewType> {
+    public func onSuccess<_ANewType>(block:(result:T)-> Future<_ANewType>) -> Future<_ANewType> {
         return self.onSuccessWith(.Primary,block)
     }
 

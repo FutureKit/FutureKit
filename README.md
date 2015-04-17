@@ -37,9 +37,11 @@ FutureKit is 100% Swift and uses Swift Generics heavily to ensure you methods ar
 FutureKit uses simpler handler methods (onComplete/onSuccess/onFail etc). 
 FutureKit is still highly composable, since any existing Future<T> can be 'mapped' to a new Future<S>.
 
-# Documentation - 
+# Documentation 
 
 FutureKit documentation is being written as XCode Playgrounds.  The best way to start is to open the FutureKit.workspace and then opening the Playgrounds inside.  (If you open the Playgrounds outside of the workspace, then FutureKit module may not import correctly).
+The XCode Playgrounds probably require XCode 6.3 (in order to see the Markup correcty)
+
 
 
 

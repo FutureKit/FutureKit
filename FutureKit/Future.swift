@@ -70,42 +70,86 @@ class _FResult<T> {
     }
 }
 
-// this doesn't include ContinueWith intentionally!
-// Tasks must complete in one these states
 
 /**
     Defines a simple enumeration of the legal Completion states of a Future.
+
+    - Success: The Future has completed Succesfully.
+    - Fail: The Future has failed.
+    - Cancelled:  The Future was cancelled. This is typically not seen as an error.
+
+    The enumeration is Objective-C Friendly
 */
 public enum CompletionState : Int {
     case Success
     case Fail
     case Cancelled
+    // this doesn't include ContinueWith intentionally!
+    // Tasks must complete in one these states
+
 }
 
+/**
+Defines a an enumeration that stores both the state and the data associated with a Future completion.
+
+- Success(Any): The Future completed Succesfully with a Result
+
+- Fail(NSError): The Future has failed with an NSError.
+
+- Cancelled(Any?):  The Future was cancelled. The cancellation can optionally include a token.
+
+- ContinueWith(Future<T>):  This Future will be completed with the result of a "sub" Future. Only used by block handlers.
+*/
 public enum Completion<T> : Printable, DebugPrintable {
-    // typealias SuccessPayloadType = T           // PERFECT! - But it CRASHES
-    // typealias SuccessPayloadType = T!          // OK.  But it STILL Crashes
-    // typealias SuccessPayloadType = _FResult<T>     // Confusing.  But is type safe.
-    
-    typealias SuccessPayloadType = Any            // Works.  Makes me sad.
+    /**
+        An alias that defines the Type being used for .Success(SuccessType) enumeration.
+        This is currently set to Any, but we may change to 'T' in a future version of swift
+    */
+    public typealias SuccessType = Any              // Works.  Makes me sad.
+    // typealias SuccessPayloadType = T             // PERFECT! - But it CRASHES
+    // typealias SuccessPayloadType = T!            // OK.  But it STILL Crashes
+    // typealias SuccessPayloadType = _FResult<T>   // Confusing.  But is type safe.  Makes the Completion<T> switch
+                                                    //       statements weirder.
 
 
-    case Success(Any)        //  why is this Success(Any) and not Success(T) or Success(T!)??
-                                            //  Because of the evil IR Generation Swift crashiness.
-                                            //  In a future version this will probably work, so we are using the SuccessPayloadType alias
+    /**
+        Future completed with a result of SuccessType
+    */
+    case Success(SuccessType)       //  why is this Success(Any) and not Success(T)
+                                    //  or Success(T!)??
+                                    //  Because of the evil IR Generation Swift crashiness.
+                                    //  In a future version I expect to be able to change this to T or T!
+                                    //  so we are using the SuccessPayloadType alias
                                             //  We are adding a assertion check inside of
+    /**
+        Future failed with error NSError
+    */
     case Fail(NSError)
+    
+    /**
+        Future was Cancelled.  A reason/token can optionally be sent by the canceler
+    */
     case Cancelled(Any?)
+
+    /**
+        This Future's completion will be set by some other Future<T>.  This will only be used as a return value from the onComplete/onSuccess/onFail/onCancel handlers.  the var "completion" on Future should never be set to 'ContinueWith'.
+    */
     case ContinueWith(Future<T>)
     
-    public init(exception ex:NSException) {
-        self = .Fail(FutureNSError(exception: ex))
-    }
-    public init(success : T) {
-        self = .Success(success)
-    }
+    
+    
+    /**
+        returns a .Fail(FutureNSError) with a simple error string message.
+    */
     public init(failWithErrorMessage : String) {
         self = .Fail(FutureNSError(genericError: failWithErrorMessage))
+    }
+    /**
+        converts an NSException into an NSError.
+        useful for generic Objective-C excecptions into a Future
+    */
+    public init(exception ex:NSException) {
+        self = .Fail(FutureNSError(exception: ex))
     }
     
     public func isSuccess() -> Bool {
@@ -132,7 +176,6 @@ public enum Completion<T> : Printable, DebugPrintable {
             return false
         }
     }
-    
     public var isComplete : Bool {
         get {
             switch self {
@@ -144,6 +187,9 @@ public enum Completion<T> : Printable, DebugPrintable {
         }
     }
 
+    /**
+        get the Completion state for a completed state. It's easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .ContinueWith).
+    */
     public var state : CompletionState {
         get {
             switch self {
@@ -160,7 +206,9 @@ public enum Completion<T> : Printable, DebugPrintable {
         }
     }
     
-    // make sure this enum is a Success before calling result
+    /**
+        make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
+    */
     public var result : T! {
         get {
             switch self {
@@ -168,21 +216,28 @@ public enum Completion<T> : Printable, DebugPrintable {
                 // if you crash here, it's because the result passsed to the future wasn't of type T!
                 return (t as! T)
             default:
+                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
             }
         }
     }
-    // make sure this enum is a Fail before calling result
+    /**
+        make sure this enum is a .Fail before calling `result`. Use a switch or check .isSuccess() first.
+    */
     public var error : NSError! {
         get {
             switch self {
             case let .Fail(e):
                 return e
             default:
+                assertionFailure("don't call .error without checking that the enumeration is .Error first.")
                 return nil
             }
         }
     }
+    /**
+        will return a cancelToken iff the enumeration is a .Cancel.  May return nil (if no token was sent).  Can't be used to determine if the enumeration was .Cancel, so use .IsCancel() or use a switch.
+    */
     public var cancelToken:Any? {
         get {
             switch self {
@@ -193,51 +248,88 @@ public enum Completion<T> : Printable, DebugPrintable {
             }
         }
     }
-    public var continueWithFuture:Future<T>? {
+    /**
+    will return a cancelToken iff the enumeration is a .Cancel.  May return nil (if no token was sent).  Can't be used to determine if the enumeration was .Cancel, so use .IsCancel() or use a switch.
+    */
+    public var continueWithFuture:Future<T>! {
         get {
             switch self {
             case let .ContinueWith(f):
                 return f
             default:
+                assertionFailure("don't call .continueWithFuture without checking that the enumeration is .ContinueWith first.")
                 return nil
             }
         }
     }
     
-    public func asVoid() -> Completion<Void> {
-        return self.convert()
+    public func convert() -> Completion<T> {
+        return self
     }
-    public func asAny() -> Completion<Any> {
-        return self.convert()
-    }
+    /**
+        convert this completion of type Completion<T> into another type Completion<S>.
+        
+        may fail to compile if T is not convertable into S using "`as!`"
+        
+        works iff the following code works:
     
-    public func convert<_ANewType>() -> Completion<_ANewType> {
+        'let t : T`
+    
+        'let s = t as! S'
+    
+    
+        - example:
+    
+        `let c : Complete<Int> = .Success(5)`
+    
+        `let c2 : Complete<Int32> =  c.convert()`
+    
+        `assert(c2.result == Int32(5))`
+    
+        you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+    */
+    public func convert<S>() -> Completion<S> {
         switch self {
         case let .Success(t):
-            let r = t as! _ANewType
+            let r = t as! S
             return .Success(r)
         case let .Fail(f):
             return .Fail(f)
         case let .Cancelled(reason):
             return .Cancelled(reason)
         case let .ContinueWith(f):
-            let s : Future<_ANewType> = f.convert()
+            let s : Future<S> = f.convert()
             return .ContinueWith(s)
         }
     }
     
-    // warning S should NOT BE OPTIONAL!  Or you are doing it wrong.
-    public func convertOptional<_ANewType>() -> Completion<_ANewType?> {
+    /**
+    convert this completion of type Completion<T> into another type Completion<S?>.
+    
+    :returns: a new completionValue of type Completion<S?>
+    
+    WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
+    - example:
+    
+    `let c : Complete<String> = .Success("5")`
+    
+    `let c2 : Complete<[Int]?> =  c.convertOptional()`
+    
+    `assert(c2.result == nil)`
+    
+    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+    */
+    public func convertOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
-            let r = t as? _ANewType
+            let r = t as? S
             return .Success(r)
         case let .Fail(f):
             return .Fail(f)
         case let .Cancelled(reason):
             return .Cancelled(reason)
         case let .ContinueWith(f):
-            let s : Future<_ANewType?> = f.convertOptional()
+            let s : Future<S?> = f.convertOptional()
             return .ContinueWith(s)
         }
     }
@@ -247,93 +339,175 @@ public enum Completion<T> : Printable, DebugPrintable {
         case let .Success(t):
             return ".Success(\(t))"
         case let .Fail(f):
-            return ".Fail(\(f))"
+            return ".Fail(\(f.localizedDescription))"
         case let .Cancelled(reason):
             return ".Cancelled(\(reason))"
         case let .ContinueWith(f):
-            return ".ContinueWith(\(f))"
+            return ".ContinueWith(\(f.description))"
         }
     }
     public var debugDescription: String {
         return self.description
     }
     
+    /**
+        This doesn't seem to work yet in the XCode Debugger or Playgrounds.
+        it seems that only NSObjectProtocol objects can use this method.
+        Since this is a Swift Generic, it seems to be ignored.
+        Sigh.
+    */
     func debugQuickLookObject() -> AnyObject? {
         return self.debugDescription
     }
 }
 
 
+/**
+    All Futures use the protocol FutureProtocol
+*/
 public protocol FutureProtocol {
-//    func asFutureAny() -> Future<Any>
-//    func asFutureVoid() -> Future<Void>
-    func convert<_ANewType>() -> Future<_ANewType>
-    func convertOptional<_ANewType>() -> Future<_ANewType?>
+    /**
+    convert this future of type Future<T> into another future type Future<S>.
+    
+    may fail to compile if T is not convertable into S using "`as!`"
+    
+    works iff the following code works:
+    
+    'let t : T`
+    
+    'let s = t as! S'
+    
+    
+    example:
+    
+    `let f = Future<Int>(success:5)`
+    
+    `let f2 : Future<Int32> = f.convert()`
+    
+    `assert(f2.result! == Int32(5))`
+    
+    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
+    
+    the following conversions should always work for any future `f`
+    
+    `let fofany : Future<Any> = f.convert()`
+    
+    `let fofvoid: Future<Void> = f.convert()`
+    */
+    func convert<S>() -> Future<S>
+
+    /**
+    convert Future<T> into another type Future<S?>.
+    
+    WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
+    
+    example:
+    
+    `let f = Future<String>(success:"5")`
+    
+    `let f2 : Future<[Int]?> = f.convertOptional()`
+    
+    `assert(f2.result! == nil)`
+    
+    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
+    */
+func convertOptional<S>() -> Future<S?>
 }
 
 
 public class Future<T>  {
-    public typealias resultType = T
-    typealias resultVoidType = Void
     
-    public typealias completionErrorHandler = Promise<T>.completionErrorHandler
     
-    public typealias completion_block_type = ((Completion<T>) -> Void)
+    internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
+    internal typealias completion_block_type = ((Completion<T>) -> Void)
+    
+    
     private final var __callbacks : [completion_block_type]?
 
-    // we want to "lock" access to _completionValue,
-    // use THREAD_SAFE_SYNC to read or modify. (outside of init()
+    /**
+        this is used as the internal storage for `var completion`
+        it is not thread-safe to read this directly. use `var synchObject`
+    */
     private final var __completion : Completion<T>?
     
 //    private final let lock = NSObject()
     
     // Warning - reusing this lock for other purposes is dangerous when using LOCKING_STRATEGY.NSLock
     // don't read or write values Future
+    /**
+        used to synchronize access to both __completion and __callbacks
+        
+        type of synchronization can be configured via FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY
+    
+        Warning:  If you are thinking of using this object outside of 'completeWith', don't use .NSLock as a strategy AND call 'completeWith' inside of a read or modify block!  you will deadlock.
+    */
     internal final let synchObject : SynchronizationProtocol = FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
     
     
-    // This is a thread-safe property to query the completion of a Future.
-    // In general it's a tiny bit better (performance wise) to set this property via a Promise, or
-    // use a OnComplete/OnSucess handler to get the result than querying this property directly!
+    /**
+        returns: the current completion value of the Future
     
+        accessing this variable directly requires thread synchronization.
+    
+        It is more efficient to examine completion values that are sent to an onComplete/onSuccess handler of a future than to examine it directly here.
+    
+        type of synchronization used can be configured via FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY
+    
+    */
     public final var completion : Completion<T>? {
-        // using a onComplete/onSuccess/onFail handler is more efficient than reading this property directly!
         get {
             return self.synchObject.readSync { () -> Completion<T>? in
                 return self.__completion
             }
         }
-        // calling Promise<T>.setComplete() is more opimal than setting this property
-        set(newCompletion) {
-            if let c = newCompletion {
-                self.completeWith(c, onCompletionError: { () -> Void in
-                    assertionFailure("Cannot set \(newCompletion) on a completed task with existing completion of \(self.completion).")
-                })
-            }
-        }
     }
     
+    /**
+    returns: the result of the Future iff the future has completed successfully.  returns nil otherwise.
+    
+    accessing this variable directly requires thread synchronization.
+    */
     public var result : T? {
         get {
             return self.completion?.result
         }
     }
+    /**
+    returns: the error of the Future iff the future has completed with an Error.  returns nil otherwise.
+    
+    accessing this variable directly requires thread synchronization.
+    */
     public var error : NSError? {
         get {
             return self.completion?.error
         }
     }
+    /**
+    returns: the cancelToken of the Future iff the future has completed with an Cancel and Cancelation has a token.  returns nil otherwise.
+    
+    accessing this variable directly requires thread synchronization.
+    */
     public var cancelToken:Any? {
         get {
             return self.completion?.cancelToken
         }
     }
+    /**
+    returns: the CompletionState of the Future
+    
+    accessing this variable directly requires thread synchronization.
+    */
     public var completionState : CompletionState? {
         get {
             return self.completion?.state
         }
     }
     
+    /**
+    returns: true if the Future has completed with any completion value.
+    
+    accessing this variable directly requires thread synchronization.
+    */
     public final var isCompleted : Bool {
         get {
             return self.synchObject.readSync { () -> Bool in
@@ -343,39 +517,68 @@ public class Future<T>  {
     
     }
     
-    public init() {
+    /**
+    You can't instanciate an incomplete Future directly.  You must use a Promsie, or use an Executor with a block.
+    */
+    internal init() {
     }
-
     
+    /**
+    creates a completed Future.
+    */
     public init(completed:Completion<T>) {  // returns an completed Task
         self.__completion = completed
     }
+    /**
+        creates a completed Future with a completion == .Success(success)
+    */
     public init(success:T) {  // returns an completed Task  with result T
         self.__completion = .Success(success)
     }
+    /**
+    creates a completed Future with a completion == .Error(failed)
+    */
     public init(failed:NSError) {  // returns an completed Task that has Failed with this error
         self.__completion = .Fail(failed)
     }
+    /**
+    creates a completed Future with a completion == .Error(FutureNSError(failWithErrorMessage))
+    */
     public init(failWithErrorMessage errorMessage: String) {
         self.__completion = Completion<T>(failWithErrorMessage:errorMessage)
     }
+    /**
+    creates a completed Future with a completion == .Error(FutureNSError(exception))
+    */
     public init(exception:NSException) {  // returns an completed Task that has Failed with this error
         self.__completion = Completion<T>(exception:exception)
     }
+    /**
+    creates a completed Future with a completion == .Cancelled(cancelled)
+    */
     public init(cancelled:Any?) {  // returns an completed Task that has Failed with this error
         self.__completion = .Cancelled(cancelled)
     }
     
-    public init(@autoclosure block :() -> Completion<T>) {
-        self.__completion = block()
+    /**
+    creates a completed Future with a completion == completion
+    */
+    public init(@autoclosure completion c:() -> Completion<T>) {
+        self.__completion = c()
     }
 
-    public init(@autoclosure block :() -> T) {
-        self.__completion = .Success(block())
+    /**
+    creates a completed Future with a completion == Success(block)
+    */
+    public init(@autoclosure success s:() -> T) {
+        self.__completion = .Success(s())
     }
     
-    // is this a good idea?
-    // it's equivilant to the above, but may be more confusing when you look at it
+    /**
+    Creates a future by executes block inside of an Executor, and when it's complete, sets the completion = .Success(block())
+    
+    can only be used to a create a Future that should always succeed.
+    */
     public init(_ executor : Executor, block: () -> T) {
         let block = executor.callbackBlockFor { () -> Void in
             self.completeWith(.Success(block()))
@@ -383,6 +586,13 @@ public class Future<T>  {
         block()
     }
     
+    /**
+    Creates a future by executes block inside of an Executor, and when it's complete, sets the completion = block()
+    
+    can be used to create a Future that may succeed or fail.  
+    
+    the block can return a value of .ContinueWith(Future<T>) if it wants this Future to complete with the results of another future.
+    */
     public init(_ executor : Executor, block: () -> Completion<T>) {
         let block = executor.callbackBlockFor { () -> Void in
             self.completeWith(block())
@@ -393,8 +603,17 @@ public class Future<T>  {
 
 extension Future {
 
-    // these are marked internal and should really only be called by a Promise<T> object!
-    internal final func completeAndNotify(completion : Completion<T>) {
+    /**
+        will complete the future and cause any registered callback blocks to be executed.
+    
+        may execute asynchronously (depending on configured LOCKING_STRATEGY) and may return to the caller before it is finished executing.
+ 
+        type of synchronization used can be configured via FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY
+    
+        :param: completion the value to complete the Future with
+    
+    */
+    internal func completeAndNotify(completion : Completion<T>) {
         assert(completion.isComplete, "You can't complete a Future with ContinueWith!")
         
         self.synchObject.modifyAsync({ () -> [completion_block_type]? in
@@ -416,7 +635,21 @@ extension Future {
         
     }
 
-    internal final func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
+    /**
+    will complete the future and cause any registered callback blocks to be executed.
+    
+    may execute asynchronously (depending on configured LOCKING_STRATEGY) and may return to the caller before it is finished executing.
+    
+    if the Future has already been completed, the onCompletionError block will be executed.  This block may be running in any queue (depending on the configure synchronization type).
+    
+    type of synchronization used can be configured via FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY
+
+    :param: completion the value to complete the Future with
+    
+    :param: onCompletionError a block to execute if the Future has already been completed.
+
+    */
+    internal func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
         assert(completion.isComplete, "You can't complete a Future with ContinueWith!")
         
         self.synchObject.modifyAsync({ () -> (cbs:[completion_block_type]?,success:Bool) in
@@ -441,9 +674,19 @@ extension Future {
     }
     
     
-    // if you want to verify that competion works synchronously (equivilant to Bolts "trySet" logic)
+    /**
+    will complete the future and cause any registered callback blocks to be executed.
     
-    internal final func completeAndNotifySync(completion : Completion<T>) -> Bool {
+    may block the current thread (depending on configured LOCKING_STRATEGY)
+    
+    type of synchronization used can be configured via FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY
+
+    :param: completion the value to complete the Future with
+    
+    :returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
+
+    */
+    internal func completeAndNotifySync(completion : Completion<T>) -> Bool {
         
         assert(completion.isComplete, "You can't complete a Future with ContinueWith!")
         
@@ -466,7 +709,19 @@ extension Future {
         return tuple.success
     }
 
-    internal final func completeWith(completion : Completion<T>) {
+    /**
+    if completion is of type .ContinueWith(f), than this will register an appropriate callback on f to complete this future iff f completes.
+    
+    otherwise it will complete the future and cause any registered callback blocks to be executed.
+    
+    may execute asynchronously (depending on configured LOCKING_STRATEGY) and may return to the caller before it is finished executing.
+    
+    if the Future has already been completed, this function will do nothing.  No error is generated.
+
+    :param: completion the value to complete the Future with
+
+    */
+    internal func completeWith(completion : Completion<T>) {
         switch (completion) {
         case let .ContinueWith(f):
             f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
@@ -478,9 +733,23 @@ extension Future {
         }
     }
 
-    internal final func completeWithSync(completion : Completion<T>) -> Bool {
+    /**
+    if completion is of type .ContinueWith(f), than this will register an appropriate callback on f to complete this future when f completes.
+    
+    otherwise it will complete the future and cause any registered callback blocks to be executed.
+
+    may block the current thread
+
+    :param: completion the value to complete the Future with
+    
+    :returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
+    */
+    internal func completeWithSync(completion : Completion<T>) -> Bool {
         switch (completion) {
         case let .ContinueWith(f):
+            if (self.isCompleted) {
+                return false
+            }
             f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
                 self.completeWith(nextComp)
             }
@@ -490,26 +759,59 @@ extension Future {
         }
     }
 
-    internal final func completeWith(completion : Completion<T>, onCompletionError errorBlock: completionErrorHandler) {
+    /**
+    if completion is of type .ContinueWith(f), than this will register an appropriate callback on f to complete this future when f completes.
+    
+    otherwise it will complete the future and cause any registered callback blocks to be executed.
+    
+    will execute the block onCompletionError if the Future has already been completed. The onCompletionError block  may execute inside any thread/queue, so care should be taken.
+
+    may execute asynchronously (depending on configured LOCKING_STRATEGY) and may return to the caller before it is finished executing.
+
+    :param: completion the value to complete the Future with
+    
+    :param: onCompletionError a block to execute if the Future has already been completed.
+*/
+    internal func completeWith(completion : Completion<T>, onCompletionError errorBlock: completionErrorHandler) {
         switch (completion) {
         case let .ContinueWith(f):
-            f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
-                self.completeWith(nextComp,onCompletionError: errorBlock)
-                return
-            }
+            self.synchObject.readAsync({ () -> Bool in
+                return (self.__completion != nil)
+            }, done: { (isCompleted) -> Void in
+                if (isCompleted) {
+                    errorBlock()
+                }
+                else {
+                    f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
+                        self.completeWith(nextComp,onCompletionError: errorBlock)
+                        return
+                    }
+                }
+            })
         default:
             return self.completeAndNotify(completion,onCompletionError: errorBlock)
         }
     }
     
     
-    internal final func createPromiseAndCallback<_ANewType>(forBlock: ((Completion<T>)-> Completion<_ANewType>)) -> (promise : Promise<_ANewType> , completionCallback :completion_block_type) {
+    /**
+    
+    takes a user supplied block (usually from func onComplete()) and creates a Promise and a callback block that will complete the promise.
+    
+    can add Objective-C Exception handling if FUTUREKIT_GLOBAL_PARMS.WRAP_DEPENDENT_BLOCKS_WITH_OBJC_EXCEPTION_HANDLING is enabled.
+    
+    :param: forBlock a user supplied block (via onComplete)
+    
+    :returns: a tuple (promise,callbackblock) a new promise and a completion block that can be added to __callbacks
+    
+    */
+    internal func createPromiseAndCallback<S>(forBlock: ((Completion<T>)-> Completion<S>)) -> (promise : Promise<S> , completionCallback :completion_block_type) {
         
-        var promise = Promise<_ANewType>()
+        var promise = Promise<S>()
         
         if (FUTUREKIT_GLOBAL_PARMS.WRAP_DEPENDENT_BLOCKS_WITH_OBJC_EXCEPTION_HANDLING) {
             let completionCallback :completion_block_type  = {(comp) -> Void in
-                var blockCompletion : Completion<_ANewType>?
+                var blockCompletion : Completion<S>?
                 ObjectiveCExceptionHandler.Try({ () -> Void in
                     blockCompletion = forBlock(comp)
                     }, catch: { (exception : NSException!) -> Void in
@@ -529,14 +831,33 @@ extension Future {
         }
         
     }
-    internal final func runThisCompletionBlockNowOrLater(callback : completion_block_type) {
+
+    
+    /**
+    takes a callback block and determines what to do with it based on the Future's current completion state.
+
+    If the Future has already been completed, than the callback block is executed.
+
+    If the Future is incomplete, it adds the callback block to the futures private var __callbacks
+
+    may execute asynchronously (depending on configured LOCKING_STRATEGY) and may return to the caller before it is finished executing.
+   
+    :param: callback a callback block to be run if and when the future is complete
+   */
+    private func runThisCompletionBlockNowOrLater(callback : completion_block_type) {
         
+        // lock my object, and either return the current completion value (if it's set)
+        // or add the block to the __callbacks if not.
         self.synchObject.modifyAsync({ () -> Completion<T>? in
+            
+            // we are done!  return the current completion value.
             if let c = self.__completion {
                 return c
             }
             else
             {
+                // we only allocate an array after getting the first __callbacks.
+                // cause we are hyper sensitive about not allocating extra stuff for temporary transient Futures.
                 switch self.__callbacks {
                 case var .Some(cb):
                     cb.append(callback)
@@ -545,16 +866,19 @@ extension Future {
                 }
                 return nil
             }
-        }, done: { (comp) -> Void in
-            if let c = comp {
-                // Future is already completed.
-                // Run it now!
+        }, done: { (currentCompletionValue) -> Void in
+            // if we got a completion value, than we can execute the callback now.
+            if let c = currentCompletionValue {
                 callback(c)
             }
         })
     }
     
-    //experiemental.  Probably not a good idea
+    /**
+        EXPERIMENTAL.
+        attempts to reset a Future so it can be completed again.
+        probably... not a good idea.
+    */
     func __reset() {
         return self.synchObject.modify {
             self.__callbacks = nil
@@ -565,38 +889,92 @@ extension Future {
 
 extension Future : FutureProtocol {
 
+    /**
+        if we try to convert a future from type T to type T, just ignore the request.
+    
+        the compile should automatically figure out if needs to call convert() or convert<S>()
+    */
     public func convert() -> Future<T> {
         return self
     }
 
-    public func convert<_ANewType>() -> Future<_ANewType> {
-        return self.map { (result) -> _ANewType in
-            return result as! _ANewType
+    /**
+    convert this future of type Future<T> into another future type Future<S>.
+    
+    :returns: a new Future of type Future<S>
+    
+    may fail to execute if T is not convertable into S using "`as!`"
+    
+    works iff the following code works:
+    
+        let t : T
+        let s = t as! S
+    
+    
+    example:
+    
+        let f = Future<Int>(success:5)
+        let f2 : Future<Int32> = f.convert()
+        assert(f2.result! == Int32(5))
+    
+    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
+    
+    the following conversions should always work for any future `f`
+    
+        let fofany : Future<Any> = f.convert()
+        let fofvoid: Future<Void> = f.convert()
+    
+    */
+    public func convert<S>() -> Future<S> {
+        return self.map { (result) -> S in
+            return result as! S
         }
     }
     
-    public func convertOptional<_ANewType>() -> Future<_ANewType?> {
-        return self.map { (result) -> _ANewType? in
-            return result as? _ANewType
-        }
-    }
+    /**
+    convert Future<T> into another type Future<S?>.
     
-    public func asFutureAny() -> Future<Any> {
-        return self.convert()
-    }
-    public func asFutureVoid() -> Future<Void> {
-        return self.convert()
+    WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
+    
+    example:
+    
+    `let f = Future<String>(success:"5")`
+    
+    `let f2 : Future<[Int]?> = f.convertOptional()`
+    
+    `assert(f2.result! == nil)`
+    
+    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
+    
+    :returns: a new Future of type Future<S?>
+
+    */
+    public func convertOptional<S>() -> Future<S?> {
+        return self.map { (result) -> S? in
+            return result as? S
+        }
     }
 }
 
-
+// ---------------------------------------------------------------------------------------------------
+// Block Handlers
+// ---------------------------------------------------------------------------------------------------
 extension Future {
-    // ---------------------------------------------------------------------------------------------------
-    // Block Handlers
-    // ---------------------------------------------------------------------------------------------------
+    
+    /**
+    executes a block using the supplied Executor if and when the target future is completed.  Will execute immediately if the target is already completed.
+    
+    This method will let you examine the completion state of target, and return a new future in any completion state, with any new value type __Type.
+    
+    The new future returned from this function will be completed using the completion value returned from this block.
 
-    // return a Future that can return all Completion Values (Result,Failed,Cancelled,ContiueWith)
-    public final func onCompleteWith<_ANewType>(executor : Executor,block:(completion:Completion<T>)-> Completion<_ANewType>) -> Future<_ANewType> {
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block that will execute when this future completes, and returns a new completion value for the new completion type.   The block must return a Completion value (Completion<__Type>).
+    :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    
+    */
+    public func onComplete<__Type>(executor : Executor,block:(completion:Completion<T>)-> Completion<__Type>) -> Future<__Type> {
         
         let (promise, completionCallback) = self.createPromiseAndCallback(block)
         
@@ -605,21 +983,87 @@ extension Future {
         
         return promise.future
     }
-
-    public final func onComplete<_ANewType>(block:(completion:Completion<T>)-> Completion<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(.Primary, block: block)
+    
+    
+    /**
+    executes a block using the Executor.Primary if and when the target future is completed.  Will execute immediately if the target is already completed.
+    
+    This method will let you examine the completion state of target, and return a new future in any completion state, with any new value type __Type.
+    
+    The new future returned from this function will be completed using the completion value returned from this block.
+    
+    a link_
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    
+    :param: block a block that will execute when this future completes, and returns a new completion value for the new completion type.   The block must return a Completion value (Completion<__Type>).
+    
+    :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    */
+    public func onComplete<__Type>(block:(completion:Completion<T>)-> Completion<__Type>) -> Future<__Type> {
+        return self.onComplete(.Primary, block: block)
     }
- 
-    // ---------------------------------------------------------------------------------------------------
-    // THESE GUYS can always return any Completion Value you want  ------
-    // ---------------------------------------------------------------------------------------------------
-    // block only executes if this Future<T> returns .Success(T)
-    // return a Future that can return all Completion Values (.Success,.Fail,.Cancelled,.ContiueWith)
+    
+    
+    
+    
+    
+    
+    /**
+    executes a block using the supplied Executor if and when the target future is completed.  Will execute immediately if the target is already completed.
+    
+    This method will let you examine the completion state of target, and return a new future that completes with a .Success(result).  The value returned from the block will be set as this Future's result.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
+    :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    */
+    public func onCompleteWith<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
+        return self.onComplete(executor) { (c) -> Completion<__Type> in
+            return .Success(block(completion:c))
+        }
+    }
+    /**
+    executes a block using the Executor.Primary if and when the target future is completed.  Will execute immediately if the target is already completed.
+    
+    This method will let you examine the completion state of target, and return a new future that completes with a .Success(result).  The value returned from the block will be set as this Future's result.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
+    :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    */
+    public func onComplete<__Type>(block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
+        return self.onCompleteWith(.Primary,block)
+    }
 
-    // so this function doesn't work when T == Void. (and itsn't very useful, since result = Void())
-    // you must use onAnySuccessWith() if you are returning Future<Void>
-    public final func onSuccessWith<_ANewType>(executor : Executor, _ block:(result:T) -> Completion<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(executor)  { (completion) -> Completion<_ANewType> in
+
+    
+    
+    
+    
+    
+    
+ 
+    /**
+    takes a block and executes it iff the target is completed with a .Success
+    
+    If the target is completed with a .Success, then the block will be executed using the supplied Executor.  The new future returned from this function will be completed using the completion value returned from this block.
+
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    *Warning* - as of swift 1.2, you can't use this method with a Future<Void> (it will give a compiler error).  Instead use `onAnySuccessWith()`
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block takes the .Success result of the target Future and returns the completion value of the returned Future.
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onSuccessWith<__Type>(executor : Executor, _ block:(result:T) -> Completion<__Type>) -> Future<__Type> {
+        return self.onComplete(executor)  { (completion) -> Completion<__Type> in
             switch completion.state {
             case .Success:
                 return block(result: completion.result)
@@ -631,11 +1075,26 @@ extension Future {
         }
     }
 
-    // You can use onAnySuccess() with ANY Future (it just throws away the result)
-    // You MUST to use onAnySuccess() if you are using a Future<Void>.   Swift just can't seem to handle
-    // the regular onSuccess() methods with a Void result type. And it will give you a cryptic error.
-    public final func onAnySuccessWith<_ANewType>(executor : Executor, block:() -> Completion<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(executor)  { (completion) -> Completion<_ANewType> in
+    /**
+    takes a block and executes it iff the target is completed with a .Success.  
+    
+    Unlike, onSuccessWith(), this function ignores the .Success result value. and it isn't sent it to the block.  onAnySuccess implies you don't about the result of the target, just that it completed with a .Success
+    
+    Currently, in swift 1.2, this is the only way to add a Success handler to a future of type Future<Void>.  But can be used with Future's of all types.
+    
+    If the target is completed with a .Success, then the block will be executed using the supplied Executor.  The future returned from this function will be completed using the value returned from this block.
+    
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block that returns the completion value of the returned Future.
+    :returns: a new future of type `Future<__Type>`
+    */
+    public func onAnySuccessWith<__Type>(executor : Executor, _ block:() -> Completion<__Type>) -> Future<__Type> {
+        return self.onComplete(executor)  { (completion) -> Completion<__Type> in
             switch completion.state {
             case .Success:
                 return block()
@@ -647,21 +1106,71 @@ extension Future {
         }
     }
 
-    public final func onSuccess<_ANewType>(block:(result:T)-> Completion<_ANewType>) -> Future<_ANewType> {
+    /**
+    takes a block and executes it iff the target is completed with a .Success
+    
+    If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  
+    
+    The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccessWith()
+    
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    *Warning* - as of swift 1.2, you can't use this method with a Future<Void> (it will give a compiler error).  Instead use `onAnySuccessWith()`
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: block a block takes the .Success result of the target Future and returns the completion value of the returned Future.
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onSuccess<__Type>(block:(result:T)-> Completion<__Type>) -> Future<__Type> {
         return self.onSuccessWith(.Primary,block)
     }
 
-    public final func onAnySuccess<_ANewType>(block:() -> Completion<_ANewType>) -> Future<_ANewType> {
-        return self.onAnySuccessWith(.Primary,block: block)
-    }
+    /**
+    takes a block and executes it iff the target is completed with a .Success.
+    
+    If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  
+    
+    The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccessWith()
 
+    Unlike, onSuccessWith(), this function ignores the .Success result value. and it isn't sent it to the block.  onAnySuccess implies you don't about the result of the target, just that it completed with a .Success
+    
+    Currently, in swift 1.2, this is the only way to add a Success handler to a future of type Future<Void>.  But can be used with Future's of all types.
+    
+    If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The future returned from this function will be completed using the value returned from this block.
+    
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
     
     
-    // block only executes if this Future<T> returns .Fail
-    // return a Future that can return all Completion Values (Result,Failed,Cancelled,ContiueWith)
-    public final func onFailWith<_ANewType>(executor : Executor, _ block:(error:NSError)-> Completion<_ANewType>) -> Future<_ANewType>
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: block a block takes the .Success result of the target Future and returns the completion value of the returned Future.
+    :returns: a new future of type `Future<__Type>`
+    */
+    public func onAnySuccess<__Type>(block:() -> Completion<__Type>) -> Future<__Type> {
+        return self.onAnySuccessWith(.Primary,block)
+    }
+    
+    
+    /**
+    takes a block and executes it iff the target is completed with a .Fail
+    
+    If the target is completed with a .Fail, then the block will be executed using the supplied Executor.  The new future returned from this function will be completed using the completion value returned from this block.
+    
+    If the target is completed with a .Success, then the returned future will complete with .Cancelled and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block takes the error returned by the target Future and returns the completion value of the returned Future.
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onFailWith<__Type>(executor : Executor, _ block:(error:NSError)-> Completion<__Type>) -> Future<__Type>
     {
-        return self.onCompleteWith(executor) { (completion) -> Completion<_ANewType> in
+        return self.onComplete(executor) { (completion) -> Completion<__Type> in
             switch completion {
             case let .Fail(e):
                 return block(error: e)
@@ -670,15 +1179,42 @@ extension Future {
             }
         }
     }
-    public final func onFail<_ANewType>(block:(error:NSError)-> Completion<_ANewType>) -> Future<_ANewType> {
+
+    /**
+    takes a block and executes it iff the target is completed with a .Fail
+    
+    If the target is completed with a .Fail, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  
+    
+    The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onFailWith()
+    
+    If the target is completed with a .Success, then the returned future will complete with .Cancelled and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block takes the error returned by the target Future and returns the completion value of the returned Future.
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onFail<__Type>(block:(error:NSError)-> Completion<__Type>) -> Future<__Type> {
         return self.onFailWith(.Primary,block)
     }
 
-    // block only executes if this Future<T> returns .Cancelled
-    // return a Future that can return all Completion Values (Result,Failed,Cancelled,ContiueWith)
-    public final func onCancelWith<_ANewType>(executor : Executor, _ block:(Any?)-> Completion<_ANewType>) -> Future<_ANewType>
+    /**
+    takes a block and executes it iff the target is completed with a .Cancelled
+    
+    If the target is completed with a .Cancelled, then the block will be executed using the supplied Executor.  The new future returned from this function will be completed using the completion value returned from this block.
+    
+    If the target is completed with a .Success or a .Fail, then the returned future will complete with .Cancelled and this block will not be executed.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onCancelWith<__Type>(executor : Executor, _ block:(Any?)-> Completion<__Type>) -> Future<__Type>
     {
-        return self.onCompleteWith(executor) { (completion) -> Completion<_ANewType> in
+        return self.onComplete(executor) { (completion) -> Completion<__Type> in
             switch completion {
             case let .Cancelled(cancelToken):
                 return block(cancelToken)
@@ -687,161 +1223,214 @@ extension Future {
             }
         }
     }
-    public final func onCancel<_ANewType>(block:(Any?)-> Completion<_ANewType>) -> Future<_ANewType> {
+    /**
+    takes a block and executes it iff the target is completed with a .Cancelled
+    
+    If the target is completed with a .Cancelled, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  
+    
+    The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onFailWith()
+    
+    If the target is completed with a .Success or a .Fail, then the returned future will complete with .Cancelled and this block will not be executed.
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: block a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onCancel<__Type>(block:(Any?)-> Completion<__Type>) -> Future<__Type> {
         return self.onCancelWith(.Primary,block)
     }
 
-    // ---------------------------------------------------------------------------------------------------
-    // Just do this next thing, when this one is done.
-    // ---------------------------------------------------------------------------------------------------
-    public final func continueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
-            return .ContinueWith(future)
-        }
-    }
-   public  final func OnSuccessContinueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
-            switch completion {
-            case let .Success(t):
-                return .ContinueWith(future)
-            default:
-                return completion.convert()
-            }
-        }
-    }
-    public final func OnFailContinueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
-            switch completion {
-            case let .Fail(e):
-                return .ContinueWith(future)
-            default:
-                return .Cancelled("dependent task didn't fail")
-            }
-        }
-    }
-    public final func OnCancelContinueWith<_ANewType>(future:Future<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(.Immediate)  { (completion) -> Completion<_ANewType> in
-            switch completion {
-            case let .Cancelled:
-                return .ContinueWith(future)
-            default:
-                return .Cancelled("dependent task wasn't cancelled")
-            }
-        }
-    }
-
 
     // ---------------------------------------------------------------------------------------------------
-    // THESE GUYS always return a new Future<_ANewType> with a completion of .Success(S)
+    // THESE GUYS always return a new Future<__Type> with a completion of .Success(S)
     // ---------------------------------------------------------------------------------------------------
-    public final func onCompleteWith<_ANewType>(executor: Executor, _ block:(completion:Completion<T>)-> _ANewType) -> Future<_ANewType> {
-        return self.onCompleteWith(executor) { (c) -> Completion<_ANewType> in
+ 
+    
+    /**
+    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
+    
+    The new future returned from this function will be completed with `.Success'.
+    
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    
+    :param: block a block that will execute when this future completes.
+    
+    :returns: a Future<Void> that completes after this block has executed.
+    
+    */
+    public func onCompleteWith(executor: Executor, block:(completion:Completion<T>)-> Void) -> Future<Void> {
+        return self.onComplete(executor) { (c) -> Completion<Void> in
             return .Success(block(completion:c))
-            }
+        }
     }
-    public final func onComplete<_ANewType>(block:(completion:Completion<T>)-> _ANewType) -> Future<_ANewType> {
-        return self.onCompleteWith(.Primary,block)
-    }
+    
 
-    public final func onSuccessWith<_ANewType>(executor : Executor, _ block:(result:T)-> _ANewType) -> Future<_ANewType> {
-        return self.onSuccessWith(executor) { (s : T) -> Completion<_ANewType> in
+    /**
+    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
+    
+    The new future returned from this function will be completed with `.Success'.
+    
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    
+    :param: block a block that will execute when this future completes.
+    
+    :returns: a Future<Void> that completes after this block has executed.
+    
+    */
+    public func onComplete(block:(completion:Completion<T>)-> Void) -> Future<Void> {
+        return self.onComplete { (c) -> Completion<Void> in
+            return .Success(block(completion:c))
+        }
+    }
+    
+
+    /**
+    takes a block and executes it iff the target is completed with a .Success
+    
+    If the target is completed with a .Success, then the block will be executed using the supplied Executor.  
+    
+    The new future returned from this function will be completed with `.Success(result)` using the value returned from this block as the result.
+    
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    *Warning* - as of swift 1.2, you can't use this method with a Future<Void> (it will give a compiler error).  Instead use `onAnySuccessWith()`
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block takes the .Success result of the target Future and returns a new result.
+
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onSuccessWith<__Type>(executor : Executor, _ block:(result:T)-> __Type) -> Future<__Type> {
+        return self.onSuccessWith(executor) { (s : T) -> Completion<__Type> in
             return .Success(block(result: s))
         }
     }
     
-    public final func onSuccess<_ANewType>(block:(result:T)-> _ANewType) -> Future<_ANewType> {
+    /**
+    takes a block and executes it iff the target is completed with a .Success
+    
+    If the target is completed with a .Success, then the block will be executed using the Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.
+   
+    The block will be executed in using the Executor.Primary (usually configued as .Immediate).  The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onCompleteWith()
+   
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    *Warning* - as of swift 1.2, you can't use this method with a Future<Void> (it will give a compiler error).  Instead use `onAnySuccessWith()`
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    :param: block a block takes the .Success result of the target Future and returns a new result.
+    
+    :returns: a new Future of type Future<__Type>
+    */
+    public func onSuccess<__Type>(block:(result:T)-> __Type) -> Future<__Type> {
+        return self.onSuccessWith(.Primary,block)
+    }
+    
+    public func onSuccess<__Type>(block:(result:T)-> Void) -> Future<Void> {
         return self.onSuccessWith(.Primary,block)
     }
 
     
-    public final func onAnySuccessWith<_ANewType>(executor : Executor, _ block:()-> _ANewType) -> Future<_ANewType> {
-        return self.onAnySuccessWith(executor) { () -> Completion<_ANewType> in
+    public func onAnySuccessWith<__Type>(executor : Executor, _ block:()-> __Type) -> Future<__Type> {
+        return self.onAnySuccessWith(executor) { () -> Completion<__Type> in
             return .Success(block())
         }
     }
     
-    public final func onAnySuccess<_ANewType>(block:()-> _ANewType) -> Future<_ANewType> {
+    public func onAnySuccess<__Type>(block:()-> __Type) -> Future<__Type> {
+        return self.onAnySuccessWith(.Primary,block)
+    }
+    public func onSuccess<__Type>(@autoclosure(escaping) block:()-> __Type) -> Future<__Type> {
         return self.onAnySuccessWith(.Primary,block)
     }
 
     // rather use map?  Sure!
-    public final func mapWith<_ANewType>(executor : Executor, block:(result:T)-> _ANewType) -> Future<_ANewType> {
+    public func mapWith<__Type>(executor : Executor, block:(result:T)-> __Type) -> Future<__Type> {
         return self.onSuccessWith(executor,block)
     }
-    public final func map<_ANewType>(block:(result:T) -> _ANewType) -> Future<_ANewType> {
+    public func map<__Type>(block:(result:T) -> __Type) -> Future<__Type> {
         return self.onSuccess(block)
     }
 
     
-    public final func onFailWith<_ANewType>(executor : Executor, _ block:(error:NSError)-> _ANewType) -> Future<_ANewType> {
-        return self.onFailWith(executor) { (e) -> Completion<_ANewType> in
+    public func onFailWith<__Type>(executor : Executor, _ block:(error:NSError)-> __Type) -> Future<__Type> {
+        return self.onFailWith(executor) { (e) -> Completion<__Type> in
             return .Success(block(error:e))
         }
     }
-    public final func onFail<_ANewType>(block:(error:NSError)-> _ANewType) -> Future<_ANewType> {
+    public func onFail<__Type>(block:(error:NSError)-> __Type) -> Future<__Type> {
         return self.onFailWith(.Primary,block)
     }
     
 
     
-    public final func onCancelWith<_ANewType>(executor : Executor, _ block:(Any?)-> _ANewType) -> Future<_ANewType> {
-        return self.onCancelWith(executor) { (a) -> Completion<_ANewType> in
+    public func onCancelWith<__Type>(executor : Executor, _ block:(Any?)-> __Type) -> Future<__Type> {
+        return self.onCancelWith(executor) { (a) -> Completion<__Type> in
             return .Success(block(a))
         }
     }
-    public final func onCancel<_ANewType>(block:(Any?)-> _ANewType) -> Future<_ANewType> {
+    public func onCancel<__Type>(block:(Any?)-> __Type) -> Future<__Type> {
         return self.onCancelWith(.Primary,block)
     }
     
     // ---------------------------------------------------------------------------------------------------
-    // THESE GUYS always return a .ContinueWith((Future<_ANewType>) ------
+    // THESE GUYS always return a .ContinueWith((Future<__Type>) ------
     // ---------------------------------------------------------------------------------------------------
-    public final func onCompleteWith<_ANewType>(executor: Executor, _ block:(completion:Completion<T>)-> Future<_ANewType>) -> Future<_ANewType> {
-        return self.onCompleteWith(executor, block: { (c) -> Completion<_ANewType> in
+
+    
+
+    public func onCompleteWith<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(executor, block: { (c) -> Completion<__Type> in
             return .ContinueWith(block(completion:c))
         })
     }
-    public final func onComplete<_ANewType>(block:(conpletion:Completion<T>)-> Future<_ANewType>) -> Future<_ANewType> {
+    public func onComplete<__Type>(block:(conpletion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
         return self.onCompleteWith(.Primary,block)
     }
     
 
-    public final func onSuccessWith<_ANewType>(executor : Executor, _ block:(result:T)-> Future<_ANewType>) -> Future<_ANewType> {
-        return self.onSuccessWith(executor) { (s:T) -> Completion<_ANewType> in
+    public func onSuccessWith<__Type>(executor : Executor, _ block:(result:T)-> Future<__Type>) -> Future<__Type> {
+        return self.onSuccessWith(executor) { (s:T) -> Completion<__Type> in
             return .ContinueWith(block(result:s))
         }
     }
     
-    public func onSuccess<_ANewType>(block:(result:T)-> Future<_ANewType>) -> Future<_ANewType> {
+    public func onSuccess<__Type>(block:(result:T)-> Future<__Type>) -> Future<__Type> {
         return self.onSuccessWith(.Primary,block)
     }
 
-    public func onAnySuccessWith<_ANewType>(executor : Executor, _ block:()-> Future<_ANewType>) -> Future<_ANewType> {
-        return self.onAnySuccessWith(executor) { () -> Completion<_ANewType> in
+    public func onAnySuccessWith<__Type>(executor : Executor, _ block:()-> Future<__Type>) -> Future<__Type> {
+        return self.onAnySuccessWith(executor) { () -> Completion<__Type> in
             return .ContinueWith(block())
         }
     }
-    public final func onAnySuccess<_ANewType>(block:()-> Future<_ANewType>) -> Future<_ANewType> {
+    public func onAnySuccess<__Type>(block:()-> Future<__Type>) -> Future<__Type> {
         return self.onAnySuccessWith(.Primary,block)
     }
     
     
-    public final func onFailWith<_ANewType>(executor : Executor, _ block:(error:NSError)-> Future<_ANewType>) -> Future<_ANewType> {
-        return self.onFailWith(executor) { (e) -> Completion<_ANewType> in
+    public func onFailWith<__Type>(executor : Executor, _ block:(error:NSError)-> Future<__Type>) -> Future<__Type> {
+        return self.onFailWith(executor) { (e) -> Completion<__Type> in
             return .ContinueWith(block(error:e))
         }
     }
-    public final func onFail<_ANewType>(block:(error:NSError)-> Future<_ANewType>) -> Future<_ANewType> {
+    public func onFail<__Type>(block:(error:NSError)-> Future<__Type>) -> Future<__Type> {
         return self.onFailWith(.Primary,block)
     }
     
     
-    public final func onCancelWith<_ANewType>(executor : Executor, _ block:(Any?)-> Future<_ANewType>) -> Future<_ANewType> {
-        return self.onCancelWith(executor) { (a) -> Completion<_ANewType> in
+    public func onCancelWith<__Type>(executor : Executor, _ block:(Any?)-> Future<__Type>) -> Future<__Type> {
+        return self.onCancelWith(executor) { (a) -> Completion<__Type> in
             return .ContinueWith(block(a))
         }
     }
-    public final func onCancel<_ANewType>(block:(Any?)-> Future<_ANewType>) -> Future<_ANewType> {
+    public func onCancel<__Type>(block:(Any?)-> Future<__Type>) -> Future<__Type> {
         return self.onCancelWith(.Primary,block)
     }
     
@@ -859,6 +1448,93 @@ extension Future {
         let s = FutureWaitHandler<T>(waitingOnFuture: self)
         return s.waitUntilCompleted(doMainQWarning: false)
     }
+}
+
+extension Future {
+    // ---------------------------------------------------------------------------------------------------
+    // Just do this next thing, when this one is done.  NOT READY FOR PRIME TIME.
+    // ---------------------------------------------------------------------------------------------------
+    
+    func continueWith<__Type>(@autoclosure(escaping) autoclosingFuture:() -> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(.Immediate)  { (completion) -> Completion<__Type> in
+            return .ContinueWith(autoclosingFuture())
+        }
+    }
+    
+    func OnSuccessContinueWith<__Type>(@autoclosure(escaping) autoclosingFuture:() -> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(.Immediate)  { (completion) -> Completion<__Type> in
+            switch completion {
+            case let .Success(t):
+                return .ContinueWith(autoclosingFuture())
+            default:
+                return completion.convert()
+            }
+        }
+    }
+    func OnFailContinueWith<__Type>(@autoclosure(escaping) autoclosingFuture:() -> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(.Immediate)  { (completion) -> Completion<__Type> in
+            switch completion {
+            case let .Fail(e):
+                return .ContinueWith(autoclosingFuture())
+            default:
+                return .Cancelled("dependent task didn't fail")
+            }
+        }
+    }
+    func OnCancelContinueWith<__Type>(@autoclosure(escaping) autoclosingFuture:() -> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(.Immediate)  { (completion) -> Completion<__Type> in
+            switch completion {
+            case let .Cancelled:
+                return .ContinueWith(autoclosingFuture())
+            default:
+                return .Cancelled("dependent task wasn't cancelled")
+            }
+        }
+    }
+    /**
+    **NOTE** identical to `onAnySuccess()`
+    
+    takes a block and executes it iff the target is completed with a .Success.
+    
+    If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.
+    
+    The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccessWith()
+    
+    Unlike, onSuccessWith(), this function ignores the .Success result value. and it isn't sent it to the block.  onAnySuccess implies you don't about the result of the target, just that it completed with a .Success
+    
+    Currently, in swift 1.2, this is the only way to add a Success handler to a future of type Future<Void>.  But can be used with Future's of all types.
+    
+    If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The future returned from this function will be completed using the value returned from this block.
+    
+    If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
+    
+    If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.
+    
+    
+    :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    :param: block a block takes the .Success result of the target Future and returns the completion value of the returned Future.
+    :returns: a new future of type `Future<__Type>`
+    */
+    
+    func then<__Type>(block:(result:T) -> Completion<__Type>) -> Future<__Type> {
+        return self.onSuccessWith(.Primary,block)
+    }
+    func then<__Type>(block:(result:T) -> Future<__Type>) -> Future<__Type> {
+        return self.onSuccessWith(.Primary,block)
+    }
+    func then<__Type>(block:(result:T) -> __Type) -> Future<__Type> {
+        return self.onSuccessWith(.Primary,block)
+    }
+    func then<__Type>(executor : Executor,_ block:(result:T) -> Completion<__Type>) -> Future<__Type> {
+        return self.onSuccessWith(executor,block)
+    }
+    func then<__Type>(executor : Executor,_ block:(result:T) -> Future<__Type>) -> Future<__Type> {
+        return self.onSuccessWith(executor,block)
+    }
+     func then<__Type>(executor : Executor,_ block:(result:T) -> __Type) -> Future<__Type> {
+        return self.onSuccessWith(executor,block)
+    }
+
 
 }
 
@@ -1064,9 +1740,9 @@ class classWithMethodsThatReturnFutures {
         }
             
         
-        self.iMayFailRandomly().onSuccess { (x) -> Void in
-            NSLog("\(x)")
-        }
+        self.iMayFailRandomly().onSuccess { () -> Void in
+            NSLog("()")
+        }()
         
     }
     
@@ -1088,7 +1764,7 @@ class classWithMethodsThatReturnFutures {
     
     func imGonnaMapAVoidToAnInt() -> Future<Int> {
         
-        
+
         let f = self.iDontReturnValues().onAnySuccess { () -> Int in
             return 5
         }

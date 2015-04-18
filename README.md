@@ -10,7 +10,7 @@ FutureKit is a iOS implementation of Futures and Promises, but modified specific
 FutureKit is 100% Swift and uses Swift Generics heavily to ensure you methods are type safe
 
 FutureKit uses simpler handler methods (onComplete/onSuccess/onFail etc). 
-FutureKit is still highly composable, since any existing Future<T> can be 'mapped' to a new Future<S>
+FutureKit is still highly composable, since any existing Future<T> can be 'mapped' to a new Future<S> .
 
 # Documentation
 

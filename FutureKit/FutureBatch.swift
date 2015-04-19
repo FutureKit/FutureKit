@@ -27,7 +27,7 @@ public class FutureBatchOf<T> {
     // this future succeeds iff all subFutues succeed.
     public lazy var future : Future<[T]> = FutureBatchOf.checkAllCompletionsSucceeded(self.completionsFuture)
     
-    internal final let synchObject : SynchronizationProtocol = FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
+//    internal final let synchObject : SynchronizationProtocol = GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
 
     public init(f : [Future<T>]) {
         self.subFutures = f
@@ -42,6 +42,12 @@ public class FutureBatchOf<T> {
     public convenience init(array : NSArray) {
         let f : [Future<T>] = FutureBatch.convertArray(array as [AnyObject])
         self.init(f:f)
+    }
+    
+    func cancel() {
+        for f in self.subFutures {
+            f.cancel()
+        }
     }
     
     func append(f : Future<T>) -> Future<[T]> {
@@ -153,7 +159,7 @@ public class FutureBatchOf<T> {
     // should we use locks or recursion?
     // After a lot of thinking, I think it's probably identical performance
     public class func futureWithSubFutures<T>(array : [Future<T>]) -> Future<[Completion<T>]> {
-        if (FUTUREKIT_GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING) {
+        if (GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING) {
             return sequenceCompletionsByChaining(array)
         }
         else {

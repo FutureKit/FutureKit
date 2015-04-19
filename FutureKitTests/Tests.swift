@@ -72,6 +72,39 @@ func divideAndConquer(executor:Executor,x: Int, y: Int,iterationsDesired : Int) 
 }
 
 
+func iMayFailRandomly() -> Future<String>  {
+    let p = Promise<String>()
+    
+    // This is a random number from 0..2:
+    let randomNumber = arc4random_uniform(3)
+    switch randomNumber {
+    case 0:
+        p.completeWithFail(FutureNSError(error: .GenericException, userInfo: nil))
+    case 1:
+        p.completeWithCancel()
+    default:
+        p.completeWithSuccess("Yay")
+    }
+    return p.future
+}
+
+typealias keepTryingResultType = (tries:Int,result:String)
+func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:String)> {
+    
+    attemptNo++
+    return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
+        switch completion {
+        case let .Success(yay):
+            // Success uses Any as a payload type, so we have to convert it here.
+            let s = yay as! String
+            let result = (attemptNo,s)
+            return .Success(result)
+        default: // we didn't succeed!
+            let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
+            return .CompleteUsing(nextFuture)
+        }
+    }
+}
 
 
 class FutureKitTests: XCTestCase {
@@ -125,17 +158,27 @@ class FutureKitTests: XCTestCase {
         
         
     }
-
     func doATestCase(lockStategy: SynchronizationType, chaining : Bool, x : Int, y: Int, iterations : Int) {
         
-        FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY = lockStategy
-        FUTUREKIT_GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
+        GLOBAL_PARMS.LOCKING_STRATEGY = lockStategy
+        GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
         
         let f = divideAndConquer(.Primary,x,y,iterations)
         
         var ex = f.expectationTestForSuccess(self, "Description") { (result) -> BooleanType in
             return (result == (x+y)*iterations)
         }
+        
+        self.waitForExpectationsWithTimeout(120.0, handler: nil)
+        
+    }
+
+    
+    func testContinueWithRandomly() {
+        
+        let f = iWillKeepTryingTillItWorks(0)
+ 
+        var ex = f.expectationTestForAnySuccess(self, "Description")
         
         self.waitForExpectationsWithTimeout(120.0, handler: nil)
         
@@ -198,13 +241,4 @@ class FutureKitTests: XCTestCase {
             self.doATestCase(.NSRecursiveLock, chaining: true,x:0, y: 1, iterations: self.lots)
         }
     }
-
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
 }

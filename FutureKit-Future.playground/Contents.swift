@@ -1,94 +1,57 @@
 //: # Welcome to FutureKit!
-
+//: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
 import Foundation
 import FutureKit
 #if os(iOS)
     import UIKit
+    typealias NSImage = UIImage
 #else
-    typealias UIImage = NSImage
-    typealias UIImageView = NSImageView
     import Cocoa
 #endif
 import XCPlayground
-
-//: Just utility stuff here.
+//: Seting XCPSetExecutionShouldContinueIndefinitely so we can run multi-threaded things.
 XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
-func showInTimeLine<T>(identifier: String, value: T, line : Int32 = __LINE__) {
-    let s = "line:\(line):(\"\(identifier)\",\(value))\n"
-    println(s)
-}
-
-// ENABLE MARKEUP (if This is hard to read)
-// in select Editor -> Show Rendered Markup
-//: Turn on the Timeline! select View -> Assistant Editor -> Show Assistant Editor (keyboard shortcut: Option + Command + Return).
-
 //: # Let's get started!
+
 //: This is a Future:
-
-let future5 : Future<Int>
-
+let future5Int : Future<Int>
 //: It's not a regular Int.  It's a "Future" Int.
 //: At some point in the future, this object will "generate" an Int. Or maybe it will fail.
-//: I called the variable "future5" because it will eventualy at some point in the future it will return a Int value of 5.  Very useful if you need a 5 at somepoint in the future.
-
-future5 = Future(success: 5)
+//: I called the variable "future5Int" because it will eventualy at some point in the future it will return a Int value of 5.  Very useful if you need a 5 at somepoint in the future.
+future5Int = Future(success: 5)
 //: Ok.  I told a small lie. Cause now the value 5 is already there.  This was a Future that was created in a "completed" state.  It has a result.  The Future was successful, and it has a result of 5.  Very good.
-
-
-
-let resultOfFuture5 = future5.result!
-// resultOfFuture5 is 5
-showInTimeLine("resultOfFuture5",resultOfFuture5)
-
-//: showInTimeLine will output things to the console output. So you can see how things are running. Make sure to turn on the Assistant Editor (View..Assistant Editor...Show Assistant Editor) if you don't see console output.
+let resultOfFuture5 = future5Int.result!
+//: println_and_line_no will output things to the console output. So you can see how things are running. Make sure to turn on the Assistant Editor (View..Assistant Editor...Show Assistant Editor) if you don't see console output.
 //: Sometimes a Future will fail. Maybe the database is all out if 5's.  So instead of 5, we are gonna return a failure.  No number 5 for you.
-
 let futureFail = Future<Int>(failWithErrorMessage:"I have no 5's for you today.")
 let failed5result = futureFail.result
-// nil
-showInTimeLine("failed5result",failed5result)
-let e = futureFail.error
-// NSError
-showInTimeLine("futureFail.error",e)
-
+let e = futureFail.error!.localizedDescription
 
 //: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.  Optionally you can send a reason, but it's not required.  In FutureKit a Fail means that something went wrong, and you should cope with that.  a Cancel is usually considered "legal", like canceling active API requests when a window is closed.
-let cancelledFuture = Future<Int>(cancelled: "token!")
+let cancelledFuture = Future<Int>(cancelled: "Don't need this anymore")
 let cancelledResult = cancelledFuture.result
-// nil
 let cancelationToken = cancelledFuture.cancelToken
-// "token!"
-showInTimeLine("cancelledFuture",cancelledFuture)
 
-
-//: These aren't very interesting Futures. Let's make them more fun.
-
+//: These aren't very interesting Futures. Let's make something a bit more interesting:
 let asyncFuture5 = Future(.Default) { () -> Int in
-    showInTimeLine("asyncFuture5 is returning",5)
     return 5
 }
 //: This is also a Future<Int>. The swift compiler figured it out, because I added a block that returns an Int.
-//: But what is that (.Default) thing?
-
+//: But what is that (.Default) thing?  What does that mean?  Let's check the results:
 let firstAttempt = asyncFuture5.result
-// nil.  (usually)
-showInTimeLine("answerAsync",firstAttempt)
-
-//: **wtf!?**  why is the result nil?  should it be? Sometimes when you run the playground, you will get a 5.  Sometimes a nil.
+// usually this is nil. Try "Editor"..."Execute Playground" to see if value changes at all.
+//: **WTF!?**  why is the result nil?  should it be? Sometimes when you run the playground, you will get a 5.  Sometimes a nil.
 //: That's because the block that returns the 5 may not have finished running yet.
-//: Let's try again looking at the result AGAIN:
-
+//: Let's wait and then try again looking at the result AGAIN:
+NSThread.sleepForTimeInterval(0.1)
 let secondAttempt = asyncFuture5.result
-//  5  (usually)
-showInTimeLine("answerAsync2",secondAttempt)
-//: that's because we created a Future and told it to "run" inside the .Default Executor. It executes it's blocks inside the dispatch_queue QOS_CLASS_DEFAULT.   So the block { return 5 } was dispatched to a queue, and than returned.   We will talk more about Executors and how they can encapulate dispatch_queue, NSOperationQueue, and some other interesting execution issues, in a different playground.
+//: that's because we created a Future and told it to "run" inside the .Default Executor. Which is a shortcut way of saying "dispatch this block to the built in iOS queue "QOS_CLASS_DEFAULT" and then return the results back to the Future".
+//: We will talk more about Executors and how they can encapulate dispatch_queue, NSOperationQueue, and some other interesting execution issues, in a different playground.
 //: But how are we supposed to get a result?
 
-asyncFuture5.onSuccess { (result) -> Void in
+let f = asyncFuture5.onSuccess(.Main) { (result) -> Void in
     let five = result
-    showInTimeLine("asyncFuture5.onSuccess",five)
 }
-
 //: Now we have a result! We got our 5.
 //: If you are running XCode, hold down the option button and click on (result) in the block above.  It should show something like `let result: (Int)`
 //: The Swift compiler automatically knows that result is an Int, because asyncFuture5 is defined as a Future<Int>.
@@ -105,10 +68,10 @@ asyncFuture5.onSuccess { (result) -> Void in
 //: We can also add handlers for Fail and Cancel:
 
 futureFail.onFail { (error) -> Void in
-    showInTimeLine("futureFail.onFail",error)
+    let e = error.localizedDescription
 }
 cancelledFuture.onCancel { (token) -> Void in
-    showInTimeLine("cancelledFuture.onCancel",token)
+    let cancelToken = token
 }
 
 //: But if you don't want to add 3 handlers, it's more common to just add a single onComplete handler
@@ -117,20 +80,16 @@ asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
     switch completion.state {
     case .Success:
         let five = completion.result
-        showInTimeLine(".Success", five)
     case .Fail:
         let e = completion.error
-        showInTimeLine(".Fail", e)
     case .Cancelled:
         let c = completion.cancelToken
-        showInTimeLine(".Cancelled", c)
     }
 }
 //: What's Completion<Int>? A Completion is an enumeration that represents the "completion" of a future.  When returned to an OnComplete handler, it will always be one of three values .Success, .Fail, or .Cancelled.
 
 let completionOfAsyncFuture5 = asyncFuture5.completion!
 // ".Success(5)"
-showInTimeLine("completionOfAsncFuture5", completionOfAsyncFuture5)
 
 //: Seems easy?  Let's make them more fun:
 
@@ -142,84 +101,69 @@ showInTimeLine("completionOfAsncFuture5", completionOfAsyncFuture5)
 
 let namesPromise = Promise<[String]>()
 
-
 //: the promise has a var `future`.  we can now return this future to others.
 let namesFuture :Future<[String]> = namesPromise.future
 
-namesFuture.onSuccess { (names : [String]) -> Void in
+var timeCounter = 0
+namesFuture.onSuccess(.Main) { (names : [String]) -> Void in
     for name in names {
+        let timeCount = timeCounter++
         let greeting = "Happy Future Day \(name)!"
-        showInTimeLine("greeting", greeting)
     }
 }
-
 //: so we have a nice routine that wants to greet all the names, but someone has to actually SUPPLY the  names.  Where are they?
-
-let names = ["Mike","David","Skyler"]
-showInTimeLine("This is gonna appear in the console log BEFORE any greetings do!","")
+let names = ["Skyer","David","Jess"]
+let t = timeCounter++
 namesPromise.completeWithSuccess(names)
-
-//: If you check the Console Output, you can see how the "Happy Future Day" greetings, appear AFTER we call completeWithSuccess()  (the line numbers are out of order!)
-
-
+//: Notice how the timeCounter shows us that the logic inside onSuccess() is executing
 
 //: A more typical case if you need to perform something inside a background queue.
-//: I need a cat Picture.  I want to see my cats!  So go get me some!  But don't run in the mainQ, cause I'm busy scrolling things and looking at other cats.
-
+//: I need a cat Picture.  I want to see my cats!  So go get me some!
 //: Let's write a function that returns an Image.  But since I might have to go to the internet to retrieve it, we will define a function that returns Future instead
-//: `func getCoolCatPic(url: NSURL) -> Future<NSImage>`
-//: Warning - the cat picture never loads when running this as an IOS Playground. (As of XCode 6.2).
-
-
-func getCoolCatPic(url: NSURL) -> Future<UIImage> {
+func getCoolCatPic(url: NSURL) -> Future<NSImage> {
     
     // We will use a promise, so we can return a Future<Image>
-    let catPicturePromise = Promise<UIImage>()
+    let catPicturePromise = Promise<NSImage>()
     
-    let task = NSURLSession.sharedSession().downloadTaskWithURL(url, completionHandler: { (url, response, error) -> Void in
+    // go get data from this URL.
+    let task = NSURLSession.sharedSession().dataTaskWithURL(url, completionHandler: { (data, response, error) -> Void in
         let r = response
         if let e = error {
-            showInTimeLine("catPicturePromise.failed",e)
+            // if this is failing, make sure you aren't running this as an iOS Playground. It works when running as an OSX Playground.
             catPicturePromise.completeWithFail(e)
         }
         else {
-            if let d = NSData(contentsOfURL: url) {
-                if let image = NSImage(data: d) {
-                    let i = image
-                    showInTimeLine("catPicturePromise.Success",i)
-                    catPicturePromise.completeWithSuccess(i)
-                }
+            // parsing the data from the server into an Image.
+            if let image = NSImage(data: data) {
+                let i = image
+                catPicturePromise.completeWithSuccess(i)
+            }
+            else {
+                catPicturePromise.completeWithFail("couldn't understand the data returned from the server \(url) - \(response)")
             }
         }
-        if !catPicturePromise.isCompleted {
-            catPicturePromise.completeWithFail("bad stuff happened")
-        }
+        // make sure to keep your promises!
+        // promises are promises!
+        assert(catPicturePromise.isCompleted)
     })
+    // start downloading.
     task.resume()
     
     // return the promise's future.
     return catPicturePromise.future
 }
 
-let catUrl = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
-
-getCoolCatPic(catUrl).onComplete(.Main) { (completion) -> Void in
+let catIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
+getCoolCatPic(catIFoundOnTumblr).onComplete { (completion) -> Void in
     switch completion.state {
     case .Success:
         let i = completion.result
-        let view = NSImageView(frame: NSRect(x: 0, y: 0, width: i.size.width, height: i.size.height))
-        view.image = i
-        XCPShowView("cat pic",view)
-        showInTimeLine("catPictureFuture:image",i)
     case .Fail:
         let e = completion.error
-        showInTimeLine("catPictureFuture:image_error",e)
     case .Cancelled:
-        showInTimeLine("catPictureFuture:cancelled",completion.cancelToken)
+        break
     }
 }
-//: what is onCompleteWith(.Main)?  This means we want to run this completion block inside the Main queue.  We have to do that, cause we are gonna mess with views (XCPShowView must run the main queue).
-
 
 //: # Futures are composable.
 
@@ -229,25 +173,27 @@ let stringFuture = Future<String>(success: "5")
 
 let intOptFuture : Future<Int?>
 intOptFuture  = stringFuture.onSuccess { (stringResult) -> Int? in
-    return stringResult.toInt()
+    let s = stringResult.toInt()
+    return s
 }
+
 intOptFuture.onSuccess { (intResult : Int?) -> Void in
     let i = intResult
-    print("\(i!)")
 }
 
 //: Knowing this we can "chain" futures together to make a complex set of dependencies...
 
 
 stringFuture.onSuccess { (stringResult:String) -> Int in
-        return stringResult.toInt()!
-    }.onSuccess { (intResult:Int) -> [Int] in
-        let i = intResult
-        return [i]
+        let i = stringResult.toInt()!
+        return i
+    }
+    .onSuccess { (intResult:Int) -> [Int] in
+        let array = [intResult]
+        return array
     }
     .onSuccess { (arrayResult : [Int]) -> Void in
-        let a = arrayResult
-        print("got an array: \(arrayResult)")
+        let a = arrayResult.first!
     }
 
 //: You can see how we can use the result of the first future, to generate the result of the second, etc.
@@ -260,9 +206,35 @@ let futureInt = stringFuture.map { (stringResult) -> Int in
     
 //: `futureInt` is automatically be inferred as Future<Int>.
 //:  when "chaining" futures together via onSuccess (or map), Failures and Cancellations will automatically be 'forwarded' to any dependent tasks.   So if the first future returns Fail, than all of the dependent futures will automatically fail.
+//: this can make error handling for a list of actions very easy.
+
+let gonnaTryHardAndNotFail = Promise<String>()
+let futureThatHopefullyWontFail = gonnaTryHardAndNotFail.future
+
+futureThatHopefullyWontFail
+        .onSuccess { (s:String) -> Int in
+                return s.toInt()!
+            }
+        .map { (intResult:Int) -> [Int] in              // 'map' is same as 'onSuccess'. Use whichever you like.
+                let i = intResult
+                return [i]
+            }
+        .map {
+            (arrayResult : [Int]) -> Void in
+            let a = arrayResult.first
+            }
+        .onFail { (error) -> Void in
+            let e = error.localizedDescription
+            }
+
+gonnaTryHardAndNotFail.completeWithFail("Sorry. Maybe Next time.")
+//: None of the blocks inside of onSuccess/map methods executed. since the first Future failed.  A good way to think about it is, that the "last" future failed because the future it depended upon for an input value, also failed.
+
+
 
 //: # Completion
 //: Sometimes you want to create a dependent Future but conditionally decide inside the block whether the dependent block should Succeed or Fail, etc.   For this we have use a handler block with a different generic signature:
+
 //: 'func onComplete<S>((Completion<T>) -> Completion<S>) -> Future<S>'
 
 //:  Don't worry if that seems hard to understand.  It's actually pretty straightforward.
@@ -272,10 +244,189 @@ let futureInt = stringFuture.map { (stringResult) -> Int in
 //: If you examine the contents of a completed Future<T>, you will find a Completion<T> enumeration that must be one of the 3 possible values: .Success(Any), .Fail(NSError), .Cancel(Any?)
 
 let anotherFuture5 = Future(success: 5)
-    
 switch anotherFuture5.completion! {
     case let .Success(result):
         let x = result
     default:
         break
     }
+
+
+//: But completion has a fourth enumeration case `.CompleteUsing(Future<T>)`.   This is very useful when you have a handler that wants to use some other Future to complete itself.   This completion value is only used as a return value from a handler method.
+//: First let's create an unreliable Future, that fails most of the time (80%)
+func iMayFailRandomly() -> Future<String>  {
+    let p = Promise<String>()
+    
+    Executor.Default.execute { () -> Void in
+
+        // This is a random number from 0..4.
+        // So we only have a 20% of success!
+        let randomNumber = arc4random_uniform(5)
+        if (randomNumber == 0) {
+            p.completeWithSuccess("Yay")
+        }
+        else {
+            p.completeWithFail("Not lucky Enough this time")
+        }
+    }
+    return p.future
+}
+//: Here is a function that will call itself recurisvely until it finally succeeds.
+typealias keepTryingPayload = (tries:Int,result:String)
+func iWillKeepTryingTillItWorks(attemptNo: Int) -> Future<Int> {
+    
+    let numberOfAttempts = attemptNo + 1
+    return iMayFailRandomly().onComplete { (completion) -> Completion<Int> in
+        switch completion {
+            
+        case let .Success(yay):
+            // Success uses Any as a payload type, so we have to convert it here.
+            let s = yay as! String
+            return .Success(numberOfAttempts)
+            
+        default: // we didn't succeed!
+            let nextFuture = iWillKeepTryingTillItWorks(numberOfAttempts)
+            return .CompleteUsing(nextFuture)
+        }
+    }
+}
+let keepTrying = iWillKeepTryingTillItWorks(0)
+keepTrying.onSuccess { (tries) -> Void in
+    let howManyTries = tries
+}
+//: If you select "Editor -> Execute Playground" you can see this number change.
+
+//: ## CompletionState
+//: since onComplete will get a Completion<Int>, the natural idea would be to use switch (completion)
+asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
+    switch completion {
+        
+    case let .Success(five):
+        let f = five as! Int   // this is annoying.  Why can't five already be Int?
+    
+    case let .Fail(error):
+        let e = error
+    
+    case let .Cancelled(cancelToken):
+        let c = completion.cancelToken
+        
+    case let .CompleteUsing(f):
+        assertionFailure("hey! FutureKit promised this wouldn't happen!")
+        break;
+    }
+}
+//: But it's annoying for two reasons. 
+//: 1. You have to add either `case .CompleteUsing`:, or a `default:`, because Swift requires switch to be complete.  But it's illegal to receive that completion value, in this function.  That case won't happen.
+//: 2. .Success currently uses a type 'Any' as a payload.  Which has more to do with a bug/limitation in Swift Generic enumerations (that might get fixed in the future).
+//: So the simpler and alternate is to look at the var 'state' on the completion value.  It uses the related enumeration CompletionState.  Which is a simpler enumeration.
+
+//: Let's rewrite the same handler using the var `state`.
+asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
+    switch completion.state {
+    case .Success:
+        let five = completion.result  // I'm the right type!
+    case .Fail:
+        let e = completion.error
+    case .Cancelled:
+        let c = completion.cancelToken
+    }
+}
+
+//: If all you care about is success or fail, you can use the isSuccess var
+asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
+    if completion.isSuccess {
+        let five = completion.result
+    }
+    else {
+        // must have failed or was cancelled
+    }
+}
+
+
+//: # onComplete handler varients
+//: There are actually 4 different variants of onComplete() handler
+//: - 'func onComplete(block:(Completion<T>) -> Completion<__Type>)'
+//: - 'func onComplete(block:(Completion<T>) -> Void)'
+//: - 'func onComplete(block:(Completion<T>) -> __Type)'
+//: - 'func onComplete(block:(Completion<T>) -> Future<S>)'
+// we are gonna use this future for the next few examples.
+let sampleFuture = Future(success: 5)
+
+//: 'func onComplete(block:(Completion<T>) -> Completion<__Type>)'
+
+//: The first version we have already seen.  It let's you receive a completion value from a target future, and return any sort of new result it wants (maybe it want's to Fail certain 'Success' results from it's target, or visa-versa).  It is very flexible.  You can compose a new future that returns anything you want.
+
+//: Here we will convert a .Fail into a .Success, but we still want to know if the Future was Cancelled:
+sampleFuture.onComplete { (c) -> Completion<String> in
+    switch c.state {
+    
+    case .Success:
+        return .Success(String(c.result))
+        
+    case .Fail:
+        return .Success(String("Some Default String we send when things Fail"))
+        
+    case let .Cancelled(token):
+        return .Cancelled(token)
+    }
+}
+
+
+//: 'func onComplete(block:(Completion<T>) -> Void)'
+
+//: We been using this one without me even mentioning it.  This block always returns a type of Future<Void> that always returns success.  So it can be composed and chained if needed.
+sampleFuture.onComplete { (c) -> Void in
+    if (c.isSuccess) {
+        // store this great result in a database or something.
+    }
+}
+
+//: 'func onComplete(block:(Completion<T>) -> __Type)'
+
+//: This is almost identical to the 'Void' version EXCEPT you want to return a result of a different Type.  This block will compose a new future that returns .Success(result) where result is the value returned from the block.
+let futureString  = sampleFuture.onComplete { (c) -> String in
+    switch c.state {
+    case .Success:
+        return String(c.result)
+    default:
+        return "Some Default String we send when things Fail"
+    }
+}
+let string = futureString.result!
+
+
+//: 'func onComplete(block:(Completion<T>) -> Future<__Type>)'
+
+//: This version is equivilant to returning a Completion<__Type>.ContinueUsing(f) (using the first varient on onComplete).  It just looks cleaner:
+func coolFunctionThatAddsOneInBackground(num : Int) -> Future<Int> {
+    // let's dispatch this to the low priority background queue
+    return Future(.Background) { () -> Int in
+        let ret = num + 1
+        return ret
+    }
+}
+func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
+    // let's dispatch this to the high priority UserInteractive queue
+    return Future(.UserInteractive) { () -> Int in
+        // so much work here to get a 2.
+        let ret = num + 1
+        return ret
+    }
+}
+let coolFuture = sampleFuture.onComplete { (c1) -> Future<Int> in
+    
+    let beforeAdd = c1.result
+    return coolFunctionThatAddsOneInBackground(c1.result)
+            .onComplete { (c2) -> Future<Int> in
+                let afterFirstAdd = c2.result
+                return coolFunctionThatAddsOneAtHighPriority(c2.result)
+            }
+}
+coolFuture.onSuccess { (result) -> Void in
+    let x = result
+    
+}
+
+
+
+

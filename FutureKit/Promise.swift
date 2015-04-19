@@ -20,17 +20,27 @@ public class Promise<T>  {
 
     public typealias completionErrorHandler = (() -> Void)
     
-    public var future =  Future<T>()
+    public var future : Future<T>
     
     public init() {
+        self.future = Future<T>()
+    }
+
+    /**
+    creates a promise that enables the Future.cancel()
+    */
+    public init(cancellationHandler h: (Any?) -> Bool) {
+       self.future = Future<T>(cancellationHandler: h)
     }
     
     public init(automaticallyFailAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
+        self.future = Future<T>()
         Executor.Default.executeAfterDelay(automaticallyFailAfter) { () -> Void in
             self.failIfNotCompleted("Promise created on \(file):line\(line) timed out")
         }
     }
     public init(automaticallyAssertAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
+        self.future = Future<T>()
         Executor.Default.executeAfterDelay(automaticallyAssertAfter) { () -> Void in
             if (!self.isCompleted) {
                 let message = "Promise created on \(file):line\(line) timed out"
@@ -68,15 +78,40 @@ public class Promise<T>  {
         self.future.completeWith(.Cancelled(token))
     }
     public final func continueWithFuture(f : Future<T>) {
-        self.future.completeWith(.ContinueWith(f))
+        self.future.completeWith(.CompleteUsing(f))
     }
 
+    /**
+    completes the Future using the supplied completionBlock.
+
+    the completionBlock will ONLY be executed if the future is successfully completed.
+    
+    If the future/promise has already been completed than the block will not be executed.
+
+    if you need to know if the completion was successful, use 'completeWithBlocks()'
+    
+    :param: completionBlock a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
+    */
     public final func completeWithBlock(completionBlock : ()->Completion<T>) {
-        self.future.completeWithBlock(completionBlock)
+        self.future.completeWithBlocks(completionBlock,onCompletionError: nil)
     }
-    public final func completeWithBlock(completionBlock : ()->Completion<T>, onAlreadyCompleted : completionErrorHandler)
+    
+    /**
+    completes the Future using the supplied completionBlock.
+    
+    the completionBlock will ONLY be executed if the future has not yet been completed prior to this call.
+
+    the onAlreadyCompleted will ONLY be executed if the future was already been completed prior to this call.
+    
+    These blocks may end up running inside any potential thread or queue, so avoid using external/shared memory.
+
+    :param: completionBlock a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
+
+    :param: onAlreadyCompleted a block that will run iff the future has already been completed. 
+    */
+    public final func completeWithBlocks(completionBlock : ()->Completion<T>, onAlreadyCompleted : () -> Void)
     {
-        self.future.completeWithBlock(completionBlock, onCompletionError: onAlreadyCompleted)
+        self.future.completeWithBlocks(completionBlock, onCompletionError: onAlreadyCompleted)
     }
 
 

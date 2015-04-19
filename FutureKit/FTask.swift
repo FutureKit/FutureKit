@@ -33,7 +33,7 @@ public class FTaskCompletion : NSObject {
         self.completion = .Fail(fail)
     }
     init (continueWith f: FTask) {
-        self.completion = .ContinueWith(f.future)
+        self.completion = .CompleteUsing(f.future)
     }
 
     
@@ -213,9 +213,9 @@ public extension FTask {
     private class func toCompletion(a : AnyObject?) -> Completion<resultType> {
         switch a {
         case let f as Future<resultType>:
-            return .ContinueWith(f)
+            return .CompleteUsing(f)
         case let f as FTask:
-            return .ContinueWith(f.future)
+            return .CompleteUsing(f.future)
 
         case let c as Completion<resultType>:
             return c
@@ -259,7 +259,7 @@ public extension FTask {
 
     final func onSuccessResultWithQ(q : dispatch_queue_t, _ block:((result:resultType) -> AnyObject?)) -> FTask {
         return self.onCompleteQ(q)  { (c) -> AnyObject? in
-            if c.completion.isSuccess() {
+            if c.completion.isSuccess {
                 return block(result: c.completion.result)
             }
             else {
@@ -270,7 +270,7 @@ public extension FTask {
 
     final func onSuccessResultWith(executor : FTaskExecutor, _ block:((result:resultType) -> AnyObject?)) -> FTask {
         return self.onComplete(executor)  { (c) -> AnyObject? in
-            if c.completion.isSuccess() {
+            if c.completion.isSuccess {
                 return block(result: c.completion.result)
             }
             else {
@@ -281,7 +281,7 @@ public extension FTask {
 
     final func onSuccessWithQ(q : dispatch_queue_t, block:(() -> AnyObject?)) -> FTask {
         return self.onCompleteQ(q)  { (c) -> AnyObject? in
-            if c.completion.isSuccess() {
+            if c.completion.isSuccess {
                 return block()
             }
             else {
@@ -289,9 +289,9 @@ public extension FTask {
             }
         }
     }
-    final func onSuccessWith(executor : FTaskExecutor, block:(() -> AnyObject?)) -> FTask {
+    final func onSuccess(executor : FTaskExecutor, block:(() -> AnyObject?)) -> FTask {
         return self.onComplete(executor)  { (c) -> AnyObject? in
-            if c.completion.isSuccess() {
+            if c.completion.isSuccess {
                 return block()
             }
             else {
@@ -305,7 +305,7 @@ public extension FTask {
     }
     
     final func onSuccess(block:(() -> AnyObject?)) -> FTask {
-        return self.onSuccessWith(.Primary,block: block)
+        return self.onSuccess(.Primary,block: block)
     }
 
 

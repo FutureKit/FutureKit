@@ -73,9 +73,9 @@
 		0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FE21ADB483C00B58B0B /* FutureWait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureWait.swift; sourceTree = "<group>"; };
-		0DB979A01AE2A21100158386 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		0DB979A01AE2A21100158386 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
+		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureBatch.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DEA1B911AE30853000E126F /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1B941AE30853000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -740,6 +740,7 @@
 				0DEA1BA51AE30853000E126F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DEA1BC21AE30873000E126F /* Build configuration list for PBXNativeTarget "FutureKit OSX" */ = {
 			isa = XCConfigurationList;
@@ -748,6 +749,7 @@
 				0DEA1BC41AE30873000E126F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DEA1BF31AE3116A000E126F /* Build configuration list for PBXNativeTarget "FutureKit iOS Tests" */ = {
 			isa = XCConfigurationList;
@@ -756,6 +758,7 @@
 				0DEA1BF51AE3116A000E126F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DEA1C081AE313DD000E126F /* Build configuration list for PBXNativeTarget "FutureKit OSX Tests" */ = {
 			isa = XCConfigurationList;
@@ -764,6 +767,7 @@
 				0DEA1C0A1AE313DD000E126F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

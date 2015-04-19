@@ -384,21 +384,21 @@ public enum Executor {
             let b  = { (t:T) -> Void in
                 var currentDepth : NSNumber
                 let threadDict = NSThread.currentThread().threadDictionary
-                if let c = threadDict[FUTUREKIT_GLOBAL_PARMS.STACK_CHECKING_PROPERTY] as? NSNumber {
+                if let c = threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] as? NSNumber {
                     currentDepth = c
                 }
                 else {
                     currentDepth = 0
                 }
-                if (currentDepth.integerValue > FUTUREKIT_GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
+                if (currentDepth.integerValue > GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
                     let b = Executor.Default.callbackBlockFor(block)
                     b(t)
                 }
                 else {
                     let newDepth = NSNumber(int:currentDepth.integerValue+1)
-                    threadDict[FUTUREKIT_GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = newDepth
+                    threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = newDepth
                     block(t)
-                    threadDict[FUTUREKIT_GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = currentDepth
+                    threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = currentDepth
                 }
             }
             return b

@@ -465,7 +465,7 @@ public class Future<T> : FutureProtocol{
     
     internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
     internal typealias completion_block_type = ((Completion<T>) -> Void)
-    internal typealias cancellation_handler_type = ((Any?)-> Bool)
+    internal typealias cancellation_handler_type = ((Any?)-> Void)
     
     
     private var __callbacks : [completion_block_type]?
@@ -642,12 +642,18 @@ public class Future<T> : FutureProtocol{
 
     
     public init(afterDelay:NSTimeInterval, completeWith: Completion<T>) {    // emits a .Success after delay
+        self.__cancellationHandler = { (a:Any?) -> Void in
+            self.completeWith(.Cancelled(a))
+        }
         Executor.Default.executeAfterDelay(afterDelay) { () -> Void in
             self.completeWith(completeWith)
         }
     }
     
     public init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
+        self.__cancellationHandler = { (a:Any?) -> Void in
+            self.completeWith(.Cancelled(a))
+        }
         Executor.Default.executeAfterDelay(afterDelay) { () -> Void in
             self.completeWith(.Success(success))
         }
@@ -704,31 +710,11 @@ public class Future<T> : FutureProtocol{
         :param: completion the value to complete the Future with
     
     */
-    internal func completeAndNotify(completion : Completion<T>) {
+    internal final func completeAndNotify(completion : Completion<T>) {
         
         return self.completeWithBlocks({ () -> Completion<T> in
             completion
             }, onCompletionError: nil)
-
-        
-/*        self.synchObject.modifyAsync({ () -> [completion_block_type]? in
-            if (self.__completion != nil) {
-                return nil
-            }
-            self.__completion = completion
-            let cbs = self.__callbacks
-            self.__callbacks = nil
-            self.__cancellationHandler = nil
-           return cbs
-            
-            }, done: { (cbs) -> Void in
-                if let callbacks = cbs {
-                    for callback in callbacks {
-                        callback(completion)
-                    }
-                }
-        }) */
-
     }
 
     /**
@@ -745,33 +731,11 @@ public class Future<T> : FutureProtocol{
     :param: onCompletionError a block to execute if the Future has already been completed.
 
     */
-    internal func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
-        
+    internal final func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
         
         return self.completeWithBlocks({ () -> Completion<T> in
             completion
         }, onCompletionError: onCompletionError)
-        
-/*        self.synchObject.modifyAsync({ () -> (cbs:[completion_block_type]?,success:Bool) in
-            if let c = self.__completion {
-                return (nil,false)
-            }
-            self.__completion = completion
-            let cbs = self.__callbacks
-            self.__callbacks = nil
-            self.__cancellationHandler = nil
-            return (cbs,true)
-            
-            }, done: { (tuple) -> Void in
-                if let callbacks = tuple.cbs {
-                    for callback in callbacks {
-                        callback(completion)
-                    }
-                }
-                else if !tuple.success {
-                    onCompletionError()
-                }
-            }) */
     }
     
     
@@ -933,7 +897,7 @@ public class Future<T> : FutureProtocol{
     :returns: a tuple (promise,callbackblock) a new promise and a completion block that can be added to __callbacks
     
     */
-    internal func createPromiseAndCallback<S>(forBlock: ((Completion<T>)-> Completion<S>)) -> (promise : Promise<S> , completionCallback :completion_block_type) {
+    internal final func createPromiseAndCallback<S>(forBlock: ((Completion<T>)-> Completion<S>)) -> (promise : Promise<S> , completionCallback :completion_block_type) {
         
         var promise = Promise<S>()
         
@@ -972,7 +936,7 @@ public class Future<T> : FutureProtocol{
    
     :param: callback a callback block to be run if and when the future is complete
    */
-    private func runThisCompletionBlockNowOrLater<S>(callback : completion_block_type,promise: Promise<S>) {
+    private final func runThisCompletionBlockNowOrLater<S>(callback : completion_block_type,promise: Promise<S>) {
         
         // lock my object, and either return the current completion value (if it's set)
         // or add the block to the __callbacks if not.
@@ -1014,13 +978,14 @@ public class Future<T> : FutureProtocol{
         return self.synchObject.modify {
             self.__callbacks = nil
             self.__completion = nil
+            self.__cancellationHandler = nil
         }
     }
 
     /**
         if we try to convert a future from type T to type T, just ignore the request.
     
-        the compile should automatically figure out which version to execute
+        the compile should automatically figure out which version of convert() execute
     */
     public func convert() -> Future<T> {
         return self
@@ -1397,7 +1362,7 @@ public class Future<T> : FutureProtocol{
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block can process the error of a future.
     */
-    public func onFail<__Type>(executor : Executor, _ block:(error:NSError)-> Void)
+    public func onFail(executor : Executor, _ block:(error:NSError)-> Void)
     {
         self.onComplete(executor) { (completion) -> Void in
             if (completion.isFail) {
@@ -1416,7 +1381,7 @@ public class Future<T> : FutureProtocol{
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block can process the error of a future.
     */
-    public func onFail<__Type>(block:(error:NSError)-> Void)
+    public func onFail(block:(error:NSError)-> Void)
     {
         self.onComplete(.Primary) { (completion) -> Void in
             if (completion.isFail) {
@@ -1435,7 +1400,7 @@ public class Future<T> : FutureProtocol{
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    public func onCancel<__Type>(executor : Executor, _ block:(cancelToken:Any?)-> Void)
+    public func onCancel(executor : Executor, _ block:(cancelToken:Any?)-> Void)
     {
         self.onComplete(executor) { (completion) -> Void in
             if (completion.isCancelled) {
@@ -1454,7 +1419,7 @@ public class Future<T> : FutureProtocol{
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    public func onCancel<__Type>(block:(cancelToken:Any?)-> Void)
+    public func onCancel(block:(cancelToken:Any?)-> Void)
     {
         self.onComplete(.Primary) { (completion) -> Void in
             if (completion.isCancelled) {

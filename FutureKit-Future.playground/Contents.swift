@@ -70,6 +70,7 @@ let f = asyncFuture5.onSuccess(.Main) { (result) -> Void in
 futureFail.onFail { (error) -> Void in
     let e = error.localizedDescription
 }
+
 cancelledFuture.onCancel { (token) -> Void in
     let cancelToken = token
 }
@@ -351,7 +352,6 @@ asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
 //: - 'func onComplete(block:(Completion<T>) -> Future<S>)'
 // we are gonna use this future for the next few examples.
 let sampleFuture = Future(success: 5)
-
 //: 'func onComplete(block:(Completion<T>) -> Completion<__Type>)'
 
 //: The first version we have already seen.  It let's you receive a completion value from a target future, and return any sort of new result it wants (maybe it want's to Fail certain 'Success' results from it's target, or visa-versa).  It is very flexible.  You can compose a new future that returns anything you want.
@@ -428,5 +428,16 @@ coolFuture.onSuccess { (result) -> Void in
 }
 
 
+//: # TODO -  
+//: - onSuccess Handlers (it's pretty much just like onComplete handlers, but easier).
+//: - onFail/onCancel and how they DON'T return a new future! (They aren't as composable as onComplete/onSuccess for some very good reasons).
+//: - Executors - and how to dispatch your code quickly and easy in any queue or thread you want.
+//: - Cancel  -  How to write a Future that supports cancel().  And how cancel() can chain through composed futures.
+
+//: # Eventually - 
+//: Advanced topics like:
+//: - how to tune synchronization.
+//: - add a real var to a swift extension in a few lines.
+//: - write code that can switch at runtime between Locks/Barriers and any other snychronization strategy you can bake up.
 
 

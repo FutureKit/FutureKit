@@ -27,11 +27,23 @@ public class Promise<T>  {
     }
 
     /**
-    creates a promise that enables the Future.cancel()
+        creates a promise that enables the Future.cancel()
+        The cancellationHandler will execute using Executor.Primary
     */
-    public init(cancellationHandler h: (Any?) -> Bool) {
-       self.future = Future<T>(cancellationHandler: h)
+    public init(cancellationHandler h: (Any?) -> Void) {
+        let newHandler = Executor.Primary.callbackBlockFor(h)
+        self.future = Future<T>(cancellationHandler: newHandler)
     }
+
+    /**
+    creates a promise that enables the Future.cancel()
+    The cancellationHandler will execute using the executor
+    */
+    public init(executor:Executor,cancellationHandler h: (Any?) -> Void) {
+        let newHandler = executor.callbackBlockFor(h)
+        self.future = Future<T>(cancellationHandler: newHandler)
+    }
+
     
     public init(automaticallyFailAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
         self.future = Future<T>()

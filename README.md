@@ -28,7 +28,7 @@ FutureKit documentation is being written as XCode Playgrounds.  The best way to 
 The XCode Playgrounds probably require XCode 6.3 (in order to see the Markup correctly)
 
 If you are impatient, or not near your copy of XCode, you can try to read the first intro "raw" playground here:
-https://github.com/mishagray/FutureKit/blob/master/FutureKit-Future.playground/Contents.swift
+https://github.com/FutureKit/FutureKit/blob/master/FutureKit-Future.playground/Contents.swift
 
 There is also docs directory, that is generated using jazzy. https://github.com/realm/jazzy and the embedded documentation.  The plan is to get as close to 100% as possible (We are at 20%!).  So currently there is a lot of missing documentation.
 

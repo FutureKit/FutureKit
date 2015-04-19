@@ -37,10 +37,9 @@ There is also docs directory, that is generated using jazzy. https://github.com/
 
 # Help out!  
 
-I would love it to get feedback!  Tell me what you think is wrong.
+I would love it to get feedback!  Tell me what you think is wrong.  You can follow @swiftfuturekit to get annoucements (when we make them).
 
 - michael@futurekit.org
-- twitter/@swiftfuturekit
-- 
+- http://twitter/swiftfuturekit
 
 

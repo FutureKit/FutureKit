@@ -234,17 +234,17 @@ public extension FTask {
         return FTaskCompletion(completion: self.toCompletion(a))
     }
 
-    final func onCompleteWithQ(q : dispatch_queue_t,block b:( (completion:FTaskCompletion)-> AnyObject?)) -> FTask {
+    final func onCompleteQ(q : dispatch_queue_t,block b:( (completion:FTaskCompletion)-> AnyObject?)) -> FTask {
         
-        let f = self.future.onCompleteWith(Executor.Queue(q)) { (completion) -> Completion<resultType> in
+        let f = self.future.onComplete(Executor.Queue(q)) { (completion) -> Completion<resultType> in
             let c = FTaskCompletion(completion: completion)
             return FTask.toCompletion(b(completion: c))
         }
         return FTask(f)
     }
 
-    final func onCompleteWith(executor : FTaskExecutor,block b:( (completion:FTaskCompletion)-> AnyObject?)) -> FTask {
-        let f = self.future.onCompleteWith(executor.executor()) { (completion) -> Completion<resultType> in
+    final func onComplete(executor : FTaskExecutor,block b:( (completion:FTaskCompletion)-> AnyObject?)) -> FTask {
+        let f = self.future.onComplete(executor.executor()) { (completion) -> Completion<resultType> in
             let c = FTaskCompletion(completion: completion)
             return FTask.toCompletion(b(completion: c))
         }
@@ -253,12 +253,12 @@ public extension FTask {
 
     
     final func onComplete(block:( (completion:FTaskCompletion)-> AnyObject?)) -> FTask {
-        return self.onCompleteWith(.Primary, block: block)
+        return self.onComplete(.Primary, block: block)
     }
 
 
     final func onSuccessResultWithQ(q : dispatch_queue_t, _ block:((result:resultType) -> AnyObject?)) -> FTask {
-        return self.onCompleteWithQ(q)  { (c) -> AnyObject? in
+        return self.onCompleteQ(q)  { (c) -> AnyObject? in
             if c.completion.isSuccess() {
                 return block(result: c.completion.result)
             }
@@ -269,7 +269,7 @@ public extension FTask {
     }
 
     final func onSuccessResultWith(executor : FTaskExecutor, _ block:((result:resultType) -> AnyObject?)) -> FTask {
-        return self.onCompleteWith(executor)  { (c) -> AnyObject? in
+        return self.onComplete(executor)  { (c) -> AnyObject? in
             if c.completion.isSuccess() {
                 return block(result: c.completion.result)
             }
@@ -280,7 +280,7 @@ public extension FTask {
     }
 
     final func onSuccessWithQ(q : dispatch_queue_t, block:(() -> AnyObject?)) -> FTask {
-        return self.onCompleteWithQ(q)  { (c) -> AnyObject? in
+        return self.onCompleteQ(q)  { (c) -> AnyObject? in
             if c.completion.isSuccess() {
                 return block()
             }
@@ -290,7 +290,7 @@ public extension FTask {
         }
     }
     final func onSuccessWith(executor : FTaskExecutor, block:(() -> AnyObject?)) -> FTask {
-        return self.onCompleteWith(executor)  { (c) -> AnyObject? in
+        return self.onComplete(executor)  { (c) -> AnyObject? in
             if c.completion.isSuccess() {
                 return block()
             }

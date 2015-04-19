@@ -216,13 +216,13 @@ public enum Completion<T> : Printable, DebugPrintable {
                 // if you crash here, it's because the result passsed to the future wasn't of type T!
                 return (t as! T)
             default:
-                assertionFailure("don't call result without checking that the enumeration is .Error first.")
+//                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
             }
         }
     }
     /**
-        make sure this enum is a .Fail before calling `result`. Use a switch or check .isSuccess() first.
+        make sure this enum is a .Fail before calling `result`. Use a switch or check .isError() first.
     */
     public var error : NSError! {
         get {
@@ -230,7 +230,7 @@ public enum Completion<T> : Printable, DebugPrintable {
             case let .Fail(e):
                 return e
             default:
-                assertionFailure("don't call .error without checking that the enumeration is .Error first.")
+//                assertionFailure("don't call .error without checking that the enumeration is .Error first.")
                 return nil
             }
         }
@@ -249,7 +249,7 @@ public enum Completion<T> : Printable, DebugPrintable {
         }
     }
     /**
-    will return a cancelToken iff the enumeration is a .Cancel.  May return nil (if no token was sent).  Can't be used to determine if the enumeration was .Cancel, so use .IsCancel() or use a switch.
+    will return a future iff the enumeration is a .ContinueWith. Can't be used to determine if the enumeration was .ContinueWith, so use a switch.
     */
     public var continueWithFuture:Future<T>! {
         get {
@@ -257,7 +257,7 @@ public enum Completion<T> : Printable, DebugPrintable {
             case let .ContinueWith(f):
                 return f
             default:
-                assertionFailure("don't call .continueWithFuture without checking that the enumeration is .ContinueWith first.")
+//                assertionFailure("don't call .continueWithFuture without checking that the enumeration is .ContinueWith first.")
                 return nil
             }
         }
@@ -559,6 +559,19 @@ public class Future<T>  {
     public init(cancelled:Any?) {  // returns an completed Task that has Failed with this error
         self.__completion = .Cancelled(cancelled)
     }
+
+    
+    public init(afterDelay:NSTimeInterval, completeWith: Completion<T>) {    // emits a .Success after delay
+        Executor.Default.executeAfterDelay(afterDelay) { () -> Void in
+            self.completeWith(completeWith)
+        }
+    }
+    
+    public init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
+        Executor.Default.executeAfterDelay(afterDelay) { () -> Void in
+            self.completeWith(.Success(success))
+        }
+    }
     
     /**
     creates a completed Future with a completion == completion
@@ -709,6 +722,52 @@ extension Future {
         return tuple.success
     }
 
+    internal func completeWithBlock(completionBlock : () -> Completion<T>) {
+        
+        self.synchObject.modifyAsync({ () -> (cbs:[completion_block_type]?,completion:Completion<T>?) in
+            if let c = self.__completion {
+                return (nil,nil)
+            }
+            self.__completion = completionBlock()
+            let cbs = self.__callbacks
+            self.__callbacks = nil
+            return (cbs,self.__completion)
+            
+            }, done: { (tuple) -> Void in
+                if let callbacks = tuple.cbs {
+                    for callback in callbacks {
+                        callback(tuple.completion!)
+                    }
+                }
+        })
+    }
+
+    
+    internal func completeWithBlock(completionBlock : () -> Completion<T>, onCompletionError : completionErrorHandler) {
+        
+        self.synchObject.modifyAsync({ () -> (cbs:[completion_block_type]?,completion:Completion<T>?) in
+            if let c = self.__completion {
+                return (nil,nil)
+            }
+            self.__completion = completionBlock()
+            let cbs = self.__callbacks
+            self.__callbacks = nil
+            return (cbs,self.__completion)
+            
+            }, done: { (tuple) -> Void in
+                if let callbacks = tuple.cbs {
+                    for callback in callbacks {
+                        callback(tuple.completion!)
+                    }
+                }
+                else if (tuple.completion == nil) {
+                    onCompletionError()
+                }
+        })
+    }
+    
+
+
     /**
     if completion is of type .ContinueWith(f), than this will register an appropriate callback on f to complete this future iff f completes.
     
@@ -724,7 +783,7 @@ extension Future {
     internal func completeWith(completion : Completion<T>) {
         switch (completion) {
         case let .ContinueWith(f):
-            f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
+            f.onComplete(.Immediate)  { (nextComp) -> Void in
                 self.completeWith(nextComp)
                 return
             }
@@ -750,7 +809,7 @@ extension Future {
             if (self.isCompleted) {
                 return false
             }
-            f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
+            f.onComplete(.Immediate)  { (nextComp) -> Void in
                 self.completeWith(nextComp)
             }
             return true
@@ -771,7 +830,7 @@ extension Future {
     :param: completion the value to complete the Future with
     
     :param: onCompletionError a block to execute if the Future has already been completed.
-*/
+    */
     internal func completeWith(completion : Completion<T>, onCompletionError errorBlock: completionErrorHandler) {
         switch (completion) {
         case let .ContinueWith(f):
@@ -782,7 +841,7 @@ extension Future {
                     errorBlock()
                 }
                 else {
-                    f.onCompleteWith(.Immediate)  { (nextComp) -> Void in
+                    f.onComplete(.Immediate)  { (nextComp) -> Void in
                         self.completeWith(nextComp,onCompletionError: errorBlock)
                         return
                     }
@@ -792,7 +851,6 @@ extension Future {
             return self.completeAndNotify(completion,onCompletionError: errorBlock)
         }
     }
-    
     
     /**
     
@@ -1019,7 +1077,7 @@ extension Future {
     :param: block a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
     :returns: a new Future that returns results of type __Type  (Future<__Type>)
     */
-    public func onCompleteWith<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
+    public func onComplete<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
         return self.onComplete(executor) { (c) -> Completion<__Type> in
             return .Success(block(completion:c))
         }
@@ -1035,17 +1093,87 @@ extension Future {
     :returns: a new Future that returns results of type __Type  (Future<__Type>)
     */
     public func onComplete<__Type>(block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
-        return self.onCompleteWith(.Primary,block)
+        return self.onComplete(.Primary,block)
+    }
+ 
+    
+    
+    
+    /**
+    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
+    
+    The new future returned from this function will be completed with `.Success'.
+    
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    
+    :param: block a block that will execute when this future completes.
+    
+    :returns: a Future<Void> that completes after this block has executed.
+    
+    */
+    public func onComplete(executor: Executor, block:(completion:Completion<T>)-> Void) -> Future<Void> {
+        return self.onComplete(executor) { (c) -> Completion<Void> in
+            return .Success(block(completion:c))
+        }
+    }
+    
+    
+    /**
+    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
+    
+    The new future returned from this function will be completed with `.Success'.
+    
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    
+    :param: block a block that will execute when this future completes.
+    
+    :returns: a Future<Void> that completes after this block has executed.
+    
+    */
+    public func onComplete(block:(completion:Completion<T>)-> Void) -> Future<Void> {
+        return self.onComplete { (c) -> Completion<Void> in
+            return .Success(block(completion:c))
+        }
+    }
+    
+    
+    public func onComplete<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(executor, block: { (c) -> Completion<__Type> in
+            return .ContinueWith(block(completion:c))
+        })
+    }
+    public func onComplete<__Type>(block:(conpletion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
+        return self.onComplete(.Primary,block)
+    }
+    
+    
+    
+    public func waitForComplete<__Type>(timeout: NSTimeInterval,
+        executor : Executor,
+        didComplete:(Completion<T>)-> Completion<__Type>,
+        timedOut:()-> Completion<__Type>
+        ) -> Future<__Type> {
+            
+            let p = Promise<__Type>()
+            
+            let f = self.onComplete(executor) { (c) -> Void in
+                
+                p.completeWithBlock({ () -> Completion<__Type> in
+                    return didComplete(c)
+                })
+            }
+            
+            executor.executeAfterDelay(timeout)  {
+                p.completeWithBlock { () -> Completion<__Type> in
+                    return timedOut()
+                }
+            }
+            
+            return p.future
     }
 
 
     
-    
-    
-    
-    
-    
- 
     /**
     takes a block and executes it iff the target is completed with a .Success
     
@@ -1246,43 +1374,7 @@ extension Future {
     // ---------------------------------------------------------------------------------------------------
  
     
-    /**
-    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
-    
-    The new future returned from this function will be completed with `.Success'.
-    
-    :param: executor an Executor to use to execute the block when it is ready to run.
-    
-    :param: block a block that will execute when this future completes.
-    
-    :returns: a Future<Void> that completes after this block has executed.
-    
-    */
-    public func onCompleteWith(executor: Executor, block:(completion:Completion<T>)-> Void) -> Future<Void> {
-        return self.onComplete(executor) { (c) -> Completion<Void> in
-            return .Success(block(completion:c))
-        }
-    }
-    
-
-    /**
-    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
-    
-    The new future returned from this function will be completed with `.Success'.
-    
-    :param: executor an Executor to use to execute the block when it is ready to run.
-    
-    :param: block a block that will execute when this future completes.
-    
-    :returns: a Future<Void> that completes after this block has executed.
-    
-    */
-    public func onComplete(block:(completion:Completion<T>)-> Void) -> Future<Void> {
-        return self.onComplete { (c) -> Completion<Void> in
-            return .Success(block(completion:c))
-        }
-    }
-    
+   
 
     /**
     takes a block and executes it iff the target is completed with a .Success
@@ -1314,7 +1406,7 @@ extension Future {
     
     If the target is completed with a .Success, then the block will be executed using the Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.
    
-    The block will be executed in using the Executor.Primary (usually configued as .Immediate).  The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onCompleteWith()
+    The block will be executed in using the Executor.Primary (usually configued as .Immediate).  The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onComplete()
    
     If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.
     
@@ -1385,14 +1477,6 @@ extension Future {
 
     
 
-    public func onCompleteWith<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
-        return self.onComplete(executor, block: { (c) -> Completion<__Type> in
-            return .ContinueWith(block(completion:c))
-        })
-    }
-    public func onComplete<__Type>(block:(conpletion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
-        return self.onCompleteWith(.Primary,block)
-    }
     
 
     public func onSuccessWith<__Type>(executor : Executor, _ block:(result:T)-> Future<__Type>) -> Future<__Type> {
@@ -1740,9 +1824,9 @@ class classWithMethodsThatReturnFutures {
         }
             
         
-        self.iMayFailRandomly().onSuccess { () -> Void in
-            NSLog("()")
-        }()
+        self.iMayFailRandomly().onAnySuccess { () -> Void in
+            NSLog("")
+        }
         
     }
     

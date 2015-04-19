@@ -9,6 +9,7 @@
 import Foundation
 
 #if os(iOS)
+import UIKit
 // UI
 let IS_SMALLSCREEN = ( UIScreen.mainScreen().bounds.size.height < 568.0)
 let SCREEN_WIDTH = UIScreen.mainScreen().bounds.size.width

@@ -70,7 +70,16 @@ public class Promise<T>  {
     public final func continueWithFuture(f : Future<T>) {
         self.future.completeWith(.ContinueWith(f))
     }
-    
+
+    public final func completeWithBlock(completionBlock : ()->Completion<T>) {
+        self.future.completeWithBlock(completionBlock)
+    }
+    public final func completeWithBlock(completionBlock : ()->Completion<T>, onAlreadyCompleted : completionErrorHandler)
+    {
+        self.future.completeWithBlock(completionBlock, onCompletionError: onAlreadyCompleted)
+    }
+
+
     public final func failIfNotCompleted(e : NSError) -> Bool {
         if (!self.isCompleted) {
             return self.future.completeWithSync(.Fail(e))

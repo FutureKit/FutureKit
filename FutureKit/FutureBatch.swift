@@ -101,7 +101,7 @@ public class FutureBatchOf<T> {
             var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled(()))
             
             for (index, future) in enumerate(array) {
-                future.onCompleteWith(.Immediate) { (completion: Completion<T>) -> Void in
+                future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
                     
                     promise.synchObject.modifyAsync({ () -> Int in
                         result[index] = completion

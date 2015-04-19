@@ -304,20 +304,19 @@ public enum Completion<T> : Printable, DebugPrintable {
     }
     
     /**
-    convert this completion of type Completion<T> into another type Completion<S?>.
+    convert this completion of type `Completion<T>` into another type `Completion<S?>`.
     
-    :returns: a new completionValue of type Completion<S?>
-    
-    WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
+    WARNING: if `T as! S` isn't legal, than all Success values may be converted to nil
     - example:
     
-    `let c : Complete<String> = .Success("5")`
-    
-    `let c2 : Complete<[Int]?> =  c.convertOptional()`
-    
-    `assert(c2.result == nil)`
+        let c : Complete<String> = .Success("5")
+        let c2 : Complete<[Int]?> =  c.convertOptional()
+        assert(c2.result == nil)
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+    
+    :returns: a new completionValue of type Completion<S?>
+
     */
     public func convertOptional<S>() -> Completion<S?> {
         switch self {
@@ -367,32 +366,29 @@ public enum Completion<T> : Printable, DebugPrintable {
 */
 public protocol FutureProtocol {
     /**
-    convert this future of type Future<T> into another future type Future<S>.
+    convert this future of type `Future<T>` into another future type `Future<S>`
     
     may fail to compile if T is not convertable into S using "`as!`"
     
     works iff the following code works:
-    
-    'let t : T`
-    
-    'let s = t as! S'
+        
+        let t : T
+        let s = t as! S
     
     
     example:
     
-    `let f = Future<Int>(success:5)`
-    
-    `let f2 : Future<Int32> = f.convert()`
-    
-    `assert(f2.result! == Int32(5))`
+        let f = Future<Int>(success:5)
+        let f2 : Future<Int32> = f.convert()
+        assert(f2.result! == Int32(5))
     
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     
-    the following conversions should always work for any future `f`
+    the following conversions should always work for any future
     
-    `let fofany : Future<Any> = f.convert()`
+        let fofany : Future<Any> = f.convert()
+        let fofvoid: Future<Void> = f.convert()
     
-    `let fofvoid: Future<Void> = f.convert()`
     */
     func convert<S>() -> Future<S>
 
@@ -402,20 +398,25 @@ public protocol FutureProtocol {
     WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
     
     example:
-    
-    `let f = Future<String>(success:"5")`
-    
-    `let f2 : Future<[Int]?> = f.convertOptional()`
-    
-    `assert(f2.result! == nil)`
+        let f = Future<String>(success:"5")
+        let f2 : Future<[Int]?> = f.convertOptional()
+        assert(f2.result! == nil)
     
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     */
-func convertOptional<S>() -> Future<S?>
-}
+    func convertOptional<S>() -> Future<S?>
+    }
 
 
-public class Future<T>  {
+/**
+
+    `Future<T>`
+
+    A Future is a swift generic class that let's you represent an object that will be returned at somepoint in the future.  Usually from some asynchronous operation that may be running in a different thread/dispatch_queue or represent data that must be retrieved from a remote server somewhere.
+
+
+*/
+public class Future<T> : FutureProtocol{
     
     
     internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
@@ -612,10 +613,8 @@ public class Future<T>  {
         }
         block()
     }
-}
 
-extension Future {
-
+    
     /**
         will complete the future and cause any registered callback blocks to be executed.
     
@@ -943,31 +942,25 @@ extension Future {
             self.__completion = nil
         }
     }
-}
-
-extension Future : FutureProtocol {
 
     /**
         if we try to convert a future from type T to type T, just ignore the request.
     
-        the compile should automatically figure out if needs to call convert() or convert<S>()
+        the compile should automatically figure out which version to execute
     */
     public func convert() -> Future<T> {
         return self
     }
 
     /**
-    convert this future of type Future<T> into another future type Future<S>.
+    convert this future of type `Future<T>` into another future type `Future<__Type>`
     
-    :returns: a new Future of type Future<S>
-    
-    may fail to execute if T is not convertable into S using "`as!`"
+    WARNING: if `T as! __Type` isn't legal, than your code may generate an exception.
     
     works iff the following code works:
     
         let t : T
-        let s = t as! S
-    
+        let s = t as! __Type
     
     example:
     
@@ -975,54 +968,57 @@ extension Future : FutureProtocol {
         let f2 : Future<Int32> = f.convert()
         assert(f2.result! == Int32(5))
     
-    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
+    you will need to formally declare the type of the new variable in order for Swift to perform the correct conversion.
     
-    the following conversions should always work for any future `f`
+    the following conversions should always work for any future
     
         let fofany : Future<Any> = f.convert()
         let fofvoid: Future<Void> = f.convert()
     
+    :returns: a new Future of with the result type of __Type
     */
-    public func convert<S>() -> Future<S> {
-        return self.map { (result) -> S in
-            return result as! S
+    public func convert<__Type>() -> Future<__Type> {
+        return self.map { (result) -> __Type in
+            return result as! __Type
         }
     }
     
     /**
-    convert Future<T> into another type Future<S?>.
+    convert `Future<T>` into another type `Future<__Type?>`.
     
-    WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
+    WARNING: if `T as! __Type` isn't legal, than all Success values may be converted to nil
     
     example:
     
-    `let f = Future<String>(success:"5")`
-    
-    `let f2 : Future<[Int]?> = f.convertOptional()`
-    
-    `assert(f2.result! == nil)`
+        let f = Future<String>(success:"5")
+        let f2 : Future<[Int]?> = f.convertOptional()
+        assert(f2.result! == nil)
     
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     
-    :returns: a new Future of type Future<S?>
+    :returns: a new Future of with the result type of __Type?
 
     */
-    public func convertOptional<S>() -> Future<S?> {
-        return self.map { (result) -> S? in
-            return result as? S
+    public func convertOptional<__Type>() -> Future<__Type?> {
+        return self.map { (result) -> __Type? in
+            return result as? __Type
         }
     }
-}
 
 // ---------------------------------------------------------------------------------------------------
 // Block Handlers
 // ---------------------------------------------------------------------------------------------------
-extension Future {
     
     /**
     executes a block using the supplied Executor if and when the target future is completed.  Will execute immediately if the target is already completed.
     
-    This method will let you examine the completion state of target, and return a new future in any completion state, with any new value type __Type.
+    This method will let you examine the completion state of target, and return a new future in any completion state, with the user defined type __Type.
+    
+    The `completion` argument will be set to the Completion<T> value that completed the target.  It will be one of 3 values (.Success, .Fail, or .Cancelled).
+    
+    The block must return one of four enumeration values (.Success/.Fail/.Cancelled/.ContinueWith).   
+    
+    Returning a future `f` using .ContinueWith(f) causes the future returned from this method to be completed when `f` completes, using the completion value of `f`. (Leaving the Future in an incomplete state, until 'f' completes).
     
     The new future returned from this function will be completed using the completion value returned from this block.
 
@@ -1046,17 +1042,21 @@ extension Future {
     /**
     executes a block using the Executor.Primary if and when the target future is completed.  Will execute immediately if the target is already completed.
     
-    This method will let you examine the completion state of target, and return a new future in any completion state, with any new value type __Type.
+    This method will let you examine the completion state of target, and return a new future in any completion state, with the user defined type __Type.
+    
+    The `completion` argument will be set to the Completion<T> value that completed the target.  It will be one of 3 values (.Success, .Fail, or .Cancelled).
+    
+    The block must return one of four enumeration values (.Success/.Fail/.Cancelled/.ContinueWith).
+    
+    Returning a future `f` using .ContinueWith(f) causes the future returned from this method to be completed when `f` completes. (Leaving the Future in an incomplete state, until 'f' completes).
     
     The new future returned from this function will be completed using the completion value returned from this block.
     
-    a link_
-    
     :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
-    
+    :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block that will execute when this future completes, and returns a new completion value for the new completion type.   The block must return a Completion value (Completion<__Type>).
-    
     :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    
     */
     public func onComplete<__Type>(block:(completion:Completion<T>)-> Completion<__Type>) -> Future<__Type> {
         return self.onComplete(.Primary, block: block)
@@ -1070,12 +1070,12 @@ extension Future {
     /**
     executes a block using the supplied Executor if and when the target future is completed.  Will execute immediately if the target is already completed.
     
-    This method will let you examine the completion state of target, and return a new future that completes with a .Success(result).  The value returned from the block will be set as this Future's result.
+    This method will let you examine the completion state of target, and return a new future that completes with a `.Success(result)`.  The value returned from the block will be set as this Future's result.
     
     :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
-    :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    :returns: a new Future that returns results of type __Type
     */
     public func onComplete<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
         return self.onComplete(executor) { (c) -> Completion<__Type> in
@@ -1085,12 +1085,12 @@ extension Future {
     /**
     executes a block using the Executor.Primary if and when the target future is completed.  Will execute immediately if the target is already completed.
     
-    This method will let you examine the completion state of target, and return a new future that completes with a .Success(result).  The value returned from the block will be set as this Future's result.
+    This method will let you examine the completion state of target, and return a new future that completes with a `.Success(result)`.  The value returned from the block will be set as this Future's result.
     
     :param: __Type the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
-    :returns: a new Future that returns results of type __Type  (Future<__Type>)
+    :returns: a new Future that returns results of type __Type
     */
     public func onComplete<__Type>(block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
         return self.onComplete(.Primary,block)
@@ -1108,7 +1108,7 @@ extension Future {
     
     :param: block a block that will execute when this future completes.
     
-    :returns: a Future<Void> that completes after this block has executed.
+    :returns: a `Future<Void>` that completes after this block has executed.
     
     */
     public func onComplete(executor: Executor, block:(completion:Completion<T>)-> Void) -> Future<Void> {
@@ -1127,7 +1127,7 @@ extension Future {
     
     :param: block a block that will execute when this future completes.
     
-    :returns: a Future<Void> that completes after this block has executed.
+    :returns: a `Future<Void>` that completes after this block has executed.
     
     */
     public func onComplete(block:(completion:Completion<T>)-> Void) -> Future<Void> {
@@ -1137,6 +1137,20 @@ extension Future {
     }
     
     
+    /**
+    takes a block and executes it if and when this future is completed.  The block will be executed using supplied Executor.
+    
+    The new future returned from this function will be completed when the future returned from the block is completed.  
+    
+    This is the same as returning Completion<T>.ContinueWith(f)
+    
+    :param: executor an Executor to use to execute the block when it is ready to run.
+    
+    :param: block a block that will execute when this future completes, and return a new Future.
+    
+    :returns: a `Future<Void>` that completes after this block has executed.
+    
+    */
     public func onComplete<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> Future<__Type>) -> Future<__Type> {
         return self.onComplete(executor, block: { (c) -> Completion<__Type> in
             return .ContinueWith(block(completion:c))

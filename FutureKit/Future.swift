@@ -1017,7 +1017,7 @@ public class Future<T> : FutureProtocol{
     :returns: a new Future of with the result type of __Type
     */
     public func convert<__Type>() -> Future<__Type> {
-        return self.map { (result) -> __Type in
+        return self.map(.Immediate) { (result) -> __Type in
             return result as! __Type
         }
     }
@@ -1039,7 +1039,7 @@ public class Future<T> : FutureProtocol{
 
     */
     public func convertOptional<__Type>() -> Future<__Type?> {
-        return self.map { (result) -> __Type? in
+        return self.map(.Immediate) { (result) -> __Type? in
             return result as? __Type
         }
     }
@@ -1491,16 +1491,19 @@ public class Future<T> : FutureProtocol{
     public func onAnySuccess<__Type>(block:()-> __Type) -> Future<__Type> {
         return self.onAnySuccess(.Primary,block)
     }
-    public func onSuccess<__Type>(@autoclosure(escaping) block:()-> __Type) -> Future<__Type> {
-        return self.onAnySuccess(.Primary,block)
-    }
+//    public func onSuccess<__Type>(@autoclosure(escaping) block:()-> __Type) -> Future<__Type> {
+//        return self.onAnySuccess(.Primary,block)
+//    }
 
     // rather use map?  Sure!
     public func map<__Type>(executor : Executor, block:(result:T)-> __Type) -> Future<__Type> {
         return self.onSuccess(executor,block)
     }
+    
+    // rather use map?  Sure!
+    // This version of map ALWAYS uses .Immediate, instead of Executor.Primary.
     public func map<__Type>(block:(result:T) -> __Type) -> Future<__Type> {
-        return self.onSuccess(block)
+        return self.onSuccess(.Immediate,block)
     }
 
     

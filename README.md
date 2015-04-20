@@ -28,7 +28,7 @@ The goal is to have a working version out before the end of May, with the offici
 So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another place.
 
     let imageView : UIImageView =  // some view on my view controller.
-    let imageFuture : Future<Image> = MyApiClass().getAnImageFromServer()
+    let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
 
 There are few things that are interesting.  This object represents both that an image will arrive, and it will give me universal way to handle failures and cancellation.    It could be that MyApiClass() is using NSURLSessions, or AlamoFire, combined with some kinda cool image cache based on SDWebImage.  But this viewController doesn't care.  Just give me a `Future<UIImage>`.  Somehow.
 
@@ -47,7 +47,7 @@ So know you have two asynchronous dependencies, one async call for the network, 
 
 Instead we are gonna do this.
 
-    let imageFuture : Future<Image> = MyApiClass().getAnImageFromServer()
+    let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
     let blurrImageFuture =  imageFuture.onSuccess(.UserInitiated) { (image) -> UIImage in {
          let burredImage = doBlurrEffect(image)
          return burredImage 

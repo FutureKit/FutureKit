@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'FutureKit'
-  s.version = '0.8.3'
+  s.version = '0.8.4'
   s.license = 'MIT'
   s.summary = 'A Swift based Future/Promises Library for IOS and OS X.'
   s.homepage = 'https://github.com/FutureKit/FutureKit'

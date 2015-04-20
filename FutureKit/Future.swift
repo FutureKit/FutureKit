@@ -901,7 +901,7 @@ public class Future<T> : FutureProtocol{
         
         var promise = Promise<S>()
         
-        if (GLOBAL_PARMS.WRAP_DEPENDENT_BLOCKS_WITH_OBJC_EXCEPTION_HANDLING) {
+/*        if (GLOBAL_PARMS.WRAP_DEPENDENT_BLOCKS_WITH_OBJC_EXCEPTION_HANDLING) {
             let completionCallback :completion_block_type  = {(comp) -> Void in
                 var blockCompletion : Completion<S>?
                 ObjectiveCExceptionHandler.Try({ () -> Void in
@@ -914,13 +914,13 @@ public class Future<T> : FutureProtocol{
             }
             return (promise,completionCallback)
         }
-        else {
+        else { */
             let completionCallback : completion_block_type = {(comp) -> Void in
                 promise.complete(forBlock(comp))  // we call tryComplete, because it's legal to 'cancel' a Future by calling cancel().
                 return
             }
             return (promise,completionCallback)
-        }
+/*        } */
         
     }
 

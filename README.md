@@ -95,12 +95,47 @@ A promise is a way for you write functions that returns Futures.
 
 A Promise<T> is a promise to send something back a value (of type T) in the future.  When it's ready..  A Promise has to be completed with either Success/Fail or Cancelled.  Don't break your promises!  Always complete them.  And everyone will be happy.  Especially your code that is waiting for things.
 
-But it also means my API doesn't really need to bake a hole bunch of custom callback block handlers that return results.   Because the Future object already offers a lot of cool built in ones.
+But it also means the API doesn't really need to bake a hole bunch of custom callback block handlers that return results.   And worry about what dispatch_queue those callback handlers have to running in.   Do you dispatch to mainQ before you call your callback handlers?  Or after?  Nobody seems to agree. 
 
-And worry about what dispatch_queue those callback handlers are running in.    He just has to emit what he promised.
+But the Future object already offers a lot of cool built ways to get told when data is ready and when it fails.  And can handle which GCD queue is required for this reply.     
 
-And since Futures can be composed from Futures, and Futures can be used to complete Promises, it's easy to integrate a number of complex Async services into a single reliable Future.
+The api just has to emit what he promised.  The Future will take care of getting it to the consumer.
 
+And since Futures can be composed from Futures, and Futures can be used to complete Promises, it's easy to integrate a number of complex Async services into a single reliable Future.  Mixing things like network calls, NSCache checks, database calls.   
+
+It also "inverts" the existing dispatch_async() logic.  Where first you call dispatch_async(some_custom_queue) and THEN you call some api call to start it working.   
+
+func oldwayToGetStuff(callback:(NSData) -> Void) {
+    dispatch_async(StuffMaker().custom_queue_for_stuff)  {
+    
+        // do stuff to make your NSData
+        let d = StuffMaker().iBuildStuff()
+        
+        dispatch_async(dispatch_get_main()) {
+            callback(d)
+        }
+    }
+}
+notice how I forgot to add error handling in that callback.  What if iBuildStuff() times out?  do I add more properties to the callback block?  add more blocks?  Every API wants to do it different and every choice makes my code less and less flexible.
+
+    func StuffMaker().iBuildStuffWithFutures() -> Future<NSData> {
+        let p = promise<NSData>()
+        dispatch_async(self.mycustomqueue)  {
+            // do stuff to make your NSData
+            if (SUCCEESS) {
+                let goodStuff = NSData()
+                p.completeWithSuccess(goodStuff)
+            }
+            else {
+                p.completeWithFail(NSError())
+            }
+        }
+        return p.future()
+    }
+
+Notice we are now calling StuffMaker() directly, without having to dispatch first.  And I'm not calling dispatch_async() AGAIN before I call the callback block.   I will let the consumer of the Future decide where he wants his handlers to run.
+
+Now you 100% guarantee that the code you want will ALWAYS run in the dispatch_queue you want.  It just returns a Future object.
 
 # Documentation
 

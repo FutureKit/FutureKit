@@ -30,7 +30,7 @@ So the simple answer is that Future is an object that represents that you will g
     let imageView : UIImageView =  // some view on my view controller.
     let imageFuture : Future<Image> = MyApiClass().getAnImageFromServer()
 
-There are few things that are interesting.  This object represents both that an image will arrive, and it will give me universal way to handle failures and cancellation.    It could be that MyApiClass() is using NSURLSessions, or AlamoFire, combined with some kinda cool image cache based on SDWebImage.  But this viewController doesn't care.  Just give me a Future<UIImage>.  Somehow.
+There are few things that are interesting.  This object represents both that an image will arrive, and it will give me universal way to handle failures and cancellation.    It could be that MyApiClass() is using NSURLSessions, or AlamoFire, combined with some kinda cool image cache based on SDWebImage.  But this viewController doesn't care.  Just give me a `Future<UIImage>`.  Somehow.
 
 now I can do this:
 
@@ -40,9 +40,8 @@ now I can do this:
 
 This is a quick way of saying "when it's done, on the MainQ, set the image to an ImageView.
 
-But let's say later you wanted to add a blur effect.  So now you have a function that returns a Future<Image> that probably has some networking API calls underneath.  Maybe you are using NSURLSession or AlamoFire, etc.  The user doesn't care.  He just want's an UIImage.  The delivery implementation is hidden from consumer.
-
 Let's make things more interesting.   Now your designer tell you he wants you to add a weird Blur effect to the image.   Which means you have to add an UIImage effect.  Which you better not do compute in the MainQ cause it's mildly expensive.   
+
 
 So know you have two asynchronous dependencies, one async call for the network, and another for the blur effect.   In traditional iOS that would involve a lot of custom block handlers for different API, and handling dispatch_async calls.
 
@@ -75,7 +74,7 @@ Or i could rewite it all in one line:
 
 That's the QUICK 1 minute answer of what this can do.  It let's you take any asynchronous operation and "map" it into a new one.   So you can take all your APIs and background logic and get them to easily conform to a universal way of interacting.    Which can let you get away with a LOT of crazy asynchronous execution, without giving up stability and ease of understanding.
 
-Plus it's all type safe.    You could use handler to convert say, an Future<NSData> from your API server into a Future<[NSObject:AnyObject]> holding the JSON.   And than map that to a Future<MyDatabaseEntity> after it's written to a database.  
+Plus it's all type safe.    You could use handler to convert say, an `Future<NSData>` from your API server into a `Future<[NSObject:AnyObject]>` holding the JSON.   And than map that to a `Future<MyDatabaseEntity>` after it's written to a database.  
 
 It's a neat way to stitch all your Asynchronous issues around a small set of classes.  
 

@@ -23,7 +23,7 @@ The goal is to have a working version out before the end of May, with the offici
 - simplifies the use of Apple GCD by using Executors - a simple Swift enumeration that attracts the most common iOS/OSX Dispatch Queues (Main,Default,Background, etc).  Allowing you to guarantee that logic will always be executed in the context you want.  (You never have to worry about having to call the correct dispatch_async() function again).  
 - is highly tunable, allowing you to configure how the primary Executors (Immediate vs Async) execute, and what sort Thread Synchronization FutureKit will use (Barriers - Locks, etc).  Allowing you to tune FutureKit's logic to match what you need.  
 
-# What the Heck is a Future/Promise?
+# What the Heck is a Future?
 
 So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another place.
 
@@ -77,6 +77,29 @@ That's the QUICK 1 minute answer of what this can do.  It let's you take any asy
 Plus it's all type safe.    You could use handler to convert say, an `Future<NSData>` from your API server into a `Future<[NSObject:AnyObject]>` holding the JSON.   And than map that to a `Future<MyDatabaseEntity>` after it's written to a database.  
 
 It's a neat way to stitch all your Asynchronous issues around a small set of classes.  
+
+# Then what is a Promise?
+
+A promise is a way for you write functions that returns Futures.  
+
+    func getAnImageFromServer() -> Future<UIImage> {
+        let p = Promise<UIImage>()
+        
+        dispatch_async(... {
+             // do some crazy logic, or go to the internet and get a UIImageView
+             let i = UIImage()
+             p.completeWithSuccess(i)
+        }
+        return p.future
+    }
+
+A Promise<T> is a promise to send something back a value (of type T) in the future.  When it's ready..  A Promise has to be completed with either Success/Fail or Cancelled.  Don't break your promises!  Always complete them.  And everyone will be happy.  Especially your code that is waiting for things.
+
+But it also means my API doesn't really need to bake a hole bunch of custom callback block handlers that return results.   Because the Future object already offers a lot of cool built in ones.
+
+And worry about what dispatch_queue those callback handlers are running in.    He just has to emit what he promised.
+
+And since Futures can be composed from Futures, and Futures can be used to complete Promises, it's easy to integrate a number of complex Async services into a single reliable Future.
 
 
 # Documentation

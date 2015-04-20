@@ -82,11 +82,11 @@ It's a neat way to stitch all your Asynchronous issues around a small set of cla
 
 A promise is a way for you write functions that returns Futures.  
 
-    func getAnImageFromServer() -> Future<UIImage> {
+    func getAnImageFromServer(url : NSURL) -> Future<UIImage> {
         let p = Promise<UIImage>()
         
-        dispatch_async(... {
-             // do some crazy logic, or go to the internet and get a UIImageView
+        dispatch_async(...) {
+             // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches. 
              let i = UIImage()
              p.completeWithSuccess(i)
         }

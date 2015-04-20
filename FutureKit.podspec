@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'FutureKit'
-  s.version = '0.8.0'
+  s.version = '0.8.1'
   s.license = 'MIT'
   s.summary = 'A Swift based Future/Promises Library for IOS and OS X.'
   s.homepage = 'https://github.com/FutureKit/FutureKit'
@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.9'
 
   s.source_files = 'FutureKit/*.swift'
+  s.public_header_files = 'FutureKit/*.h'
 
   s.requires_arc = true
 end

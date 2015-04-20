@@ -21,7 +21,6 @@ let future5Int : Future<Int>
 future5Int = Future(success: 5)
 //: Ok.  I told a small lie. Cause now the value 5 is already there.  This was a Future that was created in a "completed" state.  It has a result.  The Future was successful, and it has a result of 5.  Very good.
 let resultOfFuture5 = future5Int.result!
-//: println_and_line_no will output things to the console output. So you can see how things are running. Make sure to turn on the Assistant Editor (View..Assistant Editor...Show Assistant Editor) if you don't see console output.
 //: Sometimes a Future will fail. Maybe the database is all out if 5's.  So instead of 5, we are gonna return a failure.  No number 5 for you.
 let futureFail = Future<Int>(failWithErrorMessage:"I have no 5's for you today.")
 let failed5result = futureFail.result

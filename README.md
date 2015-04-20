@@ -117,20 +117,22 @@ It also "inverts" the existing dispatch_async() logic.  Where first you call dis
         }
     }
 notice how I forgot to add error handling in that callback.  What if iBuildStuff() times out?  do I add more properties to the callback block?  add more blocks?  Every API wants to do it different and every choice makes my code less and less flexible.
-
-    func StuffMaker().iBuildStuffWithFutures() -> Future<NSData> {
-        let p = promise<NSData>()
-        dispatch_async(self.mycustomqueue)  {
-            // do stuff to make your NSData
-            if (SUCCEESS) {
-                let goodStuff = NSData()
-                p.completeWithSuccess(goodStuff)
+    
+    class StuffMaker {
+        func iBuildStuffWithFutures() -> Future<NSData> {
+            let p = promise<NSData>()
+            dispatch_async(self.mycustomqueue)  {
+                 // do stuff to make your NSData
+                if (SUCCEESS) {
+                    let goodStuff = NSData()
+                    p.completeWithSuccess(goodStuff)
+                }
+                else {
+                    p.completeWithFail(NSError())
+                }
             }
-            else {
-                p.completeWithFail(NSError())
-            }
+            return p.future()
         }
-        return p.future()
     }
 
 Notice we are now calling StuffMaker() directly, without having to dispatch first.  And I'm not calling dispatch_async() AGAIN before I call the callback block.   I will let the consumer of the Future decide where he wants his handlers to run.

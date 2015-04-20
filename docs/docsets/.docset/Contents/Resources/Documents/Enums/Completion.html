@@ -55,6 +55,12 @@
                 <a href="../Classes/NSRecursiveLockSynchronization.html">NSRecursiveLockSynchronization</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt32.html">OSAtomicInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt64.html">OSAtomicInt64</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Promise.html">Promise</a>
               </li>
               <li class="nav-group-task">
@@ -149,7 +155,7 @@
           <a href="../Structs.html">Structs</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Structs/FUTUREKIT_GLOBAL_PARMS.html">FUTUREKIT_GLOBAL_PARMS</a>
+                <a href="../Structs/GLOBAL_PARMS.html">GLOBAL_PARMS</a>
               </li>
             </ul>
           </li>
@@ -165,7 +171,7 @@
 <li><p>Success(Any): The Future completed Succesfully with a Result</p></li>
 <li><p>Fail(NSError): The Future has failed with an NSError.</p></li>
 <li><p>Cancelled(Any?):  The Future was cancelled. The cancellation can optionally include a token.</p></li>
-<li><p>ContinueWith(Future<T>):  This Future will be completed with the result of a <q>sub</q> Future. Only used by block handlers.</p></li>
+<li><p>CompleteUsing(Future<T>):  This Future will be completed with the result of a <q>sub</q> Future. Only used by block handlers.</p></li>
 </ul>
 
           </section>
@@ -258,9 +264,9 @@ useful for generic Objective-C excecptions into a Future</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9FutureKit10Completion9isSuccessU__FGS0_Q__FT_Sb"></a>
-                    <a name="//apple_ref/swift/Method/isSuccess()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9FutureKit10Completion9isSuccessU__FGS0_Q__FT_Sb">isSuccess()</a>
+                    <a name="/s:vO9FutureKit10Completion9isSuccessSb"></a>
+                    <a name="//apple_ref/swift/Property/isSuccess" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion9isSuccessSb">isSuccess</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -277,9 +283,9 @@ useful for generic Objective-C excecptions into a Future</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9FutureKit10Completion6isFailU__FGS0_Q__FT_Sb"></a>
-                    <a name="//apple_ref/swift/Method/isFail()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9FutureKit10Completion6isFailU__FGS0_Q__FT_Sb">isFail()</a>
+                    <a name="/s:vO9FutureKit10Completion6isFailSb"></a>
+                    <a name="//apple_ref/swift/Property/isFail" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion6isFailSb">isFail</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -296,9 +302,9 @@ useful for generic Objective-C excecptions into a Future</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9FutureKit10Completion11isCancelledU__FGS0_Q__FT_Sb"></a>
-                    <a name="//apple_ref/swift/Method/isCancelled()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9FutureKit10Completion11isCancelledU__FGS0_Q__FT_Sb">isCancelled()</a>
+                    <a name="/s:vO9FutureKit10Completion11isCancelledSb"></a>
+                    <a name="//apple_ref/swift/Property/isCancelled" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion11isCancelledSb">isCancelled</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -315,9 +321,9 @@ useful for generic Objective-C excecptions into a Future</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vO9FutureKit10Completion10isCompleteSb"></a>
-                    <a name="//apple_ref/swift/Property/isComplete" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vO9FutureKit10Completion10isCompleteSb">isComplete</a>
+                    <a name="/s:vO9FutureKit10Completion15isCompleteUsingSb"></a>
+                    <a name="//apple_ref/swift/Property/isCompleteUsing" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion15isCompleteUsingSb">isCompleteUsing</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -344,7 +350,7 @@ useful for generic Objective-C excecptions into a Future</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>get the Completion state for a completed state. It&rsquo;s easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .ContinueWith).</p>
+                        <p>get the Completion state for a completed state. It&rsquo;s easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).</p>
 
                       </div>
                       <div class="declaration">
@@ -433,33 +439,6 @@ useful for generic Objective-C excecptions into a Future</p>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">cancelToken</span><span class="p">:</span><span class="kt">Any</span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:vO9FutureKit10Completion18continueWithFutureGSQGCS_6FutureQ___"></a>
-                    <a name="//apple_ref/swift/Property/continueWithFuture" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vO9FutureKit10Completion18continueWithFutureGSQGCS_6FutureQ___">continueWithFuture</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>will return a future iff the enumeration is a .ContinueWith. Can&rsquo;t be used to determine if the enumeration was .ContinueWith, so use a switch.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="Swift">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">continueWithFuture</span><span class="p">:</span><span class="kt">Future</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;!</span></code></pre>
 
                         </div>
                       </div>
@@ -617,7 +596,7 @@ assert(c2.result == nil)
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-04-18)</p>
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-04-19)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.1.6</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>

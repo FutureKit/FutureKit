@@ -1,5 +1,5 @@
 Future.swift
-	public struct FUTUREKIT_GLOBAL_PARMS
+	public struct GLOBAL_PARMS
 	public static var LOCKING_STRATEGY : SynchronizationType = .NSLock
 	public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
 	public enum FErrors : Int
@@ -8,39 +8,27 @@ Future.swift
 	public init(error : FErrors, userInfo: [NSObject : AnyObject]?)
 	public init(exception: NSException)
 	required public init(coder aDecoder: NSCoder)
-	public func isSuccess() -> Bool
-	public func isFail() -> Bool
-	public func isCancelled() -> Bool
-	public var isComplete : Bool
+	public override var localizedDescription: String
+	public var genericError : String?
+	public var isSuccess : Bool
+	public var isFail : Bool
+	public var isCancelled : Bool
+	public var isCompleteUsing : Bool
 	public func convert() -> Completion<T>
 	public var description: String
 	public var debugDescription: String
 	public init(afterDelay:NSTimeInterval, completeWith: Completion<T>) {    // emits a .Success after delay
 	public init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
 	public func onComplete<__Type>(block:(conpletion:Completion<T>)-> Future<__Type>) -> Future<__Type>
-	public func waitForComplete<__Type>(timeout: NSTimeInterval,
-        executor : Executor,
-        didComplete:(Completion<T>)-> Completion<__Type>,
-        timedOut:()-> Completion<__Type>
-        ) -> Future<__Type>
 	public func onSuccess<__Type>(block:(result:T)-> Void) -> Future<Void>
-	public func onAnySuccessWith<__Type>(executor : Executor, _ block:()-> __Type) -> Future<__Type>
+	public func onAnySuccess<__Type>(executor : Executor, _ block:()-> __Type) -> Future<__Type>
 	public func onAnySuccess<__Type>(block:()-> __Type) -> Future<__Type>
-	public func onSuccess<__Type>(@autoclosure(escaping) block:()-> __Type) -> Future<__Type>
-	public func mapWith<__Type>(executor : Executor, block:(result:T)-> __Type) -> Future<__Type>
+	public func map<__Type>(executor : Executor, block:(result:T)-> __Type) -> Future<__Type>
 	public func map<__Type>(block:(result:T) -> __Type) -> Future<__Type>
-	public func onFailWith<__Type>(executor : Executor, _ block:(error:NSError)-> __Type) -> Future<__Type>
-	public func onFail<__Type>(block:(error:NSError)-> __Type) -> Future<__Type>
-	public func onCancelWith<__Type>(executor : Executor, _ block:(Any?)-> __Type) -> Future<__Type>
-	public func onCancel<__Type>(block:(Any?)-> __Type) -> Future<__Type>
-	public func onSuccessWith<__Type>(executor : Executor, _ block:(result:T)-> Future<__Type>) -> Future<__Type>
+	public func onSuccess<__Type>(executor : Executor, _ block:(result:T)-> Future<__Type>) -> Future<__Type>
 	public func onSuccess<__Type>(block:(result:T)-> Future<__Type>) -> Future<__Type>
-	public func onAnySuccessWith<__Type>(executor : Executor, _ block:()-> Future<__Type>) -> Future<__Type>
+	public func onAnySuccess<__Type>(executor : Executor, _ block:()-> Future<__Type>) -> Future<__Type>
 	public func onAnySuccess<__Type>(block:()-> Future<__Type>) -> Future<__Type>
-	public func onFailWith<__Type>(executor : Executor, _ block:(error:NSError)-> Future<__Type>) -> Future<__Type>
-	public func onFail<__Type>(block:(error:NSError)-> Future<__Type>) -> Future<__Type>
-	public func onCancelWith<__Type>(executor : Executor, _ block:(Any?)-> Future<__Type>) -> Future<__Type>
-	public func onCancel<__Type>(block:(Any?)-> Future<__Type>) -> Future<__Type>
 	public func waitUntilCompleted() -> Completion<T>
 	public func waitForResult() -> T?
 	public func _waitUntilCompletedOnMainQueue() -> Completion<T>
@@ -88,6 +76,29 @@ Executor.swift
 	public func executeAfterDelay(nanosecs : Int64, block b: dispatch_block_t)
 	public func executeAfterDelay(secs : NSTimeInterval,block b: dispatch_block_t)
 	public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void)
+OSAtomicInt.swift
+	public class OSAtomicInt32
+	public var memory : Int32
+	public init(_ initialValue: Int32 = 0)
+	public func increment() -> Int32
+	public func decrement() -> Int32
+	public func incrementBarrier() -> Int32
+	public func decrementBarrier() -> Int32
+	public func add(theAmount: Int32) -> Int32
+	public func addBarrier(theAmount: Int32) -> Int32
+	public func ifEqualTo(value : Int32, thenReplaceWith : Int32) -> Bool
+	public func ifEqualToBarrier(value : Int32, thenReplaceWith : Int32) -> Bool
+	public class OSAtomicInt64
+	public var memory : Int64
+	public init(_ initialValue: Int64 = 0)
+	public func increment() -> Int64
+	public func decrement() -> Int64
+	public func incrementBarrier() -> Int64
+	public func decrementBarrier() -> Int64
+	public func add(theAmount: Int64) -> Int64
+	public func addBarrier(theAmount: Int64) -> Int64
+	public func ifEqualTo(value : Int64, thenReplaceWith : Int64) -> Bool
+	public func ifEqualToBarrier(value : Int64, thenReplaceWith : Int64) -> Bool
 Synchronization.swift
 	public protocol SynchronizationProtocol
 	public enum SynchronizationType
@@ -154,7 +165,7 @@ FTask.swift
 	public class FTask : NSObject
 Promise.swift
 	public class Promise<T>
-	public var future =  Future<T>()
+	public var future : Future<T>
 	public init()
 	public init(automaticallyFailAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__)
 	public init(automaticallyAssertAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__)
@@ -167,8 +178,6 @@ Promise.swift
 	public final func completeWithCancel()
 	public final func completeWithCancel(token:Any?)
 	public final func continueWithFuture(f : Future<T>)
-	public final func completeWithBlock(completionBlock : ()->Completion<T>)
-	public final func completeWithBlock(completionBlock : ()->Completion<T>, onAlreadyCompleted : completionErrorHandler)
 	public final func failIfNotCompleted(e : NSError) -> Bool
 	public final func failIfNotCompleted(errorMessage : String) -> Bool
 	public var isCompleted : Bool

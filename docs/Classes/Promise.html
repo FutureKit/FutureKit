@@ -55,6 +55,12 @@
                 <a href="../Classes/NSRecursiveLockSynchronization.html">NSRecursiveLockSynchronization</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt32.html">OSAtomicInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt64.html">OSAtomicInt64</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Promise.html">Promise</a>
               </li>
               <li class="nav-group-task">
@@ -149,7 +155,7 @@
           <a href="../Structs.html">Structs</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Structs/FUTUREKIT_GLOBAL_PARMS.html">FUTUREKIT_GLOBAL_PARMS</a>
+                <a href="../Structs/GLOBAL_PARMS.html">GLOBAL_PARMS</a>
               </li>
             </ul>
           </li>
@@ -199,6 +205,62 @@
                       <div class="abstract">
                         <p>Undocumented</p>
 
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit7PromisecU__FMGS0_Q__FT19cancellationHandlerFGSqP__T__GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/init(cancellationHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit7PromisecU__FMGS0_Q__FT19cancellationHandlerFGSqP__T__GS0_Q__">init(cancellationHandler:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>creates a promise that enables the Future.cancel()
+The cancellationHandler will execute using Executor.Primary</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">cancellationHandler</span> <span class="nv">h</span><span class="p">:</span> <span class="p">(</span><span class="kt">Any</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit7PromisecU__FMGS0_Q__FT8executorOS_8Executor19cancellationHandlerFGSqP__T__GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/init(executor:cancellationHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit7PromisecU__FMGS0_Q__FT8executorOS_8Executor19cancellationHandlerFGSqP__T__GS0_Q__">init(executor:cancellationHandler:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>creates a promise that enables the Future.cancel()
+The cancellationHandler will execute using the executor</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">executor</span><span class="p">:</span><span class="kt">Executor</span><span class="p">,</span><span class="n">cancellationHandler</span> <span class="nv">h</span><span class="p">:</span> <span class="p">(</span><span class="kt">Any</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -425,8 +487,42 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>completes the Future using the supplied completionBlock.</p>
 
+<p>the completionBlock will ONLY be executed if the future is successfully completed.</p>
+
+<p>If the future/promise has already been completed than the block will not be executed.</p>
+
+<p>if you need to know if the completion was successful, use &lsquo;completeWithBlocks()&rsquo;</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">func</span> <span class="nf">completeWithBlock</span><span class="p">(</span><span class="nv">completionBlock</span> <span class="p">:</span> <span class="p">()</span><span class="o">-&gt;</span><span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completionBlock</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -434,9 +530,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit7Promise17completeWithBlockU__FGS0_Q__FTFT_GOS_10CompletionQ__18onAlreadyCompletedFT_T__T_"></a>
-                    <a name="//apple_ref/swift/Method/completeWithBlock(_:onAlreadyCompleted:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit7Promise17completeWithBlockU__FGS0_Q__FTFT_GOS_10CompletionQ__18onAlreadyCompletedFT_T__T_">completeWithBlock(_:onAlreadyCompleted:)</a>
+                    <a name="/s:FC9FutureKit7Promise18completeWithBlocksU__FGS0_Q__FTFT_GOS_10CompletionQ__18onAlreadyCompletedFT_T__T_"></a>
+                    <a name="//apple_ref/swift/Method/completeWithBlocks(_:onAlreadyCompleted:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit7Promise18completeWithBlocksU__FGS0_Q__FTFT_GOS_10CompletionQ__18onAlreadyCompletedFT_T__T_">completeWithBlocks(_:onAlreadyCompleted:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -444,8 +540,55 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>completes the Future using the supplied completionBlock.</p>
 
+<p>the completionBlock will ONLY be executed if the future has not yet been completed prior to this call.</p>
+
+<p>the onAlreadyCompleted will ONLY be executed if the future was already been completed prior to this call.</p>
+
+<p>These blocks may end up running inside any potential thread or queue, so avoid using external/shared memory.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">func</span> <span class="nf">completeWithBlocks</span><span class="p">(</span><span class="nv">completionBlock</span> <span class="p">:</span> <span class="p">()</span><span class="o">-&gt;</span><span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="nv">onAlreadyCompleted</span> <span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completionBlock</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>onAlreadyCompleted</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>a block that will run iff the future has already been completed. </p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -550,7 +693,7 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-04-18)</p>
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-04-19)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.1.6</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>

@@ -55,6 +55,12 @@
                 <a href="../Classes/NSRecursiveLockSynchronization.html">NSRecursiveLockSynchronization</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt32.html">OSAtomicInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt64.html">OSAtomicInt64</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Promise.html">Promise</a>
               </li>
               <li class="nav-group-task">
@@ -149,7 +155,7 @@
           <a href="../Structs.html">Structs</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Structs/FUTUREKIT_GLOBAL_PARMS.html">FUTUREKIT_GLOBAL_PARMS</a>
+                <a href="../Structs/GLOBAL_PARMS.html">GLOBAL_PARMS</a>
               </li>
             </ul>
           </li>
@@ -186,7 +192,7 @@
 
 <p>It is more efficient to examine completion values that are sent to an onComplete/onSuccess handler of a future than to examine it directly here.</p>
 
-<p>type of synchronization used can be configured via FUTUREKIT_GLOBAL_PARMS.LOCKING_STRATEGY</p>
+<p>type of synchronization used can be configured via GLOBAL_PARMS.LOCKING_STRATEGY</p>
 
                       </div>
                       <div class="declaration">
@@ -310,6 +316,37 @@
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">completionState</span> <span class="p">:</span> <span class="kt">CompletionState</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC9FutureKit6Future23cancellationIsSupportedSb"></a>
+                    <a name="//apple_ref/swift/Property/cancellationIsSupported" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9FutureKit6Future23cancellationIsSupportedSb">cancellationIsSupported</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>is true if the Future supports cancellation requests using <code>cancel()</code></p>
+
+<p>May return true, even if the Future has already been completed, and cancellation is no longer possible.</p>
+
+<p>It only informs the user that this type of future can be cancelled.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">cancellationIsSupported</span> <span class="p">:</span> <span class="kt">Bool</span></code></pre>
 
                         </div>
                       </div>
@@ -645,7 +682,7 @@
 
 <p>can be used to create a Future that may succeed or fail.  </p>
 
-<p>the block can return a value of .ContinueWith(Future<T>) if it wants this Future to complete with the results of another future.</p>
+<p>the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.</p>
 
                       </div>
                       <div class="declaration">
@@ -674,7 +711,7 @@
                       <div class="abstract">
                         <p>if we try to convert a future from type T to type T, just ignore the request.</p>
 
-<p>the compile should automatically figure out which version to execute</p>
+<p>the compile should automatically figure out which version of convert() execute</p>
 
                       </div>
                       <div class="declaration">
@@ -805,9 +842,9 @@ assert(f2.result! == nil)
 
 <p>The <code>completion</code> argument will be set to the Completion<T> value that completed the target.  It will be one of 3 values (.Success, .Fail, or .Cancelled).</p>
 
-<p>The block must return one of four enumeration values (.Success/.Fail/.Cancelled/.ContinueWith).   </p>
+<p>The block must return one of four enumeration values (.Success/.Fail/.Cancelled/.CompleteUsing).   </p>
 
-<p>Returning a future <code>f</code> using .ContinueWith(f) causes the future returned from this method to be completed when <code>f</code> completes, using the completion value of <code>f</code>. (Leaving the Future in an incomplete state, until &lsquo;f&rsquo; completes).</p>
+<p>Returning a future <code>f</code> using .CompleteUsing(f) causes the future returned from this method to be completed when <code>f</code> completes, using the completion value of <code>f</code>. (Leaving the Future in an incomplete state, until &lsquo;f&rsquo; completes).</p>
 
 <p>The new future returned from this function will be completed using the completion value returned from this block.</p>
 
@@ -893,9 +930,9 @@ assert(f2.result! == nil)
 
 <p>The <code>completion</code> argument will be set to the Completion<T> value that completed the target.  It will be one of 3 values (.Success, .Fail, or .Cancelled).</p>
 
-<p>The block must return one of four enumeration values (.Success/.Fail/.Cancelled/.ContinueWith).</p>
+<p>The block must return one of four enumeration values (.Success/.Fail/.Cancelled/.CompleteUsing).</p>
 
-<p>Returning a future <code>f</code> using .ContinueWith(f) causes the future returned from this method to be completed when <code>f</code> completes. (Leaving the Future in an incomplete state, until &lsquo;f&rsquo; completes).</p>
+<p>Returning a future <code>f</code> using .CompleteUsing(f) causes the future returned from this method to be completed when <code>f</code> completes. (Leaving the Future in an incomplete state, until &lsquo;f&rsquo; completes).</p>
 
 <p>The new future returned from this function will be completed using the completion value returned from this block.</p>
 
@@ -1273,7 +1310,7 @@ assert(f2.result! == nil)
 
 <p>The new future returned from this function will be completed when the future returned from the block is completed.  </p>
 
-<p>This is the same as returning Completion<T>.ContinueWith(f)</p>
+<p>This is the same as returning Completion<T>.CompleteUsing(f)</p>
 
                       </div>
                       <div class="declaration">
@@ -1357,7 +1394,63 @@ assert(f2.result! == nil)
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>takes a two block and executes one or the other.  the didComplete() block will be executed if the target completes prior before the timeout.</p>
+
+<p>it if and when this future is completed.  The block will be executed using supplied Executor.</p>
+
+<p>The new future returned from this function will be completed when the future returned from the block is completed.</p>
+
+<p>This is the same as returning Completion<T>.CompleteUsing(f)</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">waitForComplete</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">timeout</span><span class="p">:</span> <span class="kt">NSTimeInterval</span><span class="p">,</span>
+        <span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span>
+        <span class="nv">didComplete</span><span class="p">:(</span><span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">)</span><span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="nv">timedOut</span><span class="p">:()</span><span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>executor</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>an Executor to use to execute the block when it is ready to run.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>didComplete</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>a block that will execute if this future completes.  It will return a completion value that </p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>a <code>Future<Void></code> that completes after this block has executed.</p>
 
                       </div>
                     </section>
@@ -1366,9 +1459,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future13onSuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GOS_10CompletionQ___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onSuccessWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future13onSuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GOS_10CompletionQ___GS0_Q__">onSuccessWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GOS_10CompletionQ___GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/onSuccess(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GOS_10CompletionQ___GS0_Q__">onSuccess(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1384,14 +1477,14 @@ assert(f2.result! == nil)
 
 <p>If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.</p>
 
-<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccessWith()</code></p>
+<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccess()</code></p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onSuccessWith</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">result</span><span class="p">:</span><span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onSuccess</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">result</span><span class="p">:</span><span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
 
                         </div>
                       </div>
@@ -1452,9 +1545,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future16onAnySuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT_GOS_10CompletionQ___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onAnySuccessWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future16onAnySuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT_GOS_10CompletionQ___GS0_Q__">onAnySuccessWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future12onAnySuccessU__FGS0_Q__U__FTOS_8ExecutorFT_GOS_10CompletionQ___GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/onAnySuccess(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future12onAnySuccessU__FGS0_Q__U__FTOS_8ExecutorFT_GOS_10CompletionQ___GS0_Q__">onAnySuccess(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1464,7 +1557,7 @@ assert(f2.result! == nil)
                       <div class="abstract">
                         <p>takes a block and executes it iff the target is completed with a .Success.  </p>
 
-<p>Unlike, onSuccessWith(), this function ignores the .Success result value. and it isn&rsquo;t sent it to the block.  onAnySuccess implies you don&rsquo;t about the result of the target, just that it completed with a .Success</p>
+<p>Unlike, onSuccess(), this function ignores the .Success result value. and it isn&rsquo;t sent it to the block.  onAnySuccess implies you don&rsquo;t about the result of the target, just that it completed with a .Success</p>
 
 <p>Currently, in swift 1.2, this is the only way to add a Success handler to a future of type Future<Void>.  But can be used with Future&rsquo;s of all types.</p>
 
@@ -1479,7 +1572,7 @@ assert(f2.result! == nil)
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onAnySuccessWith</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:()</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onAnySuccess</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:()</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
 
                         </div>
                       </div>
@@ -1554,13 +1647,13 @@ assert(f2.result! == nil)
 
 <p>If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  </p>
 
-<p>The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccessWith()</p>
+<p>The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccess()</p>
 
 <p>If the target is completed with a .Fail, then the returned future will also complete with .Fail and this block will not be executed.</p>
 
 <p>If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.</p>
 
-<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccessWith()</code></p>
+<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccess()</code></p>
 
                       </div>
                       <div class="declaration">
@@ -1629,9 +1722,9 @@ assert(f2.result! == nil)
 
 <p>If the target is completed with a .Success, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  </p>
 
-<p>The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccessWith()</p>
+<p>The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onSuccess()</p>
 
-<p>Unlike, onSuccessWith(), this function ignores the .Success result value. and it isn&rsquo;t sent it to the block.  onAnySuccess implies you don&rsquo;t about the result of the target, just that it completed with a .Success</p>
+<p>Unlike, onSuccess(), this function ignores the .Success result value. and it isn&rsquo;t sent it to the block.  onAnySuccess implies you don&rsquo;t about the result of the target, just that it completed with a .Success</p>
 
 <p>Currently, in swift 1.2, this is the only way to add a Success handler to a future of type Future<Void>.  But can be used with Future&rsquo;s of all types.</p>
 
@@ -1694,9 +1787,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future10onFailWithU__FGS0_Q__U__FTOS_8ExecutorFT5errorCSo7NSError_GOS_10CompletionQ___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onFailWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future10onFailWithU__FGS0_Q__U__FTOS_8ExecutorFT5errorCSo7NSError_GOS_10CompletionQ___GS0_Q__">onFailWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future6onFailU__FGS0_Q__FTOS_8ExecutorFT5errorCSo7NSError_T__T_"></a>
+                    <a name="//apple_ref/swift/Method/onFail(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future6onFailU__FGS0_Q__FTOS_8ExecutorFT5errorCSo7NSError_T__T_">onFail(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1706,18 +1799,16 @@ assert(f2.result! == nil)
                       <div class="abstract">
                         <p>takes a block and executes it iff the target is completed with a .Fail</p>
 
-<p>If the target is completed with a .Fail, then the block will be executed using the supplied Executor.  The new future returned from this function will be completed using the completion value returned from this block.</p>
+<p>If the target is completed with a .Fail, then the block will be executed using the supplied Executor.  </p>
 
-<p>If the target is completed with a .Success, then the returned future will complete with .Cancelled and this block will not be executed.</p>
-
-<p>If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.</p>
+<p>This method does <strong>not</strong> return a new Future.  If you need a new future, than use <code>onComplete()</code> instead.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onFailWith</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">error</span><span class="p">:</span><span class="kt">NSError</span><span class="p">)</span><span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">onFail</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">error</span><span class="p">:</span><span class="kt">NSError</span><span class="p">)</span><span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -1725,19 +1816,6 @@ assert(f2.result! == nil)
                         <h4>Parameters</h4>
                         <table class="graybox">
                           <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>__Type</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.</p>
-
-                                </div>
-                              </td>
-                            </tr>
                             <tr>
                               <td>
                                 <code>
@@ -1759,7 +1837,7 @@ assert(f2.result! == nil)
                               </td>
                               <td>
                                 <div>
-                                  <p>a block takes the error returned by the target Future and returns the completion value of the returned Future.</p>
+                                  <p>a block can process the error of a future.</p>
 
                                 </div>
                               </td>
@@ -1767,20 +1845,15 @@ assert(f2.result! == nil)
                           </tbody>
                         </table>
                       </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>a new Future of type Future&lt;__Type&gt;</p>
-
-                      </div>
                     </section>
                   </div>
                 </li>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future6onFailU__FGS0_Q__U__FFT5errorCSo7NSError_GOS_10CompletionQ__GS0_Q__"></a>
+                    <a name="/s:FC9FutureKit6Future6onFailU__FGS0_Q__FFT5errorCSo7NSError_T_T_"></a>
                     <a name="//apple_ref/swift/Method/onFail(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future6onFailU__FGS0_Q__U__FFT5errorCSo7NSError_GOS_10CompletionQ__GS0_Q__">onFail(_:)</a>
+                    <a class="token" href="#/s:FC9FutureKit6Future6onFailU__FGS0_Q__FFT5errorCSo7NSError_T_T_">onFail(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1790,20 +1863,16 @@ assert(f2.result! == nil)
                       <div class="abstract">
                         <p>takes a block and executes it iff the target is completed with a .Fail</p>
 
-<p>If the target is completed with a .Fail, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  </p>
+<p>If the target is completed with a .Fail, then the block will be executed using Executor.Primary.</p>
 
-<p>The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onFailWith()</p>
-
-<p>If the target is completed with a .Success, then the returned future will complete with .Cancelled and this block will not be executed.</p>
-
-<p>If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.</p>
+<p>This method does <strong>not</strong> return a new Future.  If you need a new future, than use <code>onComplete()</code> instead.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onFail</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">block</span><span class="p">:(</span><span class="nv">error</span><span class="p">:</span><span class="kt">NSError</span><span class="p">)</span><span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">onFail</span><span class="p">(</span><span class="nv">block</span><span class="p">:(</span><span class="nv">error</span><span class="p">:</span><span class="kt">NSError</span><span class="p">)</span><span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -1811,19 +1880,6 @@ assert(f2.result! == nil)
                         <h4>Parameters</h4>
                         <table class="graybox">
                           <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>__Type</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.</p>
-
-                                </div>
-                              </td>
-                            </tr>
                             <tr>
                               <td>
                                 <code>
@@ -1845,7 +1901,7 @@ assert(f2.result! == nil)
                               </td>
                               <td>
                                 <div>
-                                  <p>a block takes the error returned by the target Future and returns the completion value of the returned Future.</p>
+                                  <p>a block can process the error of a future.</p>
 
                                 </div>
                               </td>
@@ -1853,20 +1909,15 @@ assert(f2.result! == nil)
                           </tbody>
                         </table>
                       </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>a new Future of type Future&lt;__Type&gt;</p>
-
-                      </div>
                     </section>
                   </div>
                 </li>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future12onCancelWithU__FGS0_Q__U__FTOS_8ExecutorFGSqP__GOS_10CompletionQ___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onCancelWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future12onCancelWithU__FGS0_Q__U__FTOS_8ExecutorFGSqP__GOS_10CompletionQ___GS0_Q__">onCancelWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future8onCancelU__FGS0_Q__FTOS_8ExecutorFT11cancelTokenGSqP___T__T_"></a>
+                    <a name="//apple_ref/swift/Method/onCancel(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future8onCancelU__FGS0_Q__FTOS_8ExecutorFT11cancelTokenGSqP___T__T_">onCancel(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1876,16 +1927,16 @@ assert(f2.result! == nil)
                       <div class="abstract">
                         <p>takes a block and executes it iff the target is completed with a .Cancelled</p>
 
-<p>If the target is completed with a .Cancelled, then the block will be executed using the supplied Executor.  The new future returned from this function will be completed using the completion value returned from this block.</p>
+<p>If the target is completed with a .Cancelled, then the block will be executed using the supplied Executor.  </p>
 
-<p>If the target is completed with a .Success or a .Fail, then the returned future will complete with .Cancelled and this block will not be executed.</p>
+<p>This method does <strong>not</strong> return a new Future.  If you need a new future, than use <code>onComplete()</code> instead.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onCancelWith</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="kt">Any</span><span class="p">?)</span><span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">onCancel</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">cancelToken</span><span class="p">:</span><span class="kt">Any</span><span class="p">?)</span><span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -1893,19 +1944,6 @@ assert(f2.result! == nil)
                         <h4>Parameters</h4>
                         <table class="graybox">
                           <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>__Type</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.</p>
-
-                                </div>
-                              </td>
-                            </tr>
                             <tr>
                               <td>
                                 <code>
@@ -1935,20 +1973,15 @@ assert(f2.result! == nil)
                           </tbody>
                         </table>
                       </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>a new Future of type Future&lt;__Type&gt;</p>
-
-                      </div>
                     </section>
                   </div>
                 </li>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future8onCancelU__FGS0_Q__U__FFGSqP__GOS_10CompletionQ__GS0_Q__"></a>
+                    <a name="/s:FC9FutureKit6Future8onCancelU__FGS0_Q__FFT11cancelTokenGSqP___T_T_"></a>
                     <a name="//apple_ref/swift/Method/onCancel(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future8onCancelU__FGS0_Q__U__FFGSqP__GOS_10CompletionQ__GS0_Q__">onCancel(_:)</a>
+                    <a class="token" href="#/s:FC9FutureKit6Future8onCancelU__FGS0_Q__FFT11cancelTokenGSqP___T_T_">onCancel(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1958,18 +1991,16 @@ assert(f2.result! == nil)
                       <div class="abstract">
                         <p>takes a block and executes it iff the target is completed with a .Cancelled</p>
 
-<p>If the target is completed with a .Cancelled, then the block will be executed using Executor.Primary.  The new future returned from this function will be completed using the completion value returned from this block.  </p>
+<p>If the target is completed with a .Cancelled, then the block will be executed using Executor.Primary</p>
 
-<p>The block may end up running inside ANY other thread or queue.  If the block must run in a specific context, use onFailWith()</p>
-
-<p>If the target is completed with a .Success or a .Fail, then the returned future will complete with .Cancelled and this block will not be executed.</p>
+<p>This method does <strong>not</strong> return a new Future.  If you need a new future, than use <code>onComplete()</code> instead.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onCancel</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">block</span><span class="p">:(</span><span class="kt">Any</span><span class="p">?)</span><span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">onCancel</span><span class="p">(</span><span class="nv">block</span><span class="p">:(</span><span class="nv">cancelToken</span><span class="p">:</span><span class="kt">Any</span><span class="p">?)</span><span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -1980,12 +2011,12 @@ assert(f2.result! == nil)
                             <tr>
                               <td>
                                 <code>
-                                <em>__Type</em>
+                                <em>executor</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.</p>
+                                  <p>an Executor to use to execute the block when it is ready to run.</p>
 
                                 </div>
                               </td>
@@ -2006,20 +2037,15 @@ assert(f2.result! == nil)
                           </tbody>
                         </table>
                       </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>a new Future of type Future&lt;__Type&gt;</p>
-
-                      </div>
                     </section>
                   </div>
                 </li>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future13onSuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onSuccessWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future13onSuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___Q__GS0_Q__">onSuccessWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___Q__GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/onSuccess(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___Q__GS0_Q__">onSuccess(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2037,14 +2063,14 @@ assert(f2.result! == nil)
 
 <p>If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.</p>
 
-<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccessWith()</code></p>
+<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccess()</code></p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="Swift">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onSuccessWith</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">result</span><span class="p">:</span><span class="kt">T</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">__Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">onSuccess</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">executor</span> <span class="p">:</span> <span class="kt">Executor</span><span class="p">,</span> <span class="n">_</span> <span class="nv">block</span><span class="p">:(</span><span class="nv">result</span><span class="p">:</span><span class="kt">T</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">__Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Future</span><span class="o">&lt;</span><span class="n">__Type</span><span class="o">&gt;</span></code></pre>
 
                         </div>
                       </div>
@@ -2125,7 +2151,7 @@ assert(f2.result! == nil)
 
 <p>If the target is completed with a .Cancelled, then the returned future will also complete with .Cancelled and this block will not be executed.</p>
 
-<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccessWith()</code></p>
+<p><em>Warning</em> - as of swift 1.2, you can&rsquo;t use this method with a Future<Void> (it will give a compiler error).  Instead use <code>onAnySuccess()</code></p>
 
                       </div>
                       <div class="declaration">
@@ -2212,9 +2238,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future16onAnySuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT_Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onAnySuccessWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future16onAnySuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT_Q__GS0_Q__">onAnySuccessWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future12onAnySuccessU__FGS0_Q__U__FTOS_8ExecutorFT_Q__GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/onAnySuccess(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future12onAnySuccessU__FGS0_Q__U__FTOS_8ExecutorFT_Q__GS0_Q__">onAnySuccess(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2250,28 +2276,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FKT_Q_GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onSuccess(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FKT_Q_GS0_Q__">onSuccess(_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future7mapWithU__FGS0_Q__U__FTOS_8Executor5blockFT6resultQd___Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/mapWith(_:block:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future7mapWithU__FGS0_Q__U__FTOS_8Executor5blockFT6resultQd___Q__GS0_Q__">mapWith(_:block:)</a>
+                    <a name="/s:FC9FutureKit6Future3mapU__FGS0_Q__U__FTOS_8Executor5blockFT6resultQd___Q__GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/map(_:block:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future3mapU__FGS0_Q__U__FTOS_8Executor5blockFT6resultQd___Q__GS0_Q__">map(_:block:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2307,85 +2314,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future10onFailWithU__FGS0_Q__U__FTOS_8ExecutorFT5errorCSo7NSError_Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onFailWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future10onFailWithU__FGS0_Q__U__FTOS_8ExecutorFT5errorCSo7NSError_Q__GS0_Q__">onFailWith(_:_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future6onFailU__FGS0_Q__U__FFT5errorCSo7NSError_Q_GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onFail(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future6onFailU__FGS0_Q__U__FFT5errorCSo7NSError_Q_GS0_Q__">onFail(_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future12onCancelWithU__FGS0_Q__U__FTOS_8ExecutorFGSqP__Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onCancelWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future12onCancelWithU__FGS0_Q__U__FTOS_8ExecutorFGSqP__Q__GS0_Q__">onCancelWith(_:_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future8onCancelU__FGS0_Q__U__FFGSqP__Q_GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onCancel(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future8onCancelU__FGS0_Q__U__FFGSqP__Q_GS0_Q__">onCancel(_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future13onSuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GS0_Q___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onSuccessWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future13onSuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GS0_Q___GS0_Q__">onSuccessWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GS0_Q___GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/onSuccess(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future9onSuccessU__FGS0_Q__U__FTOS_8ExecutorFT6resultQd___GS0_Q___GS0_Q__">onSuccess(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2421,9 +2352,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future16onAnySuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT_GS0_Q___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onAnySuccessWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future16onAnySuccessWithU__FGS0_Q__U__FTOS_8ExecutorFT_GS0_Q___GS0_Q__">onAnySuccessWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future12onAnySuccessU__FGS0_Q__U__FTOS_8ExecutorFT_GS0_Q___GS0_Q__"></a>
+                    <a name="//apple_ref/swift/Method/onAnySuccess(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future12onAnySuccessU__FGS0_Q__U__FTOS_8ExecutorFT_GS0_Q___GS0_Q__">onAnySuccess(_:_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2459,9 +2390,9 @@ assert(f2.result! == nil)
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9FutureKit6Future10onFailWithU__FGS0_Q__U__FTOS_8ExecutorFT5errorCSo7NSError_GS0_Q___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onFailWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future10onFailWithU__FGS0_Q__U__FTOS_8ExecutorFT5errorCSo7NSError_GS0_Q___GS0_Q__">onFailWith(_:_:)</a>
+                    <a name="/s:FC9FutureKit6Future6cancelU__FGS0_Q__FT_T_"></a>
+                    <a name="//apple_ref/swift/Method/cancel()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit6Future6cancelU__FGS0_Q__FT_T_">cancel()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -2469,65 +2400,24 @@ assert(f2.result! == nil)
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>requests that the future be cancelled.</p>
+
+<p>does not guarantee that the cancel request was succesful.  Futures may still complete.</p>
+
+<p>this call does not modify the completion state directly.  It only forwards a request to the owner of the Promise to perform it&rsquo;s own cancellation.   If you want to support cancellation, you must us a Promise() with a cancellationHandler and call &ldquo;promise.completeWithCancel() inside the cancellationHandler.</p>
+
+<p>most Futures are not cancelable.</p>
+
+<p>you can use <code>cancellationIsSupported</code> to determine if a future supports cancellation.</p>
 
                       </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future6onFailU__FGS0_Q__U__FFT5errorCSo7NSError_GS0_Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onFail(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future6onFailU__FGS0_Q__U__FFT5errorCSo7NSError_GS0_Q__GS0_Q__">onFail(_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">cancel</span><span class="p">()</span></code></pre>
 
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future12onCancelWithU__FGS0_Q__U__FTOS_8ExecutorFGSqP__GS0_Q___GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onCancelWith(_:_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future12onCancelWithU__FGS0_Q__U__FTOS_8ExecutorFGSqP__GS0_Q___GS0_Q__">onCancelWith(_:_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9FutureKit6Future8onCancelU__FGS0_Q__U__FFGSqP__GS0_Q__GS0_Q__"></a>
-                    <a name="//apple_ref/swift/Method/onCancel(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9FutureKit6Future8onCancelU__FGS0_Q__U__FFGSqP__GS0_Q__GS0_Q__">onCancel(_:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -2594,7 +2484,7 @@ assert(f2.result! == nil)
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-04-18)</p>
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-04-19)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.1.6</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>

@@ -105,17 +105,17 @@ And since Futures can be composed from Futures, and Futures can be used to compl
 
 It also "inverts" the existing dispatch_async() logic.  Where first you call dispatch_async(some_custom_queue) and THEN you call some api call to start it working.   
 
-func oldwayToGetStuff(callback:(NSData) -> Void) {
-    dispatch_async(StuffMaker().custom_queue_for_stuff)  {
+    func oldwayToGetStuff(callback:(NSData) -> Void) {
+        dispatch_async(StuffMaker().custom_queue_for_stuff)  {
     
-        // do stuff to make your NSData
-        let d = StuffMaker().iBuildStuff()
+            // do stuff to make your NSData
+            let d = StuffMaker().iBuildStuff()
         
-        dispatch_async(dispatch_get_main()) {
-            callback(d)
+            dispatch_async(dispatch_get_main()) {
+                callback(d)
+            }
         }
     }
-}
 notice how I forgot to add error handling in that callback.  What if iBuildStuff() times out?  do I add more properties to the callback block?  add more blocks?  Every API wants to do it different and every choice makes my code less and less flexible.
 
     func StuffMaker().iBuildStuffWithFutures() -> Future<NSData> {

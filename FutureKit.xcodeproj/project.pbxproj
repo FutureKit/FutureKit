@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
+		0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
 		0DEA1B961AE30853000E126F /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DEA1B951AE30853000E126F /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DEA1BC81AE30885000E126F /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCE1ADAFE5A00B58B0B /* Future.swift */; };
 		0DEA1BC91AE30885000E126F /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
@@ -37,11 +39,11 @@
 		0DEA1BE51AE30B65000E126F /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DEA1B951AE30853000E126F /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BEE1AE3116A000E126F /* FutureKit_iOS_Tests.swift */; };
 		0DEA1BF01AE3116A000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; };
-		0DEA1BF61AE31176000E126F /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* Tests.swift */; };
+		0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 		0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */; };
 		0DEA1C051AE313DD000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1BAF1AE30872000E126F /* FutureKit.framework */; };
-		0DEA1C0B1AE313EF000E126F /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* Tests.swift */; };
+		0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,6 +65,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockPerformanceTests.swift; sourceTree = "<group>"; };
 		0DA41FCA1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionHandler.h; sourceTree = "<group>"; };
 		0DA41FCB1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionHandler.m; sourceTree = "<group>"; };
 		0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSAtomicInt.swift; sourceTree = "<group>"; };
@@ -73,7 +76,7 @@
 		0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FE21ADB483C00B58B0B /* FutureWait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureWait.swift; sourceTree = "<group>"; };
-		0DB979A01AE2A21100158386 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureBatch.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -171,7 +174,8 @@
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				0DB979A01AE2A21100158386 /* Tests.swift */,
+				0DB979A01AE2A21100158386 /* BasicTests.swift */,
+				0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */,
 				0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */,
 				0DB9799E1AE2A21100158386 /* Supporting Files */,
 			);
@@ -452,7 +456,8 @@
 			files = (
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
-				0DEA1BF61AE31176000E126F /* Tests.swift in Sources */,
+				0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */,
+				0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,7 +467,8 @@
 			files = (
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
-				0DEA1C0B1AE313EF000E126F /* Tests.swift in Sources */,
+				0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */,
+				0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,6 +626,8 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -644,6 +652,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
 				INFOPLIST_FILE = FutureKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
@@ -693,6 +702,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
+				GCC_GENERATE_TEST_COVERAGE_FILES = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",

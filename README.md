@@ -2,7 +2,9 @@
 A Swift based Future/Promises Library for IOS and OS X.   
 
 
-FutureKit is a iOS implementation of Futures and Promises, but modified specifically for iOS/OSX programmers.
+FutureKit is a Swift implementation of Futures and Promises, but modified specifically for iOS/OSX programmers.
+You can ready the wikipedia article here:
+http://en.wikipedia.org/wiki/Futures_and_promises  
 
 FutureKit sues Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 

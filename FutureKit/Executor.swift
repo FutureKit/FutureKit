@@ -219,25 +219,14 @@ public enum Executor {
             }
             return .Queue(q)
     }
-    public static func createOperationQueue(label: String?,
-        type : SerialOrConcurrent,
-        qos : NSQualityOfService = .Default,
-        relative_priority: Int32 = 0) -> Executor {
+    public static func createOperationQueue(name: String?,
+        maxConcurrentOperationCount : Int) -> Executor {
             
             let oq = NSOperationQueue()
+            oq.name = name
             
-            let qos_class = qos.qos_class
-            let q_attr = type.q_attr
+            return .OperationQueue(oq)
             
-            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
-            let q : dispatch_queue_t
-            if let l = label {
-                q = dispatch_queue_create(l, c_attr)
-            }
-            else {
-                q = dispatch_queue_create(nil, c_attr)
-            }
-            return .Queue(q)
     }
     
     public static func createConcurrentQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
@@ -252,10 +241,6 @@ public enum Executor {
     public static func createSerialQueue() -> Executor  {
         return self.createQueue(nil, type: .Serial, qos: .Default, relative_priority: 0)
     }
-
-//    public static func createOperationQueue(label : String? = nil) -> Executor  {
-//        return self.createOperationQueue(nil, q_attr: DISPATCH_QUEUE_SERIAL, qos: .Default, relative_priority: 0)
-//    }
 
     // immediately 'dispatches' and executes a block on an Executor
     // example:
@@ -283,7 +268,9 @@ public enum Executor {
         self.executeAfterDelay(nanosecs,block: b)
     }
 
-    // This converts a generic block (T) -> Void,
+    // This returns the underlyingQueue (if there is one).
+    // Not all executors have an underlyingQueue.
+    // .Custom will always return nil, even if the implementation may include one.
     //
     var underlyingQueue: dispatch_queue_t? {
         get {

@@ -53,6 +53,7 @@ public enum SynchronizationType {
     case NSObjectLock
     case NSLock
     case NSRecursiveLock
+    case OSSpinLock
     
     func lockObject() -> SynchronizationProtocol {
         switch self {
@@ -68,6 +69,8 @@ public enum SynchronizationType {
             return NSLockSynchronization()
         case NSRecursiveLock:
             return NSRecursiveLockSynchronization()
+        case OSSpinLock:
+            return OSSpinLockSynchronization()
         }
     }
 }
@@ -323,6 +326,49 @@ public class NSLockSynchronization : SynchronizationProtocol {
     
     public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
         let ret = synchronizedWithLock(lock,block)
+        done(ret)
+    }
+}
+
+func synchronizedWithSpinLock<T>(l: UnSafeMutableContainer<OSSpinLock>, @noescape closure:  ()->T) -> T {
+    OSSpinLockLock(l.unsafe_pointer)
+    var retVal: T = closure()
+    OSSpinLockUnlock(l.unsafe_pointer)
+    return retVal
+}
+
+public class OSSpinLockSynchronization : SynchronizationProtocol {
+    
+    var lock = UnSafeMutableContainer<OSSpinLock>(OS_SPINLOCK_INIT)
+
+    required public init() {
+
+    }
+    final func synchronized<T>(block:() -> T) -> T {
+        return synchronizedWithSpinLock(self.lock) { () -> T in
+            return block()
+        }
+    }
+    
+    public func readSync<T>(block:() -> T) -> T {
+        return synchronizedWithSpinLock(lock,block)
+    }
+    
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithSpinLock(lock,block)
+        done(ret)
+    }
+    
+    public func modify(block:() -> Void) {
+        synchronizedWithSpinLock(lock,block)
+    }
+    
+    public func modifySync<T>(block:() -> T) -> T {
+        return synchronizedWithSpinLock(lock,block)
+    }
+    
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithSpinLock(lock,block)
         done(ret)
     }
 }

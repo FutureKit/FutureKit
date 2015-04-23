@@ -9,7 +9,7 @@
 import Foundation
 
 public func warnOperationOnMainThread() {
-    NSLog("Warning: A long-running Future wait operation is being executed on the main thread. \n Break on logOperationOnMainThread() to debug.")
+    NSLog("Warning: A long-running Future wait operation is being executed on the main thread. \n Break on warnOperationOnMainThread() to debug.")
 }
 
 class FutureWaitHandler<T>  {

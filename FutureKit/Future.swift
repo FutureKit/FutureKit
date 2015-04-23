@@ -755,8 +755,17 @@ public class Future<T> : FutureProtocol{
         
         if (completion.isCompleteUsing) {
             if let completionHandler = completion.completeUsingCancellationHandler {
-                self.synchObject.modifySync { () -> Void in
-                    self.__cancellationHandler = completionHandler
+                let success = self.synchObject.modifySync { () -> Bool in
+                    if (self.__completion != nil) {
+                        return false
+                    }
+                    else {
+                        self.__cancellationHandler = completionHandler
+                        return true
+                    }
+                }
+                if !success {
+                    return false
                 }
             }
             completion.completeUsingFuture.onComplete(.Immediate)  { (nextComp) -> Void in

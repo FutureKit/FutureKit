@@ -7,41 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
+		0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
+		0D7502B71AE6B114009C3F63 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B51AE6B114009C3F63 /* FTask.swift */; };
+		0D7502B81AE6B114009C3F63 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B51AE6B114009C3F63 /* FTask.swift */; };
+		0D7502C01AE6B182009C3F63 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BA1AE6B182009C3F63 /* Common.swift */; };
+		0D7502C11AE6B182009C3F63 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BA1AE6B182009C3F63 /* Common.swift */; };
+		0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
+		0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
+		0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
+		0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
+		0D7502C61AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
+		0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
+		0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
+		0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
+		0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
+		0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
+		0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
+		0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
+		0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
+		0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
 		0DEA1B961AE30853000E126F /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DEA1B951AE30853000E126F /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DEA1BC81AE30885000E126F /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCE1ADAFE5A00B58B0B /* Future.swift */; };
 		0DEA1BC91AE30885000E126F /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
 		0DEA1BCA1AE30885000E126F /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6D1ADCB55C000345AD /* Executor.swift */; };
-		0DEA1BCB1AE30885000E126F /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DA41FCA1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0DEA1BCC1AE30885000E126F /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCB1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.m */; };
 		0DEA1BCD1AE30885000E126F /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */; };
-		0DEA1BCE1AE30885000E126F /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */; };
-		0DEA1BCF1AE30885000E126F /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCD1ADAFE5A00B58B0B /* Common.swift */; };
 		0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */; };
 		0DEA1BD11AE30885000E126F /* FutureWait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* FutureWait.swift */; };
-		0DEA1BD21AE30885000E126F /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */; };
-		0DEA1BD31AE30885000E126F /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */; };
-		0DEA1BD41AE30885000E126F /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */; };
 		0DEA1BD51AE30886000E126F /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCE1ADAFE5A00B58B0B /* Future.swift */; };
 		0DEA1BD61AE30886000E126F /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
 		0DEA1BD71AE30886000E126F /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6D1ADCB55C000345AD /* Executor.swift */; };
-		0DEA1BD81AE30886000E126F /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DA41FCA1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0DEA1BD91AE30886000E126F /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCB1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.m */; };
 		0DEA1BDA1AE30886000E126F /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */; };
-		0DEA1BDB1AE30886000E126F /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */; };
-		0DEA1BDC1AE30886000E126F /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCD1ADAFE5A00B58B0B /* Common.swift */; };
 		0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */; };
 		0DEA1BDE1AE30886000E126F /* FutureWait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* FutureWait.swift */; };
-		0DEA1BDF1AE30886000E126F /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */; };
-		0DEA1BE01AE30886000E126F /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */; };
-		0DEA1BE11AE30886000E126F /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */; };
 		0DEA1BE51AE30B65000E126F /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DEA1B951AE30853000E126F /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BEE1AE3116A000E126F /* FutureKit_iOS_Tests.swift */; };
 		0DEA1BF01AE3116A000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; };
-		0DEA1BF61AE31176000E126F /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* Tests.swift */; };
+		0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 		0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */; };
 		0DEA1C051AE313DD000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1BAF1AE30872000E126F /* FutureKit.framework */; };
-		0DEA1C0B1AE313EF000E126F /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* Tests.swift */; };
+		0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,17 +69,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0DA41FCA1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionHandler.h; sourceTree = "<group>"; };
-		0DA41FCB1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionHandler.m; sourceTree = "<group>"; };
-		0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSAtomicInt.swift; sourceTree = "<group>"; };
-		0DA41FCD1ADAFE5A00B58B0B /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockPerformanceTests.swift; sourceTree = "<group>"; };
+		0D7502B51AE6B114009C3F63 /* FTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FTask.swift; sourceTree = "<group>"; };
+		0D7502BA1AE6B182009C3F63 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtensionVars.swift; sourceTree = "<group>"; };
+		0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; };
+		0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionHandler.h; sourceTree = "<group>"; };
+		0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionHandler.m; sourceTree = "<group>"; };
+		0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSAtomicInt.swift; sourceTree = "<group>"; };
+		0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager-Ext.swift"; sourceTree = "<group>"; };
+		0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSData-Ext.swift"; sourceTree = "<group>"; };
 		0DA41FCE1ADAFE5A00B58B0B /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Future.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FTask.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtensionVars.swift; sourceTree = "<group>"; };
-		0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FE21ADB483C00B58B0B /* FutureWait.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureWait.swift; sourceTree = "<group>"; };
-		0DB979A01AE2A21100158386 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureBatch.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -125,6 +134,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0D7502B41AE6B114009C3F63 /* FTask */ = {
+			isa = PBXGroup;
+			children = (
+				0D7502B51AE6B114009C3F63 /* FTask.swift */,
+			);
+			path = FTask;
+			sourceTree = "<group>";
+		};
+		0D7502B61AE6B114009C3F63 /* FoundationExtensions */ = {
+			isa = PBXGroup;
+			children = (
+				0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */,
+				0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */,
+			);
+			path = FoundationExtensions;
+			sourceTree = "<group>";
+		};
+		0D7502B91AE6B182009C3F63 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				0D7502BA1AE6B182009C3F63 /* Common.swift */,
+				0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */,
+				0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */,
+				0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */,
+				0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */,
+				0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
@@ -154,16 +193,12 @@
 				0DA41FCE1ADAFE5A00B58B0B /* Future.swift */,
 				0DE3AD6F1ADCBBF8000345AD /* Promise.swift */,
 				0DE3AD6D1ADCB55C000345AD /* Executor.swift */,
-				0DA41FCA1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.h */,
-				0DA41FCB1ADAFE5A00B58B0B /* ObjectiveCExceptionHandler.m */,
-				0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */,
-				0DA41FCC1ADAFE5A00B58B0B /* OSAtomicInt.swift */,
-				0DA41FCD1ADAFE5A00B58B0B /* Common.swift */,
 				0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */,
 				0DA41FE21ADB483C00B58B0B /* FutureWait.swift */,
-				0DA41FCF1ADAFE5A00B58B0B /* FTask.swift */,
-				0DA41FD01ADAFE5A00B58B0B /* ExtensionVars.swift */,
-				0DA41FD11ADAFE5A00B58B0B /* NSObject-Ext-ThreadSafe.swift */,
+				0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */,
+				0D7502B91AE6B182009C3F63 /* Utils */,
+				0D7502B41AE6B114009C3F63 /* FTask */,
+				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
 			);
 			path = FutureKit;
 			sourceTree = "<group>";
@@ -171,7 +206,8 @@
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				0DB979A01AE2A21100158386 /* Tests.swift */,
+				0DB979A01AE2A21100158386 /* BasicTests.swift */,
+				0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */,
 				0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */,
 				0DB9799E1AE2A21100158386 /* Supporting Files */,
 			);
@@ -245,7 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1B961AE30853000E126F /* FutureKit.h in Headers */,
-				0DEA1BCB1AE30885000E126F /* ObjectiveCExceptionHandler.h in Headers */,
+				0D7502C61AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,7 +290,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1BE51AE30B65000E126F /* FutureKit.h in Headers */,
-				0DEA1BD81AE30886000E126F /* ObjectiveCExceptionHandler.h in Headers */,
+				0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,18 +448,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DEA1BD31AE30885000E126F /* ExtensionVars.swift in Sources */,
+				0D7502C01AE6B182009C3F63 /* Common.swift in Sources */,
+				0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */,
+				0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */,
 				0DEA1BC81AE30885000E126F /* Future.swift in Sources */,
 				0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */,
+				0D7502B71AE6B114009C3F63 /* FTask.swift in Sources */,
+				0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0DEA1BCA1AE30885000E126F /* Executor.swift in Sources */,
-				0DEA1BCE1AE30885000E126F /* OSAtomicInt.swift in Sources */,
 				0DEA1BCD1AE30885000E126F /* Synchronization.swift in Sources */,
-				0DEA1BD41AE30885000E126F /* NSObject-Ext-ThreadSafe.swift in Sources */,
-				0DEA1BCC1AE30885000E126F /* ObjectiveCExceptionHandler.m in Sources */,
 				0DEA1BD11AE30885000E126F /* FutureWait.swift in Sources */,
-				0DEA1BD21AE30885000E126F /* FTask.swift in Sources */,
+				0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
+				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
-				0DEA1BCF1AE30885000E126F /* Common.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,18 +469,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DEA1BE01AE30886000E126F /* ExtensionVars.swift in Sources */,
+				0D7502C11AE6B182009C3F63 /* Common.swift in Sources */,
+				0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */,
+				0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */,
 				0DEA1BD51AE30886000E126F /* Future.swift in Sources */,
 				0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */,
+				0D7502B81AE6B114009C3F63 /* FTask.swift in Sources */,
+				0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0DEA1BD71AE30886000E126F /* Executor.swift in Sources */,
-				0DEA1BDB1AE30886000E126F /* OSAtomicInt.swift in Sources */,
 				0DEA1BDA1AE30886000E126F /* Synchronization.swift in Sources */,
-				0DEA1BE11AE30886000E126F /* NSObject-Ext-ThreadSafe.swift in Sources */,
-				0DEA1BD91AE30886000E126F /* ObjectiveCExceptionHandler.m in Sources */,
 				0DEA1BDE1AE30886000E126F /* FutureWait.swift in Sources */,
-				0DEA1BDF1AE30886000E126F /* FTask.swift in Sources */,
+				0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
+				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
-				0DEA1BDC1AE30886000E126F /* Common.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,7 +492,8 @@
 			files = (
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
-				0DEA1BF61AE31176000E126F /* Tests.swift in Sources */,
+				0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */,
+				0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,7 +503,8 @@
 			files = (
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
-				0DEA1C0B1AE313EF000E126F /* Tests.swift in Sources */,
+				0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */,
+				0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

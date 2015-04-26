@@ -1783,7 +1783,7 @@ class classWithMethodsThatReturnFutures {
         let p : Promise<Int> = Promise()
         
         // let's do some async dispatching of things here:
-        dispatch_main_async {
+        dispatch_async(dispatch_get_main_queue()) {
             p.completeWithSuccess(5)
         }
         
@@ -1794,7 +1794,7 @@ class classWithMethodsThatReturnFutures {
     func iMayFailRandomly() -> Future<[String:Int]>  {
         let p = Promise<[String:Int]>()
         
-        dispatch_main_async {
+        dispatch_async(dispatch_get_main_queue()) {
             let s = arc4random_uniform(3)
             switch s {
             case 0:
@@ -1874,7 +1874,7 @@ class classWithMethodsThatReturnFutures {
         let p = Promise<Void>()
         
         f.onSuccess { (result) -> Void in
-            dispatch_main_async {
+            dispatch_async(dispatch_get_main_queue()) {
                 p.completeWithSuccess()
             }
         }

@@ -243,7 +243,8 @@ public class FutureBatchOf<T> {
             for completion in completions {
                 switch completion.state {
                 case let .Success:
-                    results.append(completion.result)
+                    let r = completion.result
+                    results.append(r)
                 case let .Fail:
                     errors.append(completion.error)
                 case let .Cancelled(token):

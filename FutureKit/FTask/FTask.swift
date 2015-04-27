@@ -106,8 +106,8 @@ public class FTaskPromise : NSObject {
     
     // can return true if completion was successful.
     // can block the current thread
-    final func syncComplete(completion c: FTaskCompletion) -> Bool {
-        return self.promise.syncComplete(c.completion)
+    final func tryComplete(completion c: FTaskCompletion) -> Bool {
+        return self.promise.tryComplete(c.completion)
     }
     
     public typealias completionErrorHandler = Promise<rtype>.completionErrorHandler

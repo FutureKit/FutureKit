@@ -165,7 +165,7 @@ public class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func syncComplete(completion : Completion<T>) -> Bool {
+    public final func tryComplete(completion : Completion<T>) -> Bool {
         return self.future.completeWithSync(completion)
     }
     

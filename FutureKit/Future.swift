@@ -225,13 +225,25 @@ public enum Completion<T> : Printable, DebugPrintable {
             switch self {
             case let .Success(t):
                 // if you crash here, it's because the result passsed to the future wasn't of type T!
-                return (t as! T)
+                return (t as? T)
             default:
 //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
             }
         }
     }
+    
+    public func _result<T:GenericOptional>() -> T! {
+        switch self {
+        case let .Success(t):
+            // if you crash here, it's because the result passsed to the future wasn't of type T!
+            return (t as? T)
+        default:
+            //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
+            return nil
+        }
+    }
+
     /**
         make sure this enum is a .Fail before calling `result`. Use a switch or check .isError() first.
     */
@@ -962,6 +974,7 @@ public class Future<T> : FutureProtocol{
                 switch self.__callbacks {
                 case var .Some(cb):
                     cb.append(callback)
+                    self.__callbacks = cb
                 case .None:
                     self.__callbacks = [callback]
                 }
@@ -1026,8 +1039,9 @@ public class Future<T> : FutureProtocol{
     :returns: a new Future of with the result type of __Type
     */
     public func convert<__Type>() -> Future<__Type> {
-        return self.map(.Immediate) { (result) -> __Type in
-            return result as! __Type
+        return self.onSuccess(.Immediate) { (result) -> Completion<__Type> in
+            let r = result as! __Type
+            return .Success(r)
         }
     }
     
@@ -1048,8 +1062,9 @@ public class Future<T> : FutureProtocol{
 
     */
     public func convertOptional<__Type>() -> Future<__Type?> {
-        return self.map(.Immediate) { (result) -> __Type? in
-            return result as? __Type
+        return self.onSuccess(.Immediate) { (result) -> Completion<__Type?> in
+            let r = result as? __Type
+            return .Success(r)
         }
     }
 
@@ -1675,14 +1690,22 @@ extension Future : Printable, DebugPrintable {
     
 }
 
+internal enum GenericOptionalEnum {
+    case None
+    case Some
+}
 
-
-protocol GenericOptional {
+internal protocol GenericOptional {
     typealias unwrappedType
     
-    func convert<OptionalS : GenericOptional>() -> OptionalS
-    func convertIfPossible<OptionalS : GenericOptional>() -> OptionalS
+    var genericOptionalEnumValue : GenericOptionalEnum { get }
     
+    func isNil() -> Bool
+    func unwrap() -> unwrappedType
+
+    func genericFlatMap<U>(f: (unwrappedType) -> U?) -> U?
+    func genericMap<U>(f: (unwrappedType) -> U) -> U?
+
     init()
     init(_ some: unwrappedType)
 }
@@ -1692,42 +1715,54 @@ extension Optional : GenericOptional {
     typealias unwrappedType = T
     
     
-    func convert<OptionalS : GenericOptional>() -> OptionalS {
-        switch self {
-        case let .Some(t):
-            return OptionalS(t as! OptionalS.unwrappedType)
-        case None:
-            return OptionalS()
+    var genericOptionalEnumValue : GenericOptionalEnum {
+        get {
+            switch self {
+            case None:
+                return .None
+            case .Some:
+                return .Some
+            }
         }
     }
-    func convertIfPossible<OptionalS : GenericOptional>() -> OptionalS {
+
+    func isNil() -> Bool {
         switch self {
-        case let .Some(t):
-            if let s = t as? OptionalS.unwrappedType {
-                return OptionalS(s)
-            }
-            else {
-                return OptionalS()
-            }
         case None:
-            return OptionalS()
+            return true
+        case .Some:
+            return false
         }
     }
-    
+    func unwrap() -> unwrappedType {
+        return self!
+    }
+
+    func genericMap<U>(f: (unwrappedType) -> U) -> U? {
+        return self.map(f)
+    }
+
+    func genericFlatMap<U>(f: (unwrappedType) -> U?) -> U? {
+        return flatMap(f)
+    }
     
 }
 
-func convertOptionalFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS> {
-    return f.map { (result) -> OptionalS in
-        let r : OptionalS = result.convertIfPossible()
-        return r
+func convertOptionalFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS.unwrappedType?> {
+    return f.map { (result) -> OptionalS.unwrappedType? in
+        
+        if (result.isNil()) {
+            return nil
+        }
+        return result.unwrap() as? OptionalS.unwrappedType
     }
 }
 
-func convertFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS> {
-    return f.map { (result) -> OptionalS in
-        let r : OptionalS = result.convert()
-        return r
+func convertFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS.unwrappedType?> {
+    return f.map { (result) -> OptionalS.unwrappedType? in
+        return result.genericFlatMap({ (t) -> OptionalS.unwrappedType? in
+            return t as? OptionalS.unwrappedType
+        })
     }
 }
 
@@ -1919,7 +1954,9 @@ class classWithMethodsThatReturnFutures {
     func testing() {
         let x = Future<Optional<Int>>(success: 5)
         
-        let y : Future<Int64?> = convertOptionalFutures(x)
+//        let yx = convertOptionalFutures(x)
+        
+//        let y : Future<Int64?> = convertOptionalFutures(x)
         
         
     }

@@ -46,7 +46,7 @@ public class Promise<T>  {
         creates a promise that enables the Future.cancel()
         The cancellationHandler will execute using Executor.Primary
     */
-    public init(cancellationHandler h: (Any?) -> Void) {
+    public init(cancellationHandler h: () -> Void) {
         let newHandler = Executor.Primary.callbackBlockFor(h)
         self.future = Future<T>(cancellationHandler: newHandler)
     }
@@ -55,7 +55,7 @@ public class Promise<T>  {
     creates a promise that enables the Future.cancel()
     The cancellationHandler will execute using the executor
     */
-    public init(executor:Executor,cancellationHandler h: (Any?) -> Void) {
+    public init(executor:Executor,cancellationHandler h: () -> Void) {
         let newHandler = executor.callbackBlockFor(h)
         self.future = Future<T>(cancellationHandler: newHandler)
     }
@@ -83,12 +83,12 @@ public class Promise<T>  {
         self.future.completeWith(completion)
     }
     
-    public final func completeWithVoidSuccess() {
-        assert(toString(T.self) == toString(Void.self),"You must send a result if the type isn't Promise<Void> - USE completeWithSuccess(result : T) instead!")
-        self.future.completeWith(.Success(Void()))
-    }
+//    public final func completeWithVoidSuccess() {
+//        assert(toString(T.self) == toString(Void.self),"You must send a result if the type isn't Promise<Void> - USE completeWithSuccess(result : T) instead!")
+//        self.future.completeWith(.Success(Result(Void)))
+//    }
     public final func completeWithSuccess(result : T) {
-        self.future.completeWith(.Success(result))
+        self.future.completeWith(.Success(Result(result)))
     }
     public final func completeWithFail(e : NSError) {
         self.future.completeWith(.Fail(e))
@@ -100,10 +100,7 @@ public class Promise<T>  {
         self.future.completeWith(Completion<T>(exception: e))
     }
     public final func completeWithCancel() {
-        self.future.completeWith(.Cancelled(()))
-    }
-    public final func completeWithCancel(token:Any?) {
-        self.future.completeWith(.Cancelled(token))
+        self.future.completeWith(.Cancelled)
     }
     public final func continueWithFuture(f : Future<T>) {
         self.future.completeWith(.CompleteUsing(f))

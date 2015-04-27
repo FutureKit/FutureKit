@@ -120,7 +120,7 @@ public class FutureBatchOf<T> {
             let promise = Promise<[Completion<T>]>()
             var total = array.count
 
-            var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled(()))
+            var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled)
             
             for (index, future) in enumerate(array) {
                 future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
@@ -238,7 +238,7 @@ public class FutureBatchOf<T> {
         return f.onSuccess { (completions:[Completion<T>]) -> Completion<[T]> in
             var results = [T]()
             var errors = [NSError]()
-            var cancellations = [Any?]()
+            var cancellations = 0
             
             for completion in completions {
                 switch completion.state {
@@ -247,22 +247,22 @@ public class FutureBatchOf<T> {
                     results.append(r)
                 case let .Fail:
                     errors.append(completion.error)
-                case let .Cancelled(token):
-                    cancellations.append(token)
+                case let .Cancelled:
+                    cancellations++
                 }
             }
             if (errors.count > 0) {
                 if (errors.count == 1) {
-                    return .Fail(errors.first!)
+                    return FAIL(errors.first!)
                 }
                 else  {
-                    return .Fail(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
+                    return FAIL(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
                 }
             }
-            if (cancellations.count > 0) {
-                return .Cancelled(cancellations)
+            if (cancellations > 0) {
+                return CANCELLED()
             }
-            return .Success(results)
+            return SUCCESS(results)
         }
         
     }

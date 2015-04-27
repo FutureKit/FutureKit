@@ -37,19 +37,19 @@ public class FTaskCompletion : NSObject {
     }
     
     init(exception ex:NSException) {
-        self.completion = .Fail(FutureNSError(exception: ex))
+        self.completion = FAIL(FutureNSError(exception: ex))
     }
     init(success : rtype) {
-        self.completion = .Success(success)
+        self.completion = SUCCESS(success)
     }
-    init(cancelled : Any?) {
-        self.completion = .Cancelled(cancelled)
+    init(cancelled : ()) {
+        self.completion = .Cancelled
     }
     init (fail : NSError) {
-        self.completion = .Fail(fail)
+        self.completion = FAIL(fail)
     }
     init (continueWith f: FTask) {
-        self.completion = .CompleteUsing(f.future)
+        self.completion = COMPLETE_USING(f.future)
     }
 
     
@@ -243,7 +243,7 @@ public extension FTask {
         case let ex as NSException:
             return Completion<resultType>(exception: ex)
         default:
-            return .Success(a)
+            return SUCCESS(a)
         }
     }
     private class func toCompletionObjc(a : AnyObject?) -> FTaskCompletion {

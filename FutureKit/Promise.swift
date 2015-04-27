@@ -3,7 +3,23 @@
 //  FutureKit
 //
 //  Created by Michael Gray on 4/13/15.
-//  Copyright (c) 2015 Michael Gray. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 //
 
 import Foundation
@@ -30,7 +46,7 @@ public class Promise<T>  {
         creates a promise that enables the Future.cancel()
         The cancellationHandler will execute using Executor.Primary
     */
-    public init(cancellationHandler h: (Any?) -> Void) {
+    public init(cancellationHandler h: () -> Void) {
         let newHandler = Executor.Primary.callbackBlockFor(h)
         self.future = Future<T>(cancellationHandler: newHandler)
     }
@@ -39,7 +55,7 @@ public class Promise<T>  {
     creates a promise that enables the Future.cancel()
     The cancellationHandler will execute using the executor
     */
-    public init(executor:Executor,cancellationHandler h: (Any?) -> Void) {
+    public init(executor:Executor,cancellationHandler h: () -> Void) {
         let newHandler = executor.callbackBlockFor(h)
         self.future = Future<T>(cancellationHandler: newHandler)
     }
@@ -67,12 +83,12 @@ public class Promise<T>  {
         self.future.completeWith(completion)
     }
     
-    public final func completeWithVoidSuccess() {
-        assert(toString(T.self) == toString(Void.self),"You must send a result if the type isn't Promise<Void> - USE completeWithSuccess(result : T) instead!")
-        self.future.completeWith(.Success(Void()))
-    }
+//    public final func completeWithVoidSuccess() {
+//        assert(toString(T.self) == toString(Void.self),"You must send a result if the type isn't Promise<Void> - USE completeWithSuccess(result : T) instead!")
+//        self.future.completeWith(.Success(Result(Void)))
+//    }
     public final func completeWithSuccess(result : T) {
-        self.future.completeWith(.Success(result))
+        self.future.completeWith(.Success(Result(result)))
     }
     public final func completeWithFail(e : NSError) {
         self.future.completeWith(.Fail(e))
@@ -84,10 +100,7 @@ public class Promise<T>  {
         self.future.completeWith(Completion<T>(exception: e))
     }
     public final func completeWithCancel() {
-        self.future.completeWith(.Cancelled(()))
-    }
-    public final func completeWithCancel(token:Any?) {
-        self.future.completeWith(.Cancelled(token))
+        self.future.completeWith(.Cancelled)
     }
     public final func continueWithFuture(f : Future<T>) {
         self.future.completeWith(.CompleteUsing(f))
@@ -149,7 +162,7 @@ public class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func syncComplete(completion : Completion<T>) -> Bool {
+    public final func tryComplete(completion : Completion<T>) -> Bool {
         return self.future.completeWithSync(completion)
     }
     

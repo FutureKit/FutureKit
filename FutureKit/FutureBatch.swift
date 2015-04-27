@@ -3,7 +3,23 @@
 //  FutureKit
 //
 //  Created by Michael Gray on 4/13/15.
-//  Copyright (c) 2015 Michael Gray. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 //
 
 import Foundation
@@ -104,7 +120,7 @@ public class FutureBatchOf<T> {
             let promise = Promise<[Completion<T>]>()
             var total = array.count
 
-            var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled(()))
+            var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled)
             
             for (index, future) in enumerate(array) {
                 future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
@@ -222,30 +238,31 @@ public class FutureBatchOf<T> {
         return f.onSuccess { (completions:[Completion<T>]) -> Completion<[T]> in
             var results = [T]()
             var errors = [NSError]()
-            var cancellations = [Any?]()
+            var cancellations = 0
             
             for completion in completions {
                 switch completion.state {
                 case let .Success:
-                    results.append(completion.result)
+                    let r = completion.result
+                    results.append(r)
                 case let .Fail:
                     errors.append(completion.error)
-                case let .Cancelled(token):
-                    cancellations.append(token)
+                case let .Cancelled:
+                    cancellations++
                 }
             }
             if (errors.count > 0) {
                 if (errors.count == 1) {
-                    return .Fail(errors.first!)
+                    return FAIL(errors.first!)
                 }
                 else  {
-                    return .Fail(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
+                    return FAIL(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
                 }
             }
-            if (cancellations.count > 0) {
-                return .Cancelled(cancellations)
+            if (cancellations > 0) {
+                return CANCELLED()
             }
-            return .Success(results)
+            return SUCCESS(results)
         }
         
     }

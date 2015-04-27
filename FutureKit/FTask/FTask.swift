@@ -3,7 +3,23 @@
 //  Bikey
 //
 //  Created by Michael Gray on 4/12/15.
-//  Copyright (c) 2015 Michael Gray. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 //
 
 import Foundation
@@ -21,19 +37,19 @@ public class FTaskCompletion : NSObject {
     }
     
     init(exception ex:NSException) {
-        self.completion = .Fail(FutureNSError(exception: ex))
+        self.completion = FAIL(FutureNSError(exception: ex))
     }
     init(success : rtype) {
-        self.completion = .Success(success)
+        self.completion = SUCCESS(success)
     }
-    init(cancelled : Any?) {
-        self.completion = .Cancelled(cancelled)
+    init(cancelled : ()) {
+        self.completion = .Cancelled
     }
     init (fail : NSError) {
-        self.completion = .Fail(fail)
+        self.completion = FAIL(fail)
     }
     init (continueWith f: FTask) {
-        self.completion = .CompleteUsing(f.future)
+        self.completion = COMPLETE_USING(f.future)
     }
 
     
@@ -90,8 +106,8 @@ public class FTaskPromise : NSObject {
     
     // can return true if completion was successful.
     // can block the current thread
-    final func syncComplete(completion c: FTaskCompletion) -> Bool {
-        return self.promise.syncComplete(c.completion)
+    final func tryComplete(completion c: FTaskCompletion) -> Bool {
+        return self.promise.tryComplete(c.completion)
     }
     
     public typealias completionErrorHandler = Promise<rtype>.completionErrorHandler
@@ -227,7 +243,7 @@ public extension FTask {
         case let ex as NSException:
             return Completion<resultType>(exception: ex)
         default:
-            return .Success(a)
+            return SUCCESS(a)
         }
     }
     private class func toCompletionObjc(a : AnyObject?) -> FTaskCompletion {

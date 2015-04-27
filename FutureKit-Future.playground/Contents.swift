@@ -27,9 +27,9 @@ let failed5result = futureFail.result
 let e = futureFail.error!.localizedDescription
 
 //: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.  Optionally you can send a reason, but it's not required.  In FutureKit a Fail means that something went wrong, and you should cope with that.  a Cancel is usually considered "legal", like canceling active API requests when a window is closed.
-let cancelledFuture = Future<Int>(cancelled: "Don't need this anymore")
+let cancelledFuture = Future<Int>(cancelled: ())
 let cancelledResult = cancelledFuture.result
-let cancelationToken = cancelledFuture.cancelToken
+let cancelationToken = cancelledFuture.isCompleted
 
 //: These aren't very interesting Futures. Let's make something a bit more interesting:
 let asyncFuture5 = Future(.Default) { () -> Int in
@@ -70,8 +70,8 @@ futureFail.onFail { (error) -> Void in
     let e = error.localizedDescription
 }
 
-cancelledFuture.onCancel { (token) -> Void in
-    let cancelToken = token
+cancelledFuture.onCancel { () -> Void in
+    let e = "cancelled!"
 }
 
 //: But if you don't want to add 3 handlers, it's more common to just add a single onComplete handler
@@ -83,7 +83,7 @@ asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
     case .Fail:
         let e = completion.error
     case .Cancelled:
-        let c = completion.cancelToken
+        break
     }
 }
 //: What's Completion<Int>? A Completion is an enumeration that represents the "completion" of a future.  When returned to an OnComplete handler, it will always be one of three values .Success, .Fail, or .Cancelled.
@@ -241,15 +241,28 @@ gonnaTryHardAndNotFail.completeWithFail("Sorry. Maybe Next time.")
 //: A Completion is a enumeration that is used to 'complete' a future.  A Future has a var
 //: `var completion : Completion<T>?`
 //: this var stores the completion value of the Future.  Note that it's optional.  That's because a Future may not be 'completed' yet.  When it's in an uncompleted state, it's completion var will be nil.  
-//: If you examine the contents of a completed Future<T>, you will find a Completion<T> enumeration that must be one of the 3 possible values: .Success(Any), .Fail(NSError), .Cancel(Any?)
+
+//: If you examine the contents of a completed Future<T>, you will find a Completion<T> enumeration that must be one of the 3 possible values: `.Success(Result<T>)`, `.Fail(NSError)`, `.Cancel(Any?)`
 
 let anotherFuture5 = Future(success: 5)
 switch anotherFuture5.completion! {
-    case let .Success(result):
-        let x = result
+    case let .Success(s):
+        let x = s.result
     default:
         break
     }
+
+//: .Success uses an associated type of `Result<T>` is just a generic payload wrapper.  Swift currently has a restriction on using generic associated values ( http://stackoverflow.com/questions/27257522/whats-the-exact-limitation-on-generic-associated-values-in-swift-enums).  So we wrap the generic type T in a Generic 'box' called Result<T>.  The plan will be to remove this in a future version of swift (that no longer has the limitation).
+
+//: To get around some of the pain of instanciating the enumerations, FutureKit defines a set of global functions that are easier to read.
+
+//:     public func SUCCESS(t) -> Completion<T>
+
+//:     public func FAIL(e) -> Completion<T>
+
+//:     public func CANCELLED(canceltoken) -> Completion<T>
+
+//:     public func CANCELLED(canceltoken) -> Completion<T>
 
 
 //: But completion has a fourth enumeration case `.CompleteUsing(Future<T>)`.   This is very useful when you have a handler that wants to use some other Future to complete itself.   This completion value is only used as a return value from a handler method.
@@ -277,16 +290,15 @@ func iWillKeepTryingTillItWorks(attemptNo: Int) -> Future<Int> {
     
     let numberOfAttempts = attemptNo + 1
     return iMayFailRandomly().onComplete { (completion) -> Completion<Int> in
-        switch completion {
+        switch completion.state {
             
-        case let .Success(yay):
-            // Success uses Any as a payload type, so we have to convert it here.
-            let s = yay as! String
-            return .Success(numberOfAttempts)
+        case .Success:
+            let s = completion.result
+            return SUCCESS(numberOfAttempts)
             
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(numberOfAttempts)
-            return .CompleteUsing(nextFuture)
+            return COMPLETE_USING(nextFuture)
         }
     }
 }
@@ -301,34 +313,34 @@ keepTrying.onSuccess { (tries) -> Void in
 asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
     switch completion {
         
-    case let .Success(five):
-        let f = five as! Int   // this is annoying.  Why can't five already be Int?
+    case let .Success(r):
+        let five = r.result
     
     case let .Fail(error):
         let e = error
     
-    case let .Cancelled(cancelToken):
-        let c = completion.cancelToken
+    case .Cancelled:
+        break
         
     case let .CompleteUsing(f):
         assertionFailure("hey! FutureKit promised this wouldn't happen!")
         break;
     }
 }
-//: But it's annoying for two reasons. 
+//: But it's annoying for a few reasons.
 //: 1. You have to add either `case .CompleteUsing`:, or a `default:`, because Swift requires switch to be complete.  But it's illegal to receive that completion value, in this function.  That case won't happen.
-//: 2. .Success currently uses a type 'Any' as a payload.  Which has more to do with a bug/limitation in Swift Generic enumerations (that might get fixed in the future).
+//: 2. .Success currently uses an associated type of 'Result<T>'.  Which has more to do with a bug/limitation in Swift Generic enumerations (that we expect will get fixed in the future).
 //: So the simpler and alternate is to look at the var 'state' on the completion value.  It uses the related enumeration CompletionState.  Which is a simpler enumeration.
 
 //: Let's rewrite the same handler using the var `state`.
 asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
     switch completion.state {
     case .Success:
-        let five = completion.result  // I'm the right type!
+        let five = completion.result
     case .Fail:
         let e = completion.error
     case .Cancelled:
-        let c = completion.cancelToken
+        break
     }
 }
 
@@ -360,13 +372,13 @@ sampleFuture.onComplete { (c) -> Completion<String> in
     switch c.state {
     
     case .Success:
-        return .Success(String(c.result))
+        return SUCCESS(String(c.result))
         
     case .Fail:
-        return .Success(String("Some Default String we send when things Fail"))
+        return SUCCESS("Some Default String we send when things Fail")
         
     case let .Cancelled(token):
-        return .Cancelled(token)
+        return CANCELLED()
     }
 }
 

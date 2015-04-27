@@ -94,6 +94,32 @@ public enum CompletionState : Int {
     // Tasks must complete in one these states
 }
 
+
+/**
+    Result<T> is a swift-generic "hack" to get around the "error: unimplemented IR generation feature non-fixed multi-payload enum layout" limitation
+        that still exists (as of Swift 1.2).  Re:(http://stackoverflow.com/questions/27257522/whats-the-exact-limitation-on-generic-associated-values-in-swift-enums)
+
+    This makes instanciating the `Completion<T>.Success()` a pain.  Cause now you have to do this:
+
+        Completion<T>.Success(Result(t))
+
+    or
+
+        Completion<T>(success:t)
+
+    The easiest thing is to use the Global generic function `SUCCESS<T>(t)`
+
+        SUCCESS(t)
+
+    They are all equivilant to the right value.
+    We expect to be able to kill Request<T> in a future version of swift.  So the best case is to use just `SUCCESS<T>` (which will always work)
+
+*/
+final public class Result<T> {
+    public let result: T
+    public init(_ r: T) { self.result = r }
+}
+
 /**
 Defines a an enumeration that stores both the state and the data associated with a Future completion.
 
@@ -110,21 +136,23 @@ public enum Completion<T> : Printable, DebugPrintable {
         An alias that defines the Type being used for .Success(SuccessType) enumeration.
         This is currently set to Any, but we may change to 'T' in a future version of swift
     */
-    public typealias SuccessType = Any              // Works.  Makes me sad.
+    // public typealias SuccessType = Any         // Works.  Makes me sad.
     // typealias SuccessPayloadType = T             // PERFECT! - But it CRASHES
     // typealias SuccessPayloadType = T!            // OK.  But it STILL Crashes
-    // typealias SuccessPayloadType = _FResult<T>   // Confusing.  But is type safe.  Makes the Completion<T> switch
-                                                    //       statements weirder.
+    public typealias SuccessType = Result<T>        // Works.  And seems to be the most typesafe, and let's use get away with 
+                                                    // Optional Futures better (like `Future<AnyObject?>` ) 
+    
+
 
 
     /**
         Future completed with a result of SuccessType
     */
-    case Success(SuccessType)       //  why is this Success(Any) and not Success(T)
+    case Success(SuccessType)       //  why is this Success(Result<T>) and not Success(T)
                                     //  or Success(T!)??
                                     //  Because of the evil IR Generation Swift crashiness.
                                     //  In a future version I expect to be able to change this to T or T!
-                                    //  so we are using the SuccessPayloadType alias
+                                    //  so we are using the SuccessType alias
                                             //  We are adding a assertion check inside of
     /**
         Future failed with error NSError
@@ -132,9 +160,9 @@ public enum Completion<T> : Printable, DebugPrintable {
     case Fail(NSError)
     
     /**
-        Future was Cancelled.  A reason/token can optionally be sent by the canceler
+        Future was Cancelled.
     */
-    case Cancelled(Any?)
+    case Cancelled
 
     /**
         This Future's completion will be set by some other Future<T>.  This will only be used as a return value from the onComplete/onSuccess/onFail/onCancel handlers.  the var "completion" on Future should never be set to 'CompleteUsing'.
@@ -155,6 +183,10 @@ public enum Completion<T> : Printable, DebugPrintable {
     */
     public init(exception ex:NSException) {
         self = .Fail(FutureNSError(exception: ex))
+    }
+    
+    public init(success s:T) {
+        self = .Success(SuccessType(s))
     }
     
     public var isSuccess : Bool {
@@ -224,14 +256,14 @@ public enum Completion<T> : Printable, DebugPrintable {
         get {
             switch self {
             case let .Success(t):
-                // if you crash here, it's because the result passsed to the future wasn't of type T!
-                return (t as! T)
+                return t.result
             default:
 //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
             }
         }
     }
+    
     /**
         make sure this enum is a .Fail before calling `result`. Use a switch or check .isError() first.
     */
@@ -242,19 +274,6 @@ public enum Completion<T> : Printable, DebugPrintable {
                 return e
             default:
 //                assertionFailure("don't call .error without checking that the enumeration is .Error first.")
-                return nil
-            }
-        }
-    }
-    /**
-        will return a cancelToken iff the enumeration is a .Cancel.  May return nil (if no token was sent).  Can't be used to determine if the enumeration was .Cancel, so use .IsCancel() or use a switch.
-    */
-    public var cancelToken:Any? {
-        get {
-            switch self {
-            case let .Cancelled(token):
-                return token
-            default:
                 return nil
             }
         }
@@ -335,15 +354,15 @@ public enum Completion<T> : Printable, DebugPrintable {
     public func convert<S>() -> Completion<S> {
         switch self {
         case let .Success(t):
-            let r = t as! S
-            return .Success(r)
+            let r = t.result as! S
+            return SUCCESS(r)
         case let .Fail(f):
-            return .Fail(f)
+            return FAIL(f)
         case let .Cancelled(reason):
-            return .Cancelled(reason)
+            return CANCELLED(reason)
         case let .CompleteUsing(f):
             let s : Future<S> = f.convert()
-            return .CompleteUsing(s)
+            return COMPLETE_USING(s)
         }
     }
     
@@ -365,22 +384,22 @@ public enum Completion<T> : Printable, DebugPrintable {
     public func convertOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
-            let r = t as? S
-            return .Success(r)
+            let r = t.result as? S
+            return SUCCESS(r)
         case let .Fail(f):
-            return .Fail(f)
-        case let .Cancelled(reason):
-            return .Cancelled(reason)
+            return FAIL(f)
+        case .Cancelled:
+            return CANCELLED()
         case let .CompleteUsing(f):
             let s : Future<S?> = f.convertOptional()
-            return .CompleteUsing(s)
+            return COMPLETE_USING(s)
         }
     }
     
     public var description: String {
         switch self {
         case let .Success(t):
-            return ".Success(\(t))"
+            return ".Success(\(t.result))"
         case let .Fail(f):
             return ".Fail(\(f.localizedDescription))"
         case let .Cancelled(reason):
@@ -452,6 +471,24 @@ public protocol FutureProtocol {
     }
 
 
+
+public func SUCCESS<T>(result : T) -> Completion<T> {
+    return .Success(Result(result))
+}
+public func FAIL<T>(error : NSError) -> Completion<T> {
+    return .Fail(error)
+}
+public func FAIL<T>(message : String) -> Completion<T> {
+    return Completion<T>(failWithErrorMessage: message)
+}
+public func CANCELLED<T>() -> Completion<T> {
+    return .Cancelled
+}
+public func COMPLETE_USING<T>(f : Future<T>) -> Completion<T> {
+    return .CompleteUsing(f)
+}
+
+
 /**
 
     `Future<T>`
@@ -462,10 +499,9 @@ public protocol FutureProtocol {
 */
 public class Future<T> : FutureProtocol{
     
-    
     internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
     internal typealias completion_block_type = ((Completion<T>) -> Void)
-    internal typealias cancellation_handler_type = ((Any?)-> Void)
+    internal typealias cancellation_handler_type = (()-> Void)
     
     
     private var __callbacks : [completion_block_type]?
@@ -545,16 +581,6 @@ public class Future<T> : FutureProtocol{
         }
     }
     /**
-    returns: the cancelToken of the Future iff the future has completed with an Cancel and Cancelation has a token.  returns nil otherwise.
-    
-    accessing this variable directly requires thread synchronization.
-    */
-    public var cancelToken:Any? {
-        get {
-            return self.completion?.cancelToken
-        }
-    }
-    /**
     returns: the CompletionState of the Future
     
     accessing this variable directly requires thread synchronization.
@@ -613,7 +639,7 @@ public class Future<T> : FutureProtocol{
         creates a completed Future with a completion == .Success(success)
     */
     public init(success:T) {  // returns an completed Task  with result T
-        self.__completion = .Success(success)
+        self.__completion = SUCCESS(success)
     }
     /**
     creates a completed Future with a completion == .Error(failed)
@@ -636,14 +662,14 @@ public class Future<T> : FutureProtocol{
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
-    public init(cancelled:Any?) {  // returns an completed Task that has Failed with this error
-        self.__completion = .Cancelled(cancelled)
+    public init(cancelled:()) {  // returns an completed Task that has Failed with this error
+        self.__completion = .Cancelled
     }
 
     
     public init(afterDelay:NSTimeInterval, completeWith: Completion<T>) {    // emits a .Success after delay
-        self.__cancellationHandler = { (a:Any?) -> Void in
-            self.completeWith(.Cancelled(a))
+        self.__cancellationHandler = { () -> Void in
+            self.completeWith(.Cancelled)
         }
         Executor.Default.executeAfterDelay(afterDelay) { () -> Void in
             self.completeWith(completeWith)
@@ -651,11 +677,11 @@ public class Future<T> : FutureProtocol{
     }
     
     public init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
-        self.__cancellationHandler = { (a:Any?) -> Void in
-            self.completeWith(.Cancelled(a))
+        self.__cancellationHandler = { () -> Void in
+            self.completeWith(.Cancelled)
         }
         Executor.Default.executeAfterDelay(afterDelay) { () -> Void in
-            self.completeWith(.Success(success))
+            self.completeWith(SUCCESS(success))
         }
     }
     
@@ -670,7 +696,7 @@ public class Future<T> : FutureProtocol{
     creates a completed Future with a completion == Success(block)
     */
     public init(@autoclosure success s:() -> T) {
-        self.__completion = .Success(s())
+        self.__completion = SUCCESS(s())
     }
     
     /**
@@ -680,7 +706,7 @@ public class Future<T> : FutureProtocol{
     */
     public init(_ executor : Executor, block: () -> T) {
         let block = executor.callbackBlockFor { () -> Void in
-            self.completeWith(.Success(block()))
+            self.completeWith(SUCCESS(block()))
         }
         block()
     }
@@ -962,6 +988,7 @@ public class Future<T> : FutureProtocol{
                 switch self.__callbacks {
                 case var .Some(cb):
                     cb.append(callback)
+                    self.__callbacks = cb
                 case .None:
                     self.__callbacks = [callback]
                 }
@@ -1026,8 +1053,9 @@ public class Future<T> : FutureProtocol{
     :returns: a new Future of with the result type of __Type
     */
     public func convert<__Type>() -> Future<__Type> {
-        return self.map(.Immediate) { (result) -> __Type in
-            return result as! __Type
+        return self.onSuccess(.Immediate) { (result) -> Completion<__Type> in
+            let r = result as! __Type
+            return SUCCESS(r)
         }
     }
     
@@ -1048,8 +1076,9 @@ public class Future<T> : FutureProtocol{
 
     */
     public func convertOptional<__Type>() -> Future<__Type?> {
-        return self.map(.Immediate) { (result) -> __Type? in
-            return result as? __Type
+        return self.onSuccess(.Immediate) { (result) -> Completion<__Type?> in
+            let r = result as? __Type
+            return SUCCESS(r)
         }
     }
 
@@ -1127,7 +1156,7 @@ public class Future<T> : FutureProtocol{
     */
     public func onComplete<__Type>(executor: Executor, _ block:(completion:Completion<T>)-> __Type) -> Future<__Type> {
         return self.onComplete(executor) { (c) -> Completion<__Type> in
-            return .Success(block(completion:c))
+            return SUCCESS(block(completion:c))
         }
     }
     /**
@@ -1161,7 +1190,7 @@ public class Future<T> : FutureProtocol{
     */
     public func onComplete(executor: Executor, block:(completion:Completion<T>)-> Void) -> Future<Void> {
         return self.onComplete(executor) { (c) -> Completion<Void> in
-            return .Success(block(completion:c))
+            return SUCCESS(block(completion:c))
         }
     }
     
@@ -1180,7 +1209,7 @@ public class Future<T> : FutureProtocol{
     */
     public func onComplete(block:(completion:Completion<T>)-> Void) -> Future<Void> {
         return self.onComplete { (c) -> Completion<Void> in
-            return .Success(block(completion:c))
+            return SUCCESS(block(completion:c))
         }
     }
     
@@ -1277,7 +1306,7 @@ public class Future<T> : FutureProtocol{
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled(completion.cancelToken)
+                return .Cancelled
             }
         }
     }
@@ -1308,7 +1337,7 @@ public class Future<T> : FutureProtocol{
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled(completion.cancelToken)
+                return .Cancelled
             }
         }
     }
@@ -1409,11 +1438,11 @@ public class Future<T> : FutureProtocol{
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    public func onCancel(executor : Executor, _ block:(cancelToken:Any?)-> Void)
+    public func onCancel(executor : Executor, _ block:()-> Void)
     {
         self.onComplete(executor) { (completion) -> Void in
             if (completion.isCancelled) {
-                block(cancelToken: completion.cancelToken)
+                block()
             }
         }
     }
@@ -1428,11 +1457,11 @@ public class Future<T> : FutureProtocol{
     :param: executor an Executor to use to execute the block when it is ready to run.
     :param: block a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    public func onCancel(block:(cancelToken:Any?)-> Void)
+    public func onCancel(block:()-> Void)
     {
         self.onComplete(.Primary) { (completion) -> Void in
             if (completion.isCancelled) {
-                block(cancelToken: completion.cancelToken)
+                block()
             }
         }
     }
@@ -1459,7 +1488,7 @@ public class Future<T> : FutureProtocol{
     */
     public func onSuccess<__Type>(executor : Executor, _ block:(result:T)-> __Type) -> Future<__Type> {
         return self.onSuccess(executor) { (s : T) -> Completion<__Type> in
-            return .Success(block(result: s))
+            return SUCCESS(block(result: s))
         }
     }
     
@@ -1493,7 +1522,7 @@ public class Future<T> : FutureProtocol{
     
     public func onAnySuccess<__Type>(executor : Executor, _ block:()-> __Type) -> Future<__Type> {
         return self.onAnySuccess(executor) { () -> Completion<__Type> in
-            return .Success(block())
+            return SUCCESS(block())
         }
     }
     
@@ -1553,7 +1582,7 @@ public class Future<T> : FutureProtocol{
     you can use `cancellationIsSupported` to determine if a future supports cancellation.
     */
     public func cancel() {
-        self.cancellationHandler?(nil)
+        self.cancellationHandler?()
     }
     
     
@@ -1599,7 +1628,7 @@ extension Future {
             case let .Fail(e):
                 return .CompleteUsing(autoclosingFuture())
             default:
-                return .Cancelled("dependent task didn't fail")
+                return .Cancelled
             }
         }
     }
@@ -1609,7 +1638,7 @@ extension Future {
             case let .Cancelled:
                 return .CompleteUsing(autoclosingFuture())
             default:
-                return .Cancelled("dependent task wasn't cancelled")
+                return .Cancelled
             }
         }
     }
@@ -1675,14 +1704,22 @@ extension Future : Printable, DebugPrintable {
     
 }
 
+internal enum GenericOptionalEnum {
+    case None
+    case Some
+}
 
-
-protocol GenericOptional {
+internal protocol GenericOptional {
     typealias unwrappedType
     
-    func convert<OptionalS : GenericOptional>() -> OptionalS
-    func convertIfPossible<OptionalS : GenericOptional>() -> OptionalS
+    var genericOptionalEnumValue : GenericOptionalEnum { get }
     
+    func isNil() -> Bool
+    func unwrap() -> unwrappedType
+
+    func genericFlatMap<U>(f: (unwrappedType) -> U?) -> U?
+    func genericMap<U>(f: (unwrappedType) -> U) -> U?
+
     init()
     init(_ some: unwrappedType)
 }
@@ -1692,42 +1729,54 @@ extension Optional : GenericOptional {
     typealias unwrappedType = T
     
     
-    func convert<OptionalS : GenericOptional>() -> OptionalS {
-        switch self {
-        case let .Some(t):
-            return OptionalS(t as! OptionalS.unwrappedType)
-        case None:
-            return OptionalS()
+    var genericOptionalEnumValue : GenericOptionalEnum {
+        get {
+            switch self {
+            case None:
+                return .None
+            case .Some:
+                return .Some
+            }
         }
     }
-    func convertIfPossible<OptionalS : GenericOptional>() -> OptionalS {
+
+    func isNil() -> Bool {
         switch self {
-        case let .Some(t):
-            if let s = t as? OptionalS.unwrappedType {
-                return OptionalS(s)
-            }
-            else {
-                return OptionalS()
-            }
         case None:
-            return OptionalS()
+            return true
+        case .Some:
+            return false
         }
     }
-    
+    func unwrap() -> unwrappedType {
+        return self!
+    }
+
+    func genericMap<U>(f: (unwrappedType) -> U) -> U? {
+        return self.map(f)
+    }
+
+    func genericFlatMap<U>(f: (unwrappedType) -> U?) -> U? {
+        return flatMap(f)
+    }
     
 }
 
-func convertOptionalFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS> {
-    return f.map { (result) -> OptionalS in
-        let r : OptionalS = result.convertIfPossible()
-        return r
+func convertOptionalFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS.unwrappedType?> {
+    return f.map { (result) -> OptionalS.unwrappedType? in
+        
+        if (result.isNil()) {
+            return nil
+        }
+        return result.unwrap() as? OptionalS.unwrappedType
     }
 }
 
-func convertFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS> {
-    return f.map { (result) -> OptionalS in
-        let r : OptionalS = result.convert()
-        return r
+func convertFutures<OptionalT : GenericOptional, OptionalS: GenericOptional>(f : Future<OptionalT>) -> Future<OptionalS.unwrappedType?> {
+    return f.map { (result) -> OptionalS.unwrappedType? in
+        return result.genericFlatMap({ (t) -> OptionalS.unwrappedType? in
+            return t as? OptionalS.unwrappedType
+        })
     }
 }
 
@@ -1764,7 +1813,7 @@ private var futureWithNoResult = Future<Void>()
 class classWithMethodsThatReturnFutures {
     
     func iReturnAnInt() -> Future<Int> {
-        return Future  { () -> Int in
+        return Future (.Immediate) { () -> Int in
             return 5
         }
     }
@@ -1783,7 +1832,7 @@ class classWithMethodsThatReturnFutures {
         let p : Promise<Int> = Promise()
         
         // let's do some async dispatching of things here:
-        dispatch_main_async {
+        dispatch_async(dispatch_get_main_queue()) {
             p.completeWithSuccess(5)
         }
         
@@ -1794,7 +1843,7 @@ class classWithMethodsThatReturnFutures {
     func iMayFailRandomly() -> Future<[String:Int]>  {
         let p = Promise<[String:Int]>()
         
-        dispatch_main_async {
+        dispatch_async(dispatch_get_main_queue()) {
             let s = arc4random_uniform(3)
             switch s {
             case 0:
@@ -1815,9 +1864,9 @@ class classWithMethodsThatReturnFutures {
             case 0:
                 return .Fail(FutureNSError(error: .GenericException, userInfo: nil))
             case 1:
-                return .Cancelled(())
+                return .Cancelled
             default:
-                return .Success(["Hi" : 5])
+                return SUCCESS(["Hi" : 5])
             }
         }
     }
@@ -1832,11 +1881,11 @@ class classWithMethodsThatReturnFutures {
             case let .Success(r):
                 let x = r
                 NSLog("\(x)")
-                return .Success(Void())
+                return SUCCESS()
             case let .Fail(e):
                 return .Fail(e)
-            case let .Cancelled(token):
-                return .Cancelled(token)
+            case let .Cancelled:
+                return .Cancelled
             default:
                 assertionFailure("This shouldn't happen!")
                 return Completion<Void>(failWithErrorMessage: "something bad happened")
@@ -1846,17 +1895,17 @@ class classWithMethodsThatReturnFutures {
         self.iMayFailRandomly().onComplete { (completion) -> Completion<Void> in
             switch completion.state {
             case .Success:
-                return .Success(Void())
+                return SUCCESS()
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled(completion.cancelToken)
+                return .Cancelled
             }
         }
         
         
         self.iMayFailRandomly().onAnySuccess { () -> Completion<Int> in
-            return .Success(5)
+            return SUCCESS(5)
         }
             
         
@@ -1874,7 +1923,7 @@ class classWithMethodsThatReturnFutures {
         let p = Promise<Void>()
         
         f.onSuccess { (result) -> Void in
-            dispatch_main_async {
+            dispatch_async(dispatch_get_main_queue()) {
                 p.completeWithSuccess()
             }
         }
@@ -1919,7 +1968,9 @@ class classWithMethodsThatReturnFutures {
     func testing() {
         let x = Future<Optional<Int>>(success: 5)
         
-        let y : Future<Int64?> = convertOptionalFutures(x)
+//        let yx = convertOptionalFutures(x)
+        
+//        let y : Future<Int64?> = convertOptionalFutures(x)
         
         
     }

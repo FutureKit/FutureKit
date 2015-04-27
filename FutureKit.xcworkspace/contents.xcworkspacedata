@@ -2,12 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:FTask.playground">
-   </FileRef>
-   <FileRef
       location = "group:FutureKit-Future.playground">
    </FileRef>
    <FileRef
       location = "group:FutureKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Scratch.playground">
    </FileRef>
 </Workspace>

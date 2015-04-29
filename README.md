@@ -6,7 +6,7 @@ FutureKit is a Swift implementation of Futures and Promises, but modified specif
 You can ready the wikipedia article here:
 http://en.wikipedia.org/wiki/Futures_and_promises  
 
-FutureKit sues Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
+FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
 FutureKit is ALMOST ready to be used.  This is the "eval" version.  Please look around and tell us what you think.  A lot of work went into it so far, but we are ready to start showing it off.  We are STILL making changes, (changes in nomenclature, logic, etc.).  And trying to get all the code documented (using XCode 6.3 built in markdown).  This is a really good version, and feel free to play around.  But there is a good chance we are make some source-code-breaking changes in the next few weeks.  So don't say I didn't warn you.  This file will officially tell you when we think we have hit "1.0".   
 

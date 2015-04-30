@@ -44,7 +44,7 @@ public class FutureBatchOf<T> {
     
 
     /**
-        batchFuture succeeds iff all subFutures succeed.  it does not complete until all futures have been completed within the batch (even if some fail or are cancelled).
+        batchFuture succeeds iff all subFutures succeed. The result is an array `[T]`.  it does not complete until all futures have been completed within the batch (even if some fail or are cancelled).
     */
     public lazy var batchFuture : Future<[T]> = FutureBatchOf.futureFromCompletionsFuture(self.completionsFuture)
     
@@ -52,7 +52,7 @@ public class FutureBatchOf<T> {
         future succeeds iff all subFutures succeed.  returns Fail/Cancel as soon as the first subFuture is failed or cancelled.
         future may complete, while some subFutures are still running, if a Future Fails or is Cancelled.
     
-        if you have 'cancellable' Futures, you can instead use `batchFuture` and  `cancelRemainingFuturesOnFirstFail()` or `cancelRemainingFuturesOnFirstFailOrCancel()`.  batchFuture will always wait for all subFutures to complete before finishing.
+        if you have 'cancellable' Futures, you can instead use `batchFuture` and  `cancelRemainingFuturesOnFirstFail()` or `cancelRemainingFuturesOnFirstFailOrCancel()`.  batchFuture will always wait for all subFutures to complete before finishing, but will wait for the cancellations to be processed before exiting.
         this wi
     */
     public lazy var future : Future<[T]> = self._onFirstFailOrCancel()
@@ -106,68 +106,6 @@ public class FutureBatchOf<T> {
         }
     }
 
-    
-    /**
-        this can add a new future to existing FutureBatch.
-        this is useful if you want to add a Future after already initializing a Batch.
-        
-        Note - this function modifies the vars 'future' and 'completionsFuture'.  If you have already applied handlers to those var's they will not include the results of this future.
-    
-        example:
-            
-            let batch = FutureBatch([future1,future2])
-            batch.future.onComplete((array) -> Void in {
-               //  array.count == 2
-            }
-            batch.append([future3,future4])
-
-        In the previous example, the onComplete handler will still only return an array of 2 results.
-    
-            let batch = FutureBatch([future1,future2])
-            batch.append([future3,future4])
-            batch.future.onComplete((array) -> Void in {
-                //  array.count == 4
-            }
-    
-        :returns: the new value of the var 'future'
-    
-    */
-    public func append(futures : [Future<T>]) -> Future<[T]> {
-        for f in futures {
-            self.subFutures.append(f)
-            self.completionsFuture = self.completionsFuture.onSuccess { (var completions) -> Future<[Completion<T>]> in
-                return f.onComplete { (c) -> [Completion<T>] in
-                    completions.append(c)
-                    return completions
-                }
-            }
-            self.batchFuture = self.batchFuture.onSuccess({ (var results) -> Future<[T]> in
-                return f.onSuccess { (result) -> [T] in
-                    results.append(result)
-                    return results
-                }
-            })
-        }
-        self.future = self._onFirstFailOrCancel()
-        return self.future
-    }
-    
-    public final func append(futures : [AnyObject]) -> Future<[T]> {
-        let _futures : [Future<T>] = FutureBatch.convertArray(futures)
-        return self.append(_futures)
-    }
-
-    public final  func append(f : Future<T>) -> Future<[T]> {
-        return self.append([f])
-    }
-    
-    public final  func append(f : AnyObject) -> Future<[T]> {
-        let future : Future<[T]> = (f as! FutureProtocol).convert()
-        return self.append(future)
-    }
-
-    
-    
     public final func onEachComplete<__Type>(executor : Executor,block:(completion:Completion<T>, future:Future<T>, index:Int)-> __Type) -> Future<[__Type]> {
         
         var futures = [Future<__Type>]()
@@ -280,8 +218,8 @@ public class FutureBatchOf<T> {
                         result[index] = completion
                         total--
                         return total
-                    }, done: { (t) -> Void in
-                        if (t == 0) {
+                    }, done: { (currentTotal) -> Void in
+                        if (currentTotal == 0) {
                             promise.completeWithSuccess(result)
                         }
                     })

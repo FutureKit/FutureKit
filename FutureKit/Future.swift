@@ -19,7 +19,7 @@ public struct GLOBAL_PARMS {
     static let STACK_CHECKING_MAX_DEPTH = 20
     
     public static var LOCKING_STRATEGY : SynchronizationType = .NSLock
-    public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
+//    public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
     
 }
 
@@ -1298,11 +1298,11 @@ public class Future<T> : FutureProtocol{
     :param: block a block takes the .Success result of the target Future and returns the completion value of the returned Future.
     :returns: a new Future of type Future<__Type>
     */
-    public func onSuccess<__Type>(executor : Executor, _ block:(result:T) -> Completion<__Type>) -> Future<__Type> {
+    public func onSuccess<__Type>(executor : Executor, _ block:(T) -> Completion<__Type>) -> Future<__Type> {
         return self.onComplete(executor)  { (completion) -> Completion<__Type> in
             switch completion.state {
             case .Success:
-                return block(result: completion.result)
+                return block(completion.result)
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
@@ -1359,7 +1359,7 @@ public class Future<T> : FutureProtocol{
     :param: block a block takes the .Success result of the target Future and returns the completion value of the returned Future.
     :returns: a new Future of type Future<__Type>
     */
-    public func onSuccess<__Type>(block:(result:T)-> Completion<__Type>) -> Future<__Type> {
+    public func onSuccess<__Type>(block:(T)-> Completion<__Type>) -> Future<__Type> {
         return self.onSuccess(.Primary,block)
     }
 
@@ -1486,9 +1486,9 @@ public class Future<T> : FutureProtocol{
 
     :returns: a new Future of type Future<__Type>
     */
-    public func onSuccess<__Type>(executor : Executor, _ block:(result:T)-> __Type) -> Future<__Type> {
+    public func onSuccess<__Type>(executor : Executor, _ block:(T)-> __Type) -> Future<__Type> {
         return self.onSuccess(executor) { (s : T) -> Completion<__Type> in
-            return SUCCESS(block(result: s))
+            return SUCCESS(block(s))
         }
     }
     
@@ -1511,11 +1511,11 @@ public class Future<T> : FutureProtocol{
     
     :returns: a new Future of type Future<__Type>
     */
-    public func onSuccess<__Type>(block:(result:T)-> __Type) -> Future<__Type> {
+    public func onSuccess<__Type>(block:(T)-> __Type) -> Future<__Type> {
         return self.onSuccess(.Primary,block)
     }
     
-    public func onSuccess<__Type>(block:(result:T)-> Void) -> Future<Void> {
+    public func onSuccess(block:(T)-> Void) -> Future<Void> {
         return self.onSuccess(.Primary,block)
     }
 
@@ -1534,13 +1534,13 @@ public class Future<T> : FutureProtocol{
 //    }
 
     // rather use map?  Sure!
-    public func map<__Type>(executor : Executor, block:(result:T)-> __Type) -> Future<__Type> {
+    public func map<__Type>(executor : Executor, block:(T)-> __Type) -> Future<__Type> {
         return self.onSuccess(executor,block)
     }
     
     // rather use map?  Sure!
     // This version of map ALWAYS uses .Immediate, instead of Executor.Primary.
-    public func map<__Type>(block:(result:T) -> __Type) -> Future<__Type> {
+    public func map<__Type>(block:(T) -> __Type) -> Future<__Type> {
         return self.onSuccess(.Immediate,block)
     }
 
@@ -1549,13 +1549,13 @@ public class Future<T> : FutureProtocol{
     // THESE GUYS always return a .CompleteUsing((Future<__Type>) ------
     // ---------------------------------------------------------------------------------------------------
 
-    public func onSuccess<__Type>(executor : Executor, _ block:(result:T)-> Future<__Type>) -> Future<__Type> {
+    public func onSuccess<__Type>(executor : Executor, _ block:(T)-> Future<__Type>) -> Future<__Type> {
         return self.onSuccess(executor) { (s:T) -> Completion<__Type> in
-            return .CompleteUsing(block(result:s))
+            return .CompleteUsing(block(s))
         }
     }
     
-    public func onSuccess<__Type>(block:(result:T)-> Future<__Type>) -> Future<__Type> {
+    public func onSuccess<__Type>(block:(T)-> Future<__Type>) -> Future<__Type> {
         return self.onSuccess(.Primary,block)
     }
 
@@ -1667,22 +1667,22 @@ extension Future {
     :returns: a new future of type `Future<__Type>`
     */
     
-    func then<__Type>(block:(result:T) -> Completion<__Type>) -> Future<__Type> {
+    func then<__Type>(block:(T) -> Completion<__Type>) -> Future<__Type> {
         return self.onSuccess(.Primary,block)
     }
-    func then<__Type>(block:(result:T) -> Future<__Type>) -> Future<__Type> {
+    func then<__Type>(block:(T) -> Future<__Type>) -> Future<__Type> {
         return self.onSuccess(.Primary,block)
     }
-    func then<__Type>(block:(result:T) -> __Type) -> Future<__Type> {
+    func then<__Type>(block:(T) -> __Type) -> Future<__Type> {
         return self.onSuccess(.Primary,block)
     }
-    func then<__Type>(executor : Executor,_ block:(result:T) -> Completion<__Type>) -> Future<__Type> {
+    func then<__Type>(executor : Executor,_ block:(T) -> Completion<__Type>) -> Future<__Type> {
         return self.onSuccess(executor,block)
     }
-    func then<__Type>(executor : Executor,_ block:(result:T) -> Future<__Type>) -> Future<__Type> {
+    func then<__Type>(executor : Executor,_ block:(T) -> Future<__Type>) -> Future<__Type> {
         return self.onSuccess(executor,block)
     }
-     func then<__Type>(executor : Executor,_ block:(result:T) -> __Type) -> Future<__Type> {
+     func then<__Type>(executor : Executor,_ block:(T) -> __Type) -> Future<__Type> {
         return self.onSuccess(executor,block)
     }
 

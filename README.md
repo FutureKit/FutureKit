@@ -24,12 +24,12 @@ All of the primary Swift code is written. (And works!)  But we are still tweakin
 
 - works well editing code within XCode 6.3 auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
 
-- simplifies the use of Apple GCD by using Executors - a simple Swift enumeration that attracts the most common iOS/OSX Dispatch Queues (Main,Default,Background, etc).  Allowing you to guarantee that logic will always be executed in the context you want.  (You never have to worry about having to call the correct dispatch_async() function again).  
+- simplifies the use of Apple GCD by using Executors - a simple Swift enumeration that simplifies the most common iOS/OSX Dispatch Queues (Main,Default,Background, etc).  Allowing you to guarantee that logic will always be executed in the context you want.  (You never have to worry about having to call the correct dispatch_async() function again).  
 - is highly tunable, allowing you to configure how the primary Executors (Immediate vs Async) execute, and what sort Thread Synchronization FutureKit will use (Barriers - Locks, etc).  Allowing you to tune FutureKit's logic to match what you need.  
 
 # What the Heck is a Future?
 
-So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another place.
+So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another process possible running in another thread.  Or maybe a resource that needs to loaded from an external server.
 
     let imageView : UIImageView =  // some view on my view controller.
     let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()

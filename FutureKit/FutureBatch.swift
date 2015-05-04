@@ -34,44 +34,53 @@ public typealias FutureBatch = FutureBatchOf<Any>
 
 public class FutureBatchOf<T> {
     
-    public var subFutures  = [Future<T>]()
+    /**
+    
+    */
+    internal(set) var subFutures  = [Future<T>]()
 
     /** 
         `completionsFuture` returns an array of individual Completion<T> values
         :returns: a `Future<[Completion<T>]>` always returns with a Success.  Returns an array of the individual Future.Completion values for each subFuture.
     */
-    public var completionsFuture : Future<[Completion<T>]>
+    public internal(set) var completionsFuture : Future<[Completion<T>]>
     
 
     /**
         batchFuture succeeds iff all subFutures succeed. The result is an array `[T]`.  it does not complete until all futures have been completed within the batch (even if some fail or are cancelled).
     */
-    public lazy var batchFuture : Future<[T]> = FutureBatchOf.futureFromCompletionsFuture(self.completionsFuture)
+    public internal(set) lazy var batchFuture : Future<[T]> = FutureBatchOf.futureFromCompletionsFuture(self.completionsFuture)
     
     /**
-        future succeeds iff all subFutures succeed.  returns Fail/Cancel as soon as the first subFuture is failed or cancelled.
-        future may complete, while some subFutures are still running, if a Future Fails or is Cancelled.
+        `future` succeeds iff all subfutures succeed.  Will complete with a Fail or Cancel as soon as the first sub future is failed or cancelled.
+        `future` may complete, while some subfutures are still running, if one completes with a Fail or Canycel.
     
-        if you have 'cancellable' Futures, you can instead use `batchFuture` and  `cancelRemainingFuturesOnFirstFail()` or `cancelRemainingFuturesOnFirstFailOrCancel()`.  batchFuture will always wait for all subFutures to complete before finishing, but will wait for the cancellations to be processed before exiting.
+        If it's important to know that all Futures have completed, you can alertnatively use `batchFuture` and  `cancelRemainingFuturesOnFirstFail()` or `cancelRemainingFuturesOnFirstFailOrCancel()`.  batchFuture will always wait for all subFutures to complete before finishing, but will wait for the cancellations to be processed before exiting.
         this wi
     */
-    public lazy var future : Future<[T]> = self._onFirstFailOrCancel()
-
-    typealias onEachCompleteBlock = (completion:Completion<T>, index:Int)-> Void
+    public internal(set) lazy var future : Future<[T]> = self._onFirstFailOrCancel()
 
     
-    private typealias _onEachTuple = (completion:Completion<T>, index:Int)
-
+    /**
+        takes a type-safe list of Futures.
+    */
     public init(f : [Future<T>]) {
         self.subFutures = f
         self.completionsFuture = FutureBatchOf.completionsFuture(f)
     }
     
+    /**
+        takes a list of Futures.  Each future will be converted into a Future that returns T.
+    
+    */
     public convenience init(futures : [AnyObject]) {
         let f : [Future<T>] = FutureBatch.convertArray(futures)
         self.init(f:f)
     }
     
+    /**
+    takes a type-safe list of Futures.
+    */
     public convenience init(array : NSArray) {
         let f : [Future<T>] = FutureBatch.convertArray(array as [AnyObject])
         self.init(f:f)
@@ -98,6 +107,9 @@ public class FutureBatchOf<T> {
         }
     }
 
+    /**
+        will cause any other subfutures to automatically be cancelled, if one of the subfutures future fails.  Cancellations are ignored.
+    */
     func cancelRemainingFuturesOnFirstFail() {
         self.future.onComplete { (completion) -> Void in
             if (completion.isFail) {
@@ -106,6 +118,16 @@ public class FutureBatchOf<T> {
         }
     }
 
+    /**
+        Allows you to define a Block that will execute as soon as each Future completes.
+        The biggest difference between using onEachComplete() or just using the `future` var, is that this block will execute as soon as each future completes. 
+        The block will be executed repeately, until all sub futures have been completed.
+    
+        This can also be used to compose a new Future[__Type].  All the values returned from the block will be assembled and returned in a new Future<[__Type]. If needed.
+    
+        :param: executor executor to use to run the block
+        :block: block block to execute as soon as each Future completes.
+    */
     public final func onEachComplete<__Type>(executor : Executor,block:(completion:Completion<T>, future:Future<T>, index:Int)-> __Type) -> Future<[__Type]> {
         
         var futures = [Future<__Type>]()
@@ -124,18 +146,27 @@ public class FutureBatchOf<T> {
         return self.onEachComplete(.Primary, block: block)
     }
 
+    
+    /**
+    
+    */
     private final func _onFirstFailOrCancel(executor : Executor = .Immediate,block:((error:NSError, future:Future<T>, index:Int)-> Void)? = nil) -> Future<[T]> {
         
         let promise = Promise<[T]>()
 
-        // we are gonna make a Future that succeeds when it finds a failure or cancel
-        typealias firstFailOrACancelTuple = (completion:Completion<T>,future:Future<T>,index:Int)
-        let failOrCancelPromise = Promise<firstFailOrACancelTuple>()
+        // we are gonna make a Future that
+        typealias blockT = () -> Void
+        let failOrCancelPromise = Promise<blockT?>()
         
         for (index, future) in enumerate(self.subFutures) {
             future.onComplete({ (completion) -> Void in
                 if (completion.state != .Success) {
-                    failOrCancelPromise.completeWithSuccess((completion, future, index))
+                    
+                    let cb = executor.callbackBlockFor {
+                        block?(error: completion.error, future: future, index: index)
+                    }
+                    failOrCancelPromise.completeWithSuccess(cb)
+                    promise.complete(completion.As())
                 }
             })
         }
@@ -144,13 +175,8 @@ public class FutureBatchOf<T> {
                 failOrCancelPromise.completeWithCancel()
             }
         }
-        let failureFuture = failOrCancelPromise.future
-        // a success is a fail or cancel!
-        failureFuture.onSuccess (executor) { (result) -> Void in
-            if (result.completion.isFail) {
-                block?(error: result.completion.error, future: result.future, index: result.index)
-            }
-            promise.complete(result.completion.convert())
+        failOrCancelPromise.future.onSuccess { (result) -> Void in
+            result?()
         }
         self.batchFuture.onComplete (.Immediate) { (completion) -> Void in
             promise.complete(completion)
@@ -171,30 +197,63 @@ public class FutureBatchOf<T> {
         return _onFirstFailOrCancel(executor: .Primary, block: block)
     }
 
-    public class func convertArray<S>(array:[Future<T>]) -> [Future<S>] {
-        var futures = [Future<S>]()
-        for a in array {
-            futures.append(a.convert())
-        }
-        return futures
+
+    /**
+        takes an array of futures returns a new array of futures converted to the desired Type `<__Type>`
+        `Any` is the only type that is guaranteed to always work.
+        Useful if you have a bunch of mixed type Futures, and convert them into a list of Future types.
+    
+        WARNING: if `T as! __Type` isn't legal, than your code may generate an exception.
         
-    }
-    public class func convertArray<S>(array:[AnyObject]) -> [Future<S>] {
+        works iff the following code works:
         
-        var futures = [Future<S>]()
+        let t : T
+        let s = t as! __Type
+        
+        example:
+
+    
+        :param: array array of Futures
+        :returns: an array of Futures converted to return type <S>
+    */
+    public class func convertArray<__Type>(array:[Future<T>]) -> [Future<__Type>] {
+        var futures = [Future<__Type>]()
         for a in array {
-            let f = a as! FutureProtocol
-            futures.append(f.convert())
+            futures.append(a.As())
         }
         return futures
         
     }
     
-    // this always 'succeeds' once all Futures have finished
-    // each individual future in the array may succeed or fail
-    // you have to check the result of the array individually if you care
-
-    // Types are perserved, but all elements must be of the same type
+    /**
+        takes an array of futures returns a new array of futures converted to the desired Type <S>
+        'Any' is the only type that is guaranteed to always work.
+        Useful if you have a bunch of mixed type Futures, and convert them into a list of Future types.
+    
+        :param: array array of Futures
+        :returns: an array of Futures converted to return type <S>
+    */
+    public class func convertArray<__Type>(array:[AnyObject]) -> [Future<__Type>] {
+        
+        var futures = [Future<__Type>]()
+        for a in array {
+            let f = a as! FutureProtocol
+            futures.append(f.As())
+        }
+        return futures
+        
+    }
+    
+    /**
+        takes an array of futures of type `[Future<T>]` and returns a single future of type Future<[Completion<T>]
+        So you can now just add a single onSuccess/onFail/onCancel handler that will be executed once all of the sub-futures in the array have completed.
+        This future always returns .Success, with a result individual completions. 
+        This future will never complete, if one of it's sub futures doesn't complete.
+        you have to check the result of the array individually if you care about the specific outcome of a subfuture
+    
+        :param: array an array of Futures of type `[T]`.
+        :returns: a single future that returns an array of `Completion<T>` values.
+    */
     public class func completionsFuture(array : [Future<T>]) -> Future<[Completion<T>]> {
         if (array.count == 0) {
             let result = [Completion<T>]()
@@ -229,6 +288,15 @@ public class FutureBatchOf<T> {
         }
     }
    
+    /**
+    takes a future of type `Future<[Completion<T>]` (usually returned from `completionFutures()`) and
+    returns a single future of type `Future<[T]>`.   It checks all the completion values and will return .Fail if one of the Futures Failed.
+    will return .Cancelled if there were no .Fail completions, but at least one subfuture was cancelled.
+    returns .Success iff all the subfutures completed.
+    
+    :param: a completions future of type  `Future<[Completion<T>]>`
+    :returns: a single future that returns an array an array of `[T]`.
+    */
     public class func futureFromCompletionsFuture<T>(f : Future<[Completion<T>]>) -> Future<[T]> {
         
         return f.onSuccess { (completions:[Completion<T>]) -> Completion<[T]> in
@@ -261,16 +329,25 @@ public class FutureBatchOf<T> {
             return SUCCESS(results)
         }
     }
+    
+    
+    /**
+    takes an array of futures of type `[Future<T>]` and returns a single future of type Future<[T]>
+    So you can now just add a single onSuccess/onFail/onCancel handler that will be executed once all of the sub-futures in the array have completed.
+    It checks all the completion values and will return .Fail if one of the Futures Failed.
+    will return .Cancelled if there were no .Fail completions, but at least one subfuture was cancelled.
+    returns .Success iff all the subfutures completed.
+    
+    this Future will not complete until ALL subfutures have finished. If you need a Future that completes as soon as single Fail or Cancel is seen, use a `FutureBatch` object and use the var `future` or the method `onFirstFail()`
+    
+    
+    :param: array an array of Futures of type `[T]`.
+    :returns: a single future that returns an array of `[T]`, or a .Fail or .Cancel if a single sub-future fails or is canceled.
+    */
     public final class func futureFromArrayOfFutures(array : [Future<T>]) -> Future<[T]> {
         return futureFromCompletionsFuture(completionsFuture(array))
     }
     
-
-/*    class func toTask<T : AnyObject>(future : Future<T>) -> Task {
-return future.onSuccess({ (success) -> AnyObject? in
-return success
-})
-} */
 
 }
 

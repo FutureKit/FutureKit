@@ -25,10 +25,10 @@
 import Foundation
 
 public func warnOperationOnMainThread() {
-    NSLog("Warning: A long-running Future wait operation is being executed on the main thread. \n Break on warnOperationOnMainThread() to debug.")
+    NSLog("Warning: A long-running Future wait operation is being executed on the main thread. \n Break on FutureKit.warnOperationOnMainThread() to debug.")
 }
 
-class FutureWaitHandler<T>  {
+class SyncWaitHandler<T>  {
     
     private var condition : NSCondition = NSCondition()
     

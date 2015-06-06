@@ -8,11 +8,12 @@ http://en.wikipedia.org/wiki/Futures_and_promises
 
 FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
-FutureKit is ALMOST ready to be used.  This is the "eval" version.  Please look around and tell us what you think.  A lot of work went into it so far, but we are ready to start showing it off.  We are STILL making changes, (changes in nomenclature, logic, etc.).  And trying to get all the code documented (using XCode 6.3 built in markdown).  This is a really good version, and feel free to play around.  But there is a good chance we are make some source-code-breaking changes in the next few weeks.  So don't say I didn't warn you.  This file will officially tell you when we think we have hit "1.0".   
+FutureKit is heading for beta! 
 
-The goal is to have a working version out before the end of May, with the official 1.0 release ready for WWDC 2015. (no.. I didn't get a ticket either)
+We are almost feature complete.  The Cancellation strategy looks finalized.  Still some additional test coverage to finish.  
 
-All of the primary Swift code is written. (And works!)  But we are still tweaking things and trying to get to tests written that cover all the critical versions.
+Feel free to try it out.   I'm hoping to have a few sub-frameworks for adding FutureKit extensions to a few other Swift libraries (AlamoFire, Haneke) soon also.  
+
 
 - is 100% Swift.  It ONLY currently supports Swift 1.2 and XCode 6.3.  No Swift 1.1 support.  I have currently only been testing using iOS 8.0+.  The plan will be to fix compatibility issues with iOS 7.0.  But I wouldn’t be surprised if things break every know and then.  If you find a problem - submit an issue please!
 

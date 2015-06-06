@@ -95,7 +95,10 @@ public enum Executor {
 
     case Async                      // Always performs an Async Dispatch to some non-main q (usually Default)
                                     // If you want to put all of these in a custom queue, you can set AsyncStrategy to .Queue(q)
-    
+
+    case Current                    // Will try to use the current Executor.
+                                    // If the current block isn't running in an Executor, will return Main if running in the main thread, otherwise .Async
+
     case Immediate                  // Never performs an Async Dispatch, Ok for simple mappings. But use with care!
     // Blocks using the Immediate executor can run in ANY Block
 
@@ -122,17 +125,21 @@ public enum Executor {
     
     case ManagedObjectContext(NSManagedObjectContext)   // block will run inside the managed object's context via context.performBlock()
     
-    case Custom(CustomCallBackBlock)         // Don't lile any of these?  Bake your own Executor!
+    case Custom(CustomCallBackBlock)         // Don't like any of these?  Bake your own Executor!
     
-    public typealias customTaskHandlerBlock = ((Any) -> Void)
-    
+    public typealias customFutureHandlerBlockOld = ((Any) -> Void)
+
+    public typealias customFutureHandlerBlock = (() -> Void)
+
     // define a Block with the following signature.
-    // we give you some taskInfo and a block called executeMe
-    // just call "executeMe(taskInfo)" in your execution context of choice.
-    public typealias CustomCallBackBlock = ((taskInfo:Any,executeMe:customTaskHandlerBlock) -> Void)
-    
+    // we give you some taskInfo and a block called callBack
+    // just call "callBack(data)" in your execution context of choice.
+    public typealias CustomCallBackBlockOld = ((data:Any,callBack:customFutureHandlerBlock) -> Void)
+
+    public typealias CustomCallBackBlock = ((callback:customFutureHandlerBlock) -> Void)
+
     // TODO - should these be configurable? Eventually I guess.
-    public static var PrimaryExecutor = Executor.Immediate {
+    public static var PrimaryExecutor = Executor.Current {
         willSet(newValue) {
             switch newValue {
             case .Primary:
@@ -270,9 +277,9 @@ public enum Executor {
         executionBlock()
     }
     
-    public func executeAfterDelay(nanosecs : Int64, block b: dispatch_block_t)  {
+    public func executeAfterDelay(nanosecs n: Int64, block b: dispatch_block_t)  {
         let executionBlock = self.callbackBlockFor(b)
-        let popTime = dispatch_time(DISPATCH_TIME_NOW, nanosecs)
+        let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
             executionBlock()
@@ -281,7 +288,7 @@ public enum Executor {
     public func executeAfterDelay(secs : NSTimeInterval,block b: dispatch_block_t)  {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        self.executeAfterDelay(nanosecs,block: b)
+        self.executeAfterDelay(nanosecs:nanosecs,block: b)
     }
 
     // This returns the underlyingQueue (if there is one).
@@ -324,16 +331,208 @@ public enum Executor {
         }
     }
     
+    static var SmartCurrent : Executor {
+        get {
+            if let current = getCurrentExecutor() {
+                return current
+            }
+            if (NSThread.isMainThread()) {
+                return .Main
+            }
+            return .Async
+        }
+    }
     
+    public static func getCurrentExecutor() -> Executor? {
+        let threadDict = NSThread.currentThread().threadDictionary
+        let r = threadDict[GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY] as? Result<Executor>
+        return r?.result
+    }
+    
+    public static func getCurrentQueue() -> dispatch_queue_t? {
+        return getCurrentExecutor()?.underlyingQueue
+    }
+    
+    public func isEqualTo(e:Executor) -> Bool {
+        switch self {
+        case .Primary:
+            switch e {
+            case .Primary:
+                return true
+            default:
+                return false
+            }
+        case .Main:
+            switch e {
+            case .Main:
+                return true
+            default:
+                return false
+            }
+        case .Async:
+            switch e {
+            case .Async:
+                return true
+            default:
+                return false
+            }
+            
+        case .Current:
+            switch e {
+            case .Current:
+                return true
+            default:
+                return false
+            }
+            
+        case .MainImmediate:
+            switch e {
+            case .MainImmediate:
+                return true
+            default:
+                return false
+            }
+        case .MainAsync:
+            switch e {
+            case .MainAsync:
+                return true
+            default:
+                return false
+            }
+            
+        case UserInteractive:
+            switch e {
+            case .UserInteractive:
+                return true
+            default:
+                return false
+            }
+        case UserInitiated:
+            switch e {
+            case .UserInitiated:
+                return true
+            default:
+                return false
+            }
+        case Default:
+            switch e {
+            case .Default:
+                return true
+            default:
+                return false
+            }
+        case Utility:
+            switch e {
+            case .Utility:
+                return true
+            default:
+                return false
+            }
+        case Background:
+            switch e {
+            case .Background:
+                return true
+            default:
+                return false
+            }
+            
+        case let .Queue(q):
+            switch e {
+            case let .Queue(q2):
+                return (q == q2)
+            default:
+                return false
+            }
+            
+        case let .OperationQueue(opQueue):
+            switch e {
+            case let .OperationQueue(opQueue2):
+                return (opQueue == opQueue2)
+            default:
+                return false
+            }
+            
+        case let .ManagedObjectContext(context):
+            switch e {
+            case let .ManagedObjectContext(context2):
+                return (context == context2)
+            default:
+                return false
+            }
+        case .Immediate:
+            switch e {
+            case .Immediate:
+                return true
+            default:
+                return false
+            }
+        case .StackCheckingImmediate:
+            switch e {
+            case .StackCheckingImmediate:
+                return true
+            default:
+                return false
+            }
+        case .Custom:
+            switch e {
+            case .Custom:
+                NSLog("we can't compare Custom Executors!  isTheCurrentlyRunningExecutor may fail on .Custom types")
+                return false
+            default:
+                return false
+            }
+        }
+        
+    }
+    
+    var isTheCurrentlyRunningExecutor : Bool {
+        if let e = Executor.getCurrentExecutor() {
+            return self.isEqualTo(e)
+        }
+        return false
+    }
+    // returns the previous Executor
+    private static func setCurrentExecutor(e:Executor?) -> Executor? {
+        let threadDict = NSThread.currentThread().threadDictionary
+        let key = GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY
+        let current = threadDict[key] as? Result<Executor>
+        if let ex = e {
+            threadDict.setObject(Result<Executor>(ex), forKey: key)
+        }
+        else {
+            threadDict.removeObjectForKey(key)
+        }
+        return current?.result
+    }
+
     public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {
         
         switch self {
+        case .Immediate,.StackCheckingImmediate:
+            return getblock_for_callbackBlockFor(block)
+        default:
+            let wrappedBlock = { (t:T) -> Void in
+                let previous = Executor.setCurrentExecutor(self)
+                block(t)
+                Executor.setCurrentExecutor(previous)
+            }
+            return getblock_for_callbackBlockFor(wrappedBlock)
+        }
+    }
+
+    
+    private func getblock_for_callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {
+        
+        switch self {
         case .Primary:
-            return Executor.PrimaryExecutor.callbackBlockFor(block)
+            return Executor.PrimaryExecutor.getblock_for_callbackBlockFor(block)
         case .Main:
-            return Executor.MainExecutor.callbackBlockFor(block)
+            return Executor.MainExecutor.getblock_for_callbackBlockFor(block)
         case .Async:
-            return Executor.AsyncExecutor.callbackBlockFor(block)
+            return Executor.AsyncExecutor.getblock_for_callbackBlockFor(block)
+            
+        case .Current:
+            return Executor.SmartCurrent.getblock_for_callbackBlockFor(block)
             
         case .MainImmediate:
             let newblock = { (t:T) -> Void in
@@ -369,7 +568,7 @@ public enum Executor {
             
         case let .ManagedObjectContext(context):
             if (context.concurrencyType == .MainQueueConcurrencyType) {
-                return Executor.MainExecutor.callbackBlockFor(block)
+                return Executor.MainExecutor.getblock_for_callbackBlockFor(block)
             }
             else {
                 let newblock = { (t:T) -> Void in
@@ -394,7 +593,7 @@ public enum Executor {
                     currentDepth = 0
                 }
                 if (currentDepth.integerValue > GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
-                    let b = Executor.Default.callbackBlockFor(block)
+                    let b = Executor.AsyncExecutor.callbackBlockFor(block)
                     b(t)
                 }
                 else {
@@ -409,10 +608,8 @@ public enum Executor {
         case let .Custom(customCallBack):
             
             let b = { (t:T) -> Void in
-                let a = t as Any
-                customCallBack(taskInfo: a, executeMe: { (taskInfo) -> Void in
-                    let payloadasT = taskInfo as! T
-                    block(payloadasT)
+                customCallBack(callback: { () -> Void in
+                    block(t)
                 })
             }
             
@@ -422,23 +619,33 @@ public enum Executor {
     
 }
 
-let example_of_a_Custom_Executor_That_Is_The_Same_As_MainAsync = Executor.Custom { (taskInfo, executeMe) -> Void in
+let example_of_a_Custom_Executor_That_Is_The_Same_As_MainAsync = Executor.Custom { (callback) -> Void in
     dispatch_async(dispatch_get_main_queue()) {
-        executeMe(taskInfo)
+        callback()
     }
 }
 
-let example_Of_a_Custom_Executor_That_Is_The_Same_As_Immediate = Executor.Custom { (taskInfo, executeMe) -> Void in
-    executeMe(taskInfo)
+let example_Of_a_Custom_Executor_That_Is_The_Same_As_Immediate = Executor.Custom { (callback) -> Void in
+    callback()
 }
 
-let example_Of_A_Custom_Executor_That_has_uneeded_dispatches = Executor.Custom { (taskInfo, executeMe) -> Void in
+let example_Of_A_Custom_Executor_That_has_unneeded_dispatches = Executor.Custom { (callback) -> Void in
     
     Executor.Background.execute {
         Executor.Async.execute {
             Executor.Background.execute {
-                executeMe(taskInfo)
+                callback()
             }
         }
     }
 }
+
+let example_Of_A_Custom_Executor_Where_everthing_takes_5_seconds = Executor.Custom { (callback) -> Void in
+    
+    Executor.Primary.executeAfterDelay(5) {
+        callback()
+    }
+}
+
+
+

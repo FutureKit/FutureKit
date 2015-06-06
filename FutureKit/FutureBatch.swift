@@ -38,6 +38,7 @@ public class FutureBatchOf<T> {
     
     */
     internal(set) var subFutures  = [Future<T>]()
+    private var tokens = [CancellationToken]()
 
     /** 
         `completionsFuture` returns an array of individual Completion<T> values
@@ -66,6 +67,11 @@ public class FutureBatchOf<T> {
     */
     public init(f : [Future<T>]) {
         self.subFutures = f
+        for s in self.subFutures {
+            if let t = s.getCancelToken() {
+                self.tokens.append(t)
+            }
+        }
         self.completionsFuture = FutureBatchOf.completionsFuture(f)
     }
     
@@ -90,9 +96,9 @@ public class FutureBatchOf<T> {
         will forward a cancel request to each subFuture
         Doesn't guarantee that a particular future gets canceled
     */
-    func cancel() {
-        for f in self.subFutures {
-            f.cancel()
+    func cancel(forced:Bool = false) {
+        for t in self.tokens {
+            t.cancel(forced:forced)
         }
     }
     

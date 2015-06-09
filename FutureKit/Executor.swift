@@ -543,13 +543,6 @@ public enum Executor {
             return Executor.AsyncExecutor.real_executor
         case .Current:
             return Executor.SmartCurrent
-        case .MainImmediate:
-            if (NSThread.isMainThread()) {
-                return .Immediate
-            }
-            else {
-                return .MainAsync
-            }
         case let .ManagedObjectContext(context):
             if (context.concurrencyType == .MainQueueConcurrencyType) {
                 return Executor.MainExecutor.real_executor

@@ -43,14 +43,14 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
     
     // go get data from this URL.
     let task = NSURLSession.sharedSession().dataTaskWithURL(url, completionHandler: { (data, response, error) -> Void in
-        let r = response
         if let e = error {
             // if this is failing, make sure you aren't running this as an iOS Playground. It works when running as an OSX Playground.
             catPicturePromise.completeWithFail(e)
         }
         else {
             // parsing the data from the server into an Image.
-            if let image = UIImage(data: data) {
+            if let d = data,
+                let image = UIImage(data: d) {
                 let i = image
                 catPicturePromise.completeWithSuccess(i)
             }

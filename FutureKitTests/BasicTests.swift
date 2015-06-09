@@ -53,9 +53,8 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
         switch completion {
         case let .Success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
-            let s = yay as! String
-            let result = (attemptNo,s)
-            return .Success(result)
+            let result = (tries:attemptNo,result:yay.result)
+            return SUCCESS(result)
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
             return .CompleteUsing(nextFuture)
@@ -106,8 +105,7 @@ class FutureKitBasicTests: XCTestCase {
     func testADoneFutureExpectation() {
         let val = 5
         
-        let f = Future<Int>(success: val)
-        var ex = f.expectationTestForSuccess(self, "AsyncMadness") { (result) -> BooleanType in
+        Future<Int>(success: val).expectationTestForSuccess(self, "AsyncMadness") { (result) -> BooleanType in
             return (result == val)
         }
         
@@ -117,9 +115,7 @@ class FutureKitBasicTests: XCTestCase {
     }
     func testContinueWithRandomly() {
         
-        let f = iWillKeepTryingTillItWorks(0)
- 
-        var ex = f.expectationTestForAnySuccess(self, "Description")
+        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, "Description")
         
         self.waitForExpectationsWithTimeout(120.0, handler: nil)
         

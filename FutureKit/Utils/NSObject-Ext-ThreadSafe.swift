@@ -38,7 +38,7 @@ extension NSObject {
     func SAFER_THREAD_SAFE_SYNC<T>(@noescape closure: ()->T) -> T
     {
         objc_sync_enter(self.lockObject)
-        var retVal: T = closure()
+        let retVal: T = closure()
         objc_sync_exit(self.lockObject)
         return retVal
     }
@@ -46,7 +46,7 @@ extension NSObject {
     func EFFICIENT_THREAD_SAFE_SYNC<T>(@noescape closure: ()->T) -> T
     {
         objc_sync_enter(self)
-        var retVal: T = closure()
+        let retVal: T = closure()
         objc_sync_exit(self)
         return retVal
     }
@@ -68,7 +68,7 @@ extension NSObject {
 
 func SYNCHRONIZED<T>(lock: AnyObject, @noescape closure:  ()->T) -> T {
     objc_sync_enter(lock)
-    var retVal: T = closure()
+    let retVal: T = closure()
     objc_sync_exit(lock)
     return retVal
 }

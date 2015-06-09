@@ -42,7 +42,7 @@ public class FutureBatchOf<T> {
 
     /** 
         `completionsFuture` returns an array of individual Completion<T> values
-        :returns: a `Future<[Completion<T>]>` always returns with a Success.  Returns an array of the individual Future.Completion values for each subFuture.
+        - returns: a `Future<[Completion<T>]>` always returns with a Success.  Returns an array of the individual Future.Completion values for each subFuture.
     */
     public internal(set) var completionsFuture : Future<[Completion<T>]>
     
@@ -131,7 +131,7 @@ public class FutureBatchOf<T> {
     
         This can also be used to compose a new Future[__Type].  All the values returned from the block will be assembled and returned in a new Future<[__Type]. If needed.
     
-        :param: executor executor to use to run the block
+        - parameter executor: executor to use to run the block
         :block: block block to execute as soon as each Future completes.
     */
     public final func onEachComplete<__Type>(executor : Executor,block:(completion:Completion<T>, future:Future<T>, index:Int)-> __Type) -> Future<[__Type]> {
@@ -156,7 +156,7 @@ public class FutureBatchOf<T> {
     /**
     
     */
-    private final func _onFirstFailOrCancel(executor : Executor = .Immediate,block:((error:NSError, future:Future<T>, index:Int)-> Void)? = nil) -> Future<[T]> {
+    private final func _onFirstFailOrCancel(executor : Executor = .Immediate,block:((error:ErrorType, future:Future<T>, index:Int)-> Void)? = nil) -> Future<[T]> {
         
         let promise = Promise<[T]>()
 
@@ -219,8 +219,8 @@ public class FutureBatchOf<T> {
         example:
 
     
-        :param: array array of Futures
-        :returns: an array of Futures converted to return type <S>
+        - parameter array: array of Futures
+        - returns: an array of Futures converted to return type <S>
     */
     public class func convertArray<__Type>(array:[Future<T>]) -> [Future<__Type>] {
         var futures = [Future<__Type>]()
@@ -236,8 +236,8 @@ public class FutureBatchOf<T> {
         'Any' is the only type that is guaranteed to always work.
         Useful if you have a bunch of mixed type Futures, and convert them into a list of Future types.
     
-        :param: array array of Futures
-        :returns: an array of Futures converted to return type <S>
+        - parameter array: array of Futures
+        - returns: an array of Futures converted to return type <S>
     */
     public class func convertArray<__Type>(array:[AnyObject]) -> [Future<__Type>] {
         
@@ -257,8 +257,8 @@ public class FutureBatchOf<T> {
         This future will never complete, if one of it's sub futures doesn't complete.
         you have to check the result of the array individually if you care about the specific outcome of a subfuture
     
-        :param: array an array of Futures of type `[T]`.
-        :returns: a single future that returns an array of `Completion<T>` values.
+        - parameter array: an array of Futures of type `[T]`.
+        - returns: a single future that returns an array of `Completion<T>` values.
     */
     public class func completionsFuture(array : [Future<T>]) -> Future<[Completion<T>]> {
         if (array.count == 0) {
@@ -300,24 +300,24 @@ public class FutureBatchOf<T> {
     will return .Cancelled if there were no .Fail completions, but at least one subfuture was cancelled.
     returns .Success iff all the subfutures completed.
     
-    :param: a completions future of type  `Future<[Completion<T>]>`
-    :returns: a single future that returns an array an array of `[T]`.
+    - parameter a: completions future of type  `Future<[Completion<T>]>`
+    - returns: a single future that returns an array an array of `[T]`.
     */
     public class func futureFromCompletionsFuture<T>(f : Future<[Completion<T>]>) -> Future<[T]> {
         
         return f.onSuccess { (completions:[Completion<T>]) -> Completion<[T]> in
             var results = [T]()
-            var errors = [NSError]()
+            var errors = [ErrorType]()
             var cancellations = 0
             
             for completion in completions {
                 switch completion.state {
-                case let .Success:
+                case  .Success:
                     let r = completion.result
                     results.append(r)
-                case let .Fail:
+                case  .Fail:
                     errors.append(completion.error)
-                case let .Cancelled:
+                case  .Cancelled:
                     cancellations++
                 }
             }
@@ -326,7 +326,7 @@ public class FutureBatchOf<T> {
                     return FAIL(errors.first!)
                 }
                 else  {
-                    return FAIL(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : errors]))
+                    return FAIL(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : "\(errors)"]))
                 }
             }
             if (cancellations > 0) {
@@ -347,8 +347,8 @@ public class FutureBatchOf<T> {
     this Future will not complete until ALL subfutures have finished. If you need a Future that completes as soon as single Fail or Cancel is seen, use a `FutureBatch` object and use the var `future` or the method `onFirstFail()`
     
     
-    :param: array an array of Futures of type `[T]`.
-    :returns: a single future that returns an array of `[T]`, or a .Fail or .Cancel if a single sub-future fails or is canceled.
+    - parameter array: an array of Futures of type `[T]`.
+    - returns: a single future that returns an array of `[T]`, or a .Fail or .Cancel if a single sub-future fails or is canceled.
     */
     public final class func futureFromArrayOfFutures(array : [Future<T>]) -> Future<[T]> {
         return futureFromCompletionsFuture(completionsFuture(array))

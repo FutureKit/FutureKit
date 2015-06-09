@@ -119,12 +119,16 @@ public class Promise<T>  {
     public final func completeWithSuccess(result : T) {
         self.future.completeWith(.Success(Result(result)))
     }
-    public final func completeWithFail(e : NSError) {
-        self.future.completeWith(.Fail(e))
-    }
+//    public final func completeWithFail(e : NSError) {
+//        self.future.completeWith(.Fail(e))
+//    }
     public final func completeWithFail(errorMessage : String) {
         self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
     }
+    public final func completeWithFail(error : ErrorType) {
+        self.future.completeWith(Completion<T>(failWithErrorMessage: "\(error)"))
+    }
+
     public final func completeWithException(e : NSException) {
         self.future.completeWith(Completion<T>(exception: e))
     }
@@ -134,6 +138,16 @@ public class Promise<T>  {
     public final func continueWithFuture(f : Future<T>) {
         self.future.completeWith(.CompleteUsing(f))
     }
+    
+/*    public final func completeWithThrowingBlock(block: () throws -> T) {
+        do {
+            let t = try block()
+            self.completeWithSuccess(t)
+        }
+        catch {
+            self.completeWithFail(error)
+        }
+    } */
 
     /**
     completes the Future using the supplied completionBlock.
@@ -144,7 +158,7 @@ public class Promise<T>  {
 
     if you need to know if the completion was successful, use 'completeWithBlocks()'
     
-    :param: completionBlock a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
+    - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
     public final func completeWithBlock(completionBlock : ()->Completion<T>) {
         self.future.completeWithBlocks(completionBlock,onCompletionError: nil)
@@ -159,9 +173,9 @@ public class Promise<T>  {
     
     These blocks may end up running inside any potential thread or queue, so avoid using external/shared memory.
 
-    :param: completionBlock a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
+    - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
 
-    :param: onAlreadyCompleted a block that will run iff the future has already been completed. 
+    - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
     public final func completeWithBlocks(completionBlock : ()->Completion<T>, onAlreadyCompleted : () -> Void)
     {

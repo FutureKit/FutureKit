@@ -322,7 +322,7 @@ class NSObjectLockSynchronization : SynchronizationProtocol {
 
 func synchronizedWithLock<T>(l: NSLocking, @noescape closure:  ()->T) -> T {
     l.lock()
-    var retVal: T = closure()
+    let retVal: T = closure()
     l.unlock()
     return retVal
 }
@@ -369,7 +369,7 @@ public class NSLockSynchronization : SynchronizationProtocol {
 
 func synchronizedWithSpinLock<T>(l: UnSafeMutableContainer<OSSpinLock>, @noescape closure:  ()->T) -> T {
     OSSpinLockLock(l.unsafe_pointer)
-    var retVal: T = closure()
+    let retVal: T = closure()
     OSSpinLockUnlock(l.unsafe_pointer)
     return retVal
 }
@@ -550,7 +550,7 @@ class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProto
         }
     }
     
-    subscript (key: Index) -> Element {
+/*    subscript (key: Index) -> Element {
         get {
             return self.syncObject.readSync { () -> Element in
                 return self.collection[key]
@@ -561,7 +561,7 @@ class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProto
                 self.collection[key] = newValue
             }
         }
-    }
+    } */
 
 }
 
@@ -607,7 +607,7 @@ class DictionaryAccessControl<Key : Hashable, Value, S: SynchronizationProtocol>
         }
     }
 
-    subscript (key: Key) -> Value? {
+/*    subscript (key: Key) -> Value? {
         get {
             return self.syncObject.readSync { () -> Element? in
                 return self.dictionary[key]
@@ -618,7 +618,7 @@ class DictionaryAccessControl<Key : Hashable, Value, S: SynchronizationProtocol>
                 self.dictionary[key] = newValue
             }
         }
-    }
+    } */
 }
 
 
@@ -670,11 +670,11 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
         }
     }
     
-    subscript (future index: Int) -> Future<T> {
+/*    subscript (future index: Int) -> Future<T> {
         return self.syncObject.readFuture { () -> T in
             return self.collection[index]
         }
-    }
+    } */
 
     
     func getValue(atIndex i: Int) -> Future<T> {

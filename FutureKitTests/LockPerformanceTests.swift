@@ -25,8 +25,8 @@
 import XCTest
 import FutureKit
 
-let executor = Executor.createConcurrentQueue(label: "FuturekitTests")
-let executor2 = Executor.createConcurrentQueue(label: "FuturekitTests2")
+let executor = Executor.createConcurrentQueue("FuturekitTests")
+let executor2 = Executor.createConcurrentQueue("FuturekitTests2")
 
 
 
@@ -104,11 +104,9 @@ class FutureKitLockPerformanceTests: XCTestCase {
     func doATestCase(lockStategy: SynchronizationType, chaining : Bool, x : Int, y: Int, iterations : Int) {
         
         GLOBAL_PARMS.LOCKING_STRATEGY = lockStategy
-        GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
+//        GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
         
-        let f = divideAndConquer(.Primary,x,y,iterations)
-        
-        var ex = f.expectationTestForSuccess(self, "Description") { (result) -> BooleanType in
+        divideAndConquer(.Primary,x,y,iterations).expectationTestForSuccess(self, "Description") { (result) -> BooleanType in
             return (result == (x+y)*iterations)
         }
         

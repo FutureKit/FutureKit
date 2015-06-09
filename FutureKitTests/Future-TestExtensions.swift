@@ -54,9 +54,9 @@ extension Future {
                 case .Success:
                     let result = completion.result
                     return (test(result: result),"test result failure for Future with result \(result)" )
-                case let .Fail:
+                case .Fail:
                     let e = completion.error
-                    return (false,"Future Failed with \(e) \(e.localizedDescription)" )
+                    return (false,"Future Failed with \(e)" )
                 case .Cancelled:
                     return (false,"Future Cancelled" )
                 }
@@ -74,7 +74,7 @@ extension Future {
                     return (true, "")
                 case .Fail:
                     let e = completion.error
-                    return (false,"Future Failed with \(e) \(e.localizedDescription)" )
+                    return (false,"Future Failed with \(e)" )
                 case .Cancelled:
                     return (false,"Future Cancelled" )
                 }

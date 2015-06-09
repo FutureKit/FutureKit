@@ -259,7 +259,7 @@ extension __ExampleClass {
 
 func _someExampleStuffs() {
     
-    var e = __ExampleClass()
+    let e = __ExampleClass()
     e.regularVar = 22   // this isn't an extension var, but defined in the original class
     
     assert(e.intWithDefaultValue == 55, "default values should work!")

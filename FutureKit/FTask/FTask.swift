@@ -167,7 +167,7 @@ extension FTaskPromise : Printable, DebugPrintable {
     
 //    case ManagedObjectContext(NSManagedObjectContext)   // block will run inside the managed object's context via context.performBlock()
     
-    func execute<T>(block b: dispatch_block_t) {
+    func execute(block b: dispatch_block_t) {
         let executionBlock = self.executor().callbackBlockFor(b)
         executionBlock()
     }

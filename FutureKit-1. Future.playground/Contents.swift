@@ -16,7 +16,7 @@ let resultOfFuture5 = future5Int.result!
 //: Sometimes a Future will fail. Maybe the database is all out if 5's.  So instead of 5, we are gonna return a failure.  No number 5 for you.
 let futureFail = Future<Int>(failWithErrorMessage:"I have no 5's for you today.")
 let failed5result = futureFail.result
-let e = futureFail.error!.localizedDescription
+let e = futureFail.error
 //: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.  Optionally you can send a reason, but it's not required.  In FutureKit a Fail means that something went wrong, and you should cope with that.  a Cancel is usually considered "legal", like canceling active API requests when a window is closed.
 let cancelledFuture = Future<Int>(cancelled: ())
 let cancelledResult = cancelledFuture.result
@@ -58,7 +58,7 @@ let f = asyncFuture5.onSuccess(.Main) { (result) -> Void in
 //: We can also add handlers for Fail and Cancel:
 
 futureFail.onFail { (error) -> Void in
-    let e = error.localizedDescription
+    let e = "\(error)"
 }
 
 cancelledFuture.onCancel { () -> Void in
@@ -83,5 +83,3 @@ let completionOfAsyncFuture5 = asyncFuture5.completion!
 // ".Success(5)"
 
 //: Seems easy?  Let's make them more fun.. (next Playground!)
-
-

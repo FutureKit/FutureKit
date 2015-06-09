@@ -86,6 +86,13 @@ public enum SerialOrConcurrent: Int {
     
 }
 
+// remove in Swift 2.0
+
+extension qos_class_t {
+    var rawValue : UInt32 {
+        return self.value
+    }
+}
 public enum Executor {
     case Primary                    // use the default configured executor.  Current set to Immediate.
                                     // There are deep philosphical arguments about Immediate vs Async.
@@ -166,9 +173,9 @@ public enum Executor {
             switch newValue {
             case .Immediate, .StackCheckingImmediate,.MainImmediate:
                 assertionFailure("AsyncStrategy can't be Immediate!")
-            case .Async, .Main, .Primary:
+            case .Async, .Main, .Primary, .Current:
                 assertionFailure("Nope.  Nope. Nope.")
-            case .Main,.MainAsync:
+            case .MainAsync:
                 NSLog("it's probably a bad idea to set .Async to the Main Queue. You have been warned")
             case let .Queue(q):
                 assert(q != dispatch_get_main_queue(), "Async is not for the mainq")
@@ -201,18 +208,18 @@ public enum Executor {
     }
     
     init(qos_class: qos_class_t) {
-        switch qos_class.value {
-        case QOS_CLASS_USER_INTERACTIVE.value:
+        switch qos_class.rawValue {
+        case QOS_CLASS_USER_INTERACTIVE.rawValue:
             self = .UserInteractive
-        case QOS_CLASS_USER_INITIATED.value:
+        case QOS_CLASS_USER_INITIATED.rawValue:
             self = .UserInitiated
-        case QOS_CLASS_DEFAULT.value:
+        case QOS_CLASS_DEFAULT.rawValue:
             self = .Default
-        case QOS_CLASS_UTILITY.value:
+        case QOS_CLASS_UTILITY.rawValue:
             self = .Utility
-        case QOS_CLASS_BACKGROUND.value:
+        case QOS_CLASS_BACKGROUND.rawValue:
             self = .Background
-        case QOS_CLASS_UNSPECIFIED.value:
+        case QOS_CLASS_UNSPECIFIED.rawValue:
             self = .Default
         default:
             assertionFailure("invalid argument \(qos_class)")
@@ -252,13 +259,13 @@ public enum Executor {
             
     }
     
-    public static func createConcurrentQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createConcurrentQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
         return self.createQueue(label, type: .Concurrent, qos: qos, relative_priority: 0)
     }
     public static func createConcurrentQueue() -> Executor  {
         return self.createQueue(nil, type: .Concurrent, qos: .Default, relative_priority: 0)
     }
-    public static func createSerialQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createSerialQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
         return self.createQueue(label, type: .Serial, qos: qos, relative_priority: 0)
     }
     public static func createSerialQueue() -> Executor  {
@@ -331,13 +338,13 @@ public enum Executor {
         }
     }
     
-    static var SmartCurrent : Executor {
+    static var SmartCurrent : Executor {  // should always return a 'real_executor', never a virtual one!
         get {
             if let current = getCurrentExecutor() {
                 return current
             }
             if (NSThread.isMainThread()) {
-                return .Main
+                return self.MainExecutor.real_executor
             }
             return .Async
         }
@@ -507,19 +514,53 @@ public enum Executor {
 
     public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {
         
-        switch self {
+        let currentExecutor = self.real_executor
+        
+        switch currentExecutor {
         case .Immediate,.StackCheckingImmediate:
-            return getblock_for_callbackBlockFor(block)
+            return currentExecutor.getblock_for_callbackBlockFor(block)
         default:
             let wrappedBlock = { (t:T) -> Void in
-                let previous = Executor.setCurrentExecutor(self)
+                let previous = Executor.setCurrentExecutor(currentExecutor)
                 block(t)
                 Executor.setCurrentExecutor(previous)
             }
-            return getblock_for_callbackBlockFor(wrappedBlock)
+            return currentExecutor.getblock_for_callbackBlockFor(wrappedBlock)
         }
     }
 
+    /*  we need to figure out what the real executor will be used
+        'unwraps' the virtual Executors like .Primary,.Main,.Async,.Current
+    */
+    private var real_executor : Executor {
+        
+        switch self {
+        case .Primary:
+            return Executor.PrimaryExecutor.real_executor
+        case .Main:
+            return Executor.MainExecutor.real_executor
+        case .Async:
+            return Executor.AsyncExecutor.real_executor
+        case .Current:
+            return Executor.SmartCurrent
+        case .MainImmediate:
+            if (NSThread.isMainThread()) {
+                return .Immediate
+            }
+            else {
+                return .MainAsync
+            }
+        case let .ManagedObjectContext(context):
+            if (context.concurrencyType == .MainQueueConcurrencyType) {
+                return Executor.MainExecutor.real_executor
+            }
+            else {
+                return self
+            }
+        default:
+            return self
+        }
+    }
     
     private func getblock_for_callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {
         

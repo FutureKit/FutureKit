@@ -38,7 +38,7 @@ extension NSData {
     
     alternative use `class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions)`
     
-    :returns: an Future<NSData>
+    - returns: an Future<NSData>
     */
     class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
         
@@ -65,7 +65,7 @@ extension NSData {
     
     alternative use `class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions)`
     
-    :returns: an Future<NSData>
+    - returns: an Future<NSData>
     */
     class func data(contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
         return self.data(.Async, contentsOfFile: path, options: readOptionsMask)
@@ -85,7 +85,7 @@ extension NSData {
                     }
     
     
-    :returns: an Future<NSData>
+    - returns: an Future<NSData>
     */
     class func data(executor : Executor, contentsOfURL url: NSURL, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
         
@@ -111,7 +111,7 @@ extension NSData {
     uses `Executor.Async` to read from path.  The default configuration of Executor.Async is QOS_CLASS_DEFAULT.
     
     alternative use `class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions)`
-    :returns: an Future<NSData>
+    - returns: an Future<NSData>
     */
     class func data(contentsOfURL url: NSURL, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
         return self.data(.Async, contentsOfURL: url, options: readOptionsMask)
@@ -124,13 +124,13 @@ extension NSData {
     
     alternative use `class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions)`
     
-    :returns: an Future<NSData>
+    - returns: an Future<NSData>
     */
     class func data(executor : Executor, contentsOfURL url: NSURL) -> Future<NSData> {
         
         let promise = Promise<NSData>()
         executor.execute { () -> Void in
-            var error : NSError?
+            
             let data = NSData(contentsOfURL: url)
             if let d = data {
                 promise.completeWithSuccess(d)
@@ -146,7 +146,7 @@ extension NSData {
     
     uses `Executor.Async` to read from path.  The default configuration of Executor.Async is QOS_CLASS_DEFAULT.
     
-    :returns: an Future<NSData>.  Fails of NSData(contentsOfUrl:url) returns a nil.
+    - returns: an Future<NSData>.  Fails of NSData(contentsOfUrl:url) returns a nil.
     */
     class func data(contentsOfURL url: NSURL) -> Future<NSData> {
         return self.data(.Async, contentsOfURL: url)

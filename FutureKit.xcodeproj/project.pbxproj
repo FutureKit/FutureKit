@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
+		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
@@ -71,6 +73,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; };
 		0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFIFO.swift; sourceTree = "<group>"; };
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502B51AE6B114009C3F63 /* FTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FTask.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -210,6 +213,7 @@
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */,
 				0DB979A01AE2A21100158386 /* BasicTests.swift */,
 				0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */,
 				0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */,
@@ -498,6 +502,7 @@
 			files = (
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
+				0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
 				0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */,
 				0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
@@ -509,6 +514,7 @@
 			files = (
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
+				0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
 				0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */,
 				0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);

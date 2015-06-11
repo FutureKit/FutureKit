@@ -1,8 +1,8 @@
 //
-//  Future-TestExtensions.swift
-//  FutureKit
+//  FutureKitTests.swift
+//  FutureKitTests
 //
-//  Created by Michael Gray on 4/18/15.
+//  Created by Michael Gray on 4/12/15.
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -22,21 +22,20 @@
 // THE SOFTWARE.
 //
 
-import XCTest
 import FutureKit
+import XCTest
 
-
-extension Future {
+extension XCTestCase {
     
-    func expectationTestForCompletion(testcase: XCTestCase, _ description : String,
-        assertion : ((completion : Completion<T>) -> (assert:BooleanType,message:String)),
+    func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
-        line: UInt = __LINE__
+        line: UInt = __LINE__,
+        assertion : ((completion : Completion<T>) -> (assert:BooleanType,message:String))
         ) -> XCTestExpectation! {
             
-            let e = testcase.expectationWithDescription(description)
+            let e = self.expectationWithDescription(description)
             
-            self.onComplete { (completion) -> Void in
+            f.onComplete { (completion) -> Void in
                 let test = assertion(completion:completion)
                 
                 XCTAssert(test.assert,test.message,file:file,line:line)
@@ -45,13 +44,13 @@ extension Future {
             return e
     }
     
-    
-    func expectationTestForSuccess(testcase: XCTestCase, _ description : String,
-        test : ((result:T) -> BooleanType),
+    func expectationTestForFutureSuccess<T>(description : String,future f: Future<T>,
         file: String = __FILE__,
-        line: UInt = __LINE__) -> XCTestExpectation! {
+        line: UInt = __LINE__,
+        test : ((result:T) -> BooleanType)
+        ) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description, assertion: { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
+            return self.expectationTestForFutureCompletion(description,future: f, file:file,line:line)  { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
                 switch completion.state {
                 case .Success:
                     let result = completion.result
@@ -62,27 +61,17 @@ extension Future {
                 case .Cancelled:
                     return (false,"Future Cancelled" )
                 }
-                },file:file,line:line)
+            }
     }
     
-    func expectationTestForAnySuccess(testcase: XCTestCase, _  description : String,
+    func expectationTestForFutureSuccess<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
         line: UInt = __LINE__
         ) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description, assertion: { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
-                switch completion.state {
-                case .Success:
-                    return (true, "")
-                case .Fail:
-                    let e = completion.error
-                    return (false,"Future Failed with \(e)" )
-                case .Cancelled:
-                    return (false,"Future Cancelled" )
-                }
-                }, file:file, line:line)
+            return self.expectationTestForFutureSuccess(description, future: f, test: { (result) -> BooleanType in
+                return true
+            })
+            
     }
-    
-    
-    
 }

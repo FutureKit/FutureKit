@@ -106,7 +106,9 @@ class FutureKitLockPerformanceTests: XCTestCase {
         GLOBAL_PARMS.LOCKING_STRATEGY = lockStategy
 //        GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
         
-        divideAndConquer(.Primary,x,y,iterations).expectationTestForSuccess(self, "Description") { (result) -> BooleanType in
+        let f = divideAndConquer(.Primary,x,y,iterations)
+            
+        self.expectationTestForFutureSuccess("Description", future: f) { (result) -> BooleanType in
             return (result == (x+y)*iterations)
         }
         

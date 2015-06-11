@@ -725,7 +725,7 @@ public class Future<T> : FutureProtocol{
     /**
     creates a completed Future with a completion == .Error(failed)
     */
-    public init(failed:NSError) {  // returns an completed Task that has Failed with this error
+    public init(failed:ErrorType) {  // returns an completed Task that has Failed with this error
         self.__completion = .Fail(failed)
     }
     /**

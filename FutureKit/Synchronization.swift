@@ -463,7 +463,12 @@ public class SynchronizationObject<P : SynchronizationProtocol> {
     
     let sync : P
     let defaultExecutor : Executor // used to execute 'done' blocks for async lookups
-    
+
+    public init() {
+        self.sync = P()
+        self.defaultExecutor = Executor.Immediate
+    }
+
     public init(_ p : P) {
         self.sync = p
         self.defaultExecutor = Executor.Immediate
@@ -565,7 +570,7 @@ class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProto
 
 }
 
-class DictionaryAccessControl<Key : Hashable, Value, S: SynchronizationProtocol> {
+class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationProtocol> {
     
     typealias Index  = Key
     typealias Element = Value
@@ -573,6 +578,11 @@ class DictionaryAccessControl<Key : Hashable, Value, S: SynchronizationProtocol>
     
     var syncObject : SynchronizationObject<S>
     var dictionary : DictionaryType
+    
+    init() {
+        self.dictionary = DictionaryType()
+        self.syncObject = SynchronizationObject<S>()
+    }
     
     init(_ d : DictionaryType, _ s: SynchronizationObject<S>) {
         self.dictionary = d
@@ -628,6 +638,10 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
         get {
             return self.collection
         }
+    }
+    
+    init() {
+        super.init(c: Array<T>(), SynchronizationObject<S>())
     }
     
     init(array : Array<T>, _ a: SynchronizationObject<S>) {
@@ -710,11 +724,11 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
 
 }
 
-class DictionaryWithLockAccess<Key : Hashable, Value> : DictionaryAccessControl<Key,Value,NSObjectLockSynchronization> {
+class DictionaryWithLockAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,NSObjectLockSynchronization> {
     
     typealias LockObjectType = SynchronizationObject<NSObjectLockSynchronization>
     
-    init() {
+    override init() {
         super.init(LockObjectType(NSObjectLockSynchronization()))
     }
     init(d : Dictionary<Key,Value>) {
@@ -723,7 +737,7 @@ class DictionaryWithLockAccess<Key : Hashable, Value> : DictionaryAccessControl<
     
 }
 
-class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryAccessControl<Key,Value,QueueBarrierSynchronization> {
+class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,QueueBarrierSynchronization> {
 
     typealias LockObjectType = SynchronizationObject<QueueBarrierSynchronization>
 

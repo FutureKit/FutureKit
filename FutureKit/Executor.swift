@@ -30,7 +30,7 @@
 import CoreData
 
 
-@available(iOSApplicationExtension 8.0, *)
+@available(iOS 8.0, *)
 public extension NSQualityOfService {
     
     public var qos_class : qos_class_t {
@@ -69,7 +69,7 @@ public enum QosCompatible : Int {
     case Default
     
     
-    @available(iOSApplicationExtension 8.0, *)
+    @available(iOS 8.0, *)
     var qos_class : qos_class_t {
         switch self {
         case .UserInteractive:
@@ -304,7 +304,7 @@ public enum Executor {
         }
     }
     
-    @available(iOSApplicationExtension 8.0, *)
+    @available(iOS 8.0, *)
     init(qos_class: qos_class_t) {
         switch qos_class.rawValue {
         case QOS_CLASS_USER_INTERACTIVE.rawValue:

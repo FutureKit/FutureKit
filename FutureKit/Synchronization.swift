@@ -320,7 +320,7 @@ class NSObjectLockSynchronization : SynchronizationProtocol {
     }
 }
 
-func synchronizedWithLock<T>(l: NSLocking, @noescape closure:  ()->T) -> T {
+func synchronizedWithLock<T>(l: NSLocking, @noescape _ closure:  ()->T) -> T {
     l.lock()
     let retVal: T = closure()
     l.unlock()
@@ -367,7 +367,7 @@ public class NSLockSynchronization : SynchronizationProtocol {
     }
 }
 
-func synchronizedWithSpinLock<T>(l: UnSafeMutableContainer<OSSpinLock>, @noescape closure:  ()->T) -> T {
+func synchronizedWithSpinLock<T>(l: UnSafeMutableContainer<OSSpinLock>, @noescape _ closure:  ()->T) -> T {
     OSSpinLockLock(l.unsafe_pointer)
     let retVal: T = closure()
     OSSpinLockUnlock(l.unsafe_pointer)

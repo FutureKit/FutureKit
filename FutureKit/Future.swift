@@ -76,7 +76,7 @@ public class FutureNSError : NSError {
         super.init(domain: FErrors.errorDomain, code: FErrors.GenericException.rawValue, userInfo: userInfo)
     }
 
-    required public init(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
@@ -91,7 +91,7 @@ public class FutureNSError : NSError {
 
     public var genericError : String? {
         get {
-            return self.userInfo?["genericError"] as? String
+            return self.userInfo["genericError"] as? String
         }
     }
     
@@ -151,7 +151,7 @@ Defines a an enumeration that stores both the state and the data associated with
 
 - CompleteUsing(Future<T>):  This Future will be completed with the result of a "sub" Future. Only used by block handlers.
 */
-public enum Completion<T> : Printable, DebugPrintable {
+public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertible {
     /**
         An alias that defines the Type being used for .Success(SuccessType) enumeration.
         This is currently set to Any, but we may change to 'T' in a future version of swift
@@ -451,7 +451,7 @@ internal class CancellationTokenSource {
             if (forced) {
                 self.tokens.removeAll()
             }
-            for (index,token) in enumerate(self.tokens) {
+            for (index,token) in self.tokens.enumerate() {
                 if (token === t) {
                     self.tokens.removeAtIndex(index)
                     break
@@ -478,8 +478,8 @@ public class CancellationToken {
         self.source = s
     }
     
-    final func cancel(forced : Bool = false) {
-        self.source?.cancel(token: self, forced : forced)
+    final func cancel(forced f: Bool = false) {
+        self.source?.cancel(token: self, forced : f)
         self.source = nil // prevent double cancelation using the same token.
     }
     
@@ -1744,13 +1744,13 @@ extension Future {
 
 }
 
-extension Future : Printable, DebugPrintable {
+extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     
     public var description: String {
         return "Future"
     }
     public var debugDescription: String {
-        return "Future<\(toString(T.self))> - \(self.__completion)"
+        return "Future<\(String(T.self))> - \(self.__completion)"
     }
 
     public func debugQuickLookObject() -> AnyObject? {

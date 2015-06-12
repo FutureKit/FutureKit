@@ -138,7 +138,7 @@ public class FutureBatchOf<T> {
         
         var futures = [Future<__Type>]()
         
-        for (index, future) in enumerate(self.subFutures) {
+        for (index, future) in self.subFutures.enumerate() {
             
             let f = future.onComplete({ (completion) -> __Type in
                 return block(completion: completion, future:future,index: index)
@@ -164,7 +164,7 @@ public class FutureBatchOf<T> {
         typealias blockT = () -> Void
         let failOrCancelPromise = Promise<blockT?>()
         
-        for (index, future) in enumerate(self.subFutures) {
+        for (index, future) in self.subFutures.enumerate() {
             future.onComplete({ (completion) -> Void in
                 if (completion.state != .Success) {
                     
@@ -196,11 +196,11 @@ public class FutureBatchOf<T> {
         :params: block a block that will execute 
     **/
     public final func onFirstFail(executor : Executor,block:(error:NSError, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
-        return _onFirstFailOrCancel(executor: executor, block: block)
+        return _onFirstFailOrCancel(executor, block: block)
     }
     
     public final func onFirstFail(block:(error:NSError, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
-        return _onFirstFailOrCancel(executor: .Primary, block: block)
+        return _onFirstFailOrCancel(.Primary, block: block)
     }
 
 
@@ -277,7 +277,7 @@ public class FutureBatchOf<T> {
 
             var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled)
             
-            for (index, future) in enumerate(array) {
+            for (index, future) in array.enumerate() {
                 future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
                     promise.synchObject.modifyAsync({ () -> Int in
                         result[index] = completion

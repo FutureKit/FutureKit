@@ -51,7 +51,16 @@ extension NSFileManager {
         executor.execute { () -> Void in
             var error : NSError?
             
-            let ret = self.copyItemAtURL(srcURL, toURL: dstURL, error: &error)
+            let ret: Bool
+            do {
+                try self.copyItemAtURL(srcURL, toURL: dstURL)
+                ret = true
+            } catch var error1 as NSError {
+                error = error1
+                ret = false
+            } catch {
+                fatalError()
+            }
             if (error != nil) {
                 p.completeWithFail(error!)
             }
@@ -69,7 +78,16 @@ extension NSFileManager {
         executor.execute { () -> Void in
             var error : NSError?
             
-            let ret = self.moveItemAtURL(srcURL, toURL: dstURL, error: &error)
+            let ret: Bool
+            do {
+                try self.moveItemAtURL(srcURL, toURL: dstURL)
+                ret = true
+            } catch var error1 as NSError {
+                error = error1
+                ret = false
+            } catch {
+                fatalError()
+            }
             if (error != nil) {
                 p.completeWithFail(error!)
             }
@@ -86,7 +104,16 @@ extension NSFileManager {
         executor.execute { () -> Void in
             var error : NSError?
             
-            let ret = self.linkItemAtURL(srcURL, toURL: dstURL, error: &error)
+            let ret: Bool
+            do {
+                try self.linkItemAtURL(srcURL, toURL: dstURL)
+                ret = true
+            } catch var error1 as NSError {
+                error = error1
+                ret = false
+            } catch {
+                fatalError()
+            }
             if (error != nil) {
                 p.completeWithFail(error!)
             }
@@ -104,7 +131,16 @@ extension NSFileManager {
         executor.execute { () -> Void in
             var error : NSError?
             
-            let ret = self.removeItemAtURL(URL, error: &error)
+            let ret: Bool
+            do {
+                try self.removeItemAtURL(URL)
+                ret = true
+            } catch var error1 as NSError {
+                error = error1
+                ret = false
+            } catch {
+                fatalError()
+            }
             if (error != nil) {
                 p.completeWithFail(error!)
             }

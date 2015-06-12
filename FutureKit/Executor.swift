@@ -51,7 +51,7 @@ public extension NSQualityOfService {
 }
 
 
-private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block<T>(q: dispatch_queue_t, _ block: (T) -> Void) -> ((T) -> Void) {
     
     let newblock = { (t:T) -> Void in
         dispatch_async(q) {
@@ -61,7 +61,7 @@ private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> 
     return newblock
 }
 
-private func make_dispatch_block<T>(q: NSOperationQueue, block: (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block<T>(q: NSOperationQueue, _ block: (T) -> Void) -> ((T) -> Void) {
     
     let newblock = { (t:T) -> Void in
         q.addOperationWithBlock({ () -> Void in
@@ -90,7 +90,7 @@ public enum SerialOrConcurrent: Int {
 
 extension qos_class_t {
     var rawValue : UInt32 {
-        return self.value
+        return self.rawValue
     }
 }
 public enum Executor {
@@ -259,13 +259,13 @@ public enum Executor {
             
     }
     
-    public static func createConcurrentQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createConcurrentQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
         return self.createQueue(label, type: .Concurrent, qos: qos, relative_priority: 0)
     }
     public static func createConcurrentQueue() -> Executor  {
         return self.createQueue(nil, type: .Concurrent, qos: .Default, relative_priority: 0)
     }
-    public static func createSerialQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createSerialQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
         return self.createQueue(label, type: .Serial, qos: qos, relative_priority: 0)
     }
     public static func createSerialQueue() -> Executor  {

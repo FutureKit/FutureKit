@@ -45,7 +45,15 @@ extension NSData {
         let promise = Promise<NSData>()
         executor.execute { () -> Void in
             var error : NSError?
-            let data = NSData(contentsOfFile: path, options: readOptionsMask, error: &error)
+            let data: NSData?
+            do {
+                data = try NSData(contentsOfFile: path, options: readOptionsMask)
+            } catch var error1 as NSError {
+                error = error1
+                data = nil
+            } catch {
+                fatalError()
+            }
             if (error != nil) {
                 promise.completeWithFail(error!)
             }
@@ -92,7 +100,15 @@ extension NSData {
         let promise = Promise<NSData>()
         executor.execute { () -> Void in
             var error : NSError?
-            let data = NSData(contentsOfURL: url, options: readOptionsMask, error: &error)
+            let data: NSData?
+            do {
+                data = try NSData(contentsOfURL: url, options: readOptionsMask)
+            } catch var error1 as NSError {
+                error = error1
+                data = nil
+            } catch {
+                fatalError()
+            }
             if (error != nil) {
                 promise.completeWithFail(error!)
             }

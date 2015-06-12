@@ -119,11 +119,11 @@ public class FTaskPromise : NSObject {
     
 }
 
-extension FTaskPromise : Printable, DebugPrintable {
+extension FTaskPromise : CustomDebugStringConvertible {
     
-    public override var description: String {
-        return "FTaskPromise!"
-    }
+//    public override var description: String {
+//        return "FTaskPromise!"
+//    }
     public override var debugDescription: String {
         return "FTaskPromise! - \(self.promise.future.debugDescription)"
     }

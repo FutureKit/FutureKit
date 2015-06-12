@@ -90,31 +90,31 @@ public enum QosCompatible : Int {
         
         switch self {
         case .UserInteractive:
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
                 return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
             } else {
                 return dispatch_get_main_queue()
             }
         case .UserInitiated:
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
                 return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
             } else {
                 return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH,0)
             }
         case .Utility:
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
                 return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
             } else {
                 return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW,0)
             }
         case .Background:
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
                 return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
             } else {
                 return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0)
             }
         case .Default:
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
                 return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
             } else {
                 return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0)
@@ -126,7 +126,7 @@ public enum QosCompatible : Int {
     public func createQueue(label: String?,
         var q_attr : dispatch_queue_attr_t,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
                 let qos_class = self.qos_class
                 q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             }
@@ -137,7 +137,7 @@ public enum QosCompatible : Int {
             else {
                 q = dispatch_queue_create(nil, q_attr)
             }
-            if #available(iOSApplicationExtension 8.0, *) {
+            if #available(iOS 8.0, *) {
             }
             else {
                 dispatch_set_target_queue(q,self.queue)
@@ -462,7 +462,7 @@ public enum Executor {
             case let .Queue(q):
                 return q
             case let .OperationQueue(opQueue):
-                if #available(iOSApplicationExtension 8.0, *) {
+                if #available(iOS 8.0, *) {
                     return opQueue.underlyingQueue
                 } else {
                     return nil

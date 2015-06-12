@@ -600,7 +600,18 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         }
     }
 
-    
+    func setValue(value: Value, forKey key: Key) -> Future<Void> {
+        return self.syncObject.modifyFuture { () -> Void in
+            self.dictionary[key] = value
+        }
+    }
+
+    func updateValue(value: Value, forKey key: Key) -> Future<Value?> {
+        return self.syncObject.modifyFuture { () -> Value? in
+            return self.dictionary.updateValue(value, forKey: key)
+        }
+    }
+
     var count: Int {
         get {
             return self.syncObject.readSync { () -> Int in
@@ -617,7 +628,7 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         }
     }
 
-/*    subscript (key: Key) -> Value? {
+   subscript (key: Key) -> Value? {
         get {
             return self.syncObject.readSync { () -> Element? in
                 return self.dictionary[key]
@@ -628,7 +639,7 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
                 self.dictionary[key] = newValue
             }
         }
-    } */
+    }
 }
 
 

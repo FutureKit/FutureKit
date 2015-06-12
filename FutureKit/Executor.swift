@@ -283,19 +283,51 @@ public enum Executor {
         let executionBlock = self.callbackBlockFor(b)
         executionBlock()
     }
+
+    public func executeWithFuture<__Type>(block: () -> __Type) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            p.completeWithSuccess(block())
+        }
+        return p.future
+    }
     
-    public func executeAfterDelay(nanosecs n: Int64, block b: dispatch_block_t)  {
-        let executionBlock = self.callbackBlockFor(b)
+    public func executeWithFuture<__Type>(block: () -> Future<__Type>) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            block().onComplete { (completion) -> Void in
+                p.complete(completion)
+            }
+        }
+        return p.future
+    }
+    
+    public func executeWithFuture<__Type>(block: () -> Completion<__Type>) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            p.complete(block())
+        }
+        return p.future
+    }
+
+    
+    public func executeAfterDelay<__Type>(nanosecs n: Int64, block: () -> __Type) -> Future<__Type> {
+        let p = Promise<__Type>()
+        let executionBlock = self.callbackBlockFor { () -> Void in
+            p.completeWithSuccess(block())
+        }
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
             executionBlock()
         });
+        return p.future
     }
-    public func executeAfterDelay(secs : NSTimeInterval,block b: dispatch_block_t)  {
+    
+    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () -> __Type) -> Future<__Type>  {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        self.executeAfterDelay(nanosecs:nanosecs,block: b)
+        return self.executeAfterDelay(nanosecs:nanosecs,block: block)
     }
 
     // This returns the underlyingQueue (if there is one).

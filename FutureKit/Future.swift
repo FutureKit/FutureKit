@@ -24,9 +24,6 @@
 
 import Foundation
 
-// kill this line in Swift 2.0!
-public typealias ErrorType = NSError
-
 public struct GLOBAL_PARMS {
     // WOULD LOVE TO TURN THESE INTO COMPILE TIME PROPERTIES
     // MAYBE VIA an Objective C Header file?
@@ -145,7 +142,7 @@ Defines a an enumeration that stores both the state and the data associated with
 
 - Success(Any): The Future completed Succesfully with a Result
 
-- Fail(NSError): The Future has failed with an NSError.
+- Fail(ErrorType): The Future has failed with an ErrorType.
 
 - Cancelled(Any?):  The Future was cancelled. The cancellation can optionally include a token.
 
@@ -156,26 +153,15 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         An alias that defines the Type being used for .Success(SuccessType) enumeration.
         This is currently set to Any, but we may change to 'T' in a future version of swift
     */
-    // public typealias SuccessType = Any         // Works.  Makes me sad.
-    // typealias SuccessPayloadType = T             // PERFECT! - But it CRASHES
-    // typealias SuccessPayloadType = T!            // OK.  But it STILL Crashes
-    public typealias SuccessType = Result<T>        // Works.  And seems to be the most typesafe, and let's use get away with 
-                                                    // Optional Futures better (like `Future<AnyObject?>` ) 
+    public typealias SuccessType = T
     
-
-
-
     /**
-        Future completed with a result of SuccessType
+        Future completed with a result of T
     */
-    case Success(SuccessType)       //  why is this Success(Result<T>) and not Success(T)
-                                    //  or Success(T!)??
-                                    //  Because of the evil IR Generation Swift crashiness.
-                                    //  In a future version I expect to be able to change this to T or T!
-                                    //  so we are using the SuccessType alias
-                                            //  We are adding a assertion check inside of
+    case Success(T)
+    
     /**
-        Future failed with error NSError
+        Future failed with error ErrorType
     */
     case Fail(ErrorType)
     
@@ -206,7 +192,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     }
     
     public init(success s:T) {
-        self = .Success(SuccessType(s))
+        self = .Success(s)
     }
     
     public var isSuccess : Bool {
@@ -276,7 +262,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         get {
             switch self {
             case let .Success(t):
-                return t.result
+                return t
             default:
 //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
@@ -338,7 +324,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public func As<S>() -> Completion<S> {
         switch self {
         case let .Success(t):
-            let r = t.result as! S
+            let r = t as! S
             return SUCCESS(r)
         case let .Fail(f):
             return FAIL(f)
@@ -368,7 +354,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public func convertOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
-            let r = t.result as? S
+            let r = t as? S
             return SUCCESS(r)
         case let .Fail(f):
             return FAIL(f)
@@ -383,7 +369,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public var description: String {
         switch self {
         case let .Success(t):
-            return ".Success(\(t.result))"
+            return ".Success(\(t))"
         case let .Fail(f):
             return ".Fail(\(f))"
         case let .Cancelled(reason):
@@ -553,7 +539,7 @@ public protocol FutureProtocol {
 
 
 public func SUCCESS<T>(result : T) -> Completion<T> {
-    return .Success(Result(result))
+    return .Success(result)
 }
 public func FAIL<T>(error : ErrorType) -> Completion<T> {
     return .Fail(error)
@@ -579,7 +565,6 @@ public func COMPLETE_USING<T>(f : Future<T>) -> Completion<T> {
 */
 public class Future<T> : FutureProtocol{
     
-    public typealias ErrorType = NSError
     internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
     internal typealias completion_block_type = ((Completion<T>) -> Void)
     internal typealias cancellation_handler_type = (()-> Void)

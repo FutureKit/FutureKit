@@ -195,11 +195,11 @@ public class FutureBatchOf<T> {
         adds a handler that executes on the first Future that fails.
         :params: block a block that will execute 
     **/
-    public final func onFirstFail(executor : Executor,block:(error:NSError, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
+    public final func onFirstFail(executor : Executor,block:(error:ErrorType, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
         return _onFirstFailOrCancel(executor, block: block)
     }
     
-    public final func onFirstFail(block:(error:NSError, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
+    public final func onFirstFail(block:(error:ErrorType, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
         return _onFirstFailOrCancel(.Primary, block: block)
     }
 

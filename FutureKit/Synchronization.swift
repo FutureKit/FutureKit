@@ -628,18 +628,21 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         }
     }
 
-   subscript (key: Key) -> Value? {
+    // THIS operation CRASHES the Swift 2.0 xcode7.0b1 compiler!
+/*   subscript (key: Key) -> Value? {
         get {
-            return self.syncObject.readSync { () -> Element? in
-                return self.dictionary[key]
+            let value = self.syncObject.readSync { () -> Element? in
+                let e = self.dictionary[key]
+                return e
             }
+            return value
         }
         set(newValue) {
-            self.syncObject.modifySync {
-                self.dictionary[key] = newValue
-            }
+//            self.syncObject.modifySync {
+//                self.dictionary[key] = newValue
+//            }
         }
-    }
+    } */
 }
 
 

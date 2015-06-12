@@ -284,37 +284,52 @@ public enum Executor {
         executionBlock()
     }
 
-    public func executeWithFuture<__Type>(block: () -> __Type) -> Future<__Type> {
+    public func executeWithFuture<__Type>(block: () throws -> __Type) -> Future<__Type> {
         let p = Promise<__Type>()
         self.execute { () -> Void in
-            p.completeWithSuccess(block())
-        }
-        return p.future
-    }
-    
-    public func executeWithFuture<__Type>(block: () -> Future<__Type>) -> Future<__Type> {
-        let p = Promise<__Type>()
-        self.execute { () -> Void in
-            block().onComplete { (completion) -> Void in
-                p.complete(completion)
+            do {
+                p.completeWithSuccess(try block())
+            }
+            catch {
+                p.completeWithFail(error)
             }
         }
         return p.future
     }
     
-    public func executeWithFuture<__Type>(block: () -> Completion<__Type>) -> Future<__Type> {
+    public func executeWithFuture<__Type>(block: () throws -> Future<__Type>) -> Future<__Type> {
         let p = Promise<__Type>()
         self.execute { () -> Void in
-            p.complete(block())
+            do {
+                try block().onComplete { (completion) -> Void in
+                    p.complete(completion)
+                }
+            }
+            catch {
+                p.completeWithFail(error)
+            }
+        }
+        return p.future
+    }
+    
+    public func executeWithFuture<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            do {
+                p.complete(try block())
+            }
+            catch {
+                p.completeWithFail(error)
+            }
         }
         return p.future
     }
 
     
-    public func executeAfterDelay<__Type>(nanosecs n: Int64, block: () -> __Type) -> Future<__Type> {
+    public func executeAfterDelay<__Type>(nanosecs n: Int64, block: () throws -> __Type) -> Future<__Type> {
         let p = Promise<__Type>()
         let executionBlock = self.callbackBlockFor { () -> Void in
-            p.completeWithSuccess(block())
+            p.completeWithThrowingBlock(block)
         }
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
@@ -708,7 +723,7 @@ let example_Of_A_Custom_Executor_That_has_unneeded_dispatches = Executor.Custom 
 
 let example_Of_A_Custom_Executor_Where_everthing_takes_5_seconds = Executor.Custom { (callback) -> Void in
     
-    Executor.Primary.executeAfterDelay(5) {
+    let _ = Executor.Primary.executeAfterDelay(5) {
         callback()
     }
 }

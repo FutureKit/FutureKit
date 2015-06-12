@@ -42,29 +42,9 @@ extension NSData {
     */
     class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
         
-        let promise = Promise<NSData>()
-        executor.execute { () -> Void in
-            var error : NSError?
-            let data: NSData?
-            do {
-                data = try NSData(contentsOfFile: path, options: readOptionsMask)
-            } catch var error1 as NSError {
-                error = error1
-                data = nil
-            } catch {
-                fatalError()
-            }
-            if (error != nil) {
-                promise.completeWithFail(error!)
-            }
-            else if let d = data {
-                promise.completeWithSuccess(d)
-            }
-            else {
-                promise.completeWithFail("nil returned from NSData(contentsOfFile:\(path),options:\(readOptionsMask))")
-            }
+        return executor.executeWithFuture { () -> NSData in
+            return try NSData(contentsOfFile: path, options: readOptionsMask)
         }
-        return promise.future
     }
     /**
     FutureKit extension for NSData
@@ -96,30 +76,13 @@ extension NSData {
     - returns: an Future<NSData>
     */
     class func data(executor : Executor, contentsOfURL url: NSURL, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
+    
         
-        let promise = Promise<NSData>()
-        executor.execute { () -> Void in
-            var error : NSError?
-            let data: NSData?
-            do {
-                data = try NSData(contentsOfURL: url, options: readOptionsMask)
-            } catch var error1 as NSError {
-                error = error1
-                data = nil
-            } catch {
-                fatalError()
-            }
-            if (error != nil) {
-                promise.completeWithFail(error!)
-            }
-            else if let d = data {
-                promise.completeWithSuccess(d)
-            }
-            else {
-                promise.completeWithFail("nil returned from NSData(contentsOfURL:\(url),options:\(readOptionsMask))")
-            }
+        return executor.executeWithFuture { () -> NSData in
+            let data = try NSData(contentsOfURL: url, options: readOptionsMask)
+            return data
         }
-        return promise.future
+
     }
     /**
     FutureKit extension for NSData

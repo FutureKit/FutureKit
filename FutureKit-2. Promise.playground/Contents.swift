@@ -8,7 +8,7 @@ import FutureKit
     typealias UIImage = NSImage
 #endif
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 //: # Promises.
 //: Promises are used to create your own Futures.  
 //: When you want to write a function or method that returns a Future, you will most likely want to create a Promise.
@@ -63,7 +63,7 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
         assert(catPicturePromise.isCompleted)
     })
     // start downloading.
-    task.resume()
+    task!.resume()
     
     // return the promise's future.
     return catPicturePromise.future

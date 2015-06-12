@@ -37,7 +37,7 @@ let opQueue = { () -> Executor in
     }()
 
 
-func dumbAdd(executor:Executor,x : Int, y: Int) -> Future<Int> {
+func dumbAdd(executor:Executor,_ x : Int, _ y: Int) -> Future<Int> {
     let p = Promise<Int>()
     
     executor.execute { () -> Void in
@@ -51,7 +51,7 @@ func dumbJob() -> Future<Int> {
     return dumbAdd(.Primary, 0, 1)
 }
 
-func divideAndConquer(executor:Executor,x: Int, y: Int,iterationsDesired : Int) -> Future<Int> // returns iterations done
+func divideAndConquer(executor:Executor,_ x: Int, _ y: Int,_ iterationsDesired : Int) -> Future<Int> // returns iterations done
 {
     let p = Promise<Int>()
     

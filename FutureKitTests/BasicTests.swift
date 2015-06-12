@@ -51,7 +51,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
         switch completion {
         case let .Success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
-            let result = (tries:attemptNo,result:yay.result)
+            let result = (tries:attemptNo,result:yay)
             return SUCCESS(result)
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
@@ -61,7 +61,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
 }
 
 
-extension XCTestCase {
+/* extension XCTestCase {
     
     func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
@@ -110,7 +110,7 @@ extension XCTestCase {
             })
             
     }
-}
+} */
 
 class FutureKitBasicTests: XCTestCase {
     

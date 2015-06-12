@@ -117,7 +117,7 @@ public class Promise<T>  {
 //        self.future.completeWith(.Success(Result(Void)))
 //    }
     public final func completeWithSuccess(result : T) {
-        self.future.completeWith(.Success(Result(result)))
+        self.future.completeWith(.Success(result))
     }
 //    public final func completeWithFail(e : NSError) {
 //        self.future.completeWith(.Fail(e))
@@ -139,7 +139,7 @@ public class Promise<T>  {
         self.future.completeWith(.CompleteUsing(f))
     }
     
-/*    public final func completeWithThrowingBlock(block: () throws -> T) {
+    public final func completeWithThrowingBlock(block: () throws -> T) {
         do {
             let t = try block()
             self.completeWithSuccess(t)
@@ -147,7 +147,27 @@ public class Promise<T>  {
         catch {
             self.completeWithFail(error)
         }
-    } */
+    }
+
+    public final func completeWithThrowingBlock(block: () throws -> Future<T>) {
+        do {
+            let f = try block()
+            self.continueWithFuture(f)
+        }
+        catch {
+            self.completeWithFail(error)
+        }
+    }
+
+    public final func completeWithThrowingBlock(block: () throws -> Completion<T>) {
+        do {
+            let c = try block()
+            self.complete(c)
+        }
+        catch {
+            self.completeWithFail(error)
+        }
+    }
 
     /**
     completes the Future using the supplied completionBlock.

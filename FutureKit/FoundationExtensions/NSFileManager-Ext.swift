@@ -44,109 +44,52 @@ extension NSFileManager {
         }
     } */
 
-    func copyItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    func copyItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Void>
     {
-        let p = Promise<Bool>()
+        let p = Promise<Void>()
         
         executor.execute { () -> Void in
-            var error : NSError?
             
-            let ret: Bool
-            do {
+            p.completeWithThrowingBlock { () -> Void in
                 try self.copyItemAtURL(srcURL, toURL: dstURL)
-                ret = true
-            } catch var error1 as NSError {
-                error = error1
-                ret = false
-            } catch {
-                fatalError()
-            }
-            if (error != nil) {
-                p.completeWithFail(error!)
-            }
-            else {
-                p.completeWithSuccess(ret)
             }
         }
         return p.future
     }
     
-    func moveItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    func moveItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Void>
     {
-        let p = Promise<Bool>()
+        let p = Promise<Void>()
         
         executor.execute { () -> Void in
-            var error : NSError?
-            
-            let ret: Bool
-            do {
+            p.completeWithThrowingBlock { () -> Void in
                 try self.moveItemAtURL(srcURL, toURL: dstURL)
-                ret = true
-            } catch var error1 as NSError {
-                error = error1
-                ret = false
-            } catch {
-                fatalError()
-            }
-            if (error != nil) {
-                p.completeWithFail(error!)
-            }
-            else {
-                p.completeWithSuccess(ret)
             }
         }
         return p.future
     }
-    func linkItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    func linkItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Void>
     {
-        let p = Promise<Bool>()
+        let p = Promise<Void>()
         
         executor.execute { () -> Void in
-            var error : NSError?
-            
-            let ret: Bool
-            do {
+            p.completeWithThrowingBlock { () -> Void in
                 try self.linkItemAtURL(srcURL, toURL: dstURL)
-                ret = true
-            } catch var error1 as NSError {
-                error = error1
-                ret = false
-            } catch {
-                fatalError()
-            }
-            if (error != nil) {
-                p.completeWithFail(error!)
-            }
-            else {
-                p.completeWithSuccess(ret)
             }
         }
         return p.future
     }
     
-    func removeItemAtURL(executor : Executor,URL: NSURL) -> Future<Bool>
+    func removeItemAtURL(executor : Executor,URL: NSURL) -> Future<Void>
     {
-        let p = Promise<Bool>()
+        let p = Promise<Void>()
         
         executor.execute { () -> Void in
-            var error : NSError?
             
-            let ret: Bool
-            do {
+            p.completeWithThrowingBlock { () -> Void in
                 try self.removeItemAtURL(URL)
-                ret = true
-            } catch var error1 as NSError {
-                error = error1
-                ret = false
-            } catch {
-                fatalError()
             }
-            if (error != nil) {
-                p.completeWithFail(error!)
-            }
-            else {
-                p.completeWithSuccess(ret)
-            }
+
         }
         return p.future
     }

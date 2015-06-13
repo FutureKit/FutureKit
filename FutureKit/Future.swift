@@ -153,13 +153,24 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         An alias that defines the Type being used for .Success(SuccessType) enumeration.
         This is currently set to Any, but we may change to 'T' in a future version of swift
     */
-    public typealias SuccessType = T
+    // public typealias SuccessType = Any         // Works.  Makes me sad.
+    // typealias SuccessPayloadType = T             // PERFECT! - But it CRASHES
+    // typealias SuccessPayloadType = T!            // OK.  But it STILL Crashes
+    public typealias SuccessType = Result<T>        // Works.  And seems to be the most typesafe, and let's use get away with 
+                                                    // Optional Futures better (like `Future<AnyObject?>` ) 
     
+
+
+
     /**
-        Future completed with a result of T
+        Future completed with a result of SuccessType
     */
-    case Success(T)
-    
+    case Success(SuccessType)       //  why is this Success(Result<T>) and not Success(T)
+                                    //  or Success(T!)??
+                                    //  Because of the evil IR Generation Swift crashiness.
+                                    //  In a future version I expect to be able to change this to T or T!
+                                    //  so we are using the SuccessType alias
+                                            //  We are adding a assertion check inside of
     /**
         Future failed with error ErrorType
     */
@@ -192,7 +203,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     }
     
     public init(success s:T) {
-        self = .Success(s)
+        self = .Success(SuccessType(s))
     }
     
     public var isSuccess : Bool {
@@ -262,7 +273,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         get {
             switch self {
             case let .Success(t):
-                return t
+                return t.result
             default:
 //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
@@ -324,7 +335,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public func As<S>() -> Completion<S> {
         switch self {
         case let .Success(t):
-            let r = t as! S
+            let r = t.result as! S
             return SUCCESS(r)
         case let .Fail(f):
             return FAIL(f)
@@ -354,7 +365,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public func convertOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
-            let r = t as? S
+            let r = t.result as? S
             return SUCCESS(r)
         case let .Fail(f):
             return FAIL(f)
@@ -369,7 +380,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public var description: String {
         switch self {
         case let .Success(t):
-            return ".Success(\(t))"
+            return ".Success(\(t.result))"
         case let .Fail(f):
             return ".Fail(\(f))"
         case let .Cancelled(reason):
@@ -539,7 +550,7 @@ public protocol FutureProtocol {
 
 
 public func SUCCESS<T>(result : T) -> Completion<T> {
-    return .Success(result)
+    return .Success(Result(result))
 }
 public func FAIL<T>(error : ErrorType) -> Completion<T> {
     return .Fail(error)

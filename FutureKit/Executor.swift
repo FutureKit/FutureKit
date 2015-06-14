@@ -35,7 +35,7 @@ public extension NSQualityOfService {
     public var qos_class : qos_class_t {
         get {
             switch self {
-            case UserInteractive:
+            case .UserInteractive:
                 return QOS_CLASS_USER_INTERACTIVE
             case .UserInitiated:
                 return QOS_CLASS_USER_INITIATED
@@ -50,6 +50,85 @@ public extension NSQualityOfService {
     }
 }
 
+
+public enum QosCompatible : Int {
+    /* UserInteractive QoS is used for work directly involved in providing an interactive UI such as processing events or drawing to the screen. */
+    case UserInteractive
+    
+    /* UserInitiated QoS is used for performing work that has been explicitly requested by the user and for which results must be immediately presented in order to allow for further user interaction.  For example, loading an email after a user has selected it in a message list. */
+    case UserInitiated
+    
+    /* Utility QoS is used for performing work which the user is unlikely to be immediately waiting for the results.  This work may have been requested by the user or initiated automatically, does not prevent the user from further interaction, often operates at user-visible timescales and may have its progress indicated to the user by a non-modal progress indicator.  This work will run in an energy-efficient manner, in deference to higher QoS work when resources are constrained.  For example, periodic content updates or bulk file operations such as media import. */
+    case Utility
+    
+    /* Background QoS is used for work that is not user initiated or visible.  In general, a user is unaware that this work is even happening and it will run in the most efficient manner while giving the most deference to higher QoS work.  For example, pre-fetching content, search indexing, backups, and syncing of data with external systems. */
+    case Background
+    
+    /* Default QoS indicates the absence of QoS information.  Whenever possible QoS information will be inferred from other sources.  If such inference is not possible, a QoS between UserInitiated and Utility will be used. */
+    case Default
+    
+    
+   var qos_class : qos_class_t {
+        switch self {
+        case .UserInteractive:
+            return QOS_CLASS_USER_INTERACTIVE
+        case .UserInitiated:
+            return QOS_CLASS_USER_INITIATED
+        case .Utility:
+            return QOS_CLASS_UTILITY
+        case .Background:
+            return QOS_CLASS_BACKGROUND
+        case .Default:
+            return QOS_CLASS_DEFAULT
+        }
+
+    }
+    
+    
+    var queue : dispatch_queue_t {
+        
+        switch self {
+        case .UserInteractive:
+            return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
+        case .UserInitiated:
+            return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
+        case .Utility:
+            return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
+        case .Background:
+            return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
+        case .Default:
+            return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
+        
+        }
+    }
+    
+    var is_8 : Bool {
+        return NSProcessInfo().isOperatingSystemAtLeastVersion(NSOperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0))
+    }
+    
+    public func createQueue(label: String?,
+        var q_attr : dispatch_queue_attr_t,
+        relative_priority: Int32 = 0) -> dispatch_queue_t {
+            
+            if is_8 {
+                let qos_class = self.qos_class
+                q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
+            }
+            let q : dispatch_queue_t
+            if let l = label {
+                q = dispatch_queue_create(l, q_attr)
+            }
+            else {
+                q = dispatch_queue_create(nil, q_attr)
+            }
+            if !is_8 {
+                dispatch_set_target_queue(q,self.queue)
+            }
+            return q
+    }
+
+    
+}
 
 private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> ((T) -> Void) {
     
@@ -186,13 +265,13 @@ public enum Executor {
     }
     
     private static let mainQ            = dispatch_get_main_queue()
-    private static let userInteractiveQ = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
-    private static let userInitiatedQ   = dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
-    private static let defaultQ         = dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
-    private static let utilityQ         = dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
-    private static let backgroundQ      = dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
+    private static let userInteractiveQ = QosCompatible.UserInteractive.queue
+    private static let userInitiatedQ   = QosCompatible.UserInitiated.queue
+    private static let defaultQ         = QosCompatible.Default.queue
+    private static let utilityQ         = QosCompatible.Utility.queue
+    private static let backgroundQ      = QosCompatible.Background.queue
     
-    init(qos: NSQualityOfService) {
+    init(qos: QosCompatible) {
         switch qos {
         case .UserInteractive:
             self = .UserInteractive
@@ -235,20 +314,13 @@ public enum Executor {
 
     public static func createQueue(label: String?,
         type : SerialOrConcurrent,
-        qos : NSQualityOfService = .Default,
+        qos : QosCompatible = .Default,
         relative_priority: Int32 = 0) -> Executor {
-            let qos_class = qos.qos_class
-            let q_attr = type.q_attr
-            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
-            let q : dispatch_queue_t
-            if let l = label {
-                q = dispatch_queue_create(l, c_attr)
-            }
-            else {
-                q = dispatch_queue_create(nil, c_attr)
-            }
+            
+            let q = qos.createQueue(label, q_attr: type.q_attr, relative_priority: relative_priority)
             return .Queue(q)
     }
+    
     public static func createOperationQueue(name: String?,
         maxConcurrentOperationCount : Int) -> Executor {
             
@@ -259,13 +331,13 @@ public enum Executor {
             
     }
     
-    public static func createConcurrentQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createConcurrentQueue(label : String? = nil,qos : QosCompatible = .Default) -> Executor  {
         return self.createQueue(label, type: .Concurrent, qos: qos, relative_priority: 0)
     }
     public static func createConcurrentQueue() -> Executor  {
         return self.createQueue(nil, type: .Concurrent, qos: .Default, relative_priority: 0)
     }
-    public static func createSerialQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createSerialQueue(label : String? = nil,qos : QosCompatible = .Default) -> Executor  {
         return self.createQueue(label, type: .Serial, qos: qos, relative_priority: 0)
     }
     public static func createSerialQueue() -> Executor  {
@@ -356,7 +428,11 @@ public enum Executor {
             case let .Queue(q):
                 return q
             case let .OperationQueue(opQueue):
-                return opQueue.underlyingQueue
+                if opQueue.respondsToSelector("underlyingQueue") {
+                    return opQueue.underlyingQueue
+                } else {
+                    return nil
+                }
             case let .ManagedObjectContext(context):
                 if (context.concurrencyType == .MainQueueConcurrencyType) {
                     return Executor.mainQ

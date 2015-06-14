@@ -25,8 +25,8 @@
 import XCTest
 import FutureKit
 
-let executor = Executor.createConcurrentQueue("FuturekitTests")
-let executor2 = Executor.createConcurrentQueue("FuturekitTests2")
+let executor = Executor.createConcurrentQueue(label: "FuturekitTests")
+let executor2 = Executor.createConcurrentQueue(label: "FuturekitTests2")
 
 
 

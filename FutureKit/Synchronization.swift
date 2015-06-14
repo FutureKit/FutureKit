@@ -102,28 +102,25 @@ let DispatchQueuePoolIsActive = false
 class DispatchQueuePool {
     
     let attr : dispatch_queue_attr_t
-    let qos : qos_class_t
+    let qos : QosCompatible
     let relative_priority : Int32
     
     let syncObject : SynchronizationProtocol
     
     var queues : [dispatch_queue_t] = []
     
-    init(a : dispatch_queue_attr_t, qos q: qos_class_t = QOS_CLASS_DEFAULT, relative_priority p :Int32 = 0) {
+    init(a : dispatch_queue_attr_t, qos q: QosCompatible = .Default, relative_priority p :Int32 = 0) {
+        
         self.attr = a
         self.qos = q
         self.relative_priority = p
-        
-        let c_attr = dispatch_queue_attr_make_with_qos_class(self.attr,self.qos, self.relative_priority)
-        let synchObjectBarrierQueue = dispatch_queue_create("DispatchQueuePool-Root", c_attr)
-        
+        let synchObjectBarrierQueue = q.createQueue("DispatchQueuePool-Root", q_attr: a, relative_priority: p)
         self.syncObject = QueueBarrierSynchronization(queue: synchObjectBarrierQueue)
         
     }
     
     final func createNewQueue() -> dispatch_queue_t {
-        let c_attr = dispatch_queue_attr_make_with_qos_class(self.attr,self.qos, self.relative_priority)
-        return dispatch_queue_create(nil, c_attr)
+        return self.qos.createQueue(nil, q_attr: self.attr, relative_priority: self.relative_priority)
     }
     
     func getQueue() -> dispatch_queue_t {
@@ -174,14 +171,12 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
     }
     
     required public init() {
-        let c_attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT,QOS_CLASS_DEFAULT, 0)
-        self.q = dispatch_queue_create("QueueBarrierSynchronization", c_attr)
+        self.q = QosCompatible.Default.createQueue("QueueBarrierSynchronization", q_attr: DISPATCH_QUEUE_CONCURRENT, relative_priority: 0)
     }
     
     
-    init(type : dispatch_queue_attr_t, _ q: qos_class_t = QOS_CLASS_DEFAULT, _ p :Int32 = 0) {
-        let c_attr = dispatch_queue_attr_make_with_qos_class(type,q, p)
-        self.q = dispatch_queue_create("QueueBarrierSynchronization", c_attr)
+    init(type : dispatch_queue_attr_t, _ q: QosCompatible = .Default, _ p :Int32 = 0) {
+        self.q = q.createQueue("QueueBarrierSynchronization", q_attr: type, relative_priority: p)
     }
 
 
@@ -232,8 +227,7 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
     }
     
     required public init() {
-        let c_attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,QOS_CLASS_DEFAULT, 0)
-        self.q = dispatch_queue_create("QueueSynchronization", c_attr)
+        self.q = QosCompatible.Default.createQueue("QueueSynchronization", q_attr: DISPATCH_QUEUE_SERIAL, relative_priority: 0)
     }
     
     public func read(block:() -> Void) {
@@ -628,18 +622,21 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         }
     }
 
-   subscript (key: Key) -> Value? {
+    // THIS operation may hang swift 1.2 and CRASHES the Swift 2.0 xcode7.0b1 compiler!
+/*   subscript (key: Key) -> Value? {
         get {
-            return self.syncObject.readSync { () -> Element? in
-                return self.dictionary[key]
+            let value = self.syncObject.readSync { () -> Element? in
+                let e = self.dictionary[key]
+                return e
             }
+            return value
         }
         set(newValue) {
-            self.syncObject.modifySync {
-                self.dictionary[key] = newValue
-            }
+//            self.syncObject.modifySync {
+//                self.dictionary[key] = newValue
+//            }
         }
-    }
+    } */
 }
 
 

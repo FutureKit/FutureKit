@@ -61,7 +61,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
 }
 
 
-extension XCTestCase {
+/* extension XCTestCase {
     
     func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
@@ -110,7 +110,7 @@ extension XCTestCase {
             })
             
     }
-}
+} */
 
 class FutureKitBasicTests: XCTestCase {
     

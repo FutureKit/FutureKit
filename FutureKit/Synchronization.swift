@@ -594,6 +594,14 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         }
     }
 
+    func getValueSync(key : Key) -> Value? {
+        let value = self.syncObject.readSync { () -> Element? in
+            let e = self.dictionary[key]
+            return e
+        }
+        return value
+    }
+
     func setValue(value: Value, forKey key: Key) -> Future<Void> {
         return self.syncObject.modifyFuture { () -> Void in
             self.dictionary[key] = value

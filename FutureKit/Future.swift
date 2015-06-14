@@ -418,7 +418,15 @@ internal class CancellationTokenSource {
         self.handler = h
     }
     
-    
+
+    internal func _getNewTokenNoSynchronization() -> CancellationToken {
+        
+        let token = CancellationToken(source: self)
+        
+        self.tokens.append(token)
+        return token
+    }
+
     func getNewToken() -> CancellationToken {
         
         let token = CancellationToken(source: self)
@@ -1045,7 +1053,7 @@ public class Future<T> : FutureProtocol{
                 case .None:
                     self.__callbacks = [callback]
                 }
-                if let t = self.getCancelToken() {
+                if let t = self.cancellationSource?._getNewTokenNoSynchronization() {
                     promise.onRequestCancel(.Immediate) { (p, force) -> Void in
                         t.cancel(forced: force)
                     }

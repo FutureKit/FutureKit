@@ -1537,6 +1537,44 @@ public class Future<T> : FutureProtocol{
         }
     }
    
+    /*:
+    takes a block and executes it iff the target is completed with a .Fail or .Cancel
+    
+    If the target is completed with a .Fail, then the block will be executed using the supplied Executor.
+    If the target is completed with a .Cancel, then the block will be executed using the supplied Executor.
+    
+    This method does **not** return a new Future.  If you need a new future, than use `onComplete()` instead.
+    
+    - parameter executor: an Executor to use to execute the block when it is ready to run.
+    - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
+    */
+    public final func onFailorCancel(executor : Executor, _ block:(error:ErrorType?)-> Void)
+    {
+        self.onComplete(executor) { (completion) -> Void in
+            if (completion.isFail) {
+                block(error: completion.error)
+            }
+            else if (completion.isCancelled) {
+                block(error:nil)
+            }
+        }
+    }
+    
+    /*:
+    takes a block and executes it iff the target is completed with a .Fail or .Cancel
+    
+    If the target is completed with a .Fail, then the block will be executed using Executor.Primary.
+    If the target is completed with a .Cancel, then the block will be executed using Executor.Primary.
+    
+    This method does **not** return a new Future.  If you need a new future, than use `onComplete()` instead.
+    
+    - parameter executor: an Executor to use to execute the block when it is ready to run.
+    - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
+    */
+    public final func onFailorCancel(block:(error:ErrorType?)-> Void)
+    {
+        self.onFailorCancel(.Primary, block)
+    }
 
     /**
     takes a block and executes it iff the target is completed with a .Success

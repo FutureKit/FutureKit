@@ -175,7 +175,7 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
     }
     
     
-    init(type : dispatch_queue_attr_t, _ q: QosCompatible = .Default, _ p :Int32 = 0) {
+    public init(type : dispatch_queue_attr_t, _ q: QosCompatible = .Default, _ p :Int32 = 0) {
         self.q = q.createQueue("QueueBarrierSynchronization", q_attr: type, relative_priority: p)
     }
 
@@ -530,20 +530,20 @@ public class SynchronizationObject<P : SynchronizationProtocol> {
     
 }
 
-class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProtocol> {
+public class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProtocol> {
     
-    typealias Index  = C.Index
-    typealias Element = C.Generator.Element
+    public typealias Index  = C.Index
+    public typealias Element = C.Generator.Element
    
     var syncObject : SynchronizationObject<S>
     var collection : C
     
-    init(c : C, _ s: SynchronizationObject<S>) {
+    public init(c : C, _ s: SynchronizationObject<S>) {
         self.collection = c
         self.syncObject = s
     }
 
-    func getValue(key : Index) -> Future<Element> {
+    public func getValue(key : Index) -> Future<Element> {
         return self.syncObject.readFuture { () -> Element in
             return self.collection[key]
         }
@@ -564,7 +564,7 @@ class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProto
 
 }
 
-class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationProtocol> {
+public class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationProtocol> {
     
     typealias Index  = Key
     typealias Element = Value
@@ -573,28 +573,28 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
     var syncObject : SynchronizationObject<S>
     var dictionary : DictionaryType
     
-    init() {
+    public init() {
         self.dictionary = DictionaryType()
         self.syncObject = SynchronizationObject<S>()
     }
     
-    init(_ d : DictionaryType, _ s: SynchronizationObject<S>) {
+    public init(_ d : DictionaryType, _ s: SynchronizationObject<S>) {
         self.dictionary = d
         self.syncObject = s
     }
 
-    init(_ s: SynchronizationObject<S>) {
+    public init(_ s: SynchronizationObject<S>) {
         self.dictionary = DictionaryType()
         self.syncObject = s
     }
     
-    func getValue(key : Key) -> Future<Value?> {
+    public func getValue(key : Key) -> Future<Value?> {
         return self.syncObject.readFuture { () -> Value? in
             return self.dictionary[key]
         }
     }
 
-    func getValueSync(key : Key) -> Value? {
+    public func getValueSync(key : Key) -> Value? {
         let value = self.syncObject.readSync { () -> Element? in
             let e = self.dictionary[key]
             return e
@@ -602,19 +602,19 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         return value
     }
 
-    func setValue(value: Value, forKey key: Key) -> Future<Void> {
+    public func setValue(value: Value, forKey key: Key) -> Future<Void> {
         return self.syncObject.modifyFuture { () -> Void in
             self.dictionary[key] = value
         }
     }
 
-    func updateValue(value: Value, forKey key: Key) -> Future<Value?> {
+    public func updateValue(value: Value, forKey key: Key) -> Future<Value?> {
         return self.syncObject.modifyFuture { () -> Value? in
             return self.dictionary.updateValue(value, forKey: key)
         }
     }
 
-    var count: Int {
+    public var count: Int {
         get {
             return self.syncObject.readSync { () -> Int in
                 return self.dictionary.count
@@ -622,7 +622,7 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
         }
     }
     
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         get {
             return self.syncObject.readSync { () -> Bool in
                 return self.dictionary.isEmpty
@@ -648,7 +648,7 @@ class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationPro
 }
 
 
-class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessControl< Array<T> , S> {
+public class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessControl< Array<T> , S> {
     
     var array : Array<T> {
         get {
@@ -656,20 +656,20 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
         }
     }
     
-    init() {
+    public init() {
         super.init(c: Array<T>(), SynchronizationObject<S>())
     }
     
-    init(array : Array<T>, _ a: SynchronizationObject<S>) {
+    public init(array : Array<T>, _ a: SynchronizationObject<S>) {
         super.init(c: array, a)
     }
     
-    init(a: SynchronizationObject<S>) {
+    public init(a: SynchronizationObject<S>) {
         super.init(c: Array<T>(), a)
     }
     
     
-    var count: Int {
+    public var count: Int {
         get {
             return self.syncObject.readSync { () -> Int in
                 return self.collection.count
@@ -677,7 +677,7 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
         }
     }
 
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         get {
             return self.syncObject.readSync { () -> Bool in
                 return self.collection.isEmpty
@@ -685,14 +685,14 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
         }
     }
 
-    var first: T? {
+    public var first: T? {
         get {
             return self.syncObject.readSync { () -> T? in
                 return self.collection.first
             }
         }
     }
-    var last: T? {
+    public var last: T? {
         get {
             return self.syncObject.readSync { () -> T? in
                 return self.collection.last
@@ -707,31 +707,31 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
     } */
 
     
-    func getValue(atIndex i: Int) -> Future<T> {
+    public func getValue(atIndex i: Int) -> Future<T> {
         return self.syncObject.readFuture { () -> T in
             return self.collection[i]
         }
     }
 
-    func append(newElement: T) {
+    public func append(newElement: T) {
         self.syncObject.modify {
             self.collection.append(newElement)
         }
     }
     
-    func removeLast() -> T {
+    public func removeLast() -> T {
         return self.syncObject.modifySync {
             self.collection.removeLast()
         }
     }
     
-    func insert(newElement: T, atIndex i: Int) {
+    public func insert(newElement: T, atIndex i: Int) {
         self.syncObject.modify {
             self.collection.insert(newElement,atIndex: i)
         }
     }
     
-    func removeAtIndex(index: Int) -> T {
+    public func removeAtIndex(index: Int) -> T {
         return self.syncObject.modifySync {
             self.collection.removeAtIndex(index)
         }
@@ -740,27 +740,27 @@ class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessContro
 
 }
 
-class DictionaryWithLockAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,NSObjectLockSynchronization> {
+public  class DictionaryWithLockAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,NSObjectLockSynchronization> {
     
     typealias LockObjectType = SynchronizationObject<NSObjectLockSynchronization>
     
-    override init() {
+    public  override init() {
         super.init(LockObjectType(NSObjectLockSynchronization()))
     }
-    init(d : Dictionary<Key,Value>) {
+    public  init(d : Dictionary<Key,Value>) {
         super.init(d,LockObjectType(NSObjectLockSynchronization()))
     }
     
 }
 
-class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,QueueBarrierSynchronization> {
+public class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,QueueBarrierSynchronization> {
 
     typealias LockObjectType = SynchronizationObject<QueueBarrierSynchronization>
 
-    init(queue : dispatch_queue_t) {
+    public  init(queue : dispatch_queue_t) {
         super.init(LockObjectType(QueueBarrierSynchronization(queue: queue)))
     }
-    init(d : Dictionary<Key,Value>,queue : dispatch_queue_t) {
+    public  init(d : Dictionary<Key,Value>,queue : dispatch_queue_t) {
         super.init(d,LockObjectType(QueueBarrierSynchronization(queue: queue)))
     }
 }

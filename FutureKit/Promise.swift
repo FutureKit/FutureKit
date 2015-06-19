@@ -24,10 +24,15 @@
 
 import Foundation
 
+public enum CancelRequestResponse {
+    case DoNothing
+    case CompleteWithCancel
+}
+
+public typealias CancelRequestHandler = ((force:Bool) -> CancelRequestResponse)
+
 public class Promise<T>  {
-
-    typealias CancellationRequest = ((Promise<T>,force:Bool) -> Void)
-
+    
     // Warning - reusing this lock for other purposes is danger when using LOCKING_STRATEGY.NSLock
     // don't read or write values on the Promise or Future
     internal var synchObject : SynchronizationProtocol  {
@@ -44,47 +49,35 @@ public class Promise<T>  {
         self.future = Future<T>()
     }
 
-    /**
-        creates a promise that enables the Future.cancel()
-        The cancellationHandler will execute using Executor.Primary
-    */
-    public init(request: CancellationRequest) {
-        self.future = Future<T>()
-        self.onRequestCancel(request)
-    }
     
-
-
-    /**
-    creates a promise that enables the Future.cancel()
-    The cancellationHandler will execute using the executor
-    */
-    public init(executor:Executor,request: CancellationRequest) {
-        self.future = Future<T>()
-        self.onRequestCancel(executor,request: request)
-    }
-
-    
-    public final func onRequestCancel(executor:Executor,request : CancellationRequest) {
-        let handler : CancellationHandler = { [weak self](force) -> Void in
-            if let p = self {
-                request(p, force: force)
+    public final func onRequestCancel(executor:Executor, handler : (force:Bool) -> CancelRequestResponse) {
+        let handler : (Bool) -> Void  = { [weak self] (force) -> Void in
+            switch handler(force: force) {
+            case .CompleteWithCancel:
+                self?.completeWithCancel()
+            default:
+                break
             }
+            
         }
         let newHandler = Executor.Primary.callbackBlockFor(handler)
         self.future.addRequestHandler(newHandler)
 
     }
-    public final func onRequestCancel(request : CancellationRequest) {
-        self.onRequestCancel(.Primary, request: request)
+    public final func onRequestCancel(handler :(force:Bool) -> CancelRequestResponse) {
+        self.onRequestCancel(.Primary, handler: handler)
+    }
+    
+    public final func automaticallyCancelOnRequestCancel() {
+        self.onRequestCancel { (force) -> CancelRequestResponse in
+            return .CompleteWithCancel
+        }
     }
 
     public init(automaticallyCancelAfter: NSTimeInterval) {
         
         self.future = Future<T>()
-        self.onRequestCancel { (p, force) -> Void in
-            p.completeWithCancel()
-        }
+        self.automaticallyCancelOnRequestCancel()
         Executor.Default.executeAfterDelay(automaticallyCancelAfter) { () -> Void in
             self.completeWithCancel()
         }

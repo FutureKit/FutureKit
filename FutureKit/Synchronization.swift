@@ -24,10 +24,6 @@
 
 import Foundation
 
-// this adds some missing feature that we don't have with normal dispatch_queue_t
-// like .. what DispatchQueue am I currently running in?
-// Add assertions to make sure logic is always running on a specific Queue
-
 
 // Don't know what sort of synchronization is perfect?
 // try them all!
@@ -67,16 +63,20 @@ public protocol SynchronizationProtocol {
 
 }
 
-public enum SynchronizationType {
-    case BarrierConcurrent
-    case BarrierSerial
-    case SerialQueue
-    case NSObjectLock
-    case NSLock
-    case NSRecursiveLock
-    case OSSpinLock
+public enum SynchronizationType : String {
+    case BarrierConcurrent = "BarrierConcurrent"
+    case BarrierSerial = "BarrierSerial"
+    case SerialQueue = "SerialQueue"
+    case NSObjectLock = "NSObjectLock"
+    case NSLock = "NSLock"
+    case NSRecursiveLock = "NSRecursiveLock"
+    case OSSpinLock = "OSSpinLock"
+    case PThreadMutex = "PThreadMutex"
     
-    func lockObject() -> SynchronizationProtocol {
+    
+    public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock,PThreadMutex]
+
+    public func lockObject() -> SynchronizationProtocol {
         switch self {
         case BarrierConcurrent:
             return QueueBarrierSynchronization(type: DISPATCH_QUEUE_CONCURRENT)
@@ -92,6 +92,8 @@ public enum SynchronizationType {
             return NSRecursiveLockSynchronization()
         case OSSpinLock:
             return OSSpinLockSynchronization()
+        case PThreadMutex:
+            return PThreadMutexSynchronization()
         }
     }
 }
@@ -99,7 +101,7 @@ public enum SynchronizationType {
 
 let DispatchQueuePoolIsActive = false
 
-class DispatchQueuePool {
+public class DispatchQueuePool {
     
     let attr : dispatch_queue_attr_t
     let qos : QosCompatible
@@ -175,7 +177,7 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
     }
     
     
-    public init(type : dispatch_queue_attr_t, _ q: QosCompatible = .Default, _ p :Int32 = 0) {
+    public init(type : dispatch_queue_attr_t!, _ q: QosCompatible = .Default, _ p :Int32 = 0) {
         self.q = q.createQueue("QueueBarrierSynchronization", q_attr: type, relative_priority: p)
     }
 
@@ -268,15 +270,15 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
     
 }
 
-class NSObjectLockSynchronization : SynchronizationProtocol {
+public class NSObjectLockSynchronization : SynchronizationProtocol {
 
     var lock : AnyObject
     
-    required init() {
+    required public init() {
         self.lock = NSObject()
     }
     
-    init(lock l: AnyObject) {
+    public init(lock l: AnyObject) {
         self.lock = l
     
     }
@@ -287,28 +289,28 @@ class NSObjectLockSynchronization : SynchronizationProtocol {
         }
     }
     
-    func read(block:() -> Void) {
+    public func read(block:() -> Void) {
         self.synchronized(block)
     }
 
-    func readSync<T>(block:() -> T) -> T {
+    public func readSync<T>(block:() -> T) -> T {
         return self.synchronized(block)
     }
     
-    func readAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
         let ret = self.synchronized(block)
         done(ret)
     }
 
-    func modify(block:() -> Void) {
+    public func modify(block:() -> Void) {
         self.synchronized(block)
     }
 
-    func modifySync<T>(block:() -> T) -> T {
+    public func modifySync<T>(block:() -> T) -> T {
         return self.synchronized(block)
     }
     
-    func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
         let ret = self.synchronized(block)
         done(ret)
     }
@@ -407,6 +409,65 @@ public class OSSpinLockSynchronization : SynchronizationProtocol {
         done(ret)
     }
 }
+
+
+func synchronizedWithMutexLock<T>(inout mutex: pthread_mutex_t, @noescape closure:  ()->T) -> T {
+    pthread_mutex_lock(&mutex)
+    let retVal: T = closure()
+    pthread_mutex_unlock(&mutex)
+    return retVal
+}
+
+public class PThreadMutexSynchronization : SynchronizationProtocol {
+    
+    
+    var mutex: pthread_mutex_t
+    
+    required public init() {
+        
+        // Omg.  Yes.  This is how it's done.
+        self.mutex = pthread_mutex_t(__sig: 0, __opaque: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+
+        pthread_mutex_init(&mutex, nil)
+    
+    }
+    final func synchronized<T>(block:() -> T) -> T {
+        return synchronizedWithMutexLock(&mutex) { () -> T in
+            return block()
+        }
+    }
+    
+    public func read(block:() -> Void) {
+        synchronizedWithMutexLock(&mutex,block)
+    }
+    
+    public func readSync<T>(block:() -> T) -> T {
+        return synchronizedWithMutexLock(&mutex,block)
+    }
+    
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithMutexLock(&mutex,block)
+        done(ret)
+    }
+    
+    public func modify(block:() -> Void) {
+        synchronizedWithMutexLock(&mutex,block)
+    }
+    
+    public func modifySync<T>(block:() -> T) -> T {
+        return synchronizedWithMutexLock(&mutex,block)
+    }
+    
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithMutexLock(&mutex,block)
+        done(ret)
+    }
+    
+    deinit {
+        pthread_mutex_destroy(&mutex)
+    }
+}
+
 
 public class NSRecursiveLockSynchronization : SynchronizationProtocol {
     

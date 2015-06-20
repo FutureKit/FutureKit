@@ -107,7 +107,7 @@ public enum QosCompatible : Int {
     }
     
     public func createQueue(label: String?,
-        var q_attr : dispatch_queue_attr_t,
+        var q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             
             if is_8 {

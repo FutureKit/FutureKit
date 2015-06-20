@@ -38,7 +38,7 @@ public struct GLOBAL_PARMS {
     static let CURRENT_EXECUTOR_PROPERTY = "FutureKit.Executor.Current"
     static let STACK_CHECKING_MAX_DEPTH = 20
     
-    public static var LOCKING_STRATEGY : SynchronizationType = .NSLock
+    public static var LOCKING_STRATEGY : SynchronizationType = .PThreadMutex
 //    public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
     
 }
@@ -408,49 +408,29 @@ public enum Completion<T> : Printable, DebugPrintable {
 }
 internal class CancellationTokenSource {
     
-    private var tokens : [CancellationToken] = []
+    // we are going to keep a weak copy of each token we give out.
+    // as long as there
+    internal typealias CancellationTokenPtr = Weak<CancellationToken>
+    
+    private var tokens : [CancellationTokenPtr] = []
+    
+    // once we have triggered cancellation, we can't do it again
     private var canBeCancelled = true
+    
+    // this is to flag that someone has made a non-forced cancel request, but we are ignoring it due to other valid tokens
+    // if those tokens disappear, we will honor the cancel request then.
+    private var pendingCancelRequestActive = false
+    
+    
     private var handler : CancellationHandler?
 
     private var cancellationIsSupported : Bool {
         return (self.handler != nil)
     }
     
-
-    internal func clear() {
-        self.handler = nil
-        self.canBeCancelled = false
-        self.tokens.removeAll()
-    }
-    internal func _getNewTokenNoSynchronization(synchObject : SynchronizationProtocol) -> CancellationToken? {
-        
-        if !self.canBeCancelled {
-            return nil
-        }
-        let token = CancellationToken { [weak self] (forced, token) -> Void in
-            self?.cancel(token: token, forced: forced,synchObject: synchObject)
-        }
-        self.tokens.append(token)
-        return token
-    }
-
-    func getNewToken(synchObject : SynchronizationProtocol) -> CancellationToken? {
-        
-        if !self.canBeCancelled {
-            return nil
-        }
-        let token = CancellationToken { [weak self] (forced, token) -> Void in
-            self?.cancel(token: token, forced: forced,synchObject: synchObject)
-        }
-        synchObject.modify { () -> Void in
-            if self.canBeCancelled {
-                self.tokens.append(token)
-            }
-        }
-        return token
-    }
     
-    func addHandler(h : CancellationHandler) {
+    // add blocks that will be called as soon as we initiate cancelation
+    internal func addHandler(h : CancellationHandler) {
         if !self.canBeCancelled {
             return
         }
@@ -466,28 +446,120 @@ internal class CancellationTokenSource {
         }
     }
     
-    
-    func cancel(token t:CancellationToken, forced : Bool,synchObject : SynchronizationProtocol) {
+    internal func clear() {
+        self.handler = nil
+        self.canBeCancelled = false
+        self.tokens.removeAll()
+    }
+
+    internal func getNewTokenNoSynchronization(synchObject : SynchronizationProtocol) -> CancellationToken? {
         
+        if !self.canBeCancelled {
+            return nil
+        }
+        let token = self._createNewToken(synchObject)
+        self.tokens.append(CancellationTokenPtr(token))
+        return token
+    }
+
+    internal func getNewToken(synchObject : SynchronizationProtocol) -> CancellationToken? {
+        
+        if !self.canBeCancelled {
+            return nil
+        }
+        let token = self._createNewToken(synchObject)
         synchObject.modify { () -> Void in
-            if !self.canBeCancelled {
-                return
+            if self.canBeCancelled {
+                self.tokens.append(CancellationTokenPtr(token))
             }
-            if (forced) {
-                self.tokens.removeAll()
+        }
+        return token
+    }
+
+    
+    private func _createNewToken(synchObject : SynchronizationProtocol) -> CancellationToken {
+        
+        return CancellationToken(
+            
+            onCancel: { [weak self] (forced, token) -> Void in
+                    self?._cancelRequested(token, forced, synchObject)
+                },
+            
+            onDeinit:{ [weak self] (token) -> Void in
+                    self?._clearInitializedToken(token,synchObject)
+            })
+       
+    }
+    
+    private func _removeToken(cancelingToken:CancellationToken) {
+        // so remove tokens that no longer exist and the requested token
+        self.tokens = self.tokens.filter { (tokenPtr) -> Bool in
+            if let token = tokenPtr.value {
+                return (token !== cancelingToken)
             }
-            for (index,token) in enumerate(self.tokens) {
-                if (token === t) {
-                    self.tokens.removeAtIndex(index)
-                    break
-                }
-            }
-            if (self.tokens.count == 0) {
-                self.canBeCancelled = false
-                self.handler?(force: forced)
+            else {
+                return false
             }
         }
     }
+    
+
+    private func _performCancel(forced : Bool) {
+        if !self.canBeCancelled {
+            return
+        }
+        if (forced) {
+            self.tokens.removeAll()
+        }
+        // there are no active tokens remaining, so allow the cancellation
+        if (self.tokens.count == 0) {
+            self.handler?(force: forced)
+            self.canBeCancelled = false
+            self.handler = nil
+        }
+        else {
+            self.pendingCancelRequestActive = true
+        }
+        
+    }
+    
+    private func _cancelRequested(cancelingToken:CancellationToken, _ forced : Bool,_ synchObject : SynchronizationProtocol) {
+        
+        synchObject.modify { () -> Void in
+
+            assert({
+                
+                let cancelingTokenCount = self.tokens.filter { (tokenPtr) -> Bool in
+                    if let token = tokenPtr.value {
+                        return (token === cancelingToken)
+                    }
+                    return false
+                    }.count
+                
+                return (cancelingTokenCount == 1)}()
+                
+                , "can't find the request token in our list of active tokens!")
+            
+            self._removeToken(cancelingToken)
+            self._performCancel(forced)
+
+        }
+        
+    }
+    
+    private func _clearInitializedToken(token:CancellationToken,_ synchObject : SynchronizationProtocol) {
+        
+        synchObject.modifySync { () -> Void in
+            self._removeToken(token)
+            
+            if (self.pendingCancelRequestActive && self.tokens.count == 0) {
+                self.canBeCancelled = false
+                self.handler?(force: false)
+            }
+        }
+    }
+
+
     
     
 }
@@ -496,16 +568,25 @@ internal typealias CancellationHandler = ((force:Bool) -> Void)
 
 
 public class CancellationToken {
+    typealias OnCancelHandler = ((forced:Bool,token:CancellationToken) -> Void)
+    typealias OnDenitHandler = ((token:CancellationToken) -> Void)
     
-    private var cancelOperation : ((forced:Bool,token:CancellationToken) -> Void)?
     
-    internal init(operation:((forced:Bool,token:CancellationToken) -> Void)) {
-        self.cancelOperation = operation
+    private var onCancel : OnCancelHandler?
+    private var onDeinit : OnDenitHandler
+    
+    internal init(onCancel c:OnCancelHandler, onDeinit d: OnDenitHandler) {
+        self.onCancel = c
+        self.onDeinit = d
     }
     
     final func cancel(forced : Bool = false) {
-        self.cancelOperation?(forced:forced,token:self)
-        self.cancelOperation = nil
+        self.onCancel?(forced:forced,token:self)
+        self.onCancel = nil
+    }
+    
+    deinit {
+        self.onDeinit(token: self)
     }
     
     
@@ -1071,7 +1152,7 @@ public class Future<T> : FutureProtocol{
                 case .None:
                     self.__callbacks = [callback]
                 }
-                if let t = self.cancellationSource._getNewTokenNoSynchronization(self.synchObject) {
+                if let t = self.cancellationSource.getNewTokenNoSynchronization(self.synchObject) {
                     promise.onRequestCancel(.Immediate) { (force) -> CancelRequestResponse in
                         t.cancel(forced: force)
                         return .DoNothing

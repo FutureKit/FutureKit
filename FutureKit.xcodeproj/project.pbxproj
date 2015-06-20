@@ -53,6 +53,8 @@
 		0DEA1C051AE313DD000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1BAF1AE30872000E126F /* FutureKit.framework */; };
 		0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
+		0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
+		0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +106,7 @@
 		0DEA1BFF1AE313DD000E126F /* FutureKit OSX Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit OSX Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1C021AE313DD000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureKit_OSX_Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureThread.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +157,7 @@
 				0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */,
 				0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */,
 				0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */,
+				0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */,
 			);
 			path = FoundationExtensions;
 			sourceTree = "<group>";
@@ -459,6 +463,7 @@
 			files = (
 				0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */,
 				0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */,
+				0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BC81AE30885000E126F /* Future.swift in Sources */,
 				0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */,
 				0D7502B71AE6B114009C3F63 /* FTask.swift in Sources */,
@@ -481,6 +486,7 @@
 			files = (
 				0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */,
 				0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */,
+				0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BD51AE30886000E126F /* Future.swift in Sources */,
 				0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */,
 				0D7502B81AE6B114009C3F63 /* FTask.swift in Sources */,
@@ -645,6 +651,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Debug;
 		};
@@ -663,6 +670,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Release;
 		};
@@ -689,6 +697,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Debug;
 		};
@@ -710,6 +719,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = NO;
 			};
 			name = Release;
 		};
@@ -728,6 +738,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Debug;
 		};
@@ -742,6 +753,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Release;
 		};
@@ -764,6 +776,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Debug;
 		};
@@ -781,6 +794,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
 			};
 			name = Release;
 		};

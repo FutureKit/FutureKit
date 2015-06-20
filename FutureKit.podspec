@@ -12,6 +12,6 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.9'
 
   s.source_files = "FutureKit/*.swift", "FutureKit/**/*.swift"
-  
+  s.compiler_flags = '-whole-module-optimizations'
   s.requires_arc = true
 end

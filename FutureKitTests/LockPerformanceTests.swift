@@ -25,68 +25,139 @@
 import XCTest
 import FutureKit
 
-let executor = Executor.createConcurrentQueue("FuturekitTests")
-let executor2 = Executor.createConcurrentQueue("FuturekitTests2")
+
+let iterationCount1 = (1024*1024*32)
+let iterationCount2 = (1024*1024)
+let _iterationCount = (1024*32)
+var testCount = 0
 
 
-
-let opQueue = { () -> Executor in
-    let opqueue = NSOperationQueue()
-    opqueue.maxConcurrentOperationCount = 5
-    return Executor.OperationQueue(opqueue)
-    }()
-
-
-func dumbAdd(executor:Executor,_ x : Int, _ y: Int) -> Future<Int> {
-    let p = Promise<Int>()
+class BlockBasedTestCase : XCTestCase {
     
-    executor.execute { () -> Void in
-        let z = x + y
-        p.completeWithSuccess(z)
-    }
-    return p.future
-}
-
-func dumbJob() -> Future<Int> {
-    return dumbAdd(.Primary, 0, 1)
-}
-
-func divideAndConquer(executor:Executor,_ x: Int, _ y: Int,_ iterationsDesired : Int) -> Future<Int> // returns iterations done
-{
-    let p = Promise<Int>()
-    
-    executor.execute { () -> Void in
-        
-        var subFutures : [Future<Int>] = []
-        
-        if (iterationsDesired == 1) {
-            subFutures.append(dumbAdd(executor,x,y))
+    /*: you must call this inside of the class func override of testInvocations() 
+        Return the object returned inside of the array.
+    */
+    class func addTest<T : XCTestCase>(name:String, closure:(T) -> Void) -> AnyObject {
+        let block: @objc_block (AnyObject!) -> () = { (instance : AnyObject!) -> () in
+            let testCase = instance as! T
+            closure(testCase)
         }
-        else {
-            let half = iterationsDesired / 2
-            subFutures.append(divideAndConquer(executor,x,y,half))
-            subFutures.append(divideAndConquer(executor,x,y,half))
-            if ((half * 2)  < iterationsDesired) {
-                subFutures.append(dumbJob())
+        
+        let imp = imp_implementationWithBlock(unsafeBitCast(block, T.self))
+        let selectorName = name.stringByReplacingOccurrencesOfString(" ", withString: "_", options: NSStringCompareOptions(0), range: nil)
+        let selector = Selector(selectorName)
+        let method = class_getInstanceMethod(self, "example") // No @encode in swift, creating a dummy method to get encoding
+        let types = method_getTypeEncoding(method)
+        let added = class_addMethod(self, selector, imp, types)
+        println(name)
+        assert(added, "Failed to add `\(name)` as `\(selector)`")
+        
+        return self.testCaseWithSelector(selector).invocation
+    }
+    
+    func example() { /* See addTest() */ }
+
+}
+
+enum ThreadCases : Int {
+    case one = 1
+    case two = 2
+    case four = 4
+    
+    static let allValues = [four, two, one]
+}
+
+enum NumberOfLockCases : Int {
+    case one = 1
+    case two = 2
+    case four = 4
+    
+    static let allValues = [one, two, four]
+}
+
+enum ExecuteWith : String {
+    case Threads = "Threads"
+    case Queues = "Queues"
+    
+    static let allValues = [Threads, Queues]
+    
+}
+enum SyncAsyncWrite : String {
+    case Async = "Async"
+    case Sync = "Sync"
+    
+    static let allValues = [Async, Sync]
+}
+
+struct AttributesForTest {
+    let iterationCount : Int
+    let threads: Int
+    let syncType:SynchronizationType
+    let number_of_locks : UInt32
+    let with: ExecuteWith
+    let sOrA: SyncAsyncWrite
+    let reads: UInt32
+    let writes: UInt32
+    
+    var testName : String {
+        let percentage = Int(self.writePercentage * 100)
+        
+        return "test_\(syncType.rawValue)_Threads_\(threads)_\(with.rawValue)_\(sOrA.rawValue)_writes_\(percentage)_lock_\(number_of_locks)_contention_\(contention)"
+    }
+    
+    var contention : Int {
+        return Int(100.0 / Float(number_of_locks) * Float(threads - 1))
+    }
+
+
+}
+
+
+class LockPerformanceTests: BlockBasedTestCase {
+    
+
+    typealias TestBlockType = ((LockPerformanceTests) -> Void)
+    
+    override class func testInvocations() -> [AnyObject] {
+        
+        var tests = [AnyObject]()
+        
+        typealias readWriteRatios = (read:UInt32, write:UInt32)
+        let readWriteCases : [readWriteRatios]  = [(0,1),(1,3),(1,1),(3,1),(1,0)]
+
+        typealias locksAndThreads = (locks:UInt32, threads:Int)
+        let lockAndThreadCases : [locksAndThreads]  = [ (1, 2), (1, 1), (2, 2), (4, 2), (8, 2) ]
+
+        
+        for lockAndThread in lockAndThreadCases {
+        
+            for type in SynchronizationType.allValues {
+                for with in ExecuteWith.allValues {
+                    for sOrA in SyncAsyncWrite.allValues {
+                        for rw in readWriteCases {
+                            
+                            let attributes = AttributesForTest(iterationCount: _iterationCount, threads: lockAndThread.threads, syncType: type, number_of_locks:lockAndThread.locks, with: with, sOrA: sOrA, reads: rw.read, writes: rw.write)
+                            
+                            NSLog("adding test \(attributes.testName)")
+                            
+                            let test: AnyObject = self.addTest(attributes.testName, closure: { (_self:LockPerformanceTests) -> Void in
+                                _self.measureTest(attributes)
+                            })
+                            
+                            tests.append(test)
+                            
+                        }
+                        
+                    }
+                }
             }
         }
         
-        let batch = FutureBatchOf<Int>(f: subFutures)
-        let f = batch.future
+        return tests
         
-        f.onSuccess({ (result) -> Void in
-            var sum = 0
-            for i in result {
-                sum += i
-            }
-            p.completeWithSuccess(sum)
-        })
+        // call addTest a bunch of times... */
     }
-    return p.future
-}
 
-
-class FutureKitLockPerformanceTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -101,87 +172,156 @@ class FutureKitLockPerformanceTests: XCTestCase {
         super.tearDown()
     }
     
-    func doATestCase(lockStategy: SynchronizationType, chaining : Bool, x : Int, y: Int, iterations : Int) {
+
+    func iterateTestWithQueues(attributes:AttributesForTest) {
+
+        let block = attributes.blockForTest()
+
+        let start = CFAbsoluteTimeGetCurrent()
+        let queue = NSOperationQueue()
+
+        queue.maxConcurrentOperationCount = attributes.threads
         
-        GLOBAL_PARMS.LOCKING_STRATEGY = lockStategy
-//        GLOBAL_PARMS.BATCH_FUTURES_WITH_CHAINING = chaining
+        for i in 0..<attributes.threads {
+            queue.addOperationWithBlock(block)
+        }
+
+        queue.waitUntilAllOperationsAreFinished()
+        let stop = CFAbsoluteTimeGetCurrent()
+    }
+
+    func iterateTestWithThreads(attributes:AttributesForTest) {
         
-        let f = divideAndConquer(.Primary,x,y,iterations)
-            
-        self.expectationTestForFutureSuccess("Description", future: f) { (result) -> BooleanType in
-            return (result == (x+y)*iterations)
+        let block = attributes.blockForTest()
+
+        var threads = [FutureThread]()
+        
+        for i in 0..<attributes.threads {
+            threads.append(FutureThread(block: block))
         }
         
-        self.waitForExpectationsWithTimeout(120.0, handler: nil)
+        var futures = [Future<Void>]()
+        for thread in threads {
+            futures.append(thread.future)
+            thread.start()
+        }
         
+        self.expectationTestForFutureSuccess("threads", future: FutureBatchOf(f:futures).future)
+        self.waitForExpectationsWithTimeout(600, handler: nil)
     }
     
     
-    let lots = 5000
-    
-    func testLotsWithBarrierConcurrent() {
-        self.measureBlock() {
-            self.doATestCase(.BarrierConcurrent, chaining: false, x: 0, y: 1, iterations: self.lots)
+ 
+    func iterateLocks(attributes:AttributesForTest) {
+        
+        switch attributes.with {
+        case .Queues:
+            self.iterateTestWithQueues(attributes)
+        case .Threads:
+            self.iterateTestWithThreads(attributes)
         }
     }
-    
-    func testLotsWithSerialQueue() {
-        self.measureBlock() {
-            self.doATestCase(.SerialQueue, chaining: false,x: 0, y: 1, iterations: self.lots)
-        }
-    }
-    func testLotsWithNSObjectLock() {
-        self.measureBlock() {
-            self.doATestCase(.NSObjectLock, chaining: false,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    
-    func testLotsWithNSLock() {
-        self.measureBlock() {
-            self.doATestCase(.NSLock, chaining: false,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    func testLotsWithNSRecursiveLock() {
-        self.measureBlock() {
-            self.doATestCase(.NSRecursiveLock, chaining: false,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    func testLotsWithOSSpinLock() {
-        self.measureBlock() {
-            self.doATestCase(.OSSpinLock, chaining: false,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    
-    func testLotsWithBarrierConcurrentChained() {
-        self.measureBlock() {
-            self.doATestCase(.BarrierConcurrent, chaining: true, x: 0, y: 1, iterations: self.lots)
-        }
-    }
-    
-    func testLotsWithSerialQueueChained() {
-        self.measureBlock() {
-            self.doATestCase(.SerialQueue, chaining: true,x: 0, y: 1, iterations: self.lots)
-        }
-    }
-    func testLotsWithNSObjectLockChained() {
-        self.measureBlock() {
-            self.doATestCase(.NSObjectLock, chaining: true,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    
-    func testLotsWithNSLockChained() {
-        self.measureBlock() {
-            self.doATestCase(.NSLock, chaining: true,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    func testLotsWithNSRecursiveLockChained() {
-        self.measureBlock() {
-            self.doATestCase(.NSRecursiveLock, chaining: true,x:0, y: 1, iterations: self.lots)
-        }
-    }
-    func testLotsWithOSSpinLockChained() {
-        self.measureBlock() {
-            self.doATestCase(.OSSpinLock, chaining: true,x:0, y: 1, iterations: self.lots)
+
+    func measureTest(attributes:AttributesForTest) {
+        self.measureBlock { () -> Void in
+            self.iterateLocks(attributes)
         }
     }
 }
+
+extension AttributesForTest {
+    
+    
+    var numops : UInt32 {
+        return reads+writes
+    }
+    
+    var writePercentage : Float {
+        return Float(writes) / Float(numops)
+    }
+    
+    // we want to ranomly decide whether this will be a read or a write
+    // but we need to keep it in the ratio of reads : writes
+    func doReadCoinFlip() -> Bool {
+        return (writes == 0) ||
+            ((reads > 0) && (arc4random_uniform(numops) < reads))
+    }
+    
+    func blockForTest() -> (() -> Void) {
+        
+        assert(number_of_locks >= 1, "need at least 1 lock")
+        
+/*        typealias Key = String
+        typealias Value = Int
+        typealias DictType = Dictionary<Key,Value>
+        
+        let keys : [Key] = ["one","two","three"]
+        let keysCount = UInt32(keys.count) */
+
+        typealias Key = Int
+        typealias Value = Int
+        typealias DictType = Dictionary<Key,Value>
+        
+        let keys : [Key] = [0,1,2]
+        let keysCount = UInt32(keys.count)
+
+        
+        // these will be the dictionaries the locks will control access for
+        
+        typealias DataPair = (dict:DictType, lock:SynchronizationProtocol)
+        
+        var data : [DataPair] = []
+        
+        for i in 0..<number_of_locks {
+            let lock = syncType.lockObject()
+            let dict = DictType()
+            
+            data.append((dict,lock))
+        }
+        
+        let iterate = iterationCount / threads // we want the total 'effort' to the same for all tests
+        let num_of_locks = number_of_locks
+        
+        let block = { () -> Void in
+            
+            for i in 0..<iterate {
+                
+                // pick the dictionary and lock we are going to use
+                let data_index_to_use = Int(arc4random_uniform(self.number_of_locks))
+                var data_to_use = data[data_index_to_use]
+
+                let lock = data_to_use.lock
+                var dict = data_to_use.dict
+                
+                let keyToUseIndex = Int(arc4random_uniform(keysCount))
+                let keyTouse = keys[keyToUseIndex]
+                
+                if self.doReadCoinFlip() {
+                    lock.readSync { () -> Value? in
+                        return dict[keyTouse]
+                    }
+                }
+                else {
+                    let modifyBlock = { () -> Void in
+                        if let i = dict[keyTouse] {
+                            dict[keyTouse] = i + 1
+                        }
+                        else {
+                            dict[keyTouse] = 1
+                        }
+                    }
+                    switch self.sOrA {
+                    case .Async:
+                        lock.modify(modifyBlock)
+                    case .Sync:
+                        lock.modifySync(modifyBlock)
+                    }
+                }
+            }
+        }
+        return block
+        
+    }
+    
+}
+

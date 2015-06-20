@@ -137,19 +137,6 @@ class FutureKitBasicTests: XCTestCase {
         
         XCTAssert(x.completion!.result == 5, "it works")
     }
-    func testFutureWait() {
-        let f = dumbAdd(.Primary,1, 1).waitUntilCompleted()
-
-        XCTAssert(f.result == 2, "it works")
-    }
-    
-    func doATestCaseSync(x : Int, y: Int, iterations : Int) {
-        let f = divideAndConquer(.Primary,x,y,iterations).waitUntilCompleted()
-        
-        let expectedResult = (x+y)*iterations
-        XCTAssert(f.result == expectedResult, "it works")
-        
-    }
     
     func testADoneFutureExpectation() {
         let val = 5

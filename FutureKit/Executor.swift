@@ -22,12 +22,28 @@
 // THE SOFTWARE.
 //
 
-#if os(iOS)
-    import UIKit
-    #else
-    import Foundation
-#endif
+import Foundation
 import CoreData
+
+
+
+
+#if os(iOS)
+import UIKit
+    
+private func _SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(version: NSString) -> Bool {
+        return UIDevice.currentDevice().systemVersion.compare(version as String,
+        options: NSStringCompareOptions.NumericSearch) != NSComparisonResult.OrderedAscending
+}
+    
+private let use_qos_dispatch_queues = _SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO("8.0")
+    
+#else
+
+private let use_qos_dispatch_queues = true
+    
+#endif
+
 
 
 public extension NSQualityOfService {
@@ -84,33 +100,44 @@ public enum QosCompatible : Int {
 
     }
     
-    
     var queue : dispatch_queue_t {
         
-        switch self {
-        case .UserInteractive:
-            return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
-        case .UserInitiated:
-            return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
-        case .Utility:
-            return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
-        case .Background:
-            return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
-        case .Default:
-            return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
-        
+        if use_qos_dispatch_queues {
+            switch self {
+            case .UserInteractive:
+                return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
+            case .UserInitiated:
+                return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
+            case .Utility:
+                return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
+            case .Background:
+                return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
+            case .Default:
+                return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
+                
+            }
         }
-    }
-    
-    var is_8 : Bool {
-        return NSProcessInfo().isOperatingSystemAtLeastVersion(NSOperatingSystemVersion(majorVersion: 8, minorVersion: 0, patchVersion: 0))
+        else {
+            switch self {
+            case .UserInteractive:
+                return dispatch_get_main_queue()
+            case .UserInitiated:
+                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH,0)
+            case .Utility:
+                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW,0)
+            case .Background:
+                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0)
+            case .Default:
+                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0)
+            }
+        }
     }
     
     public func createQueue(label: String?,
         var q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             
-            if is_8 {
+            if use_qos_dispatch_queues {
                 let qos_class = self.qos_class
                 q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             }
@@ -121,7 +148,7 @@ public enum QosCompatible : Int {
             else {
                 q = dispatch_queue_create(nil, q_attr)
             }
-            if !is_8 {
+            if !use_qos_dispatch_queues {
                 dispatch_set_target_queue(q,self.queue)
             }
             return q
@@ -154,7 +181,7 @@ public enum SerialOrConcurrent: Int {
     case Serial
     case Concurrent
     
-    public var q_attr : dispatch_queue_attr_t {
+    public var q_attr : dispatch_queue_attr_t! {
         switch self {
         case .Serial:
             return DISPATCH_QUEUE_SERIAL

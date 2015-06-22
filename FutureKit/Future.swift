@@ -38,8 +38,7 @@ public struct GLOBAL_PARMS {
     static let CURRENT_EXECUTOR_PROPERTY = "FutureKit.Executor.Current"
     static let STACK_CHECKING_MAX_DEPTH = 20
     
-    public static var LOCKING_STRATEGY : SynchronizationType = .PThreadMutex
-//    public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
+    public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
     
 }
 
@@ -175,7 +174,7 @@ public enum Completion<T> : Printable, DebugPrintable {
                                     //  so we are using the SuccessType alias
                                             //  We are adding a assertion check inside of
     /**
-        Future failed with error NSError
+        Future failed with error ErrorType
     */
     case Fail(ErrorType)
     
@@ -2005,7 +2004,7 @@ public extension Future {
     }
 }
 
-private var futureWithNoResult = Future<Void>()
+private var futureWithNoResult = Future<Any>()
 
 class classWithMethodsThatReturnFutures {
     
@@ -2112,16 +2111,16 @@ class classWithMethodsThatReturnFutures {
         
     }
     
-    func iDontReturnValues() -> Future<Void> {
+    func iDontReturnValues() -> Future<Any> {
         let f = Future(.Primary) { () -> Int in
             return 5
         }
         
-        let p = Promise<Void>()
+        let p = Promise<Any>()
         
         f.onSuccess { (result) -> Void in
             dispatch_async(dispatch_get_main_queue()) {
-                p.completeWithSuccess()
+                p.completeWithSuccess(())
             }
         }
         // let's do some async dispatching of things here:

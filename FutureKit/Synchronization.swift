@@ -74,7 +74,11 @@ public enum SynchronizationType : String {
     case PThreadMutex = "PThreadMutex"
     
     
+    #if os(osx)
     public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock,PThreadMutex]
+    #else
+    public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock]
+    #endif
 
     public func lockObject() -> SynchronizationProtocol {
         switch self {
@@ -94,6 +98,8 @@ public enum SynchronizationType : String {
             return OSSpinLockSynchronization()
         case PThreadMutex:
             return PThreadMutexSynchronization()
+        case PThreadMutex:
+            return NSLockSynchronization()
         }
     }
 }
@@ -418,6 +424,8 @@ func synchronizedWithMutexLock<T>(inout mutex: pthread_mutex_t, @noescape closur
     return retVal
 }
 
+#if os(osx)
+    
 public class PThreadMutexSynchronization : SynchronizationProtocol {
     
     
@@ -467,7 +475,11 @@ public class PThreadMutexSynchronization : SynchronizationProtocol {
         pthread_mutex_destroy(&mutex)
     }
 }
+#else
 
+public typealias PThreadMutexSynchronization = NSLockSynchronization
+
+#endif
 
 public class NSRecursiveLockSynchronization : SynchronizationProtocol {
     
@@ -663,8 +675,8 @@ public class DictionaryWithSynchronization<Key : Hashable, Value, S: Synchroniza
         return value
     }
 
-    public func setValue(value: Value, forKey key: Key) -> Future<Void> {
-        return self.syncObject.modifyFuture { () -> Void in
+    public func setValue(value: Value, forKey key: Key) -> Future<Any> {
+        return self.syncObject.modifyFuture { () -> Any in
             self.dictionary[key] = value
         }
     }

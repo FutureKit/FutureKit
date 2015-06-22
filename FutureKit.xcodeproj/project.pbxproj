@@ -31,14 +31,22 @@
 		0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
 		0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
-		0DA471EB1B37B11900A8EF21 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA471EA1B37B11900A8EF21 /* AppDelegate.swift */; };
-		0DA471ED1B37B11900A8EF21 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA471EC1B37B11900A8EF21 /* ViewController.swift */; };
-		0DA471F01B37B11900A8EF21 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0DA471EE1B37B11900A8EF21 /* Main.storyboard */; };
-		0DA471F21B37B11900A8EF21 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DA471F11B37B11900A8EF21 /* Assets.xcassets */; };
-		0DA471F51B37B11900A8EF21 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0DA471F31B37B11900A8EF21 /* LaunchScreen.storyboard */; };
-		0DA472001B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA471FF1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.swift */; };
 		0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
+		0DDE32651B38BD28007C39D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE32641B38BD28007C39D9 /* AppDelegate.swift */; };
+		0DDE32671B38BD28007C39D9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE32661B38BD28007C39D9 /* ViewController.swift */; };
+		0DDE326A1B38BD28007C39D9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0DDE32681B38BD28007C39D9 /* Main.storyboard */; };
+		0DDE326C1B38BD28007C39D9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DDE326B1B38BD28007C39D9 /* Images.xcassets */; };
+		0DDE326F1B38BD28007C39D9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDE326D1B38BD28007C39D9 /* LaunchScreen.xib */; };
+		0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */; };
+		0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE35D981B389E480098930D /* BlockBasedTestCase.swift */; };
+		0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
+		0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
+		0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
+		0DDE328C1B38BD72007C39D9 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
+		0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
+		0DDE32A11B38C1CB007C39D9 /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; };
+		0DDE32A21B38C1CB007C39D9 /* FutureKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0DE35D9A1B389E480098930D /* BlockBasedTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE35D981B389E480098930D /* BlockBasedTestCase.swift */; };
 		0DE35D9B1B389E480098930D /* BlockBasedTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE35D981B389E480098930D /* BlockBasedTestCase.swift */; };
 		0DEA1B961AE30853000E126F /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DEA1B951AE30853000E126F /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -68,14 +76,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0DA471FC1B37B11900A8EF21 /* PBXContainerItemProxy */ = {
+		0DDE32751B38BD28007C39D9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 0DA471E71B37B11900A8EF21;
-			remoteInfo = DummyAppForTestingLockPerformanceOnDevice;
+			remoteGlobalIDString = 0DDE325F1B38BD27007C39D9;
+			remoteInfo = "FutureKit iOS Testing App";
 		};
-		0DE35D961B37B5710098930D /* PBXContainerItemProxy */ = {
+		0DDE32A31B38C1CB007C39D9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
 			proxyType = 1;
@@ -98,6 +106,20 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0DDE32A51B38C1CC007C39D9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0DDE32A21B38C1CB007C39D9 /* FutureKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; };
 		0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = convertPerfToCsv.swift; path = FutureKitTests/convertPerfToCsv.swift; sourceTree = "<group>"; };
@@ -118,19 +140,22 @@
 		0DA41FCE1ADAFE5A00B58B0B /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Future.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; };
 		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0DA471E81B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DummyAppForTestingLockPerformanceOnDevice.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0DA471EA1B37B11900A8EF21 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		0DA471EC1B37B11900A8EF21 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		0DA471EF1B37B11900A8EF21 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		0DA471F11B37B11900A8EF21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0DA471F41B37B11900A8EF21 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		0DA471F61B37B11900A8EF21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0DA471FB1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DummyAppForTestingLockPerformanceOnDeviceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0DA471FF1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyAppForTestingLockPerformanceOnDeviceTests.swift; sourceTree = "<group>"; };
-		0DA472011B37B11900A8EF21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0DA4720A1B37B1AE00A8EF21 /* Dummy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Dummy.m; sourceTree = "<group>"; };
 		0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSOperation+FutureKit.swift"; sourceTree = "<group>"; };
 		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FutureKit iOS Testing App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DDE32631B38BD28007C39D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0DDE32641B38BD28007C39D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		0DDE32661B38BD28007C39D9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		0DDE32691B38BD28007C39D9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		0DDE326B1B38BD28007C39D9 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		0DDE326E1B38BD28007C39D9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		0DDE32741B38BD28007C39D9 /* FutureKit iOS Testing AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit iOS Testing AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DDE32791B38BD28007C39D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureKit_iOS_Testing_AppTests.swift; sourceTree = "<group>"; };
+		0DDE328E1B38BE11007C39D9 /* DTPerformanceSession.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTPerformanceSession.framework; path = Library/Frameworks/DTPerformanceSession.framework; sourceTree = DEVELOPER_DIR; };
+		0DDE328F1B38BE11007C39D9 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		0DDE32941B38BE4E007C39D9 /* InterfaceBuilderKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InterfaceBuilderKit.framework; path = Library/Frameworks/InterfaceBuilderKit.framework; sourceTree = DEVELOPER_DIR; };
+		0DDE32971B38BEDB007C39D9 /* IDEBundleInjection.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEBundleInjection.framework; path = Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks/IDEBundleInjection.framework; sourceTree = DEVELOPER_DIR; };
 		0DE35D981B389E480098930D /* BlockBasedTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockBasedTestCase.swift; sourceTree = "<group>"; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; };
 		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -151,14 +176,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0DA471E51B37B11900A8EF21 /* Frameworks */ = {
+		0DDE325D1B38BD27007C39D9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0DDE32A11B38C1CB007C39D9 /* FutureKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0DA471F81B37B11900A8EF21 /* Frameworks */ = {
+		0DDE32711B38BD28007C39D9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -232,14 +258,18 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
+				0DDE32971B38BEDB007C39D9 /* IDEBundleInjection.framework */,
+				0DDE32941B38BE4E007C39D9 /* InterfaceBuilderKit.framework */,
+				0DDE328E1B38BE11007C39D9 /* DTPerformanceSession.framework */,
+				0DDE328F1B38BE11007C39D9 /* SenTestingKit.framework */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,
 				0DB9799D1AE2A21100158386 /* FutureKitTests */,
 				0DEA1B921AE30853000E126F /* FutureKit */,
 				0DEA1BEB1AE3116A000E126F /* FutureKit iOS Tests */,
 				0DEA1C001AE313DD000E126F /* FutureKit OSX Tests */,
-				0DA471E91B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice */,
-				0DA471FE1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests */,
+				0DDE32611B38BD28007C39D9 /* FutureKit iOS Testing App */,
+				0DDE32771B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
 				0DA41FAF1ADAFE3D00B58B0B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -251,8 +281,8 @@
 				0DEA1BAF1AE30872000E126F /* FutureKit.framework */,
 				0DEA1BEA1AE3116A000E126F /* FutureKit iOS Tests.xctest */,
 				0DEA1BFF1AE313DD000E126F /* FutureKit OSX Tests.xctest */,
-				0DA471E81B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice.app */,
-				0DA471FB1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.xctest */,
+				0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */,
+				0DDE32741B38BD28007C39D9 /* FutureKit iOS Testing AppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -272,29 +302,6 @@
 				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
 			);
 			path = FutureKit;
-			sourceTree = "<group>";
-		};
-		0DA471E91B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice */ = {
-			isa = PBXGroup;
-			children = (
-				0DA471EA1B37B11900A8EF21 /* AppDelegate.swift */,
-				0DA471EC1B37B11900A8EF21 /* ViewController.swift */,
-				0DA471EE1B37B11900A8EF21 /* Main.storyboard */,
-				0DA471F11B37B11900A8EF21 /* Assets.xcassets */,
-				0DA471F31B37B11900A8EF21 /* LaunchScreen.storyboard */,
-				0DA471F61B37B11900A8EF21 /* Info.plist */,
-			);
-			path = DummyAppForTestingLockPerformanceOnDevice;
-			sourceTree = "<group>";
-		};
-		0DA471FE1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests */ = {
-			isa = PBXGroup;
-			children = (
-				0DA4720A1B37B1AE00A8EF21 /* Dummy.m */,
-				0DA471FF1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.swift */,
-				0DA472011B37B11900A8EF21 /* Info.plist */,
-			);
-			path = DummyAppForTestingLockPerformanceOnDeviceTests;
 			sourceTree = "<group>";
 		};
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
@@ -318,6 +325,44 @@
 			isa = PBXGroup;
 			children = (
 				0DEA1BA11AE30853000E126F /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0DDE32611B38BD28007C39D9 /* FutureKit iOS Testing App */ = {
+			isa = PBXGroup;
+			children = (
+				0DDE32641B38BD28007C39D9 /* AppDelegate.swift */,
+				0DDE32661B38BD28007C39D9 /* ViewController.swift */,
+				0DDE32681B38BD28007C39D9 /* Main.storyboard */,
+				0DDE326B1B38BD28007C39D9 /* Images.xcassets */,
+				0DDE326D1B38BD28007C39D9 /* LaunchScreen.xib */,
+				0DDE32621B38BD28007C39D9 /* Supporting Files */,
+			);
+			path = "FutureKit iOS Testing App";
+			sourceTree = "<group>";
+		};
+		0DDE32621B38BD28007C39D9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0DDE32631B38BD28007C39D9 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0DDE32771B38BD28007C39D9 /* FutureKit iOS Testing AppTests */ = {
+			isa = PBXGroup;
+			children = (
+				0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */,
+				0DDE32781B38BD28007C39D9 /* Supporting Files */,
+			);
+			path = "FutureKit iOS Testing AppTests";
+			sourceTree = "<group>";
+		};
+		0DDE32781B38BD28007C39D9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0DDE32791B38BD28007C39D9 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -397,40 +442,41 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		0DA471E71B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice */ = {
+		0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0DA472061B37B11900A8EF21 /* Build configuration list for PBXNativeTarget "DummyAppForTestingLockPerformanceOnDevice" */;
+			buildConfigurationList = 0DDE327C1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing App" */;
 			buildPhases = (
-				0DA471E41B37B11900A8EF21 /* Sources */,
-				0DA471E51B37B11900A8EF21 /* Frameworks */,
-				0DA471E61B37B11900A8EF21 /* Resources */,
+				0DDE325C1B38BD27007C39D9 /* Sources */,
+				0DDE325D1B38BD27007C39D9 /* Frameworks */,
+				0DDE325E1B38BD27007C39D9 /* Resources */,
+				0DDE32A51B38C1CC007C39D9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0DDE32A41B38C1CB007C39D9 /* PBXTargetDependency */,
 			);
-			name = DummyAppForTestingLockPerformanceOnDevice;
-			productName = DummyAppForTestingLockPerformanceOnDevice;
-			productReference = 0DA471E81B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice.app */;
+			name = "FutureKit iOS Testing App";
+			productName = "FutureKit iOS Testing App";
+			productReference = 0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */;
 			productType = "com.apple.product-type.application";
 		};
-		0DA471FA1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests */ = {
+		0DDE32731B38BD28007C39D9 /* FutureKit iOS Testing AppTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0DA472071B37B11900A8EF21 /* Build configuration list for PBXNativeTarget "DummyAppForTestingLockPerformanceOnDeviceTests" */;
+			buildConfigurationList = 0DDE327F1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing AppTests" */;
 			buildPhases = (
-				0DA471F71B37B11900A8EF21 /* Sources */,
-				0DA471F81B37B11900A8EF21 /* Frameworks */,
-				0DA471F91B37B11900A8EF21 /* Resources */,
+				0DDE32701B38BD28007C39D9 /* Sources */,
+				0DDE32711B38BD28007C39D9 /* Frameworks */,
+				0DDE32721B38BD28007C39D9 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				0DE35D971B37B5710098930D /* PBXTargetDependency */,
-				0DA471FD1B37B11900A8EF21 /* PBXTargetDependency */,
+				0DDE32761B38BD28007C39D9 /* PBXTargetDependency */,
 			);
-			name = DummyAppForTestingLockPerformanceOnDeviceTests;
-			productName = DummyAppForTestingLockPerformanceOnDeviceTests;
-			productReference = 0DA471FB1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.xctest */;
+			name = "FutureKit iOS Testing AppTests";
+			productName = "FutureKit iOS Testing AppTests";
+			productReference = 0DDE32741B38BD28007C39D9 /* FutureKit iOS Testing AppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		0DEA1B901AE30853000E126F /* FutureKit iOS */ = {
@@ -515,15 +561,17 @@
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
-					0DA471E71B37B11900A8EF21 = {
-						CreatedOnToolsVersion = 7.0;
+					0DDE325F1B38BD27007C39D9 = {
+						CreatedOnToolsVersion = 6.3.2;
+						DevelopmentTeam = AUXUTTBC4T;
 					};
-					0DA471FA1B37B11900A8EF21 = {
-						CreatedOnToolsVersion = 7.0;
-						TestTargetID = 0DA471E71B37B11900A8EF21;
+					0DDE32731B38BD28007C39D9 = {
+						CreatedOnToolsVersion = 6.3.2;
+						TestTargetID = 0DDE325F1B38BD27007C39D9;
 					};
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = AUXUTTBC4T;
 					};
 					0DEA1BAE1AE30872000E126F = {
 						CreatedOnToolsVersion = 6.3;
@@ -553,24 +601,24 @@
 				0DEA1BAE1AE30872000E126F /* FutureKit OSX */,
 				0DEA1BE91AE3116A000E126F /* FutureKit iOS Tests */,
 				0DEA1BFE1AE313DD000E126F /* FutureKit OSX Tests */,
-				0DA471E71B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice */,
-				0DA471FA1B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests */,
+				0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */,
+				0DDE32731B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		0DA471E61B37B11900A8EF21 /* Resources */ = {
+		0DDE325E1B38BD27007C39D9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DA471F51B37B11900A8EF21 /* LaunchScreen.storyboard in Resources */,
-				0DA471F21B37B11900A8EF21 /* Assets.xcassets in Resources */,
-				0DA471F01B37B11900A8EF21 /* Main.storyboard in Resources */,
+				0DDE326A1B38BD28007C39D9 /* Main.storyboard in Resources */,
+				0DDE326F1B38BD28007C39D9 /* LaunchScreen.xib in Resources */,
+				0DDE326C1B38BD28007C39D9 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0DA471F91B37B11900A8EF21 /* Resources */ = {
+		0DDE32721B38BD28007C39D9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -608,20 +656,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0DA471E41B37B11900A8EF21 /* Sources */ = {
+		0DDE325C1B38BD27007C39D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DA471ED1B37B11900A8EF21 /* ViewController.swift in Sources */,
-				0DA471EB1B37B11900A8EF21 /* AppDelegate.swift in Sources */,
+				0DDE32671B38BD28007C39D9 /* ViewController.swift in Sources */,
+				0DDE32651B38BD28007C39D9 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0DA471F71B37B11900A8EF21 /* Sources */ = {
+		0DDE32701B38BD28007C39D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DA472001B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDeviceTests.swift in Sources */,
+				0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */,
+				0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */,
+				0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */,
+				0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */,
+				0DDE328C1B38BD72007C39D9 /* LockPerformanceTests.swift in Sources */,
+				0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */,
+				0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -702,15 +756,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0DA471FD1B37B11900A8EF21 /* PBXTargetDependency */ = {
+		0DDE32761B38BD28007C39D9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0DA471E71B37B11900A8EF21 /* DummyAppForTestingLockPerformanceOnDevice */;
-			targetProxy = 0DA471FC1B37B11900A8EF21 /* PBXContainerItemProxy */;
+			target = 0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */;
+			targetProxy = 0DDE32751B38BD28007C39D9 /* PBXContainerItemProxy */;
 		};
-		0DE35D971B37B5710098930D /* PBXTargetDependency */ = {
+		0DDE32A41B38C1CB007C39D9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0DEA1B901AE30853000E126F /* FutureKit iOS */;
-			targetProxy = 0DE35D961B37B5710098930D /* PBXContainerItemProxy */;
+			targetProxy = 0DDE32A31B38C1CB007C39D9 /* PBXContainerItemProxy */;
 		};
 		0DEA1BF21AE3116A000E126F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -725,20 +779,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		0DA471EE1B37B11900A8EF21 /* Main.storyboard */ = {
+		0DDE32681B38BD28007C39D9 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				0DA471EF1B37B11900A8EF21 /* Base */,
+				0DDE32691B38BD28007C39D9 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		0DA471F31B37B11900A8EF21 /* LaunchScreen.storyboard */ = {
+		0DDE326D1B38BD28007C39D9 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				0DA471F41B37B11900A8EF21 /* Base */,
+				0DDE326E1B38BD28007C39D9 /* Base */,
 			);
-			name = LaunchScreen.storyboard;
+			name = LaunchScreen.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -833,63 +887,79 @@
 			};
 			name = Release;
 		};
-		0DA472021B37B11900A8EF21 /* Debug */ = {
+		0DDE327D1B38BD28007C39D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_TESTABILITY = YES;
-				INFOPLIST_FILE = DummyAppForTestingLockPerformanceOnDevice/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "FutureKit iOS Testing App/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = org.futureKit.DummyAppForTestingLockPerformanceOnDevice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
-		0DA472031B37B11900A8EF21 /* Release */ = {
+		0DDE327E1B38BD28007C39D9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = DummyAppForTestingLockPerformanceOnDevice/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+				);
+				INFOPLIST_FILE = "FutureKit iOS Testing App/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = org.futureKit.DummyAppForTestingLockPerformanceOnDevice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
-		0DA472041B37B11900A8EF21 /* Debug */ = {
+		0DDE32801B38BD28007C39D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_TESTABILITY = YES;
-				INFOPLIST_FILE = DummyAppForTestingLockPerformanceOnDeviceTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "FutureKit iOS Testing AppTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = org.futureKit.DummyAppForTestingLockPerformanceOnDeviceTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DummyAppForTestingLockPerformanceOnDevice.app/DummyAppForTestingLockPerformanceOnDevice";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FutureKit iOS Testing App.app/FutureKit iOS Testing App";
 			};
 			name = Debug;
 		};
-		0DA472051B37B11900A8EF21 /* Release */ = {
+		0DDE32811B38BD28007C39D9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				INFOPLIST_FILE = DummyAppForTestingLockPerformanceOnDeviceTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+				);
+				INFOPLIST_FILE = "FutureKit iOS Testing AppTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = org.futureKit.DummyAppForTestingLockPerformanceOnDeviceTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DummyAppForTestingLockPerformanceOnDevice.app/DummyAppForTestingLockPerformanceOnDevice";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FutureKit iOS Testing App.app/FutureKit iOS Testing App";
 			};
 			name = Release;
 		};
@@ -897,6 +967,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -920,6 +991,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1085,23 +1157,21 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0DA472061B37B11900A8EF21 /* Build configuration list for PBXNativeTarget "DummyAppForTestingLockPerformanceOnDevice" */ = {
+		0DDE327C1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DA472021B37B11900A8EF21 /* Debug */,
-				0DA472031B37B11900A8EF21 /* Release */,
+				0DDE327D1B38BD28007C39D9 /* Debug */,
+				0DDE327E1B38BD28007C39D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
-		0DA472071B37B11900A8EF21 /* Build configuration list for PBXNativeTarget "DummyAppForTestingLockPerformanceOnDeviceTests" */ = {
+		0DDE327F1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing AppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DA472041B37B11900A8EF21 /* Debug */,
-				0DA472051B37B11900A8EF21 /* Release */,
+				0DDE32801B38BD28007C39D9 /* Debug */,
+				0DDE32811B38BD28007C39D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
 		0DEA1BA81AE30853000E126F /* Build configuration list for PBXNativeTarget "FutureKit iOS" */ = {
 			isa = XCConfigurationList;

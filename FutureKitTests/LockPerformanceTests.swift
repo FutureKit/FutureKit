@@ -67,10 +67,12 @@ struct AttributesForTest {
     let threads: Int
     let syncType:SynchronizationType
     let number_of_locks : UInt32
+    let shared_locks : Bool
     let with: ExecuteWith
     let sOrA: SyncAsyncWrite
     let reads: UInt32
     let writes: UInt32
+    let description : String
     
     var testName : String {
         let percentage = Int(self.writePercentage * 100)
@@ -79,6 +81,9 @@ struct AttributesForTest {
     }
     
     var contention : Int {
+        if (!shared_locks) {
+            return 0
+        }
         return Int(100.0 / Float(number_of_locks) * Float(threads - 1))
     }
 
@@ -96,8 +101,12 @@ class LockPerformanceTests: BlockBasedTestCase {
         typealias readWriteRatios = (read:UInt32, write:UInt32)
         let readWriteCases : [readWriteRatios]  = [(0,1),(1,3),(1,1),(3,1),(1,0)]
 
-        typealias locksAndThreads = (locks:UInt32, threads:Int)
-        let lockAndThreadCases : [locksAndThreads]  = [ (1, 2), (1, 1), (2, 2), (4, 2), (8, 2) ]
+        typealias locksAndThreads = (locks:UInt32, threads:Int, shared:Bool, description: String)
+        let lockAndThreadCases : [locksAndThreads]  = [ (1, 2, true,"1 shared lock - 2 threads - 100% contention"),
+                                                        (2, 2, false, "one thread each with one unshared lock - 0% contention"),
+                                                        (2, 2, true, "2 theads 2 shared locks - 50% contention"),
+                                                        (4, 2, true, "4 locks shared by 2 threads - 25% contention"),
+                                                        (8, 2, true, "8 locks shared by 2 threads - 12% contention") ]
 
         
         for lockAndThread in lockAndThreadCases {
@@ -107,7 +116,17 @@ class LockPerformanceTests: BlockBasedTestCase {
                     for sOrA in SyncAsyncWrite.allValues {
                         for rw in readWriteCases {
                             
-                            let attributes = AttributesForTest(iterationCount: _iterationCount, threads: lockAndThread.threads, syncType: type, number_of_locks:lockAndThread.locks, with: with, sOrA: sOrA, reads: rw.read, writes: rw.write)
+                            let attributes = AttributesForTest(
+                                iterationCount: _iterationCount,
+                                threads: lockAndThread.threads,
+                                syncType: type,
+                                number_of_locks:lockAndThread.locks,
+                                shared_locks:lockAndThread.shared,
+                                with: with,
+                                sOrA: sOrA,
+                                reads: rw.read,
+                                writes: rw.write,
+                                description:lockAndThread.description)
                             
                             NSLog("adding test \(attributes.testName)")
                             
@@ -153,8 +172,10 @@ class LockPerformanceTests: BlockBasedTestCase {
 
         queue.maxConcurrentOperationCount = attributes.threads
         
-        for _ in 0..<attributes.threads {
-            queue.addOperationWithBlock(block)
+        for thread_number in 0..<attributes.threads {
+            queue.addOperationWithBlock({ () -> Void in
+                block(runningThreadNum: thread_number)
+            })
         }
 
         queue.waitUntilAllOperationsAreFinished()
@@ -167,9 +188,9 @@ class LockPerformanceTests: BlockBasedTestCase {
         
         var threads = [ThreadType]()
         
-        for _ in 0..<attributes.threads {
+        for thread_number in 0..<attributes.threads {
             let t = ThreadType(block: { () -> Any in
-                block()
+                block(runningThreadNum: thread_number)
             })
             threads.append(t)
         }
@@ -221,7 +242,7 @@ extension AttributesForTest {
             ((reads > 0) && (arc4random_uniform(numops) < reads))
     }
     
-    func blockForTest() -> (() -> Void) {
+    func blockForTest() -> ((runningThreadNum:Int) -> Void) {
         
         assert(number_of_locks >= 1, "need at least 1 lock")
         
@@ -254,13 +275,21 @@ extension AttributesForTest {
         }
         
         let iterate = iterationCount / threads // we want the total 'effort' to the same for all tests
+        let sharedLocks = shared_locks
         
-        let block = { () -> Void in
+        let block = { (runningThreadNum:Int) -> Void in
             
             for _ in 0..<iterate {
                 
                 // pick the dictionary and lock we are going to use
-                let data_index_to_use = Int(arc4random_uniform(self.number_of_locks))
+                let data_index_to_use: Int
+                if (sharedLocks) {
+                    data_index_to_use = Int(arc4random_uniform(self.number_of_locks))
+                }
+                else {
+                    data_index_to_use = runningThreadNum
+                }
+                
                 let data_to_use = data[data_index_to_use]
 
                 let lock = data_to_use.lock

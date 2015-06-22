@@ -73,12 +73,7 @@ public enum SynchronizationType : String {
     case OSSpinLock = "OSSpinLock"
     case PThreadMutex = "PThreadMutex"
     
-    
-    #if os(osx)
     public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock,PThreadMutex]
-    #else
-    public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock]
-    #endif
 
     public func lockObject() -> SynchronizationProtocol {
         switch self {
@@ -424,8 +419,6 @@ func synchronizedWithMutexLock<T>(inout mutex: pthread_mutex_t, @noescape closur
     return retVal
 }
 
-#if os(osx)
-    
 public class PThreadMutexSynchronization : SynchronizationProtocol {
     
     
@@ -475,11 +468,6 @@ public class PThreadMutexSynchronization : SynchronizationProtocol {
         pthread_mutex_destroy(&mutex)
     }
 }
-#else
-
-public typealias PThreadMutexSynchronization = NSLockSynchronization
-
-#endif
 
 public class NSRecursiveLockSynchronization : SynchronizationProtocol {
     

@@ -1,14 +1,15 @@
 //
-//  DummyAppForTestingLockPerformanceOnDeviceTests.swift
-//  DummyAppForTestingLockPerformanceOnDeviceTests
+//  FutureKit_iOS_Testing_AppTests.swift
+//  FutureKit iOS Testing AppTests
 //
-//  Created by Michael Gray on 6/21/15.
-//  Copyright © 2015 Michael Gray. All rights reserved.
+//  Created by Michael Gray on 6/22/15.
+//  Copyright (c) 2015 Michael Gray. All rights reserved.
 //
 
+import UIKit
 import XCTest
 
-class DummyAppForTestingLockPerformanceOnDeviceTests: XCTestCase {
+class FutureKit_iOS_Testing_AppTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -22,7 +23,7 @@ class DummyAppForTestingLockPerformanceOnDeviceTests: XCTestCase {
     
     func testExample() {
         // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTAssert(true, "Pass")
     }
     
     func testPerformanceExample() {

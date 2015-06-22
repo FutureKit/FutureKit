@@ -411,7 +411,7 @@ public class OSSpinLockSynchronization : SynchronizationProtocol {
 }
 
 
-func synchronizedWithMutexLock<T>(inout mutex: pthread_mutex_t, @noescape closure:  ()->T) -> T {
+func synchronizedWithMutexLock<T>(inout mutex: pthread_mutex_t, @noescape _ closure:  ()->T) -> T {
     pthread_mutex_lock(&mutex)
     let retVal: T = closure()
     pthread_mutex_unlock(&mutex)
@@ -663,8 +663,8 @@ public class DictionaryWithSynchronization<Key : Hashable, Value, S: Synchroniza
         return value
     }
 
-    public func setValue(value: Value, forKey key: Key) -> Future<Void> {
-        return self.syncObject.modifyFuture { () -> Void in
+    public func setValue(value: Value, forKey key: Key) -> Future<Any> {
+        return self.syncObject.modifyFuture { () -> Any in
             self.dictionary[key] = value
         }
     }

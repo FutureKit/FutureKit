@@ -44,54 +44,36 @@ extension NSFileManager {
         }
     } */
 
-    func copyItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Void>
+    func copyItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
     {
-        let p = Promise<Void>()
-        
-        executor.execute { () -> Void in
-            
-            p.completeWithThrowingBlock { () -> Void in
-                try self.copyItemAtURL(srcURL, toURL: dstURL)
-            }
+        return executor.executeWithFuture { () -> Bool in
+            try self.copyItemAtURL(srcURL, toURL: dstURL)
+            return true
         }
-        return p.future
     }
     
-    func moveItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Void>
+    func moveItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
     {
-        let p = Promise<Void>()
-        
-        executor.execute { () -> Void in
-            p.completeWithThrowingBlock { () -> Void in
-                try self.moveItemAtURL(srcURL, toURL: dstURL)
-            }
+        return executor.executeWithFuture { () -> Bool in
+            try self.moveItemAtURL(srcURL, toURL: dstURL)
+            return true
         }
-        return p.future
-    }
-    func linkItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Void>
-    {
-        let p = Promise<Void>()
-        
-        executor.execute { () -> Void in
-            p.completeWithThrowingBlock { () -> Void in
-                try self.linkItemAtURL(srcURL, toURL: dstURL)
-            }
-        }
-        return p.future
-    }
-    
-    func removeItemAtURL(executor : Executor,URL: NSURL) -> Future<Void>
-    {
-        let p = Promise<Void>()
-        
-        executor.execute { () -> Void in
-            
-            p.completeWithThrowingBlock { () -> Void in
-                try self.removeItemAtURL(URL)
-            }
 
+    }
+    func linkItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    {
+        return executor.executeWithFuture { () -> Bool in
+            try self.linkItemAtURL(srcURL, toURL: dstURL)
+            return true
         }
-        return p.future
+    }
+    
+    func removeItemAtURL(executor : Executor,URL: NSURL) -> Future<Bool>
+    {
+        return executor.executeWithFuture { () -> Bool in
+            try self.removeItemAtURL(URL)
+            return true
+        }
     }
 
     // Needs more love!  If you are reading this and you wanted to see your favorite function added - consider forking and adding it!  We love pull requests.

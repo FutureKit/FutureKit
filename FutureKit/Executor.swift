@@ -124,7 +124,7 @@ public enum QosCompatible : Int {
     }
     
     public func createQueue(label: String?,
-        var q_attr : dispatch_queue_attr_t,
+        var q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             if #available(iOS 8.0, *) {
                 let qos_class = self.qos_class
@@ -172,7 +172,7 @@ public enum SerialOrConcurrent: Int {
     case Serial
     case Concurrent
     
-    public var q_attr : dispatch_queue_attr_t {
+    public var q_attr : dispatch_queue_attr_t! {
         switch self {
         case .Serial:
             return DISPATCH_QUEUE_SERIAL

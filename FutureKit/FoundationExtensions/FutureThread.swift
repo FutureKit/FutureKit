@@ -10,7 +10,7 @@ import Foundation
 
 @objc public class FutureThread {
     
-    public typealias __Type = Void
+    public typealias __Type = Any
     
     var block: () -> Completion<__Type>
     
@@ -47,6 +47,5 @@ import Foundation
     public func start() {
         self.thread.start()
     }
-    
    
 }

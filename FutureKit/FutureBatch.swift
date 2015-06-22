@@ -98,7 +98,7 @@ public class FutureBatchOf<T> {
     */
     func cancel(forced:Bool = false) {
         for t in self.tokens {
-            t.cancel(forced:forced)
+            t.cancel(forced)
         }
     }
     

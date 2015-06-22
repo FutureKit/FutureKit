@@ -37,22 +37,23 @@ class BlockBasedTestCase : XCTestCase {
     /*: you must call this inside of the class func override of testInvocations() 
         Return the object returned inside of the array.
     */
-    class func addTest<T : XCTestCase>(name:String, closure:(T) -> Void) -> AnyObject {
-        let block: @objc_block (AnyObject!) -> () = { (instance : AnyObject!) -> () in
+    class func addTest<T : XCTestCase>(name:String, closure:(T) -> Void) -> XCTestCase {
+        let block: @convention(block) (AnyObject!) -> () = { (instance : AnyObject!) -> () in
             let testCase = instance as! T
             closure(testCase)
         }
         
         let imp = imp_implementationWithBlock(unsafeBitCast(block, T.self))
-        let selectorName = name.stringByReplacingOccurrencesOfString(" ", withString: "_", options: NSStringCompareOptions(0), range: nil)
+        let selectorName = name.stringByReplacingOccurrencesOfString(" ", withString: "_", options: NSStringCompareOptions(rawValue: 0), range: nil)
         let selector = Selector(selectorName)
         let method = class_getInstanceMethod(self, "example") // No @encode in swift, creating a dummy method to get encoding
         let types = method_getTypeEncoding(method)
         let added = class_addMethod(self, selector, imp, types)
-        println(name)
+        print(name)
         assert(added, "Failed to add `\(name)` as `\(selector)`")
         
-        return self.testCaseWithSelector(selector).invocation
+        let xct = XCTestCase(selector: selector)
+        return xct
     }
     
     func example() { /* See addTest() */ }
@@ -113,12 +114,12 @@ struct AttributesForTest {
 }
 
 
-class LockPerformanceTests: BlockBasedTestCase {
+class LockPerformanceTests: ObjCBlockBasedTest {
     
 
     typealias TestBlockType = ((LockPerformanceTests) -> Void)
     
-    override class func testInvocations() -> [AnyObject] {
+    override class func myInvocations() -> [AnyObject] {
         
         var tests = [AnyObject]()
         
@@ -140,12 +141,12 @@ class LockPerformanceTests: BlockBasedTestCase {
                             
                             NSLog("adding test \(attributes.testName)")
                             
-                            let test: AnyObject = self.addTest(attributes.testName, closure: { (_self:LockPerformanceTests) -> Void in
+                            let test = self.addTestWithName(attributes.testName, cname: "LockPerformanceTests", b: { (a:AnyObject!) -> Void in
+                                let _self = a as!  LockPerformanceTests
                                 _self.measureTest(attributes)
                             })
                             
                             tests.append(test)
-                            
                         }
                         
                     }
@@ -177,30 +178,32 @@ class LockPerformanceTests: BlockBasedTestCase {
 
         let block = attributes.blockForTest()
 
-        let start = CFAbsoluteTimeGetCurrent()
         let queue = NSOperationQueue()
 
         queue.maxConcurrentOperationCount = attributes.threads
         
-        for i in 0..<attributes.threads {
+        for _ in 0..<attributes.threads {
             queue.addOperationWithBlock(block)
         }
 
         queue.waitUntilAllOperationsAreFinished()
-        let stop = CFAbsoluteTimeGetCurrent()
     }
 
     func iterateTestWithThreads(attributes:AttributesForTest) {
         
         let block = attributes.blockForTest()
-
-        var threads = [FutureThread]()
+        typealias ThreadType = FutureThread
         
-        for i in 0..<attributes.threads {
-            threads.append(FutureThread(block: block))
+        var threads = [ThreadType]()
+        
+        for _ in 0..<attributes.threads {
+            let t = ThreadType(block: { () -> Any in
+                block()
+            })
+            threads.append(t)
         }
         
-        var futures = [Future<Void>]()
+        var futures = [Future<Any>]()
         for thread in threads {
             futures.append(thread.future)
             thread.start()
@@ -272,7 +275,7 @@ extension AttributesForTest {
         
         var data : [DataPair] = []
         
-        for i in 0..<number_of_locks {
+        for _ in 0..<number_of_locks {
             let lock = syncType.lockObject()
             let dict = DictType()
             
@@ -280,15 +283,14 @@ extension AttributesForTest {
         }
         
         let iterate = iterationCount / threads // we want the total 'effort' to the same for all tests
-        let num_of_locks = number_of_locks
         
         let block = { () -> Void in
             
-            for i in 0..<iterate {
+            for _ in 0..<iterate {
                 
                 // pick the dictionary and lock we are going to use
                 let data_index_to_use = Int(arc4random_uniform(self.number_of_locks))
-                var data_to_use = data[data_index_to_use]
+                let data_to_use = data[data_index_to_use]
 
                 let lock = data_to_use.lock
                 var dict = data_to_use.dict

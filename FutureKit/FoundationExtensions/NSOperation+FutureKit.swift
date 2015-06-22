@@ -102,7 +102,7 @@ class _FutureAnyOperation : NSOperation, FutureProtocol {
         let f : Future<Any> = self.getSubFuture().As()
         self.subFuture = f
         self.cancelToken = f.getCancelToken()
-        f.onComplete { completion in
+        f.onComplete { (completion) -> Void in
             self._is_executing = false
             self._is_finished = true
             self.promise.complete(completion)

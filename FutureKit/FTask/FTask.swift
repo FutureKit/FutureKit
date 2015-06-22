@@ -45,7 +45,7 @@ public class FTaskCompletion : NSObject {
     init(cancelled : ()) {
         self.completion = .Cancelled
     }
-    init (fail : NSError) {
+    init (fail : ErrorType) {
         self.completion = FAIL(fail)
     }
     init (continueWith f: FTask) {
@@ -56,7 +56,7 @@ public class FTaskCompletion : NSObject {
     class func Success(success : rtype) -> FTaskCompletion {
         return FTaskCompletion(success: success)
     }
-    class func Fail(fail : NSError) -> FTaskCompletion {
+    class func Fail(fail : ErrorType) -> FTaskCompletion {
         return FTaskCompletion(fail: fail)
     }
     class func Cancelled() -> FTaskCompletion {
@@ -90,7 +90,7 @@ public class FTaskPromise : NSObject {
     public final func completeWithSuccess(result : rtype) {
         self.promise.completeWithSuccess(result)
     }
-    public final func completeWithFail(e : NSError) {
+    public final func completeWithFail(e : ErrorType) {
         self.promise.completeWithFail(e)
     }
     public final func completeWithException(e : NSException) {
@@ -238,7 +238,7 @@ public extension FTask {
         case let c as FTaskCompletion:
             return c.completion
             
-        case let error as NSError:
+        case let error as ErrorType:
             return .Fail(error)
         case let ex as NSException:
             return Completion<resultType>(exception: ex)

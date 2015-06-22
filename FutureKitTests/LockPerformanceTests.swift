@@ -32,34 +32,6 @@ let _iterationCount = (1024*32)
 var testCount = 0
 
 
-class BlockBasedTestCase : XCTestCase {
-    
-    /*: you must call this inside of the class func override of testInvocations() 
-        Return the object returned inside of the array.
-    */
-    class func addTest<T : XCTestCase>(name:String, closure:(T) -> Void) -> XCTestCase {
-        let block: @convention(block) (AnyObject!) -> () = { (instance : AnyObject!) -> () in
-            let testCase = instance as! T
-            closure(testCase)
-        }
-        
-        let imp = imp_implementationWithBlock(unsafeBitCast(block, T.self))
-        let selectorName = name.stringByReplacingOccurrencesOfString(" ", withString: "_", options: NSStringCompareOptions(rawValue: 0), range: nil)
-        let selector = Selector(selectorName)
-        let method = class_getInstanceMethod(self, "example") // No @encode in swift, creating a dummy method to get encoding
-        let types = method_getTypeEncoding(method)
-        let added = class_addMethod(self, selector, imp, types)
-        print(name)
-        assert(added, "Failed to add `\(name)` as `\(selector)`")
-        
-        let xct = XCTestCase(selector: selector)
-        return xct
-    }
-    
-    func example() { /* See addTest() */ }
-
-}
-
 enum ThreadCases : Int {
     case one = 1
     case two = 2
@@ -113,13 +85,11 @@ struct AttributesForTest {
 
 }
 
-
-class LockPerformanceTests: ObjCBlockBasedTest {
-    
+class LockPerformanceTests: BlockBasedTestCase {
 
     typealias TestBlockType = ((LockPerformanceTests) -> Void)
     
-    override class func myInvocations() -> [AnyObject] {
+    override class func myBlockBasedTests() -> [AnyObject] {
         
         var tests = [AnyObject]()
         
@@ -141,12 +111,13 @@ class LockPerformanceTests: ObjCBlockBasedTest {
                             
                             NSLog("adding test \(attributes.testName)")
                             
-                            let test = self.addTestWithName(attributes.testName, cname: "LockPerformanceTests", b: { (a:AnyObject!) -> Void in
-                                let _self = a as!  LockPerformanceTests
-                                _self.measureTest(attributes)
-                            })
                             
-                            tests.append(test)
+                            if let test = self.addTest(attributes.testName, closure: { (_self : LockPerformanceTests) -> Void in
+                                _self.measureTest(attributes)
+                            }) {
+                            
+                                tests.append(test)
+                            }
                         }
                         
                     }

@@ -4,4 +4,4 @@
 
 #import <XCTest/XCTest.h>
 
-#include "ObjCBlockBasedTest.h"
+#include "BlockBasedTestCase.h"

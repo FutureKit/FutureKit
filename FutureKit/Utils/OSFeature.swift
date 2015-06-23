@@ -30,7 +30,7 @@ enum OSFeature {
     case DispatchQueuesWithQos
     
     var is_supported : Bool {
-#if os(ios)
+#if os(iOS)
     switch self {
         case .NSOperationQueuePriority:
             return is_ios_8_or_above

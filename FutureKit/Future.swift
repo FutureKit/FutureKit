@@ -978,9 +978,16 @@ public class Future<T> : FutureProtocol{
     internal final func completeAndNotifySync(completion : Completion<T>) -> Bool {
         
         if (completion.isCompleteUsing) {
-            completion.completeUsingFuture.onComplete(.Immediate)  { (nextComp) -> Void in
+            let f = completion.completeUsingFuture
+            f.onComplete(.Immediate)  { (nextComp) -> Void in
                 self.completeWith(nextComp)
             }
+            if let token = f.getCancelToken() {
+                self.addRequestHandler { (forced) in
+                    token.cancel(forced:forced)
+                }
+            }
+
             return true
         }
         else {
@@ -993,7 +1000,6 @@ public class Future<T> : FutureProtocol{
                 self.__callbacks = nil
                 self.cancellationSource.clear()
                 return (cbs,true)
-                
                 }
             
             if let callbacks = tuple.cbs {
@@ -1009,19 +1015,15 @@ public class Future<T> : FutureProtocol{
         
         self.synchObject.modifyAsync({ () -> (callbacks:[completion_block_type]?,completion:Completion<T>?,continueUsing:Future?) in
             if let _ = self.__completion {
+                // future was already complete!
                 return (nil,nil,nil)
             }
             let c = completionBlock()
             if (c.isCompleteUsing) {
-                if let token = c.completeUsingFuture.getCancelToken() {
-                    self.addRequestHandler { (forced) in
-                        token.cancel(forced:forced)
-                    }
-                }
                 return (callbacks:nil,completion:c,continueUsing:c.completeUsingFuture)
             }
             else {
-                self.__completion = completionBlock()
+                self.__completion = c
                 let callbacks = self.__callbacks
                 self.__callbacks = nil
                 self.cancellationSource.clear()
@@ -1034,9 +1036,13 @@ public class Future<T> : FutureProtocol{
                     }
                 }
                 if let f = tuple.continueUsing {
-                    
                     f.onComplete(.Immediate)  { (nextComp) -> Void in
                         self.completeWith(nextComp)
+                    }
+                    if let token = f.getCancelToken() {
+                        self.addRequestHandler { (forced) in
+                            token.cancel(forced:forced)
+                        }
                     }
                 }
                 else if (tuple.completion == nil) {

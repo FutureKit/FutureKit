@@ -40,13 +40,26 @@ class FutureOperation<T> : _FutureAnyOperation {
             return b()
         })
     }
-    
+
+    // you can figure out if the Future is already done, or more importantly may be running on some other operation.
+    // Useful when using cached Future's.   The NSOperation will finish executing early.  But the var `future` still won't
+    // complete until the future completes.
+    init(blockWithEarlyReleaseOption b: () -> (future:Future<T>,releaseOperationEarly:Bool)) {
+        super.init(blockWithEarlyReleaseOption: { () -> (future:FutureProtocol,releaseOperationEarly:Bool) in
+            let (f,r) = b()
+            return (f,r)
+        })
+    }
+
 }
 
 
 class _FutureAnyOperation : NSOperation, FutureProtocol {
     
-    private var getSubFuture : () -> FutureProtocol
+//    private var getSubFuture : () -> FutureProtocol
+    private var getSubFuture : () -> (future:FutureProtocol,releaseOperationEarly:Bool)
+
+    
     var subFuture : Future<Any>?
     var cancelToken : CancellationToken?
     
@@ -82,11 +95,24 @@ class _FutureAnyOperation : NSOperation, FutureProtocol {
     }
     
     init(block : () -> FutureProtocol) {
-        self.getSubFuture = block
+        self.getSubFuture = { () -> (future:FutureProtocol,releaseOperationEarly:Bool) in
+            return (block(),false)
+        }
         self._is_executing = false
         self._is_finished = false
         super.init()
     }
+    
+    // you can figure out if the Future is already done, or more importantly may be running on some other operation.
+    // Useful when using cached Future's.   The NSOperation will finish executing early.  But the var `future` still won't 
+    // complete until the future completes.
+    init(blockWithEarlyReleaseOption : () -> (future:FutureProtocol,releaseOperationEarly:Bool)) {
+        self.getSubFuture = blockWithEarlyReleaseOption
+        self._is_executing = false
+        self._is_finished = false
+        super.init()
+    }
+
     
     override func main() {
         
@@ -99,13 +125,19 @@ class _FutureAnyOperation : NSOperation, FutureProtocol {
         
         self._is_executing = true
 
-        let f : Future<Any> = self.getSubFuture().As()
+        let (future,earlyRelease) = self.getSubFuture()
+        
+        let f : Future<Any> = future.As()
         self.subFuture = f
         self.cancelToken = f.getCancelToken()
         f.onComplete { (completion) -> Void in
             self._is_executing = false
             self._is_finished = true
             self.promise.complete(completion)
+        }
+        if (earlyRelease) {
+            self._is_executing = false
+            self._is_finished = true
         }
         
     }

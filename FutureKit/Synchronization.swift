@@ -97,6 +97,11 @@ public enum SynchronizationType : String {
             return NSLockSynchronization()
         }
     }
+    
+    // some typealias for the default recommended Objects
+    typealias LightAndFastSyncType = OSSpinLockSynchronization
+    typealias SlowOrComplexSyncType = QueueBarrierSynchronization
+
 }
 
 

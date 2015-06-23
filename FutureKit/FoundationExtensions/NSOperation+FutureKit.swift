@@ -30,7 +30,11 @@ class FutureOperation<T> : _FutureAnyOperation {
     class func OperationWithBlock(block b: () -> Future<T>) -> FutureOperation<T> {
         return FutureOperation<T>(block:b)
     }
-    
+
+    class func OperationWithBlock(blockWithEarlyReleaseOption b: () -> (future:Future<T>,releaseOperationEarly:Bool)) -> FutureOperation<T> {
+        return FutureOperation<T>(blockWithEarlyReleaseOption:b)
+    }
+
     var future : Future<T> {
         return self.promise.future.As()
     }

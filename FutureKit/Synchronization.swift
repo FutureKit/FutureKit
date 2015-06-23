@@ -417,60 +417,63 @@ public class OSSpinLockSynchronization : SynchronizationProtocol {
 }
 
 
-func synchronizedWithMutexLock<T>(inout mutex: pthread_mutex_t, @noescape closure:  ()->T) -> T {
-    pthread_mutex_lock(&mutex)
+func synchronizedWithMutexLock<T>(mutex: UnsafeMutablePointer<pthread_mutex_t>, @noescape closure:  ()->T) -> T {
+    pthread_mutex_lock(mutex)
     let retVal: T = closure()
-    pthread_mutex_unlock(&mutex)
+    pthread_mutex_unlock(mutex)
     return retVal
 }
 
 public class PThreadMutexSynchronization : SynchronizationProtocol {
     
-    
-    var mutex: pthread_mutex_t
+
+    var mutex_container: UnSafeMutableContainer<pthread_mutex_t>
+ 
+    var mutex: UnsafeMutablePointer<pthread_mutex_t> {
+        return self.mutex_container.unsafe_pointer
+    }
     
     required public init() {
         
-        // Omg.  Yes.  This is how it's done.
-        self.mutex = pthread_mutex_t(__sig: 0, __opaque: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-
-        pthread_mutex_init(&mutex, nil)
+        self.mutex_container = UnSafeMutableContainer<pthread_mutex_t>()
+        pthread_mutex_init(self.mutex, nil)
     
     }
     final func synchronized<T>(block:() -> T) -> T {
-        return synchronizedWithMutexLock(&mutex) { () -> T in
+        return synchronizedWithMutexLock(mutex) { () -> T in
             return block()
         }
     }
     
     public func read(block:() -> Void) {
-        synchronizedWithMutexLock(&mutex,block)
+        synchronizedWithMutexLock(mutex,block)
     }
     
     public func readSync<T>(block:() -> T) -> T {
-        return synchronizedWithMutexLock(&mutex,block)
+        return synchronizedWithMutexLock(mutex,block)
     }
     
     public func readAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithMutexLock(&mutex,block)
+        let ret = synchronizedWithMutexLock(mutex,block)
         done(ret)
     }
     
     public func modify(block:() -> Void) {
-        synchronizedWithMutexLock(&mutex,block)
+        synchronizedWithMutexLock(mutex,block)
     }
     
     public func modifySync<T>(block:() -> T) -> T {
-        return synchronizedWithMutexLock(&mutex,block)
+        return synchronizedWithMutexLock(mutex,block)
     }
     
     public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithMutexLock(&mutex,block)
+        let ret = synchronizedWithMutexLock(mutex,block)
         done(ret)
     }
     
     deinit {
-        pthread_mutex_destroy(&mutex)
+        pthread_mutex_destroy(mutex)
+        self.mutex.destroy()
     }
 }
 
@@ -714,7 +717,7 @@ public class DictionaryWithSynchronization<Key : Hashable, Value, S: Synchroniza
 }
 
 
-public class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAccessControl< Array<T> , S> {
+public class ArrayWithSynchronization<T, S: SynchronizationProtocol> : CollectionAccessControl< Array<T> , S> {
     
     var array : Array<T> {
         get {
@@ -831,6 +834,12 @@ public class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryWith
     }
 }
 
+
+
+public class ArrayWithFastLockAccess<T> : ArrayWithSynchronization<T,SynchronizationType.LightAndFastSyncType> {
+    
+    
+}
 
 /* func dispatch_queue_create_compatibleIOS8(label : String,
     attr : dispatch_queue_attr_t,

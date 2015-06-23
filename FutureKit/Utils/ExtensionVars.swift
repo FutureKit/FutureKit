@@ -75,6 +75,9 @@ class UnSafeMutableContainer<T> {
             unsafe_pointer.initialize(newValue)
         }
     }
+    init() {
+        unsafe_pointer = UnsafeMutablePointer<T>.alloc(1)
+    }
     init(_ initialValue: T) {
         unsafe_pointer = UnsafeMutablePointer<T>.alloc(1)
         unsafe_pointer.initialize(initialValue)

@@ -26,26 +26,6 @@ import Foundation
 import CoreData
 
 
-
-
-#if os(iOS)
-import UIKit
-    
-private func _SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(version: NSString) -> Bool {
-        return UIDevice.currentDevice().systemVersion.compare(version as String,
-        options: NSStringCompareOptions.NumericSearch) != NSComparisonResult.OrderedAscending
-}
-    
-private let use_qos_dispatch_queues = _SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO("8.0")
-    
-#else
-
-private let use_qos_dispatch_queues = true
-    
-#endif
-
-
-
 public extension NSQualityOfService {
     
     public var qos_class : qos_class_t {
@@ -102,7 +82,7 @@ public enum QosCompatible : Int {
     
     var queue : dispatch_queue_t {
         
-        if use_qos_dispatch_queues {
+        if OSFeature.DispatchQueuesWithQos.is_supported {
             switch self {
             case .UserInteractive:
                 return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
@@ -137,7 +117,7 @@ public enum QosCompatible : Int {
         var q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             
-            if use_qos_dispatch_queues {
+            if OSFeature.DispatchQueuesWithQos.is_supported {
                 let qos_class = self.qos_class
                 q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             }
@@ -148,7 +128,7 @@ public enum QosCompatible : Int {
             else {
                 q = dispatch_queue_create(nil, q_attr)
             }
-            if !use_qos_dispatch_queues {
+            if !OSFeature.DispatchQueuesWithQos.is_supported {
                 dispatch_set_target_queue(q,self.queue)
             }
             return q

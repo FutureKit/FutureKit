@@ -806,15 +806,15 @@ public class ArrayAccessControl<T, S: SynchronizationProtocol> : CollectionAcces
 
 }
 
-public  class DictionaryWithLockAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,NSObjectLockSynchronization> {
+public class DictionaryWithFastLockAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,SynchronizationType.LightAndFastSyncType> {
     
-    typealias LockObjectType = SynchronizationObject<NSObjectLockSynchronization>
+    typealias LockObjectType = SynchronizationObject<SynchronizationType.LightAndFastSyncType>
     
     public  override init() {
-        super.init(LockObjectType(NSObjectLockSynchronization()))
+        super.init(LockObjectType(SynchronizationType.LightAndFastSyncType()))
     }
     public  init(d : Dictionary<Key,Value>) {
-        super.init(d,LockObjectType(NSObjectLockSynchronization()))
+        super.init(d,LockObjectType(SynchronizationType.LightAndFastSyncType()))
     }
     
 }

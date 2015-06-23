@@ -12,12 +12,12 @@ import Foundation
 
 import UIKit
 
-func SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(version: NSString) -> Bool {
+func IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(version: NSString) -> Bool {
     return UIDevice.currentDevice().systemVersion.compare(version as String,
         options: NSStringCompareOptions.NumericSearch) != NSComparisonResult.OrderedAscending
 }
         
-let is_ios_8_or_above = SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO("8.0")
+let is_ios_8_or_above = IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO("8.0")
     
 #else
         

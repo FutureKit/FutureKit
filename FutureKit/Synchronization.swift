@@ -63,15 +63,30 @@ public protocol SynchronizationProtocol {
 
 }
 
+public enum SynchronizationErrors : ErrorType {
+    case TimedOutWaitingForLock
+    case IllegalRecursionDetected
+}
+
 public enum SynchronizationType : String {
+    
+    
     case BarrierConcurrent = "BarrierConcurrent"
     case BarrierSerial = "BarrierSerial"
     case SerialQueue = "SerialQueue"
     case NSObjectLock = "NSObjectLock"
     case NSLock = "NSLock"
     case NSRecursiveLock = "NSRecursiveLock"
+    
+    case NSLockWithSafetyChecks = "NSLockWithSafetyChecks"
+    case NSRecursiveLockWithSafetyChecks = "NSRecursiveLockWithSafetyChecks"
+    
     case OSSpinLock = "OSSpinLock"
     case PThreadMutex = "PThreadMutex"
+    
+    public var maxLockWaitTimeAllowed : NSTimeInterval {
+        return 30.0
+    }
     
     public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock,PThreadMutex]
 
@@ -93,8 +108,11 @@ public enum SynchronizationType : String {
             return OSSpinLockSynchronization()
         case PThreadMutex:
             return PThreadMutexSynchronization()
-        case PThreadMutex:
-            return NSLockSynchronization()
+        case NSLockWithSafetyChecks:
+            return NSLockSynchronizationWithSafetyChecks()
+        case NSRecursiveLockWithSafetyChecks:
+            return NSRecursiveLockSynchronizationWithSafetyChecks()
+
         }
     }
     
@@ -329,6 +347,7 @@ func synchronizedWithLock<T>(l: NSLocking, @noescape closure:  ()->T) -> T {
     return retVal
 }
 
+
 public class NSLockSynchronization : SynchronizationProtocol {
     
     var lock = NSLock()
@@ -341,32 +360,140 @@ public class NSLockSynchronization : SynchronizationProtocol {
             return block()
         }
     }
-    
     public func read(block:() -> Void) {
-        synchronizedWithLock(lock,block)
+        synchronizedWithLock(lock,closure: block)
     }
-
+    
     public func readSync<T>(block:() -> T) -> T {
-        return synchronizedWithLock(lock,block)
+        return synchronizedWithLock(lock,closure: block)
     }
     
     public func readAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithLock(lock,block)
+        let ret = synchronizedWithLock(lock,closure: block)
         done(ret)
     }
     
     public func modify(block:() -> Void) {
-        synchronizedWithLock(lock,block)
+        synchronizedWithLock(lock,closure: block)
     }
     
     public func modifySync<T>(block:() -> T) -> T {
-        return synchronizedWithLock(lock,block)
+        return synchronizedWithLock(lock,closure: block)
     }
     
     public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithLock(lock,block)
+        let ret = synchronizedWithLock(lock,closure: block)
         done(ret)
     }
+}
+
+
+protocol NSLockingWithDate : NSLocking {
+    func lockBeforeDate(limit: NSDate) -> Bool
+}
+extension NSLock : NSLockingWithDate {}
+extension NSRecursiveLock : NSLockingWithDate {}
+
+
+func synchronizedWithLock<T>(l: NSLockingWithDate, timeout : NSTimeInterval, @noescape closure:  ()->T) -> T
+{
+    let lockUntil = NSDate(timeIntervalSinceNow: timeout)
+    if !l.lockBeforeDate(lockUntil) {
+        let error = SynchronizationErrors.TimedOutWaitingForLock
+        assertionFailure("\(l.self) failed with \(error)")
+        NSLog("LOCK FAILURE ON \(l.self) failed with \(error)")
+    }
+    let retVal: T = closure()
+    l.unlock()
+    return retVal
+}
+
+public class NSLockSynchronizationWithSafetyChecks : SynchronizationProtocol {
+
+    var timeout : NSTimeInterval = 0.0
+    var check_for_illegal_recurrsion = false
+    let maxWaitTime = SynchronizationType.NSLockWithSafetyChecks.maxLockWaitTimeAllowed
+    
+    var lock = NSLock()
+    
+    required public init() {
+    }
+    
+    final func synchronized<T>(block:() -> T) -> T {
+        return synchronizedWithLock(self.lock,timeout:maxWaitTime) { () -> T in
+            return block()
+        }
+    }
+    public func read(block:() -> Void) {
+        synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func readSync<T>(block:() -> T) -> T {
+        return synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithLock(lock,closure: block)
+        done(ret)
+    }
+    
+    public func modify(block:() -> Void) {
+        synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func modifySync<T>(block:() -> T) -> T {
+        return synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithLock(lock,closure: block)
+        done(ret)
+    }
+
+}
+
+public class NSRecursiveLockSynchronizationWithSafetyChecks : SynchronizationProtocol {
+    
+    var timeout : NSTimeInterval = 0.0
+    var check_for_illegal_recurrsion = false
+    let maxWaitTime = SynchronizationType.NSLockWithSafetyChecks.maxLockWaitTimeAllowed
+    
+    var lock = NSRecursiveLock()
+    
+    required public init() {
+    }
+    
+    final func synchronized<T>(block:() -> T) -> T {
+        return synchronizedWithLock(self.lock,timeout:maxWaitTime) { () -> T in
+            return block()
+        }
+    }
+    public func read(block:() -> Void) {
+        synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func readSync<T>(block:() -> T) -> T {
+        return synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func readAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithLock(lock,closure: block)
+        done(ret)
+    }
+    
+    public func modify(block:() -> Void) {
+        synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func modifySync<T>(block:() -> T) -> T {
+        return synchronizedWithLock(lock,closure: block)
+    }
+    
+    public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
+        let ret = synchronizedWithLock(lock,closure: block)
+        done(ret)
+    }
+    
 }
 
 func synchronizedWithSpinLock<T>(l: UnSafeMutableContainer<OSSpinLock>, @noescape closure:  ()->T) -> T {
@@ -390,28 +517,28 @@ public class OSSpinLockSynchronization : SynchronizationProtocol {
     }
     
     public func read(block:() -> Void) {
-        synchronizedWithSpinLock(lock,block)
+        synchronizedWithSpinLock(lock,closure: block)
     }
 
     public func readSync<T>(block:() -> T) -> T {
-        return synchronizedWithSpinLock(lock,block)
+        return synchronizedWithSpinLock(lock,closure: block)
     }
     
     public func readAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithSpinLock(lock,block)
+        let ret = synchronizedWithSpinLock(lock,closure: block)
         done(ret)
     }
     
     public func modify(block:() -> Void) {
-        synchronizedWithSpinLock(lock,block)
+        synchronizedWithSpinLock(lock,closure: block)
     }
     
     public func modifySync<T>(block:() -> T) -> T {
-        return synchronizedWithSpinLock(lock,block)
+        return synchronizedWithSpinLock(lock,closure: block)
     }
     
     public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithSpinLock(lock,block)
+        let ret = synchronizedWithSpinLock(lock,closure: block)
         done(ret)
     }
 }
@@ -446,28 +573,28 @@ public class PThreadMutexSynchronization : SynchronizationProtocol {
     }
     
     public func read(block:() -> Void) {
-        synchronizedWithMutexLock(mutex,block)
+        synchronizedWithMutexLock(mutex,closure: block)
     }
     
     public func readSync<T>(block:() -> T) -> T {
-        return synchronizedWithMutexLock(mutex,block)
+        return synchronizedWithMutexLock(mutex,closure: block)
     }
     
     public func readAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithMutexLock(mutex,block)
+        let ret = synchronizedWithMutexLock(mutex,closure: block)
         done(ret)
     }
     
     public func modify(block:() -> Void) {
-        synchronizedWithMutexLock(mutex,block)
+        synchronizedWithMutexLock(mutex,closure: block)
     }
     
     public func modifySync<T>(block:() -> T) -> T {
-        return synchronizedWithMutexLock(mutex,block)
+        return synchronizedWithMutexLock(mutex,closure: block)
     }
     
     public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithMutexLock(mutex,block)
+        let ret = synchronizedWithMutexLock(mutex,closure: block)
         done(ret)
     }
     
@@ -491,28 +618,28 @@ public class NSRecursiveLockSynchronization : SynchronizationProtocol {
     }
     
     public func read(block:() -> Void) {
-        synchronizedWithLock(lock,block)
+        synchronizedWithLock(lock,closure: block)
     }
 
     public func readSync<T>(block:() -> T) -> T {
-        return synchronizedWithLock(lock,block)
+        return synchronizedWithLock(lock,closure: block)
     }
     
     public func readAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithLock(lock,block)
+        let ret = synchronizedWithLock(lock,closure: block)
         done(ret)
     }
     
     public func modify(block:() -> Void) {
-        synchronizedWithLock(lock,block)
+        synchronizedWithLock(lock,closure: block)
     }
     
     public func modifySync<T>(block:() -> T) -> T {
-        return synchronizedWithLock(lock,block)
+        return synchronizedWithLock(lock,closure: block)
     }
     
     public func modifyAsync<T>(block:() -> T, done : (T) -> Void) {
-        let ret = synchronizedWithLock(lock,block)
+        let ret = synchronizedWithLock(lock,closure: block)
         done(ret)
     }
 }

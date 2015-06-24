@@ -244,7 +244,7 @@ public class FutureOperationQueue : NSOperationQueue {
     returns a new Future<T> that can be used to compose when this operation runs and completes
     
     */
-    func addFutureOperationBlock<T>(_ priority : FutureOperationQueuePriority = .Normal, block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
+    func addFutureOperationBlock<T>(priority : FutureOperationQueuePriority = .Normal, block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
         
         let operation = FutureOperation.OperationWithBlock(blockWithEarlyReleaseOption: block)
         operation.futureOperationQueuePriority = priority
@@ -255,7 +255,7 @@ public class FutureOperationQueue : NSOperationQueue {
         else {
             // GOTTA MUCK WITH Depedencies.  Sigh.  So let's lock access to make sure we don't miss an operation
             self.syncObject.modify { () -> Void in
-                for existingOps  in self.operations as! [NSOperation] {
+                for existingOps  in self.operations as [NSOperation] {
                     if (existingOps.futureOperationQueuePriority.rawValue < priority.rawValue) {
                         existingOps.addDependency(operation)
                     }
@@ -269,7 +269,7 @@ public class FutureOperationQueue : NSOperationQueue {
     }
     
     
-    func addFutureOperationBlock<T>(_ priority : FutureOperationQueuePriority = .Normal, block: () -> Future<T>) -> Future<T> {
+    func addFutureOperationBlock<T>(priority : FutureOperationQueuePriority = .Normal, block: () -> Future<T>) -> Future<T> {
         
         return self.addFutureOperationBlock(priority) { () -> (future: Future<T>, releaseOperationEarly: Bool) in
             return (block(),false)

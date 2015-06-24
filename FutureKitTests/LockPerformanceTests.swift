@@ -28,7 +28,8 @@ import FutureKit
 
 let iterationCount1 = (1024*1024*32)
 let iterationCount2 = (1024*1024)
-let _iterationCount = (1024*32)
+let iterationCount3 = (1024*32)
+let _iterationCount = (1024)
 var testCount = 0
 
 

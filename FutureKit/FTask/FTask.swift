@@ -43,7 +43,7 @@ public class FTaskCompletion : NSObject {
         self.completion = SUCCESS(success)
     }
     init(cancelled : ()) {
-        self.completion = .Cancelled
+        self.completion = .Cancelled(false)
     }
     init (fail : ErrorType) {
         self.completion = FAIL(fail)
@@ -119,7 +119,7 @@ public class FTaskPromise : NSObject {
     
 }
 
-extension FTaskPromise : Printable, DebugPrintable {
+extension FTaskPromise :  CustomDebugStringConvertible {
     
     public override var description: String {
         return "FTaskPromise!"

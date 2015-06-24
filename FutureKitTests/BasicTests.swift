@@ -31,14 +31,20 @@ func iMayFailRandomly() -> Future<String>  {
     let p = Promise<String>()
     
     // This is a random number from 0..2:
-    let randomNumber = arc4random_uniform(3)
-    switch randomNumber {
-    case 0:
-        p.completeWithFail(FutureNSError(error: .GenericException, userInfo: nil))
-    case 1:
-        p.completeWithCancel()
-    default:
+    let randomNumber = arc4random_uniform(20)
+    if (randomNumber == 0) {
+        NSLog("yay!!")
         p.completeWithSuccess("Yay")
+    }
+    else {
+        switch (randomNumber % 2){
+        case 0:
+            NSLog("FAIL!")
+            p.completeWithFail(FutureNSError(error: .GenericException, userInfo: nil))
+        default:
+            NSLog("CANCEL!")
+            p.completeWithCancel()
+        }
     }
     return p.future
 }
@@ -48,6 +54,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
     
     attemptNo++
     return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
+        NSLog("completion = \(completion)")
         switch completion {
         case let .Success(yay):
             // Success uses Any as a payload type, so we have to convert it here.

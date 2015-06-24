@@ -24,9 +24,6 @@
 
 import Foundation
 
-// kill this line in Swift 2.0!
-public typealias ErrorType = NSError
-
 public struct GLOBAL_PARMS {
     // WOULD LOVE TO TURN THESE INTO COMPILE TIME PROPERTIES
     // MAYBE VIA an Objective C Header file?
@@ -75,7 +72,7 @@ public class FutureNSError : NSError {
         super.init(domain: FErrors.errorDomain, code: FErrors.GenericException.rawValue, userInfo: userInfo)
     }
 
-    required public init(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
@@ -90,7 +87,7 @@ public class FutureNSError : NSError {
 
     public var genericError : String? {
         get {
-            return self.userInfo?["genericError"] as? String
+            return self.userInfo["genericError"] as? String
         }
     }
     
@@ -150,7 +147,7 @@ Defines a an enumeration that stores both the state and the data associated with
 
 - CompleteUsing(Future<T>):  This Future will be completed with the result of a "sub" Future. Only used by block handlers.
 */
-public enum Completion<T> : Printable, DebugPrintable {
+public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertible {
     /**
         An alias that defines the Type being used for .Success(SuccessType) enumeration.
         This is currently set to Any, but we may change to 'T' in a future version of swift
@@ -181,7 +178,7 @@ public enum Completion<T> : Printable, DebugPrintable {
     /**
         Future was Cancelled.
     */
-    case Cancelled
+    case Cancelled(Bool)
 
     /**
         This Future's completion will be set by some other Future<T>.  This will only be used as a return value from the onComplete/onSuccess/onFail/onCancel handlers.  the var "completion" on Future should never be set to 'CompleteUsing'.
@@ -279,6 +276,17 @@ public enum Completion<T> : Printable, DebugPrintable {
             default:
 //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
+            }
+        }
+    }
+    public var forced : Bool {
+        get {
+            switch self {
+            case let .Cancelled(forced):
+                return forced
+            default:
+                //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
+                return false
             }
         }
     }
@@ -382,13 +390,13 @@ public enum Completion<T> : Printable, DebugPrintable {
     public var description: String {
         switch self {
         case let .Success(t):
-            return ".Success(\(t.result))"
+            return ".Success<\(T.self)>(\(t.result))"
         case let .Fail(f):
-            return ".Fail(\(f))"
+            return ".Fail<\(T.self)>(\(f))"
         case let .Cancelled(reason):
-            return ".Cancelled(\(reason))"
+            return ".Cancelled<\(T.self)>(\(reason))"
         case let .CompleteUsing(f):
-            return ".CompleteUsing(\(f.description))"
+            return ".CompleteUsing<\(T.self)>(\(f.description))"
         }
     }
     public var debugDescription: String {
@@ -666,8 +674,8 @@ public func FAIL<T>(error : ErrorType) -> Completion<T> {
 public func FAIL<T>(message : String) -> Completion<T> {
     return Completion<T>(failWithErrorMessage: message)
 }
-public func CANCELLED<T>() -> Completion<T> {
-    return .Cancelled
+public func CANCELLED<T>(forced : Bool = false) -> Completion<T> {
+    return .Cancelled(forced)
 }
 public func COMPLETE_USING<T>(f : Future<T>) -> Completion<T> {
     return .CompleteUsing(f)
@@ -684,7 +692,6 @@ public func COMPLETE_USING<T>(f : Future<T>) -> Completion<T> {
 */
 public class Future<T> : FutureProtocol{
     
-    public typealias ErrorType = NSError
     internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
     internal typealias completion_block_type = ((Completion<T>) -> Void)
     internal typealias cancellation_handler_type = (()-> Void)
@@ -845,7 +852,7 @@ public class Future<T> : FutureProtocol{
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
     public init(cancelled:()) {  // returns an completed Task that has Failed with this error
-        self.__completion = .Cancelled
+        self.__completion = .Cancelled(false)
     }
 
     /**
@@ -936,7 +943,7 @@ public class Future<T> : FutureProtocol{
     */
     internal final func completeAndNotify(completion : Completion<T>) {
         
-        return self.completeWithBlocks({ () -> Completion<T> in
+        self.completeWithBlocks({ () -> Completion<T> in
             completion
             }, onCompletionError: nil)
     }
@@ -957,8 +964,8 @@ public class Future<T> : FutureProtocol{
     */
     internal final func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
         
-        return self.completeWithBlocks({ () -> Completion<T> in
-            completion
+        self.completeWithBlocks({ () -> Completion<T> in
+            return completion
         }, onCompletionError: onCompletionError)
     }
     
@@ -984,7 +991,7 @@ public class Future<T> : FutureProtocol{
             }
             if let token = f.getCancelToken() {
                 self.addRequestHandler { (forced) in
-                    token.cancel(forced:forced)
+                    token.cancel(forced)
                 }
             }
 
@@ -1019,6 +1026,7 @@ public class Future<T> : FutureProtocol{
                 return (nil,nil,nil)
             }
             let c = completionBlock()
+            NSLog("completionBlock = \(c)")
             if (c.isCompleteUsing) {
                 return (callbacks:nil,completion:c,continueUsing:c.completeUsingFuture)
             }
@@ -1041,7 +1049,7 @@ public class Future<T> : FutureProtocol{
                     }
                     if let token = f.getCancelToken() {
                         self.addRequestHandler { (forced) in
-                            token.cancel(forced:forced)
+                            token.cancel(forced)
                         }
                     }
                 }
@@ -1159,7 +1167,7 @@ public class Future<T> : FutureProtocol{
                 }
                 if let t = self.cancellationSource.getNewTokenNoSynchronization(self.synchObject) {
                     promise.onRequestCancel(.Immediate) { (force) -> CancelRequestResponse in
-                        t.cancel(forced: force)
+                        t.cancel(force)
                         return .DoNothing
                     }
                 }
@@ -1479,7 +1487,7 @@ public class Future<T> : FutureProtocol{
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled
+                return .Cancelled(completion.forced)
             }
         }
     }
@@ -1509,7 +1517,8 @@ public class Future<T> : FutureProtocol{
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled
+                return .Cancelled(completion.forced)
+
             }
         }
     }
@@ -1830,7 +1839,7 @@ extension Future {
             case .Fail:
                 return .CompleteUsing(autoclosingFuture())
             default:
-                return .Cancelled
+                return .Cancelled(completion.forced)
             }
         }
     }
@@ -1840,7 +1849,7 @@ extension Future {
             case .Cancelled:
                 return .CompleteUsing(autoclosingFuture())
             default:
-                return .Cancelled
+                return .Cancelled(completion.forced)
             }
         }
     }
@@ -1891,13 +1900,13 @@ extension Future {
 
 }
 
-extension Future : Printable, DebugPrintable {
+extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     
     public var description: String {
         return "Future"
     }
     public var debugDescription: String {
-        return "Future<\(toString(T.self))> - \(self.__completion)"
+        return "Future<\(T.self)> - \(self.__completion)"
     }
 
     public func debugQuickLookObject() -> AnyObject? {
@@ -2066,7 +2075,7 @@ class classWithMethodsThatReturnFutures {
             case 0:
                 return .Fail(FutureNSError(error: .GenericException, userInfo: nil))
             case 1:
-                return .Cancelled
+                return .Cancelled(false)
             default:
                 return SUCCESS(["Hi" : 5])
             }
@@ -2086,8 +2095,8 @@ class classWithMethodsThatReturnFutures {
                 return SUCCESS()
             case let .Fail(e):
                 return .Fail(e)
-            case  .Cancelled:
-                return .Cancelled
+            case let .Cancelled(forced):
+                return .Cancelled(forced)
             default:
                 assertionFailure("This shouldn't happen!")
                 return Completion<Void>(failWithErrorMessage: "something bad happened")
@@ -2101,7 +2110,7 @@ class classWithMethodsThatReturnFutures {
             case .Fail:
                 return .Fail(completion.error)
             case .Cancelled:
-                return .Cancelled
+                return .Cancelled(completion.forced)
             }
         }
         

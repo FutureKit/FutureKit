@@ -26,6 +26,7 @@ import Foundation
 import CoreData
 
 
+@available(iOS 8.0, *)
 public extension NSQualityOfService {
     
     public var qos_class : qos_class_t {
@@ -64,6 +65,7 @@ public enum QosCompatible : Int {
     case Default
     
     
+   @available(iOS 8.0, *)
    var qos_class : qos_class_t {
         switch self {
         case .UserInteractive:
@@ -82,7 +84,7 @@ public enum QosCompatible : Int {
     
     var queue : dispatch_queue_t {
         
-        if OSFeature.DispatchQueuesWithQos.is_supported {
+        if #available(iOS 8.0, *) {
             switch self {
             case .UserInteractive:
                 return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
@@ -117,7 +119,7 @@ public enum QosCompatible : Int {
         var q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             
-            if OSFeature.DispatchQueuesWithQos.is_supported {
+            if #available(iOS 8.0, *) {
                 let qos_class = self.qos_class
                 q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             }
@@ -128,7 +130,9 @@ public enum QosCompatible : Int {
             else {
                 q = dispatch_queue_create(nil, q_attr)
             }
-            if !OSFeature.DispatchQueuesWithQos.is_supported {
+            if #available(iOS 8.0, *) {
+            }
+            else {
                 dispatch_set_target_queue(q,self.queue)
             }
             return q
@@ -137,7 +141,7 @@ public enum QosCompatible : Int {
     
 }
 
-private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block<T>(q: dispatch_queue_t, _ block: (T) -> Void) -> ((T) -> Void) {
     
     let newblock = { (t:T) -> Void in
         dispatch_async(q) {
@@ -147,7 +151,7 @@ private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> 
     return newblock
 }
 
-private func make_dispatch_block<T>(q: NSOperationQueue, block: (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block<T>(q: NSOperationQueue, _ block: (T) -> Void) -> ((T) -> Void) {
     
     let newblock = { (t:T) -> Void in
         q.addOperationWithBlock({ () -> Void in
@@ -176,7 +180,7 @@ public enum SerialOrConcurrent: Int {
 
 extension qos_class_t {
     var rawValue : UInt32 {
-        return self.value
+        return self.rawValue
     }
 }
 public enum Executor {
@@ -229,7 +233,7 @@ public enum Executor {
     // just call "callBack(data)" in your execution context of choice.
     public typealias CustomCallBackBlockOld = ((data:Any,callBack:customFutureHandlerBlock) -> Void)
 
-    public typealias CustomCallBackBlock = ((callback:customFutureHandlerBlock) -> Void)
+    public typealias CustomCallBackBlock = ((block:customFutureHandlerBlock) -> Void)
 
     // TODO - should these be configurable? Eventually I guess.
     public static var PrimaryExecutor = Executor.Current {
@@ -293,6 +297,7 @@ public enum Executor {
         }
     }
     
+    @available(iOS 8.0, *)
     init(qos_class: qos_class_t) {
         switch qos_class.rawValue {
         case QOS_CLASS_USER_INTERACTIVE.rawValue:
@@ -363,50 +368,63 @@ public enum Executor {
         executionBlock()
     }
 
-    public func executeWithFuture<__Type>(block: () -> __Type) -> Future<__Type> {
+    public func executeWithFuture<__Type>(block: () throws -> __Type) -> Future<__Type> {
         let p = Promise<__Type>()
         self.execute { () -> Void in
-            p.completeWithSuccess(block())
-        }
-        return p.future
-    }
-    
-    public func executeWithFuture<__Type>(block: () -> Future<__Type>) -> Future<__Type> {
-        let p = Promise<__Type>()
-        self.execute { () -> Void in
-            block().onComplete { (completion) -> Void in
-                p.complete(completion)
+            do {
+                let s = try block()
+                p.completeWithSuccess(s)
+            }
+            catch {
+                p.completeWithFail(error)
             }
         }
         return p.future
     }
     
-    public func executeWithFuture<__Type>(block: () -> Completion<__Type>) -> Future<__Type> {
+    public func executeWithFuture<__Type>(block: () throws -> Future<__Type>) -> Future<__Type> {
         let p = Promise<__Type>()
         self.execute { () -> Void in
-            p.complete(block())
+            do {
+                try block().onComplete { (completion) -> Void in
+                    p.complete(completion)
+                }
+            }
+            catch {
+                p.completeWithFail(error)
+            }
+        }
+        return p.future
+    }
+    
+    public func executeWithFuture<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            do {
+                let c = try block()
+                p.complete(c)
+            }
+            catch {
+                p.completeWithFail(error)
+            }
         }
         return p.future
     }
 
     
-    public func executeAfterDelay<__Type>(nanosecs n: Int64, block: () -> __Type) -> Future<__Type> {
-        let p = Promise<__Type>()
-        let executionBlock = self.callbackBlockFor { () -> Void in
-            p.completeWithSuccess(block())
-        }
+    private func _executeAfterDelay(nanosecs n: Int64, block: () -> Void)  {
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
-            executionBlock()
-        });
-        return p.future
+            block()
+        })
     }
+
     
-    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () -> __Type) -> Future<__Type>  {
+    public func executeAfterDelay(secs : NSTimeInterval,  block: () -> Void)  {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        return self.executeAfterDelay(nanosecs:nanosecs,block: block)
+        return self._executeAfterDelay(nanosecs:nanosecs,block: block)
     }
 
     // This returns the underlyingQueue (if there is one).
@@ -435,7 +453,7 @@ public enum Executor {
             case let .Queue(q):
                 return q
             case let .OperationQueue(opQueue):
-                if opQueue.respondsToSelector("underlyingQueue") {
+                if #available(iOS 8.0, *) {
                     return opQueue.underlyingQueue
                 } else {
                     return nil
@@ -757,7 +775,7 @@ public enum Executor {
         case let .Custom(customCallBack):
             
             let b = { (t:T) -> Void in
-                customCallBack(callback: { () -> Void in
+                customCallBack(block: { () -> Void in
                     block(t)
                 })
             }
@@ -791,10 +809,12 @@ let example_Of_A_Custom_Executor_That_has_unneeded_dispatches = Executor.Custom 
 
 let example_Of_A_Custom_Executor_Where_everthing_takes_5_seconds = Executor.Custom { (callback) -> Void in
     
-    Executor.Primary.executeAfterDelay(5) {
+    Executor.Primary.executeAfterDelay(5.0) { () -> Void in
         callback()
     }
+    
 }
+
 
 
 

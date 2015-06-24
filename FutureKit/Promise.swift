@@ -119,7 +119,7 @@ public class Promise<T>  {
         self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
     }
     public final func completeWithFail(error : ErrorType) {
-        self.future.completeWith(Completion<T>(failWithErrorMessage: "\(error)"))
+        self.future.completeWith(.Fail(error))
     }
 
     public final func completeWithException(e : NSException) {

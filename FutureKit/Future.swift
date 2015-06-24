@@ -111,65 +111,29 @@ public enum CompletionState : Int {
 }
 
 
-/**
-    Result<T> is a swift-generic "hack" to get around the "error: unimplemented IR generation feature non-fixed multi-payload enum layout" limitation
-        that still exists (as of Swift 1.2).  Re:(http://stackoverflow.com/questions/27257522/whats-the-exact-limitation-on-generic-associated-values-in-swift-enums)
-
-    This makes instanciating the `Completion<T>.Success()` a pain.  Cause now you have to do this:
-
-        Completion<T>.Success(Result(t))
-
-    or
-
-        Completion<T>(success:t)
-
-    The easiest thing is to use the Global generic function `SUCCESS<T>(t)`
-
-        SUCCESS(t)
-
-    They are all equivilant to the right value.
-    We expect to be able to kill Request<T> in a future version of swift.  So the best case is to use just `SUCCESS<T>` (which will always work)
-
-*/
-final public class Result<T> {
-    public let result: T
-    public init(_ r: T) { self.result = r }
+final public class Box<T> {
+    public let value: T
+    public init(_ v: T) { self.value = v }
 }
 
 /**
 Defines a an enumeration that stores both the state and the data associated with a Future completion.
 
-- Success(Any): The Future completed Succesfully with a Result
+- Success(T): The Future completed Succesfully with a Result
 
 - Fail(ErrorType): The Future has failed with an ErrorType.
 
 - Cancelled(Any?):  The Future was cancelled. The cancellation can optionally include a token.
 
-- CompleteUsing(Future<T>):  This Future will be completed with the result of a "sub" Future. Only used by block handlers.
+- CompleteUsing(FutureProtocol):  This Future will be completed with the result of a "sub" Future. Only used by block handlers.
 */
 public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertible {
-    /**
-        An alias that defines the Type being used for .Success(SuccessType) enumeration.
-        This is currently set to Any, but we may change to 'T' in a future version of swift
-    */
-    // public typealias SuccessType = Any         // Works.  Makes me sad.
-    // typealias SuccessPayloadType = T             // PERFECT! - But it CRASHES
-    // typealias SuccessPayloadType = T!            // OK.  But it STILL Crashes
-    public typealias SuccessType = Result<T>        // Works.  And seems to be the most typesafe, and let's use get away with 
-                                                    // Optional Futures better (like `Future<AnyObject?>` ) 
-    
-
-
 
     /**
-        Future completed with a result of SuccessType
+        Future completed with a result of T
     */
-    case Success(SuccessType)       //  why is this Success(Result<T>) and not Success(T)
-                                    //  or Success(T!)??
-                                    //  Because of the evil IR Generation Swift crashiness.
-                                    //  In a future version I expect to be able to change this to T or T!
-                                    //  so we are using the SuccessType alias
-                                            //  We are adding a assertion check inside of
+    case Success(T)
+
     /**
         Future failed with error ErrorType
     */
@@ -182,8 +146,10 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
 
     /**
         This Future's completion will be set by some other Future<T>.  This will only be used as a return value from the onComplete/onSuccess/onFail/onCancel handlers.  the var "completion" on Future should never be set to 'CompleteUsing'.
+    
+        FutureProtocol needs to be a Future<S> where S : T
     */
-    case CompleteUsing(Future<T>)
+    case CompleteUsing(FutureProtocol)
     
     
     
@@ -202,7 +168,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     }
     
     public init(success s:T) {
-        self = .Success(SuccessType(s))
+        self = .Success(s)
     }
     
     public var isSuccess : Bool {
@@ -272,7 +238,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         get {
             switch self {
             case let .Success(t):
-                return t.result
+                return t
             default:
 //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
                 return nil
@@ -310,7 +276,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         get {
             switch self {
             case let .CompleteUsing(f):
-                return f
+                return f.As()
             default:
                 return nil
             }
@@ -345,7 +311,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public func As<S>() -> Completion<S> {
         switch self {
         case let .Success(t):
-            let r = t.result as! S
+            let r = t as! S
             return SUCCESS(r)
         case let .Fail(f):
             return FAIL(f)
@@ -375,7 +341,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public func convertOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
-            let r = t.result as? S
+            let r = t as? S
             return SUCCESS(r)
         case let .Fail(f):
             return FAIL(f)
@@ -390,7 +356,7 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
     public var description: String {
         switch self {
         case let .Success(t):
-            return ".Success<\(T.self)>(\(t.result))"
+            return ".Success<\(T.self)>(\(t))"
         case let .Fail(f):
             return ".Fail<\(T.self)>(\(f))"
         case let .Cancelled(reason):
@@ -661,12 +627,14 @@ public protocol FutureProtocol {
 //    var cancellationIsSupported : Bool { get }
 //    func cancel()
     
+    var description: String { get }
+    
 }
 
 
 
 public func SUCCESS<T>(result : T) -> Completion<T> {
-    return .Success(Result(result))
+    return .Success(result)
 }
 public func FAIL<T>(error : ErrorType) -> Completion<T> {
     return .Fail(error)
@@ -1020,7 +988,7 @@ public class Future<T> : FutureProtocol{
     
     internal final func completeWithBlocks(completionBlock : () -> Completion<T>, onCompletionError : completionErrorHandler?) {
         
-        self.synchObject.modifyAsync({ () -> (callbacks:[completion_block_type]?,completion:Completion<T>?,continueUsing:Future?) in
+        self.synchObject.modifyAsync({ () -> (callbacks:[completion_block_type]?,completion:Completion<T>?,completeWith:Future?) in
             if let _ = self.__completion {
                 // future was already complete!
                 return (nil,nil,nil)
@@ -1028,7 +996,7 @@ public class Future<T> : FutureProtocol{
             let c = completionBlock()
             NSLog("completionBlock = \(c)")
             if (c.isCompleteUsing) {
-                return (callbacks:nil,completion:c,continueUsing:c.completeUsingFuture)
+                return (callbacks:nil,completion:c,completeWith:c.completeUsingFuture)
             }
             else {
                 self.__completion = c
@@ -1043,7 +1011,7 @@ public class Future<T> : FutureProtocol{
                         callback(tuple.completion!)
                     }
                 }
-                if let f = tuple.continueUsing {
+                if let f = tuple.completeWith {
                     f.onComplete(.Immediate)  { (nextComp) -> Void in
                         self.completeWith(nextComp)
                     }
@@ -1903,12 +1871,16 @@ extension Future {
 extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     
     public var description: String {
-        return "Future"
+        if let c = self.completion?.description {
+            return "Future<\(T.self)> - \(c)"
+        }
+        else {
+            return "Future<\(T.self)> - not completed"
+        }
     }
     public var debugDescription: String {
-        return "Future<\(T.self)> - \(self.__completion)"
+        return self.description
     }
-
     public func debugQuickLookObject() -> AnyObject? {
         return self.debugDescription
     }

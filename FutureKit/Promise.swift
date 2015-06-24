@@ -110,7 +110,7 @@ public class Promise<T>  {
 //        self.future.completeWith(.Success(Result(Void)))
 //    }
     public final func completeWithSuccess(result : T) {
-        self.future.completeWith(.Success(Result(result)))
+        self.future.completeWith(.Success(result))
     }
 //    public final func completeWithFail(e : NSError) {
 //        self.future.completeWith(.Fail(e))

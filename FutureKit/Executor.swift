@@ -485,8 +485,8 @@ public enum Executor {
     
     public static func getCurrentExecutor() -> Executor? {
         let threadDict = NSThread.currentThread().threadDictionary
-        let r = threadDict[GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY] as? Result<Executor>
-        return r?.result
+        let r = threadDict[GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY] as? Box<Executor>
+        return r?.value
     }
     
     public static func getCurrentQueue() -> dispatch_queue_t? {
@@ -635,14 +635,14 @@ public enum Executor {
     private static func setCurrentExecutor(e:Executor?) -> Executor? {
         let threadDict = NSThread.currentThread().threadDictionary
         let key = GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY
-        let current = threadDict[key] as? Result<Executor>
+        let current = threadDict[key] as? Box<Executor>
         if let ex = e {
-            threadDict.setObject(Result<Executor>(ex), forKey: key)
+            threadDict.setObject(Box<Executor>(ex), forKey: key)
         }
         else {
             threadDict.removeObjectForKey(key)
         }
-        return current?.result
+        return current?.value
     }
 
     public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {

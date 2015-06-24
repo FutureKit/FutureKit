@@ -390,23 +390,19 @@ public enum Executor {
     }
 
     
-    public func executeAfterDelay<__Type>(nanosecs n: Int64, block: () -> __Type) -> Future<__Type> {
-        let p = Promise<__Type>()
-        let executionBlock = self.callbackBlockFor { () -> Void in
-            p.completeWithSuccess(block())
-        }
+    private func _executeAfterDelay(nanosecs n: Int64, block: () -> Void)  {
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
-            executionBlock()
-        });
-        return p.future
+            block()
+        })
     }
+
     
-    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () -> __Type) -> Future<__Type>  {
+    public func executeAfterDelay(secs : NSTimeInterval,  block: () -> Void)  {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        return self.executeAfterDelay(nanosecs:nanosecs,block: block)
+        return self._executeAfterDelay(nanosecs:nanosecs,block: block)
     }
 
     // This returns the underlyingQueue (if there is one).
@@ -791,9 +787,10 @@ let example_Of_A_Custom_Executor_That_has_unneeded_dispatches = Executor.Custom 
 
 let example_Of_A_Custom_Executor_Where_everthing_takes_5_seconds = Executor.Custom { (callback) -> Void in
     
-    Executor.Primary.executeAfterDelay(5) {
+    Executor.Primary.executeAfterDelay(5.0) { () -> Void in
         callback()
     }
+    
 }
 
 

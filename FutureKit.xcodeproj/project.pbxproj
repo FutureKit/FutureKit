@@ -155,10 +155,6 @@
 		0DDE32741B38BD28007C39D9 /* FutureKit iOS Testing AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit iOS Testing AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DDE32791B38BD28007C39D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureKit_iOS_Testing_AppTests.swift; sourceTree = "<group>"; };
-		0DDE328E1B38BE11007C39D9 /* DTPerformanceSession.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTPerformanceSession.framework; path = Library/Frameworks/DTPerformanceSession.framework; sourceTree = DEVELOPER_DIR; };
-		0DDE328F1B38BE11007C39D9 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		0DDE32941B38BE4E007C39D9 /* InterfaceBuilderKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InterfaceBuilderKit.framework; path = Library/Frameworks/InterfaceBuilderKit.framework; sourceTree = DEVELOPER_DIR; };
-		0DDE32971B38BEDB007C39D9 /* IDEBundleInjection.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDEBundleInjection.framework; path = Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks/IDEBundleInjection.framework; sourceTree = DEVELOPER_DIR; };
 		0DE35D981B389E480098930D /* BlockBasedTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockBasedTestCase.swift; sourceTree = "<group>"; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; };
 		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -262,10 +258,6 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
-				0DDE32971B38BEDB007C39D9 /* IDEBundleInjection.framework */,
-				0DDE32941B38BE4E007C39D9 /* InterfaceBuilderKit.framework */,
-				0DDE328E1B38BE11007C39D9 /* DTPerformanceSession.framework */,
-				0DDE328F1B38BE11007C39D9 /* SenTestingKit.framework */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,
 				0DB9799D1AE2A21100158386 /* FutureKitTests */,
@@ -989,7 +981,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
-				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = NO;
 			};
 			name = Debug;
 		};
@@ -1009,8 +1001,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_WHOLE_MODULE_OPTIMIZATION = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Ounchecked";
+				SWIFT_WHOLE_MODULE_OPTIMIZATION = NO;
 			};
 			name = Release;
 		};

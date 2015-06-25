@@ -16,9 +16,24 @@ struct TestCaseVariables<T> {
     var error:ErrorType?
     var promiseExecutor : Executor?
     var futureExecutor : Executor?
+    
+    var onRequestHandler : CancelRequestHandler?
+}
+
+func ex() {
+    
+    let t = TestCaseVariables<Int>()
+    var s = t
+    
+    s.promise = Promise<Int>()
+    
+    assert(t.promise == nil, "see!")
+    
 }
 
 enum PromiseFunctions {
+    
+    case initDefault
     case onRequestCancelExecutor
     case onRequestCancel
     case automaticallyCancelOnRequestCancel
@@ -43,10 +58,19 @@ enum PromiseFunctions {
     case completeWithOnCompletionError
     
     
-    func executeWith<T>(test : TestCaseVariables<T>)
+    func executeWith<T>(inout test : TestCaseVariables<T>)
     
     {
         switch self {
+            
+        case initDefault:
+            test.promise = Promise<T>()
+            
+        case completeWithSuccess:
+            test.promise.complete
+
+        case completeWithSuccess:
+            test.promise!.completeWithSuccess(test.success!)
 
         case completeWithSuccess:
             test.promise!.completeWithSuccess(test.success!)

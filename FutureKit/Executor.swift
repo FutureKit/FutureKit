@@ -261,9 +261,9 @@ public enum Executor {
         case let .OperationQueue(oq):
             let name = oq.name ?? "??"
             return "OperationQueue(\(name))"
-        case let .ManagedObjectContext(context):
+        case .ManagedObjectContext:
             return "ManagedObjectContext"
-        case let .Custom(c):
+        case .Custom:
             return "Custom"
         }
     }

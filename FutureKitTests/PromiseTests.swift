@@ -14,8 +14,8 @@ import XCTest
 class FKTestCase : BlockBasedTestCase {
  
     var current_expecatation_count = 0
-    
-    override func expectationWithDescription(description: String!) -> XCTestExpectation! {
+
+    override func expectationWithDescription(description: String) -> XCTestExpectation {
         current_expecatation_count++
         return super.expectationWithDescription(description)
     }
@@ -29,10 +29,10 @@ class FKTestCase : BlockBasedTestCase {
 }
 
 
-private enum PromiseState :  Printable, DebugPrintable {
+private enum PromiseState :  CustomStringConvertible, CustomDebugStringConvertible {
     case NotCompleted
     case Success(Any)
-    case Fail(ErrorType)
+    case Fail(FutureKitError)
     case Cancelled
     
     var description : String {
@@ -41,7 +41,7 @@ private enum PromiseState :  Printable, DebugPrintable {
             return "NotCompleted"
         case let .Success(r):
             return "Success\(r)"
-        case let .Fail(_):
+        case .Fail:
             return "Fail"
         case .Cancelled:
             return "Cancelled"
@@ -52,10 +52,10 @@ private enum PromiseState :  Printable, DebugPrintable {
     }
     
     init(errorMessage:String) {
-        self = .Fail(FutureNSError(genericError: errorMessage))
+        self = .Fail(FutureKitError.GenericError(errorMessage))
     }
     init(exception:NSException) {
-        self = .Fail(FutureNSError(exception:exception))
+        self = .Fail(FutureKitError.ExceptionCaught(exception,nil))
     }
     
     
@@ -100,7 +100,7 @@ private enum PromiseState :  Printable, DebugPrintable {
                 
                 switch completion {
                 case let .Success(r):
-                    XCTAssert(r.result == expectedResult, "unexpected result!")
+                    XCTAssert(r == expectedResult, "unexpected result!")
                 default:
                     XCTFail("completion in wrong state \(completion)")
                 }
@@ -123,20 +123,23 @@ private enum PromiseState :  Printable, DebugPrintable {
             let onFailExpectation = testCase.expectationWithDescription("OnFail")
             
             future.onFail (futureExecuctor) { (error) -> Void in
-                XCTAssert(expectedError == error, "unexpected error!")
+                let nserror = error as! FutureKitError
+                XCTAssert(nserror == expectedError, "unexpected error! [\(nserror)]\n expected [\(expectedError)]")
                 onFailExpectation.fulfill()
             }
             future.onComplete (futureExecuctor) { (completion) -> Void in
                 
                 switch completion {
                 case let .Fail(error):
-                    XCTAssert(error == expectedError, "unexpected result!")
+                    let nserror = error as! FutureKitError
+                    XCTAssert(nserror == expectedError, "unexpected error! [\(nserror)]\n expected [\(expectedError)]")
                 default:
                     XCTFail("completion in wrong state \(completion)")
                 }
                 XCTAssert(completion.state == .Fail, "unexpected state!")
                 XCTAssert(completion.result == nil, "unexpected result!")
-                XCTAssert(completion.error == expectedError, "unexpected error!")
+                let cnserror = completion.error as! FutureKitError
+                XCTAssert(cnserror == expectedError, "unexpected error! \(cnserror) expected \(expectedError)")
                 XCTAssert(completion.isSuccess == false, "unexpected state!")
                 XCTAssert(completion.isFail == true, "unexpected state!")
                 XCTAssert(completion.isCancelled == false, "unexpected state!")
@@ -172,7 +175,6 @@ private enum PromiseState :  Printable, DebugPrintable {
     }
     
     func validate<T : Equatable>(promise : Promise<T>,testCase : FKTestCase,testVars: PromiseTestCase<T>, name : String) { // validate promise in this state
-        let future = promise.future
         
         switch self {
         case NotCompleted:
@@ -259,9 +261,6 @@ private struct PromiseFunctionTest<T : Equatable> {
         
         testCase.waitForExpectationsWithTimeout(maxWaitForExpecations, handler: nil)
         
-        _testsNumber++
-        
-        
     }
 
 }
@@ -288,8 +287,8 @@ extension PromiseFunctionTest {
     static func createAllTheTests(result:T, result2:T, promiseExecutor:Executor,futureExecutor:Executor) -> [PromiseFunctionTest] {
         
         var tests = [PromiseFunctionTest]()
-        let error = NSError(domain: "PromiseFunctionTest", code: -1, userInfo: nil)
-        let error2 = NSError(domain: "PromiseFunctionTest 2", code: -2, userInfo: nil)
+        let error : FutureKitError = .GenericError("PromiseFunctionTest")
+        let error2 : FutureKitError = .GenericError("PromiseFunctionTest2")
         let errorMessage = "PromiseFunctionTest Error Message!"
         let errorMessage2 = "PromiseFunctionTest Error Message 2!"
         
@@ -307,19 +306,10 @@ extension PromiseFunctionTest {
         let failException = PromiseState(exception:exception)
 
         
-        let futureDelay: NSTimeInterval = 2.0
         let blockThatMakesDelayedFuture = { (delay : NSTimeInterval, completion:Completion<T>) -> Future<T> in
             let p = Promise<T>()
             promiseExecutor.executeAfterDelay(delay) {
                 p.complete(completion)
-            }
-            return p.future
-        }
-        let blockThatMakesDelayedDelayedFuture = { (delay : NSTimeInterval, future:Future<T>) -> Future<T> in
-            let p = Promise<T>()
-            
-            promiseExecutor.executeAfterDelay(delay) {
-                p.completeUsingFuture(future)
             }
             return p.future
         }
@@ -436,14 +426,6 @@ extension PromiseFunctionTest {
         tests.append(PromiseFunctionTest(.NotCompleted,     .completeWithBlock(extraDelayedFailBlock), .Fail(error)))
 
         tests.append(PromiseFunctionTest(.NotCompleted,     .completeWithBlock(extraDelayedFailBlock), .Fail(error)))
-        
-
-        let testSetupNoExpecataion = { (testCase:FKTestCase) -> XCTestExpectation? in
-            return nil
-        }
-        let testSetupWithExpecataion = { (testCase:FKTestCase) -> XCTestExpectation? in
-            return testCase.expectationWithDescription("expect already block to run")
-        }
         
         tests.append(PromiseFunctionTest(.NotCompleted, .completeWithBlocksOnAlreadyCompleted(successBlock,true), .Success(result)))
 
@@ -643,7 +625,7 @@ private enum PromiseFunctions {
         case let .automaticallyCancelAfter(delay):
             return "automaticallyCancelAfter\(delay)"
             
-        case let .automaticallyFailAfter(delay,error):
+        case let .automaticallyFailAfter(delay,_):
             return "automaticallyFailAfter\(delay)"
             
             /*        case let .onRequestCancelExecutor(handler):
@@ -659,12 +641,12 @@ private enum PromiseFunctions {
         case let .complete(completion):
             switch completion {
             case let .Success(r):
-                return "complete_Success_\(r.result)"
+                return "complete_Success_\(r)"
             case let .Fail(e):
-                return "complete_Fail_\(e.code)"
+                return "complete_Fail_\(e)"
             case .Cancelled:
                 return "complete_Cancelled"
-            case let .CompleteUsing(f):
+            case  .CompleteUsing(_):
                 return "complete_CompleteUsing"
             }
             
@@ -672,39 +654,39 @@ private enum PromiseFunctions {
         case let .completeWithSuccess(r):
             return "completeWithSuccess\(r)"
             
-        case let .completeWithFail(error):
+        case .completeWithFail(_):
             return "completeWithFail"
             
-        case let .completeWithFailErrorMessage(message):
+        case .completeWithFailErrorMessage(_):
             return "completeWithFailErrorMessage"
             
-        case let .completeWithException(exception):
+        case .completeWithException(_):
             return "completeWithException"
             
         case .completeWithCancel:
             return "completeWithCancel"
             
-        case let .completeUsingFuture(future):
+        case .completeUsingFuture(_):
             return "completeUsingFuture)"
             
-        case let .completeWithBlock(block):
+        case .completeWithBlock(_):
             return "completeWithBlock"
             
             
-        case let .completeWithBlocksOnAlreadyCompleted(_,_):
+        case .completeWithBlocksOnAlreadyCompleted(_,_):
             return "completeWithBlocksOnAlreadyCompleted"
             
-        case let .failIfNotCompleted(error):
+        case .failIfNotCompleted(_):
             return "failIfNotCompleted"
             
-        case let .failIfNotCompletedErrorMessage(message):
+        case .failIfNotCompletedErrorMessage(_):
             return "failIfNotCompletedErrorMessage"
             
             
         case let .tryComplete(completion,_):
             return "tryComplete\(completion.state)"
             
-        case let .completeWithOnCompletionError(_,_):
+        case .completeWithOnCompletionError(_,_):
             return "completeWithOnCompletionError"
             
         }
@@ -735,7 +717,7 @@ class PromiseTests: FKTestCase {
         
         let old_executors : [Executor] = [.Primary, .Main, .Async, .Current, .Immediate, .StackCheckingImmediate, .MainAsync, .MainImmediate, .UserInteractive, .UserInitiated, .Default,  .Utility, .Background, .OperationQueue(opQueue), .Custom(custom), .Queue(q)]
 
-        let executors : [Executor] = [
+        let full_executors_list : [Executor] = [
             .Main,
             .Current,
             .MainAsync,
@@ -747,7 +729,12 @@ class PromiseTests: FKTestCase {
             .OperationQueue(opQueue),
             .Custom(custom),
             .Queue(q)]
-        
+
+        let quick_executors_list : [Executor] = [
+            .MainAsync,
+            .Async,
+            .Immediate]
+
         let future_executors : [Executor] = [.MainAsync, .MainImmediate]
 
         
@@ -755,13 +742,13 @@ class PromiseTests: FKTestCase {
         
         let setOfCharsWeGottaGetRidOf = NSCharacterSet(charactersInString: ".(),\n\t {}[];:=-")
         
-        for promiseE in executors {
-            for futureE in executors {
+        for promiseE in quick_executors_list {
+            for futureE in quick_executors_list {
                 
                 let tests = PromiseFunctionTest<T>.createAllTheTests(result,result2: result2,promiseExecutor: promiseE,futureExecutor: futureE)
                 
                 
-                for (index,t) in enumerate(tests) {
+                for (index,t) in tests.enumerate() {
                     
                     let tvars = PromiseTestCase<T>(functionTest:t,
                         promiseExecutor:promiseE,
@@ -832,14 +819,14 @@ class PromiseTests: FKTestCase {
         let success: () = ()
         
         let completeExpectation = self.expectationWithDescription("Future.onComplete")
-        let successExpectation = self.expectationWithDescription("Future.onSuccess")
+//        let successExpectation = self.expectationWithDescription("Future.onSuccess")
         let anySuccessExpectation = self.expectationWithDescription("Future.onAnySuccess")
         
         
         f.onComplete(futureExecutor) { (completion) -> Void in
             
             switch completion {
-            case let .Success(t):
+            case .Success(_):
                 break
             default:
                 XCTFail("unexpectad completion value \(completion)")
@@ -888,7 +875,7 @@ class PromiseTests: FKTestCase {
             
             switch completion {
             case let .Success(t):
-                XCTAssert(t.result == success, "Didn't get expected success value \(success)")
+                XCTAssert(t == success, "Didn't get expected success value \(success)")
                 XCTAssert(completion.result == success, "Didn't get expected success value \(success)")
             default:
                 XCTFail("unexpectad completion value \(completion)")

@@ -87,7 +87,7 @@ public protocol SynchronizationProtocol {
 
 }
 
-public enum SynchronizationType : Printable, DebugPrintable {
+public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConvertible {
     case BarrierConcurrent
     case BarrierSerial
     case SerialQueue
@@ -96,8 +96,8 @@ public enum SynchronizationType : Printable, DebugPrintable {
     case NSRecursiveLock
     case OSSpinLock
     case PThreadMutex
-	case NSLockWithSafetyChecks
-	case NSRecursiveLockWithSafetyChecks
+//	case NSLockWithSafetyChecks
+//	case NSRecursiveLockWithSafetyChecks
     case Unsafe
     
     public var maxLockWaitTimeAllowed : NSTimeInterval {
@@ -124,10 +124,10 @@ public enum SynchronizationType : Printable, DebugPrintable {
             return OSSpinLockSynchronization()
         case PThreadMutex:
             return PThreadMutexSynchronization()
-        case NSLockWithSafetyChecks:
+/*        case NSLockWithSafetyChecks:
             return NSLockSynchronizationWithSafetyChecks()
         case NSRecursiveLockWithSafetyChecks:
-            return NSRecursiveLockSynchronizationWithSafetyChecks()
+            return NSRecursiveLockSynchronizationWithSafetyChecks() */
         case Unsafe:
             return UnsafeSynchronization()
         }
@@ -258,7 +258,7 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
         return retVal!
     }
     
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -267,7 +267,7 @@ public class QueueBarrierSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -365,7 +365,7 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -374,7 +374,7 @@ public class QueueSerialSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -462,7 +462,7 @@ public class NSObjectLockSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -471,7 +471,7 @@ public class NSObjectLockSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -561,7 +561,7 @@ public class NSLockSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -570,7 +570,7 @@ public class NSLockSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -660,7 +660,7 @@ public class OSSpinLockSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -669,7 +669,7 @@ public class OSSpinLockSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -773,7 +773,7 @@ public class PThreadMutexSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -782,7 +782,7 @@ public class PThreadMutexSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -865,7 +865,7 @@ public class NSRecursiveLockSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -874,7 +874,7 @@ public class NSRecursiveLockSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
@@ -954,7 +954,7 @@ public class UnsafeSynchronization : SynchronizationProtocol {
         }
         return retVal!
     }
-    public final func readFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -963,7 +963,7 @@ public class UnsafeSynchronization : SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .Primary, block:() -> T) -> Future<T> {
+    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in

@@ -40,7 +40,7 @@ func iMayFailRandomly() -> Future<String>  {
         switch (randomNumber % 2){
         case 0:
             NSLog("FAIL!")
-            p.completeWithFail(FutureNSError(error: .GenericException, userInfo: nil))
+            p.completeWithFail(FutureKitError.GenericError("iMayFailRandomly failed"))
         default:
             NSLog("CANCEL!")
             p.completeWithCancel()

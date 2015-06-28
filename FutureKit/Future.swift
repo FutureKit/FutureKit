@@ -40,25 +40,18 @@ public struct GLOBAL_PARMS {
     
 }
 
-public enum FErrors : Int {
-    case GenericException = 1
-    case ResultConversionError
-    case CompletionConversionError
-    case ContinueWithConversionError
-    case ErrorForMultipleErrors
-    
-    static var errorDomain = "Futures"
-}
-
-public class FutureNSError : NSError {
+public enum FutureKitError : ErrorType, Equatable {
+    case GenericError(String)
+    case ResultConversionError(String)
+    case CompletionConversionError(String)
+    case ContinueWithConversionError(String)
+    case ErrorForMultipleErrors(String,[ErrorType])
+    case ExceptionCaught(NSException,[NSObject:AnyObject]?)
 
     public init(genericError : String) {
-        super.init(domain: FErrors.errorDomain, code: FErrors.GenericException.rawValue, userInfo: ["genericError" : genericError])
+        self = .GenericError(genericError)
     }
 
-    public init(error : FErrors, userInfo: [NSObject : AnyObject]?) {
-        super.init(domain: FErrors.errorDomain, code: error.rawValue, userInfo: userInfo)
-    }
     public init(exception: NSException) {
         var userInfo : [NSObject : AnyObject]
         if (exception.userInfo != nil) {
@@ -70,28 +63,57 @@ public class FutureNSError : NSError {
         userInfo["exception"] = NSException(name: exception.name, reason: exception.reason, userInfo: nil)
         userInfo["callStackReturnAddresses"] = exception.callStackReturnAddresses
         userInfo["callStackSymbols"] = exception.callStackSymbols
-        super.init(domain: FErrors.errorDomain, code: FErrors.GenericException.rawValue, userInfo: userInfo)
-    }
-
-    required public init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        self = .ExceptionCaught(exception,userInfo)
     }
     
-    public override var localizedDescription: String {
-        if let g = self.genericError {
-            return "\(g) \(super.localizedDescription)"
-        }
-        else {
-            return super.localizedDescription
-        }
-    }
+}
 
-    public var genericError : String? {
-        get {
-            return self.userInfo["genericError"] as? String
+public func == (l: FutureKitError, r: FutureKitError) -> Bool {
+    
+    switch l {
+    case let .GenericError(lhs):
+        switch r {
+        case let .GenericError(rhs):
+            return (lhs == rhs)
+        default:
+            return false
+        }
+    case let .ResultConversionError(lhs):
+        switch r {
+        case let .ResultConversionError(rhs):
+            return (lhs == rhs)
+        default:
+            return false
+        }
+    case let .CompletionConversionError(lhs):
+        switch r {
+        case let .CompletionConversionError(rhs):
+            return (lhs == rhs)
+        default:
+            return false
+        }
+    case let .ContinueWithConversionError(lhs):
+        switch r {
+        case let .ContinueWithConversionError(rhs):
+            return (lhs == rhs)
+        default:
+            return false
+        }
+    case let .ErrorForMultipleErrors(lhs,_):
+        switch r {
+        case let .ErrorForMultipleErrors(rhs,_):
+            return (lhs == rhs)
+        default:
+            return false
+        }
+    case let .ExceptionCaught(lhs,_):
+        switch r {
+        case let .ExceptionCaught(rhs,_):
+            return (lhs.isEqual(rhs))
+        default:
+            return false
         }
     }
-    
 }
 
 /**
@@ -158,14 +180,14 @@ public enum Completion<T> : CustomStringConvertible, CustomDebugStringConvertibl
         returns a .Fail(FutureNSError) with a simple error string message.
     */
     public init(failWithErrorMessage : String) {
-        self = .Fail(FutureNSError(genericError: failWithErrorMessage))
+        self = .Fail(FutureKitError(genericError: failWithErrorMessage))
     }
     /**
         converts an NSException into an NSError.
         useful for generic Objective-C excecptions into a Future
     */
     public init(exception ex:NSException) {
-        self = .Fail(FutureNSError(exception: ex))
+        self = .Fail(FutureKitError(exception: ex))
     }
     
     public init(success s:T) {
@@ -1013,7 +1035,7 @@ public class Future<T> : FutureProtocol{
                 }
                 if let token = f.getCancelToken() {
                     self.addRequestHandler { (forced) in
-                        token.cancel(forced:forced)
+                        token.cancel(forced)
                     }
                 }
             }
@@ -1872,7 +1894,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     }
     public var debugDescription: String {
         let des = self.__completion?.description ?? "unfinished"
-        return "Future_\(toString(T.self))_\(des)"
+        return "Future_\(String(T.self))_\(des)"
     }
     public func debugQuickLookObject() -> AnyObject? {
         return self.debugDescription
@@ -2023,7 +2045,7 @@ class classWithMethodsThatReturnFutures {
             let s = arc4random_uniform(3)
             switch s {
             case 0:
-                p.completeWithFail(FutureNSError(error: .GenericException, userInfo: nil))
+                p.completeWithFail(FutureKitError.GenericError("failed randomly"))
             case 1:
                 p.completeWithCancel()
             default:
@@ -2038,7 +2060,7 @@ class classWithMethodsThatReturnFutures {
             let s = arc4random_uniform(3)
             switch s {
             case 0:
-                return .Fail(FutureNSError(error: .GenericException, userInfo: nil))
+                return .Fail(FutureKitError.GenericError("Failed Also"))
             case 1:
                 return .Cancelled(false)
             default:

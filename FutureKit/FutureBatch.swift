@@ -343,7 +343,7 @@ public class FutureBatchOf<T> {
                     return FAIL(errors.first!)
                 }
                 else  {
-                    return FAIL(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : "\(errors)"]))
+                    return FAIL(FutureKitError.ErrorForMultipleErrors("FutureBatch.futureFromCompletionsFuture", errors))
                 }
             }
             if (cancellations > 0) {

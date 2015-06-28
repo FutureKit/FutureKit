@@ -37,7 +37,7 @@ public class FTaskCompletion : NSObject {
     }
     
     init(exception ex:NSException) {
-        self.completion = FAIL(FutureNSError(exception: ex))
+        self.completion = FAIL(FutureKitError(exception: ex))
     }
     init(success : rtype) {
         self.completion = SUCCESS(success)

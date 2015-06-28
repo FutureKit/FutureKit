@@ -39,6 +39,7 @@ public struct GLOBAL_PARMS {
     static let STACK_CHECKING_MAX_DEPTH = 20
     
     public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
+    public static let REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE = true
     
 }
 
@@ -467,7 +468,7 @@ internal class CancellationTokenSource {
             return nil
         }
         let token = self._createNewToken(synchObject)
-        synchObject.modify { () -> Void in
+        synchObject.lockAndModify { () -> Void in
             if self.canBeCancelled {
                 self.tokens.append(CancellationTokenPtr(token))
             }
@@ -524,7 +525,7 @@ internal class CancellationTokenSource {
     
     private func _cancelRequested(cancelingToken:CancellationToken, _ forced : Bool,_ synchObject : SynchronizationProtocol) {
         
-        synchObject.modify { () -> Void in
+        synchObject.lockAndModify { () -> Void in
 
             assert({
                 
@@ -548,7 +549,7 @@ internal class CancellationTokenSource {
     
     private func _clearInitializedToken(token:CancellationToken,_ synchObject : SynchronizationProtocol) {
         
-        synchObject.modifySync { () -> Void in
+        synchObject.lockAndModifySync { () -> Void in
             self._removeToken(token)
             
             if (self.pendingCancelRequestActive && self.tokens.count == 0) {
@@ -640,18 +641,7 @@ public protocol FutureProtocol {
     func convertOptional<S>() -> Future<S?>
     
     
-/*    func onAnySuccess<__Type>(executor : Executor, _ block:(result:Any) -> Completion<__Type>) -> Future<__Type>
-    func onAnySuccess<__Type>(executor : Executor, _ block:(result:Any) -> __Type) -> Future<__Type>
-    func onAnySuccess<__Type>(executor : Executor, _ block:(result:Any) -> Future<__Type>) -> Future<__Type>
-    func onAnySuccess(executor : Executor, _ block:(result:Any) -> Void) -> Future<Void>
-
-    func onAnyComplete<__Type>(executor : Executor, _ block:(completion:Completion<Any>) -> Completion<__Type>) -> Future<__Type>
-    func onAnyComplete<__Type>(executor : Executor, _ block:(completion:Completion<Any>) -> __Type) -> Future<__Type>
-    func onAnyComplete<__Type>(executor : Executor, _ block:(completion:Completion<Any>) -> Future<__Type>) -> Future<__Type>
-    func onAnyComplete(executor : Executor, _ block:(completion:Completion<Any>) -> Void) -> Future<Void> */
-    
-//    var cancellationIsSupported : Bool { get }
-//    func cancel()
+    var description: String { get }
     
 }
 
@@ -684,8 +674,9 @@ public func COMPLETE_USING<T>(f : Future<T>) -> Completion<T> {
 */
 public class Future<T> : FutureProtocol{
     
-    public typealias ErrorType = NSError
-    internal typealias completionErrorHandler = Promise<T>.completionErrorHandler
+    public typealias ReturnType = T
+    
+    internal typealias CompletionErrorHandler = Promise<T>.CompletionErrorHandler
     internal typealias completion_block_type = ((Completion<T>) -> Void)
     internal typealias cancellation_handler_type = (()-> Void)
     
@@ -696,7 +687,12 @@ public class Future<T> : FutureProtocol{
         this is used as the internal storage for `var completion`
         it is not thread-safe to read this directly. use `var synchObject`
     */
-    private final var __completion : Completion<T>?
+    private final var __completion : Completion<T>? {
+        didSet(c) {
+            if (c != nil) {
+            }
+        }
+    }
     
 //    private final let lock = NSObject()
     
@@ -707,9 +703,8 @@ public class Future<T> : FutureProtocol{
         
         type of synchronization can be configured via GLOBAL_PARMS.LOCKING_STRATEGY
     
-        Warning:  If you are thinking of using this object outside of 'completeWith', don't use .NSLock as a strategy AND call 'completeWith' inside of a read or modify block!  you will deadlock.
     */
-    internal final let synchObject : SynchronizationProtocol = GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
+    internal final var synchObject : SynchronizationProtocol = GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
     
     /**
     is executed used `cancel()` has been requested.
@@ -720,7 +715,7 @@ public class Future<T> : FutureProtocol{
     
     internal func addRequestHandler(h : CancellationHandler) {
         
-        self.synchObject.modify { () -> Void in
+        self.synchObject.lockAndModify { () -> Void in
             self.cancellationSource.addHandler(h)
         }
     }
@@ -738,7 +733,7 @@ public class Future<T> : FutureProtocol{
     */
     public final var completion : Completion<T>? {
         get {
-            return self.synchObject.readSync { () -> Completion<T>? in
+            return self.synchObject.lockAndReadSync { () -> Completion<T>? in
                 return self.__completion
             }
         }
@@ -784,7 +779,7 @@ public class Future<T> : FutureProtocol{
     It only informs the user that this type of future can be cancelled.
     */
     public var cancellationIsSupported : Bool {
-        return self.synchObject.readSync { () -> Bool in
+        return self.synchObject.lockAndReadSync { () -> Bool in
             return (self.cancellationSource.cancellationIsSupported)
         }
     }
@@ -794,7 +789,7 @@ public class Future<T> : FutureProtocol{
     accessing this variable directly requires thread synchronization.
     */
     public final var isCompleted : Bool {
-        return self.synchObject.readSync { () -> Bool in
+        return self.synchObject.lockAndReadSync { () -> Bool in
             return (self.__completion != nil)
         }
     
@@ -816,36 +811,42 @@ public class Future<T> : FutureProtocol{
     */
     public init(completed:Completion<T>) {  // returns an completed Task
         self.__completion = completed
+        self.synchObject = UnsafeSynchronization()
     }
     /**
         creates a completed Future with a completion == .Success(success)
     */
     public init(success:T) {  // returns an completed Task  with result T
         self.__completion = SUCCESS(success)
+        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Error(failed)
     */
     public init(failed:ErrorType) {  // returns an completed Task that has Failed with this error
         self.__completion = .Fail(failed)
+        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(failWithErrorMessage))
     */
     public init(failWithErrorMessage errorMessage: String) {
         self.__completion = Completion<T>(failWithErrorMessage:errorMessage)
+        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(exception))
     */
     public init(exception:NSException) {  // returns an completed Task that has Failed with this error
         self.__completion = Completion<T>(exception:exception)
+        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
     public init(cancelled:()) {  // returns an completed Task that has Failed with this error
         self.__completion = .Cancelled
+        self.synchObject = UnsafeSynchronization()
     }
 
     /**
@@ -888,6 +889,7 @@ public class Future<T> : FutureProtocol{
     */
     public init(@autoclosure completion c:() -> Completion<T>) {
         self.__completion = c()
+        self.synchObject = UnsafeSynchronization()
     }
 
     /**
@@ -895,6 +897,7 @@ public class Future<T> : FutureProtocol{
     */
     public init(@autoclosure success s:() -> T) {
         self.__completion = SUCCESS(s())
+        self.synchObject = UnsafeSynchronization()
     }
     
     /**
@@ -936,8 +939,9 @@ public class Future<T> : FutureProtocol{
     */
     internal final func completeAndNotify(completion : Completion<T>) {
         
-        return self.completeWithBlocks({ () -> Completion<T> in
-            completion
+        return self.completeWithBlocks(waitUntilDone: false,
+            completionBlock: { () -> Completion<T> in
+                completion
             }, onCompletionError: nil)
     }
 
@@ -955,11 +959,13 @@ public class Future<T> : FutureProtocol{
     - parameter onCompletionError: a block to execute if the Future has already been completed.
 
     */
-    internal final func completeAndNotify(completion : Completion<T>, onCompletionError : completionErrorHandler) {
+    internal final func completeAndNotify(completion : Completion<T>, onCompletionError : CompletionErrorHandler) {
         
-        return self.completeWithBlocks({ () -> Completion<T> in
-            completion
+        
+        self.completeWithBlocks(waitUntilDone: false, completionBlock: { () -> Completion<T> in
+            return completion
         }, onCompletionError: onCompletionError)
+        
     }
     
     
@@ -977,78 +983,71 @@ public class Future<T> : FutureProtocol{
     */
     internal final func completeAndNotifySync(completion : Completion<T>) -> Bool {
         
-        if (completion.isCompleteUsing) {
-            let f = completion.completeUsingFuture
-            f.onComplete(.Immediate)  { (nextComp) -> Void in
-                self.completeWith(nextComp)
-            }
-            if let token = f.getCancelToken() {
-                self.addRequestHandler { (forced) in
-                    token.cancel(forced:forced)
-                }
-            }
-
-            return true
+        var ret = true
+        self.completeWithBlocks(waitUntilDone: true, completionBlock: { () -> Completion<T> in
+            return completion
+        }) { () -> Void in
+            ret = false
         }
-        else {
-            let tuple = self.synchObject.modifySync { () -> (cbs:[completion_block_type]?,success:Bool) in
-                if (self.__completion != nil) {
-                    return (nil,false)
-                }
-                self.__completion = completion
-                let cbs = self.__callbacks
-                self.__callbacks = nil
-                self.cancellationSource.clear()
-                return (cbs,true)
-                }
-            
-            if let callbacks = tuple.cbs {
-                for callback in callbacks {
-                    callback(completion)
-                }
-            }
-            return tuple.success
-        }
-    }
-    
-    internal final func completeWithBlocks(completionBlock : () -> Completion<T>, onCompletionError : completionErrorHandler?) {
         
-        self.synchObject.modifyAsync({ () -> (callbacks:[completion_block_type]?,completion:Completion<T>?,continueUsing:Future?) in
+        return ret
+   }
+    
+    internal final func completeWithBlocks(
+            waitUntilDone wait:Bool = false,
+            completionBlock : () -> Completion<T>,
+            onCompletionError : (() -> Void)? = nil) {
+        
+        typealias ModifyBlockReturnType = (callbacks:[completion_block_type]?,
+                                            completion:Completion<T>?,
+                                            continueUsing:Future?)
+        
+        
+        self.synchObject.lockAndModify(waitUntilDone: wait, modifyBlock: { () -> ModifyBlockReturnType in
             if let _ = self.__completion {
                 // future was already complete!
-                return (nil,nil,nil)
+                return ModifyBlockReturnType(nil,nil,nil)
             }
             let c = completionBlock()
             if (c.isCompleteUsing) {
-                return (callbacks:nil,completion:c,continueUsing:c.completeUsingFuture)
+                return ModifyBlockReturnType(callbacks:nil,completion:c,continueUsing:c.completeUsingFuture)
             }
             else {
-                self.__completion = c
                 let callbacks = self.__callbacks
                 self.__callbacks = nil
                 self.cancellationSource.clear()
-                return (callbacks,self.__completion,nil)
+                self.__completion = c
+                if (GLOBAL_PARMS.REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE) {
+                    // let's execute OSMemoryBarrier() prior to changing the syncObject
+                    // https://www.mikeash.com/pyblog/friday-qa-2009-07-10-type-specifiers-in-c-part-3.html
+                    // This makes sure all the 'clear' values on the object are set correctly, before removing the
+                    // synchronization object's protection
+                    OSMemoryBarrier()
+                    self.synchObject = UnsafeSynchronization()
+                }
+                return ModifyBlockReturnType(callbacks,self.__completion,nil)
             }
-            }, done: { (tuple) -> Void in
-                if let callbacks = tuple.callbacks {
-                    for callback in callbacks {
-                        callback(tuple.completion!)
+        }, then:{ (modifyBlockReturned:ModifyBlockReturnType) -> Void in
+            if let callbacks = modifyBlockReturned.callbacks {
+                for callback in callbacks {
+                    callback(modifyBlockReturned.completion!)
+                }
+            }
+            if let f = modifyBlockReturned.continueUsing {
+                f.onComplete(.Immediate)  { (nextComp) -> Void in
+                    self.completeWith(nextComp)
+                }
+                if let token = f.getCancelToken() {
+                    self.addRequestHandler { (forced) in
+                        token.cancel(forced:forced)
                     }
                 }
-                if let f = tuple.continueUsing {
-                    f.onComplete(.Immediate)  { (nextComp) -> Void in
-                        self.completeWith(nextComp)
-                    }
-                    if let token = f.getCancelToken() {
-                        self.addRequestHandler { (forced) in
-                            token.cancel(forced:forced)
-                        }
-                    }
-                }
-                else if (tuple.completion == nil) {
-                    onCompletionError?()
-                }
+            }
+            else if (modifyBlockReturned.completion == nil) {
+                onCompletionError?()
+            }
         })
+        
     }
 
 
@@ -1097,7 +1096,7 @@ public class Future<T> : FutureProtocol{
     
     - parameter onCompletionError: a block to execute if the Future has already been completed.
     */
-    internal func completeWith(completion : Completion<T>, onCompletionError errorBlock: completionErrorHandler) {
+    internal func completeWith(completion : Completion<T>, onCompletionError errorBlock: CompletionErrorHandler) {
         return self.completeAndNotify(completion,onCompletionError: errorBlock)
     }
     
@@ -1140,7 +1139,7 @@ public class Future<T> : FutureProtocol{
         
         // lock my object, and either return the current completion value (if it's set)
         // or add the block to the __callbacks if not.
-        self.synchObject.modifyAsync({ () -> Completion<T>? in
+        self.synchObject.lockAndModifyAsync({ () -> Completion<T>? in
             
             // we are done!  return the current completion value.
             if let c = self.__completion {
@@ -1167,7 +1166,7 @@ public class Future<T> : FutureProtocol{
                 
                 return nil
             }
-        }, done: { (currentCompletionValue) -> Void in
+        }, then: { (currentCompletionValue) -> Void in
             // if we got a completion value, than we can execute the callback now.
             if let c = currentCompletionValue {
                 callback(c)
@@ -1894,10 +1893,11 @@ extension Future {
 extension Future : Printable, DebugPrintable {
     
     public var description: String {
-        return "Future"
+        return self.debugDescription
     }
     public var debugDescription: String {
-        return "Future<\(toString(T.self))> - \(self.__completion)"
+        let des = self.__completion?.description ?? "unfinished"
+        return "Future_\(toString(T.self))_\(des)"
     }
 
     public func debugQuickLookObject() -> AnyObject? {

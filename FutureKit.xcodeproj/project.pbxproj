@@ -9,10 +9,9 @@
 /* Begin PBXBuildFile section */
 		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
+		0D6EB4741B3F8D3B005080F7 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
-		0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
-		0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
 		0D7502B71AE6B114009C3F63 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B51AE6B114009C3F63 /* FTask.swift */; };
 		0D7502B81AE6B114009C3F63 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B51AE6B114009C3F63 /* FTask.swift */; };
 		0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
@@ -45,7 +44,6 @@
 		0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
-		0DDE328C1B38BD72007C39D9 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
 		0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 		0DDE32A11B38C1CB007C39D9 /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; };
 		0DDE32A21B38C1CB007C39D9 /* FutureKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -75,6 +73,8 @@
 		0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 		0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
 		0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
+		DEBDAD3F1B3C5A78004310B9 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; };
+		DEBDAD401B3C5A78004310B9 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +172,7 @@
 		0DEA1C021AE313DD000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureKit_OSX_Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureThread.swift; sourceTree = "<group>"; };
+		DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromiseTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -313,6 +314,7 @@
 				0DB9799E1AE2A21100158386 /* Supporting Files */,
 				0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */,
 				0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */,
+				DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */,
 			);
 			path = FutureKitTests;
 			sourceTree = "<group>";
@@ -669,7 +671,6 @@
 				0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */,
 				0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */,
 				0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */,
-				0DDE328C1B38BD72007C39D9 /* LockPerformanceTests.swift in Sources */,
 				0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */,
 				0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */,
 			);
@@ -732,8 +733,8 @@
 				0DE35D9A1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
 				0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
+				DEBDAD3F1B3C5A78004310B9 /* PromiseTests.swift in Sources */,
 				0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */,
-				0D7502B21AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -744,10 +745,11 @@
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
 				0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
 				0DE35D9B1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
+				0D6EB4741B3F8D3B005080F7 /* LockPerformanceTests.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
 				0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
+				DEBDAD401B3C5A78004310B9 /* PromiseTests.swift in Sources */,
 				0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */,
-				0D7502B31AE5FD4B009C3F63 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

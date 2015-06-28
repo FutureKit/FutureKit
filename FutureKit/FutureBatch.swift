@@ -279,11 +279,11 @@ public class FutureBatchOf<T> {
             
             for (index, future) in enumerate(array) {
                 future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
-                    promise.synchObject.modifyAsync({ () -> Int in
+                    promise.synchObject.lockAndModifyAsync({ () -> Int in
                         result[index] = completion
                         total--
                         return total
-                    }, done: { (currentTotal) -> Void in
+                    }, then: { (currentTotal) -> Void in
                         if (currentTotal == 0) {
                             promise.completeWithSuccess(result)
                         }

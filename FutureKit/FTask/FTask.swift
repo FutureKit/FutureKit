@@ -99,8 +99,8 @@ public class FTaskPromise : NSObject {
     public final func completeWithCancel() {
         self.promise.completeWithCancel()
     }
-    public final func continueWithFuture(f : FTask) {
-        self.promise.continueWithFuture(f.future)
+    public final func completeUsingFuture(f : FTask) {
+        self.promise.completeUsingFuture(f.future)
     }
     
     
@@ -110,10 +110,10 @@ public class FTaskPromise : NSObject {
         return self.promise.tryComplete(c.completion)
     }
     
-    public typealias completionErrorHandler = Promise<rtype>.completionErrorHandler
+    public typealias CompletionErrorHandler = Promise<rtype>.CompletionErrorHandler
 
     // execute a block if the completion "fails" because the future is already completed.
-    public final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: completionErrorHandler) {
+    public final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: CompletionErrorHandler) {
         self.promise.complete(c.completion, onCompletionError: errorBlock)
     }
     

@@ -220,6 +220,50 @@ public enum Executor {
     
     case Custom(CustomCallBackBlock)         // Don't like any of these?  Bake your own Executor!
     
+    
+    public var description : String {
+        switch self {
+        case .Primary:
+            return "Primary"
+        case .Main:
+            return "Main"
+        case .Async:
+            return "Async"
+        case .Current:
+            return "Current"
+        case .Immediate:
+            return "Immediate"
+        case .StackCheckingImmediate:
+            return "StackCheckingImmediate"
+        case .MainAsync:
+            return "MainAsync"
+        case .MainImmediate:
+            return "MainImmediate"
+        case .UserInteractive:
+            return "UserInteractive"
+        case .UserInitiated:
+            return "UserInitiated"
+        case .Default:
+            return "Default"
+        case .Utility:
+            return "Utility"
+        case .Background:
+            return "Background"
+        case let .Queue(q):
+            let clabel = dispatch_queue_get_label(q)
+            let (s, _) = String.fromCStringRepairingIllFormedUTF8(clabel)
+            let n = s ?? "(null)"
+            return "Queue(\(n))"
+        case let .OperationQueue(oq):
+            let name = oq.name ?? "??"
+            return "OperationQueue(\(name))"
+        case let .ManagedObjectContext(context):
+            return "ManagedObjectContext"
+        case let .Custom(c):
+            return "Custom"
+        }
+    }
+    
     public typealias customFutureHandlerBlockOld = ((Any) -> Void)
 
     public typealias customFutureHandlerBlock = (() -> Void)
@@ -390,23 +434,18 @@ public enum Executor {
     }
 
     
-    public func executeAfterDelay<__Type>(nanosecs n: Int64, block: () -> __Type) -> Future<__Type> {
-        let p = Promise<__Type>()
-        let executionBlock = self.callbackBlockFor { () -> Void in
-            p.completeWithSuccess(block())
-        }
+    internal func _executeAfterDelay(nanosecs n: Int64, block: () -> Void) {
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
-            executionBlock()
-        });
-        return p.future
+            block()
+        })
     }
     
-    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () -> __Type) -> Future<__Type>  {
+    public func executeAfterDelay(secs : NSTimeInterval,  block: () -> Void)  {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        return self.executeAfterDelay(nanosecs:nanosecs,block: block)
+        return self._executeAfterDelay(nanosecs:nanosecs,block: block)
     }
 
     // This returns the underlyingQueue (if there is one).

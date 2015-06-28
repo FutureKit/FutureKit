@@ -21,7 +21,8 @@ Feel free to try it out.   I'm hoping to have a few sub-frameworks for adding Fu
 
 - uses simple to understand methods (onComplete/onSuccess/onFail etc) that let's you simplify complex asynchronous operations into clear and simple to understand logic.
 
-- is highly composable, since any existing Future can be used to generate a new Future.  And Errors and Cancelations can be automatically passed through, simplifying error handling logic.  
+- is highly composable, since any existing Future can be used to generate a new Future.  And Errors and Cancelations can be automatically passed through, simplifying error handling logic.
+- Super easy cancelation composition (which is a fancy way to say cancel works when you want it to automatically).  Future's are designed so there is never any confusion about whether an asynchronous operation completed, failed, or was canceled.  And the CONSUMER has full control over whether he needs to be notified that the operation was canceled or not.   (0% confusion about whether your completion blocks will get called when the operation is cancelled).
 
 - works well editing code within XCode 6.3 auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
 

@@ -78,7 +78,7 @@ struct AttributesForTest {
     var testName : String {
         let percentage = Int(self.writePercentage * 100)
         
-        return "test_\(syncType.rawValue)_Threads_\(threads)_\(with.rawValue)_\(sOrA.rawValue)_writes_\(percentage)_lock_\(number_of_locks)_contention_\(contention)"
+        return "test_\(syncType)_Threads_\(threads)_\(with.rawValue)_\(sOrA.rawValue)_writes_\(percentage)_lock_\(number_of_locks)_contention_\(contention)"
     }
     
     var contention : Int {
@@ -300,7 +300,7 @@ extension AttributesForTest {
                 let keyTouse = keys[keyToUseIndex]
                 
                 if self.doReadCoinFlip() {
-                    lock.readSync { () -> Value? in
+                    lock.lockAndReadSync { () -> Value? in
                         return dict[keyTouse]
                     }
                 }
@@ -315,9 +315,9 @@ extension AttributesForTest {
                     }
                     switch self.sOrA {
                     case .Async:
-                        lock.modify(modifyBlock)
+                        lock.lockAndModify(modifyBlock)
                     case .Sync:
-                        lock.modifySync(modifyBlock)
+                        lock.lockAndModifySync(modifyBlock)
                     }
                 }
             }

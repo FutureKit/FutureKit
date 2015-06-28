@@ -254,7 +254,7 @@ public class FutureOperationQueue : NSOperationQueue {
         }
         else {
             // GOTTA MUCK WITH Depedencies.  Sigh.  So let's lock access to make sure we don't miss an operation
-            self.syncObject.modify { () -> Void in
+            self.syncObject.lockAndModify { () -> Void in
                 for existingOps  in self.operations as [NSOperation] {
                     if (existingOps.futureOperationQueuePriority.rawValue < priority.rawValue) {
                         existingOps.addDependency(operation)

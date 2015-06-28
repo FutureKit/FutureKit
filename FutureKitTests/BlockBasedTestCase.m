@@ -29,6 +29,8 @@
 }
 
 + (BlockBasedTest *)_addTestWithName:(NSString*)name block:(void (^)(BlockBasedTestCase *))block {
+    
+    NSString * n = [name stringByReplacingOccurrencesOfString:@"." withString:@"_"];
 
     IMP i = imp_implementationWithBlock(block);
     
@@ -39,7 +41,7 @@
     
     const char * encoding = method_getTypeEncoding(exampleMethod);
     
-    SEL newMethodSelector = NSSelectorFromString(name);
+    SEL newMethodSelector = NSSelectorFromString(n);
     
     BOOL worked = class_addMethod([self class],newMethodSelector,i,encoding);
     
@@ -49,7 +51,7 @@
         return i;
     }
     else {
-        NSAssert(false, @"couldn't add test with name %@.  Make sure test names are unique!",name);
+        NSAssert(false, @"couldn't add test with name %@.  Make sure test names are unique!",n);
         return nil;
     }
     

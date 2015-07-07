@@ -104,7 +104,7 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
     // AnyObject will match NSObject compatible values
     // Any will match any class, using the Strong<T> to wrap the object in a class so it can be set correctly
     // This is the "default set".
-    func setStrongValueOn<T : Any>(object:A, value : T?)
+    public func setStrongValueOn<T : Any>(object:A, value : T?)
     {
         // so we can't 'test' for AnyObject but we can seem to test for NSObject
         let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -116,14 +116,14 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
             objc_setAssociatedObject(object, key, nil, policy)
         }
     }
-    func setStrongValueOn<T : AnyObject>(object:A, value : T?)
+    public func setStrongValueOn<T : AnyObject>(object:A, value : T?)
     {
         let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         objc_setAssociatedObject(object, key, value, policy)
     }
     
     // Any values cannot be captured weakly.  so we don't supply a Weak setter for Any
-    func setWeakValueOn<T : AnyObject>(object:A, value : T?)
+    public func setWeakValueOn<T : AnyObject>(object:A, value : T?)
     {
         let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         if let v = value {
@@ -135,24 +135,24 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    func setCopyValueOn<T : AnyObject>(object:A, value : T?)
+    public func setCopyValueOn<T : AnyObject>(object:A, value : T?)
     {
         let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_COPY)
         objc_setAssociatedObject(object, key, value, policy)
     }
     
     // convience - Set is always Strong by default
-    func setValueOn<T : Any>(object:A, value : T?)
+    public func setValueOn<T : Any>(object:A, value : T?)
     {
         self.setStrongValueOn(object, value: value)
     }
     
-    func setValueOn<T : AnyObject>(object:A, value : T?)
+    public func setValueOn<T : AnyObject>(object:A, value : T?)
     {
         self.setStrongValueOn(object, value: value)
     }
     
-    func getValueFrom<T : Any>(object:A) -> T?
+    public func getValueFrom<T : Any>(object:A) -> T?
     {
         let v: AnyObject? = objc_getAssociatedObject(object,key)
         switch v {
@@ -170,7 +170,7 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    func getValueFrom<T : Any>(object:A, defaultvalue : T) -> T
+    public func getValueFrom<T : Any>(object:A, defaultvalue : T) -> T
     {
         let value: T? = getValueFrom(object)
         if let v = value {
@@ -182,7 +182,7 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    func getValueFrom<T : Any>(object:A, defaultvalueblock : () -> T) -> T
+    public func getValueFrom<T : Any>(object:A, defaultvalueblock : () -> T) -> T
     {
         let value: T? = getValueFrom(object)
         if let v = value {
@@ -196,7 +196,7 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
     }
     
     
-    func clear(object:A)
+    public func clear(object:A)
     {
         let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         objc_setAssociatedObject(object, key, nil, policy)

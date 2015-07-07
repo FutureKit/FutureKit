@@ -195,11 +195,11 @@ public class FutureBatchOf<T> {
         adds a handler that executes on the first Future that fails.
         :params: block a block that will execute 
     **/
-    public final func onFirstFail(executor : Executor,block:(error:NSError, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
+    public final func onFirstFail(executor : Executor,block:(error:ErrorType, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
         return _onFirstFailOrCancel(executor: executor, block: block)
     }
     
-    public final func onFirstFail(block:(error:NSError, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
+    public final func onFirstFail(block:(error:ErrorType, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
         return _onFirstFailOrCancel(executor: .Primary, block: block)
     }
 
@@ -279,11 +279,11 @@ public class FutureBatchOf<T> {
             
             for (index, future) in enumerate(array) {
                 future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
-                    promise.synchObject.modifyAsync({ () -> Int in
+                    promise.synchObject.lockAndModifyAsync({ () -> Int in
                         result[index] = completion
                         total--
                         return total
-                    }, done: { (currentTotal) -> Void in
+                    }, then: { (currentTotal) -> Void in
                         if (currentTotal == 0) {
                             promise.completeWithSuccess(result)
                         }

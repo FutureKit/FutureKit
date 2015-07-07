@@ -28,7 +28,7 @@ import Foundation
 // can execute a FIFO set of Blocks and Futures, guaranteeing that Blocks and Futures execute in order
 public class FutureFIFO {
     
-    private var lastFuture = Future<Void>(success: ())
+    private var lastFuture = Future<Any>(success: ())
     
     
     // add a block and it won't execute until all previosuly submitted Blocks have finished and returned a result.

@@ -45,7 +45,7 @@ public class FTaskCompletion : NSObject {
     init(cancelled : ()) {
         self.completion = .Cancelled
     }
-    init (fail : NSError) {
+    init (fail : ErrorType) {
         self.completion = FAIL(fail)
     }
     init (continueWith f: FTask) {
@@ -56,7 +56,7 @@ public class FTaskCompletion : NSObject {
     class func Success(success : rtype) -> FTaskCompletion {
         return FTaskCompletion(success: success)
     }
-    class func Fail(fail : NSError) -> FTaskCompletion {
+    class func Fail(fail : ErrorType) -> FTaskCompletion {
         return FTaskCompletion(fail: fail)
     }
     class func Cancelled() -> FTaskCompletion {
@@ -90,7 +90,7 @@ public class FTaskPromise : NSObject {
     public final func completeWithSuccess(result : rtype) {
         self.promise.completeWithSuccess(result)
     }
-    public final func completeWithFail(e : NSError) {
+    public final func completeWithFail(e : ErrorType) {
         self.promise.completeWithFail(e)
     }
     public final func completeWithException(e : NSException) {
@@ -99,8 +99,8 @@ public class FTaskPromise : NSObject {
     public final func completeWithCancel() {
         self.promise.completeWithCancel()
     }
-    public final func continueWithFuture(f : FTask) {
-        self.promise.continueWithFuture(f.future)
+    public final func completeUsingFuture(f : FTask) {
+        self.promise.completeUsingFuture(f.future)
     }
     
     
@@ -110,10 +110,10 @@ public class FTaskPromise : NSObject {
         return self.promise.tryComplete(c.completion)
     }
     
-    public typealias completionErrorHandler = Promise<rtype>.completionErrorHandler
+    public typealias CompletionErrorHandler = Promise<rtype>.CompletionErrorHandler
 
     // execute a block if the completion "fails" because the future is already completed.
-    public final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: completionErrorHandler) {
+    public final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: CompletionErrorHandler) {
         self.promise.complete(c.completion, onCompletionError: errorBlock)
     }
     
@@ -238,7 +238,7 @@ public extension FTask {
         case let c as FTaskCompletion:
             return c.completion
             
-        case let error as NSError:
+        case let error as ErrorType:
             return .Fail(error)
         case let ex as NSException:
             return Completion<resultType>(exception: ex)

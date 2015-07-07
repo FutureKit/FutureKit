@@ -61,7 +61,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
 }
 
 
-extension XCTestCase {
+/* extension XCTestCase {
     
     func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
@@ -110,7 +110,7 @@ extension XCTestCase {
             })
             
     }
-}
+} */
 
 class FutureKitBasicTests: XCTestCase {
     
@@ -136,19 +136,6 @@ class FutureKitBasicTests: XCTestCase {
         let x = Future<Int>(success: 5)
         
         XCTAssert(x.completion!.result == 5, "it works")
-    }
-    func testFutureWait() {
-        let f = dumbAdd(.Primary,1, 1).waitUntilCompleted()
-
-        XCTAssert(f.result == 2, "it works")
-    }
-    
-    func doATestCaseSync(x : Int, y: Int, iterations : Int) {
-        let f = divideAndConquer(.Primary,x,y,iterations).waitUntilCompleted()
-        
-        let expectedResult = (x+y)*iterations
-        XCTAssert(f.result == expectedResult, "it works")
-        
     }
     
     func testADoneFutureExpectation() {

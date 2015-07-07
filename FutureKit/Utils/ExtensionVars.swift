@@ -91,7 +91,7 @@ class UnSafeMutableContainer<T> {
 
 // Allocate a single static (module level var) ExtensionVarHandler for EACH extension variable you want to add 
 // to a class
-class ExtensionVarHandlerFor<A : AnyObject> {
+public class ExtensionVarHandlerFor<A : AnyObject> {
     
     private var keyValue = UnSafeMutableContainer<Int8>(0)
     private var key : UnsafeMutablePointer<Int8>  { get { return keyValue.unsafe_pointer } }
@@ -200,7 +200,7 @@ class ExtensionVarHandlerFor<A : AnyObject> {
 
 }
 
-typealias ExtensionVarHandler = ExtensionVarHandlerFor<AnyObject>
+public typealias ExtensionVarHandler = ExtensionVarHandlerFor<AnyObject>
 
 
 

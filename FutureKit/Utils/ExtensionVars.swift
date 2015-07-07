@@ -96,6 +96,10 @@ public class ExtensionVarHandlerFor<A : AnyObject> {
     private var keyValue = UnSafeMutableContainer<Int8>(0)
     private var key : UnsafeMutablePointer<Int8>  { get { return keyValue.unsafe_pointer } }
     
+    public init() {
+        
+    }
+    
     // Two STRONG implementations - Any and AnyObject.
     // AnyObject will match NSObject compatible values
     // Any will match any class, using the Strong<T> to wrap the object in a class so it can be set correctly

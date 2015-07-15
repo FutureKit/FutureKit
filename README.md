@@ -125,7 +125,7 @@ notice how I forgot to add error handling in that callback.  What if iBuildStuff
     
     class StuffMaker {
         func iBuildStuffWithFutures() -> Future<NSData> {
-            let p = promise<NSData>()
+            let p = Promise<NSData>()
             dispatch_async(self.mycustomqueue)  {
                  // do stuff to make your NSData
                 if (SUCCEESS) {

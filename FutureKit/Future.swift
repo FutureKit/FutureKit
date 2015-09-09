@@ -1490,7 +1490,7 @@ public class Future<T> : FutureProtocol{
     - returns: a `Future<Void>` that completes after this block has executed.
     */
     public final func onSuccess(executor : Executor, block:(result:T)-> Void) -> Future<Void> {
-        return self.onSuccess(executor, block)
+        return self.onSuccess(executor, block: block)
     }
 
     /**

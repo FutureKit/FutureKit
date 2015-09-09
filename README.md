@@ -62,24 +62,24 @@ So know you have two asynchronous dependencies, one async call for the network, 
 Instead we are gonna do this.
 
     let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
-    let blurrImageFuture =  imageFuture.onSuccess(.UserInitiated) { (image) -> UIImage in {
-         let burredImage = doBlurrEffect(image)
-         return burredImage
+    let blurImageFuture =  imageFuture.onSuccess(.UserInitiated) { (image) -> UIImage in
+         let blurredImage = doBlurEffect(image)
+         return blurredImage 
     }
 
 blurrImageFuture is now a NEW Future<Image>.  That I have created from imageFuture.  I also defined I want that block to run in the .UserInitiated dispatch queue.  (Cause I need it fast!).
 
-    blurrImageFuture.onSuccess(.Main) { (blurredImage) -> Void in
+    blurImageFuture.onSuccess(.Main) { (blurredImage) -> Void in
          imageView.image = blurredImage;
     }
 
 
-Or i could rewite it all in one line:
+Or I could rewite it all in one line:
 
     MyApiClass().getAnImageFromServer()
              .onSuccess(.UserInitiated) { (image) -> UIImage in {
-                             let burredImage = doBlurrEffect(image)
-                            return burredImage
+                            let blurredImage = doBlurEffect(image)
+                            return blurredImage 
              }.onSuccess(.Main) { (blurredImage) -> Void in
                              imageView.image = blurredImage;
              }.onError { (error:NSError) -> Void in
@@ -109,7 +109,7 @@ A promise is a way for you write functions that returns Futures.
 
 A Promise<T> is a promise to send something back a value (of type T) in the future.  When it's ready..  A Promise has to be completed with either Success/Fail or Cancelled.  Don't break your promises!  Always complete them.  And everyone will be happy.  Especially your code that is waiting for things.
 
-But it also means the API doesn't really need to bake a hole bunch of custom callback block handlers that return results.   And worry about what dispatch_queue those callback handlers have to running in.   Do you dispatch to mainQ before you call your callback handlers?  Or after?  Nobody seems to agree.
+But it also means the API doesn't really need to bake a whole bunch of custom callback block handlers that return results.   And worry about what dispatch_queue those callback handlers have to running in.   Do you dispatch to mainQ before you call your callback handlers?  Or after?  Nobody seems to agree. 
 
 But the Future object already offers a lot of cool built ways to get told when data is ready and when it fails.  And can handle which GCD queue is required for this reply.     
 
@@ -134,7 +134,7 @@ notice how I forgot to add error handling in that callback.  What if iBuildStuff
 
     class StuffMaker {
         func iBuildStuffWithFutures() -> Future<NSData> {
-            let p = promise<NSData>()
+            let p = Promise<NSData>()
             dispatch_async(self.mycustomqueue)  {
                  // do stuff to make your NSData
                 if (SUCCEESS) {

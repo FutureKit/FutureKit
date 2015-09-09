@@ -1478,6 +1478,20 @@ public class Future<T> : FutureProtocol{
             }
         }
     }
+    
+    /**
+    takes a block and executes it if the target is completed with a .Success
+    
+    If the target is completed with a .Success, then the block will be executed using the supplied Executor.
+    
+    - parameter __Type: the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
+    - parameter executor: an Executor to use to execute the block when it is ready to run.
+    - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
+    - returns: a `Future<Void>` that completes after this block has executed.
+    */
+    public final func onSuccess(executor : Executor, block:(result:T)-> Void) -> Future<Void> {
+        return self.onSuccess(executor, block)
+    }
 
     /**
     takes a block and executes it iff the target is completed with a .Success.  

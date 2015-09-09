@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/FutureKit/FutureKit.git', :tag => s.version }
 
   s.ios.deployment_target = '8.0'
-  s.osx.deployment_target = '10.9'
+  s.osx.deployment_target = '10.10'
 
   s.source_files = "FutureKit/*.swift", "FutureKit/**/*.swift"
   s.compiler_flags = '-whole-module-optimizations'

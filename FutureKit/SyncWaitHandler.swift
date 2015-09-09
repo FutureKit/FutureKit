@@ -43,9 +43,9 @@ class SyncWaitHandler<T>  {
         }
     }
     
-    final func waitUntilCompleted(doMainQWarning : Bool = true) -> Completion<T> {
+    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> Completion<T> {
         self.condition.lock()
-        if (doMainQWarning && NSThread.isMainThread()) {
+        if (warn && NSThread.isMainThread()) {
             if (self.completion == nil) {
                 warnOperationOnMainThread()
             }

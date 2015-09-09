@@ -98,7 +98,7 @@ public class FutureBatchOf<T> {
     */
     func cancel(forced:Bool = false) {
         for t in self.tokens {
-            t.cancel(forced:forced)
+            t.cancel(forced)
         }
     }
     
@@ -138,7 +138,7 @@ public class FutureBatchOf<T> {
         
         var futures = [Future<__Type>]()
         
-        for (index, future) in enumerate(self.subFutures) {
+        for (index, future) in self.subFutures.enumerate() {
             
             let f = future.onComplete({ (completion) -> __Type in
                 return block(completion: completion, future:future,index: index)
@@ -156,33 +156,49 @@ public class FutureBatchOf<T> {
     /**
     
     */
-    private final func _onFirstFailOrCancel(executor : Executor = .Immediate,block:((error:ErrorType, future:Future<T>, index:Int)-> Void)? = nil) -> Future<[T]> {
+    
+    typealias FailOrCancelReportTuple = (ErrorType, Future<T>, Int)
+    typealias FailHandler = (error:ErrorType, future:Future<T>, index:Int) -> Void
+    private final func _onFirstFailOrCancel(executor : Executor = .Immediate, block:FailHandler? = nil) -> Future<[T]> {
         
-        let promise = Promise<[T]>()
-
-        // we are gonna make a Future that
-        typealias blockT = () -> Void
-        let failOrCancelPromise = Promise<blockT?>()
         
-        for (index, future) in enumerate(self.subFutures) {
-            future.onComplete({ (completion) -> Void in
-                if (completion.state != .Success) {
-                    
-                    let cb = executor.callbackBlockFor {
-                        block?(error: completion.error, future: future, index: index)
+        if let block = block {
+            
+            // this will complete as soon as ONE Future Fails or is Cancelled.
+            let failOrCancelPromise = Promise<FailOrCancelReportTuple>()
+            
+            for (index, future) in self.subFutures.enumerate() {
+                future.onComplete({ (completion) -> Void in
+                    if (completion.state != .Success) {
+                        // fail immediately on the first subFuture failure
+                        // which ever future fails first will complete the promises
+                        // the others will be ignored
+                        let report : FailOrCancelReportTuple = (completion.error, future, index)
+                        failOrCancelPromise.completeWithSuccess(report)
                     }
-                    failOrCancelPromise.completeWithSuccess(cb)
-                    promise.complete(completion.As())
-                }
-            })
-        }
-        self.batchFuture.onComplete { (completion) -> Void in
-            if (completion.state == .Success) {
+                })
+            }
+            // We wan't to 'Cancel' this future if it is successful (so we don't call the block)
+            self.batchFuture.onSuccess (.Immediate) { (_) -> Void in
                 failOrCancelPromise.completeWithCancel()
             }
+            
+            // As soon as the first Future fails, call the block handler.
+            failOrCancelPromise.future.onAnySuccess(executor) { (result) -> Void in
+                let (error,future,index) = (result as! FailOrCancelReportTuple)
+                block(error: error, future: future, index: index)
+            }
         }
-        failOrCancelPromise.future.onSuccess { (result) -> Void in
-            result?()
+        
+        // this future will be 'almost' like batchFuture, except it fails immediately without waiting for the other futures to complete.
+        let promise = Promise<[T]>()
+
+        for future in self.subFutures {
+            future.onComplete { (completion) -> Void in
+                if (completion.state != .Success) {
+                    promise.complete(completion.As())
+                }
+            }
         }
         self.batchFuture.onComplete (.Immediate) { (completion) -> Void in
             promise.complete(completion)
@@ -195,12 +211,13 @@ public class FutureBatchOf<T> {
         adds a handler that executes on the first Future that fails.
         :params: block a block that will execute 
     **/
-    public final func onFirstFail(executor : Executor,block:(error:NSError, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
-        return _onFirstFailOrCancel(executor: executor, block: block)
+    public final func onFirstFail(executor : Executor,block:(error:ErrorType, future:Future<T>, index:Int)-> Void) -> Future<[T]> {
+        
+        return _onFirstFailOrCancel(executor, block: block)
     }
     
-    public final func onFirstFail(block:(error:NSError, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
-        return _onFirstFailOrCancel(executor: .Primary, block: block)
+    public final func onFirstFail(block:(error:ErrorType, future:Future<T>, index:Int)-> Void)  -> Future<[T]> {
+        return _onFirstFailOrCancel(.Primary, block: block)
     }
 
 
@@ -275,15 +292,15 @@ public class FutureBatchOf<T> {
             let promise = Promise<[Completion<T>]>()
             var total = array.count
 
-            var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled)
+            var result = [Completion<T>](count:array.count,repeatedValue:.Cancelled(false))
             
-            for (index, future) in enumerate(array) {
+            for (index, future) in array.enumerate() {
                 future.onComplete(.Immediate) { (completion: Completion<T>) -> Void in
-                    promise.synchObject.modifyAsync({ () -> Int in
+                    promise.synchObject.lockAndModifyAsync({ () -> Int in
                         result[index] = completion
                         total--
                         return total
-                    }, done: { (currentTotal) -> Void in
+                    }, then: { (currentTotal) -> Void in
                         if (currentTotal == 0) {
                             promise.completeWithSuccess(result)
                         }
@@ -326,7 +343,7 @@ public class FutureBatchOf<T> {
                     return FAIL(errors.first!)
                 }
                 else  {
-                    return FAIL(FutureNSError(error: .ErrorForMultipleErrors, userInfo:["errors" : "\(errors)"]))
+                    return FAIL(FutureKitError.ErrorForMultipleErrors("FutureBatch.futureFromCompletionsFuture", errors))
                 }
             }
             if (cancellations > 0) {

@@ -75,6 +75,9 @@ class UnSafeMutableContainer<T> {
             unsafe_pointer.initialize(newValue)
         }
     }
+    init() {
+        unsafe_pointer = UnsafeMutablePointer<T>.alloc(1)
+    }
     init(_ initialValue: T) {
         unsafe_pointer = UnsafeMutablePointer<T>.alloc(1)
         unsafe_pointer.initialize(initialValue)
@@ -100,7 +103,7 @@ class ExtensionVarHandlerFor<A : AnyObject> {
     func setStrongValueOn<T : Any>(object:A, value : T?)
     {
         // so we can't 'test' for AnyObject but we can seem to test for NSObject
-        let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         
         if let v = value {
             objc_setAssociatedObject(object, key, Strong<T>(v), policy)
@@ -111,14 +114,14 @@ class ExtensionVarHandlerFor<A : AnyObject> {
     }
     func setStrongValueOn<T : AnyObject>(object:A, value : T?)
     {
-        let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         objc_setAssociatedObject(object, key, value, policy)
     }
     
     // Any values cannot be captured weakly.  so we don't supply a Weak setter for Any
     func setWeakValueOn<T : AnyObject>(object:A, value : T?)
     {
-        let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         if let v = value {
             let wp = WeakAnyObject(v)
             objc_setAssociatedObject(object, key, wp, policy)
@@ -130,7 +133,7 @@ class ExtensionVarHandlerFor<A : AnyObject> {
     
     func setCopyValueOn<T : AnyObject>(object:A, value : T?)
     {
-        let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_COPY)
+        let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_COPY
         objc_setAssociatedObject(object, key, value, policy)
     }
     
@@ -191,7 +194,7 @@ class ExtensionVarHandlerFor<A : AnyObject> {
     
     func clear(object:A)
     {
-        let policy = objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         objc_setAssociatedObject(object, key, nil, policy)
     }
 

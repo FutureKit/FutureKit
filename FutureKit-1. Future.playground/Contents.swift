@@ -1,8 +1,8 @@
 //: # Welcome to FutureKit!
-//: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
+//: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.  If import FutureKit is failing, make sure you build the OSX Framework in the workspace!
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 //: # Let's get started!
 
 //: This is a Future:

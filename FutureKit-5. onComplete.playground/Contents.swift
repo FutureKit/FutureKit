@@ -2,7 +2,7 @@
 //: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 //: # onComplete handler varients
 //: There are actually 4 different variants of onComplete() handler.  Each returns a different Type.
 //: - 'func onComplete(block:(Completion<T>) -> Completion<__Type>)'

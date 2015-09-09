@@ -1,5 +1,20 @@
 # FutureKit for Swift
+
+[![Cocoapods Compatible](https://img.shields.io/cocoapods/v/FutureKit.svg)](https://img.shields.io/cocoapods/v/FutureKit.svg)
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![License](https://img.shields.io/cocoapods/l/FutureKit.svg?style=flat&color=gray)](http://cocoadocs.org/docsets/FutureKit)
+[![Platform](https://img.shields.io/cocoapods/p/FutureKit.svg?style=flat)](http://cocoadocs.org/docsets/FutureKit)
+[![Twitter](https://img.shields.io/badge/twitter-@SwiftFutureKit-blue.svg?style=flat)](http://twitter.com/SwiftFutureKit)
+
 A Swift based Future/Promises Library for IOS and OS X.   
+
+
+Note - FutureKit is going exclusivly Swift 2.0 only!
+
+There is still a Swift 1.2 branch that I will keep around. But - FutureKit's use of generics pushed swift 1.2 to the limits in a few places.   And it's just too hard to keep fixing for the edge cases.
+
+Swift 2.0 has fixed most of the issues we had with generics!  Plus the error handling integration makes FutureKit easier than ever.
+
 
 
 FutureKit is a Swift implementation of Futures and Promises, but modified specifically for iOS/OSX programmers.
@@ -8,20 +23,14 @@ http://en.wikipedia.org/wiki/Futures_and_promises
 
 FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
-FutureKit is heading for beta! 
-
-We are almost feature complete.  The Cancellation strategy looks finalized.  Still some additional test coverage to finish.  
-
-Feel free to try it out.   I'm hoping to have a few sub-frameworks for adding FutureKit extensions to a few other Swift libraries (AlamoFire, Haneke) soon also.  
-
-
-- is 100% Swift.  It ONLY currently supports Swift 1.2 and XCode 6.3.  No Swift 1.1 support.  I have currently only been testing using iOS 8.0+.  The plan will be to fix compatibility issues with iOS 7.0.  But I wouldn’t be surprised if things break every know and then.  If you find a problem - submit an issue please!
+- is 100% Swift.  It ONLY currently supports Swift 2.0 and XCode 7.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting iOS 8.0+ and OSX 10.x.
 
 - is type safe.  It uses Swift Generics classes that can automatically infer the type you wish to return from asynchronous logic.  And supports all Swift types (Both 'Any' types, and 'AnyObject/NSObject' types!)
 
 - uses simple to understand methods (onComplete/onSuccess/onFail etc) that let's you simplify complex asynchronous operations into clear and simple to understand logic.
 
-- is highly composable, since any existing Future can be used to generate a new Future.  And Errors and Cancelations can be automatically passed through, simplifying error handling logic.  
+- is highly composable, since any existing Future can be used to generate a new Future.  And Errors and Cancelations can be automatically passed through, simplifying error handling logic.
+- Super easy cancelation composition (which is a fancy way to say cancel works when you want it to automatically).  Future's are designed so there is never any confusion about whether an asynchronous operation completed, failed, or was canceled.  And the CONSUMER has full control over whether he needs to be notified that the operation was canceled or not.   (0% confusion about whether your completion blocks will get called when the operation is cancelled).
 
 - works well editing code within XCode 6.3 auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
 
@@ -73,8 +82,8 @@ Or I could rewite it all in one line:
                             return blurredImage 
              }.onSuccess(.Main) { (blurredImage) -> Void in
                              imageView.image = blurredImage;
-             }.onError { (error:NSError) -> Void in 
-                         // deal with any error that happened along the way 
+             }.onError { (error:NSError) -> Void in
+                         // deal with any error that happened along the way
              }
 
 That's the QUICK 1 minute answer of what this can do.  It let's you take any asynchronous operation and "map" it into a new one.   So you can take all your APIs and background logic and get them to easily conform to a universal way of interacting.    Which can let you get away with a LOT of crazy asynchronous execution, without giving up stability and ease of understanding.
@@ -89,9 +98,9 @@ A promise is a way for you write functions that returns Futures.
 
     func getAnImageFromServer(url : NSURL) -> Future<UIImage> {
         let p = Promise<UIImage>()
-        
+
         dispatch_async(...) {
-             // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches. 
+             // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches.
              let i = UIImage()
              p.completeWithSuccess(i)
         }
@@ -112,17 +121,17 @@ It also "inverts" the existing dispatch_async() logic.  Where first you call dis
 
     func oldwayToGetStuff(callback:(NSData) -> Void) {
         dispatch_async(StuffMaker().custom_queue_for_stuff)  {
-    
+
             // do stuff to make your NSData
             let d = StuffMaker().iBuildStuff()
-        
+
             dispatch_async(dispatch_get_main()) {
                 callback(d)
             }
         }
     }
 notice how I forgot to add error handling in that callback.  What if iBuildStuff() times out?  do I add more properties to the callback block?  add more blocks?  Every API wants to do it different and every choice makes my code less and less flexible.
-    
+
     class StuffMaker {
         func iBuildStuffWithFutures() -> Future<NSData> {
             let p = Promise<NSData>()
@@ -160,5 +169,3 @@ I would love it to get feedback!  Tell me what you think is wrong.  You can foll
 
 - michael@futurekit.org
 - [@swiftfuturekit] (http://twitter.com/swiftfuturekit)
-
-

@@ -2,7 +2,7 @@
 //: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 //: # Futures are composable.
 
 //: adding a block handler to a Future via onComplete/onSuccess doesn't just give you a way to get a result from a future.  It's also a way to create a new Future.
@@ -11,7 +11,7 @@ let stringFuture = Future<String>(success: "5")
 
 let intOptFuture : Future<Int?>
 intOptFuture  = stringFuture.onSuccess { (stringResult) -> Int? in
-    let s = stringResult.toInt()
+    let s = Int(stringResult)
     return s
 }
 
@@ -23,7 +23,7 @@ intOptFuture.onSuccess { (intResult : Int?) -> Void in
 
 
 stringFuture.onSuccess { (stringResult:String) -> Int in
-        let i = stringResult.toInt()!
+        let i = Int(stringResult)!
         return i
     }
     .onSuccess { (intResult:Int) -> [Int] in
@@ -39,7 +39,7 @@ stringFuture.onSuccess { (stringResult:String) -> Int in
 //: 'func map<S>((T) -> S) -> Future<S>'
 
 let futureInt = stringFuture.map { (stringResult) -> Int in
-                    stringResult.toInt()! }
+                    Int(stringResult)! }
     
     
 //: `futureInt` is automatically be inferred as Future<Int>.
@@ -51,7 +51,7 @@ let futureThatHopefullyWontFail = gonnaTryHardAndNotFail.future
 
 futureThatHopefullyWontFail
         .onSuccess { (s:String) -> Int in
-                return s.toInt()!
+                return Int(s)!
             }
         .map { (intResult:Int) -> [Int] in     // 'map' is same as 'onSuccess'. 
                                                //  Use whichever you like.
@@ -85,8 +85,8 @@ gonnaTryHardAndNotFail.completeWithFail("Sorry. Maybe Next time.")
 
 let anotherFuture5 = Future(success: 5)
 switch anotherFuture5.completion! {
-    case let .Success(s):
-        let x = s.result
+    case let .Success(x):
+        let y = x
     default:
         break
     }
@@ -132,7 +132,7 @@ func iWillKeepTryingTillItWorks(attemptNo: Int) -> Future<Int> {
         switch completion.state {
             
         case .Success:
-            let s = completion.result
+            _ = completion.result
             return SUCCESS(numberOfAttempts)
             
         default: // we didn't succeed!
@@ -153,7 +153,7 @@ futureInt.onComplete { (completion : Completion<Int>) -> Void in
     switch completion {
         
     case let .Success(r):
-        let five = r.result
+        let five = r
     
     case let .Fail(error):
         let e = error

@@ -2,7 +2,7 @@
 //: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 //: # Completion
 //: Sometimes you want to create a dependent Future but conditionally decide inside the block whether the dependent block should Succeed or Fail, etc.   For this we have use a handler block with a different generic signature:
 
@@ -18,7 +18,7 @@ XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
 let futureInt = Future(success: 5)
 switch futureInt.completion! {
     case let .Success(s):
-        let x = s.result
+        let x = s
     default:
         break
     }
@@ -84,7 +84,7 @@ futureInt.onComplete { (completion : Completion<Int>) -> Void in
     switch completion {
         
     case let .Success(r):
-        let five = r.result
+        let five = r
     
     case let .Fail(error):
         let e = error

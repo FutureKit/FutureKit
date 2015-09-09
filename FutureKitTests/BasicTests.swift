@@ -31,14 +31,20 @@ func iMayFailRandomly() -> Future<String>  {
     let p = Promise<String>()
     
     // This is a random number from 0..2:
-    let randomNumber = arc4random_uniform(3)
-    switch randomNumber {
-    case 0:
-        p.completeWithFail(FutureNSError(error: .GenericException, userInfo: nil))
-    case 1:
-        p.completeWithCancel()
-    default:
+    let randomNumber = arc4random_uniform(20)
+    if (randomNumber == 0) {
+        NSLog("yay!!")
         p.completeWithSuccess("Yay")
+    }
+    else {
+        switch (randomNumber % 2){
+        case 0:
+            NSLog("FAIL!")
+            p.completeWithFail(FutureKitError.GenericError("iMayFailRandomly failed"))
+        default:
+            NSLog("CANCEL!")
+            p.completeWithCancel()
+        }
     }
     return p.future
 }
@@ -48,10 +54,11 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
     
     attemptNo++
     return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
+        NSLog("completion = \(completion)")
         switch completion {
         case let .Success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
-            let result = (tries:attemptNo,result:yay.result)
+            let result = (tries:attemptNo,result:yay)
             return SUCCESS(result)
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
@@ -61,7 +68,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
 }
 
 
-extension XCTestCase {
+/* extension XCTestCase {
     
     func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
@@ -110,7 +117,7 @@ extension XCTestCase {
             })
             
     }
-}
+} */
 
 class FutureKitBasicTests: XCTestCase {
     
@@ -136,19 +143,6 @@ class FutureKitBasicTests: XCTestCase {
         let x = Future<Int>(success: 5)
         
         XCTAssert(x.completion!.result == 5, "it works")
-    }
-    func testFutureWait() {
-        let f = dumbAdd(.Primary,1, 1).waitUntilCompleted()
-
-        XCTAssert(f.result == 2, "it works")
-    }
-    
-    func doATestCaseSync(x : Int, y: Int, iterations : Int) {
-        let f = divideAndConquer(.Primary,x,y,iterations).waitUntilCompleted()
-        
-        let expectedResult = (x+y)*iterations
-        XCTAssert(f.result == expectedResult, "it works")
-        
     }
     
     func testADoneFutureExpectation() {

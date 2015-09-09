@@ -67,8 +67,10 @@ extension NSObject {
 }
 
 func SYNCHRONIZED<T>(lock: AnyObject, @noescape closure:  ()->T) -> T {
-    objc_sync_enter(lock)
+    let lock_result = objc_sync_enter(lock)
+    assert(Int(lock_result) == OBJC_SYNC_SUCCESS,"Failed to lock object!")
     let retVal: T = closure()
-    objc_sync_exit(lock)
+    let exit_result = objc_sync_exit(lock)
+    assert(Int(exit_result) == OBJC_SYNC_SUCCESS,"Failed to release object!")
     return retVal
 }

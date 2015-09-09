@@ -22,11 +22,7 @@
 // THE SOFTWARE.
 //
 
-#if os(iOS)
-    import UIKit
-    #else
-    import Foundation
-#endif
+import Foundation
 import CoreData
 
 
@@ -35,7 +31,7 @@ public extension NSQualityOfService {
     public var qos_class : qos_class_t {
         get {
             switch self {
-            case UserInteractive:
+            case .UserInteractive:
                 return QOS_CLASS_USER_INTERACTIVE
             case .UserInitiated:
                 return QOS_CLASS_USER_INITIATED
@@ -51,7 +47,76 @@ public extension NSQualityOfService {
 }
 
 
-private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> ((T) -> Void) {
+public enum QosCompatible : Int {
+    /* UserInteractive QoS is used for work directly involved in providing an interactive UI such as processing events or drawing to the screen. */
+    case UserInteractive
+    
+    /* UserInitiated QoS is used for performing work that has been explicitly requested by the user and for which results must be immediately presented in order to allow for further user interaction.  For example, loading an email after a user has selected it in a message list. */
+    case UserInitiated
+    
+    /* Utility QoS is used for performing work which the user is unlikely to be immediately waiting for the results.  This work may have been requested by the user or initiated automatically, does not prevent the user from further interaction, often operates at user-visible timescales and may have its progress indicated to the user by a non-modal progress indicator.  This work will run in an energy-efficient manner, in deference to higher QoS work when resources are constrained.  For example, periodic content updates or bulk file operations such as media import. */
+    case Utility
+    
+    /* Background QoS is used for work that is not user initiated or visible.  In general, a user is unaware that this work is even happening and it will run in the most efficient manner while giving the most deference to higher QoS work.  For example, pre-fetching content, search indexing, backups, and syncing of data with external systems. */
+    case Background
+    
+    /* Default QoS indicates the absence of QoS information.  Whenever possible QoS information will be inferred from other sources.  If such inference is not possible, a QoS between UserInitiated and Utility will be used. */
+    case Default
+    
+    
+   var qos_class : qos_class_t {
+        switch self {
+        case .UserInteractive:
+            return QOS_CLASS_USER_INTERACTIVE
+        case .UserInitiated:
+            return QOS_CLASS_USER_INITIATED
+        case .Utility:
+            return QOS_CLASS_UTILITY
+        case .Background:
+            return QOS_CLASS_BACKGROUND
+        case .Default:
+            return QOS_CLASS_DEFAULT
+        }
+
+    }
+    
+    var queue : dispatch_queue_t {
+        
+        switch self {
+        case .UserInteractive:
+            return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
+        case .UserInitiated:
+            return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
+        case .Utility:
+            return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
+        case .Background:
+            return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
+        case .Default:
+            return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
+            
+        }
+    }
+    
+    public func createQueue(label: String?,
+        var q_attr : dispatch_queue_attr_t!,
+        relative_priority: Int32 = 0) -> dispatch_queue_t {
+            
+            let qos_class = self.qos_class
+            q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
+            let q : dispatch_queue_t
+            if let l = label {
+                q = dispatch_queue_create(l, q_attr)
+            }
+            else {
+                q = dispatch_queue_create(nil, q_attr)
+            }
+            return q
+    }
+
+    
+}
+
+private func make_dispatch_block<T>(q: dispatch_queue_t, _ block: (T) -> Void) -> ((T) -> Void) {
     
     let newblock = { (t:T) -> Void in
         dispatch_async(q) {
@@ -61,7 +126,7 @@ private func make_dispatch_block<T>(q: dispatch_queue_t, block: (T) -> Void) -> 
     return newblock
 }
 
-private func make_dispatch_block<T>(q: NSOperationQueue, block: (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block<T>(q: NSOperationQueue, _ block: (T) -> Void) -> ((T) -> Void) {
     
     let newblock = { (t:T) -> Void in
         q.addOperationWithBlock({ () -> Void in
@@ -75,7 +140,7 @@ public enum SerialOrConcurrent: Int {
     case Serial
     case Concurrent
     
-    public var q_attr : dispatch_queue_attr_t {
+    public var q_attr : dispatch_queue_attr_t! {
         switch self {
         case .Serial:
             return DISPATCH_QUEUE_SERIAL
@@ -90,7 +155,7 @@ public enum SerialOrConcurrent: Int {
 
 extension qos_class_t {
     var rawValue : UInt32 {
-        return self.value
+        return self.rawValue
     }
 }
 public enum Executor {
@@ -134,6 +199,50 @@ public enum Executor {
     
     case Custom(CustomCallBackBlock)         // Don't like any of these?  Bake your own Executor!
     
+    
+    public var description : String {
+        switch self {
+        case .Primary:
+            return "Primary"
+        case .Main:
+            return "Main"
+        case .Async:
+            return "Async"
+        case .Current:
+            return "Current"
+        case .Immediate:
+            return "Immediate"
+        case .StackCheckingImmediate:
+            return "StackCheckingImmediate"
+        case .MainAsync:
+            return "MainAsync"
+        case .MainImmediate:
+            return "MainImmediate"
+        case .UserInteractive:
+            return "UserInteractive"
+        case .UserInitiated:
+            return "UserInitiated"
+        case .Default:
+            return "Default"
+        case .Utility:
+            return "Utility"
+        case .Background:
+            return "Background"
+        case let .Queue(q):
+            let clabel = dispatch_queue_get_label(q)
+            let (s, _) = String.fromCStringRepairingIllFormedUTF8(clabel)
+            let n = s ?? "(null)"
+            return "Queue(\(n))"
+        case let .OperationQueue(oq):
+            let name = oq.name ?? "??"
+            return "OperationQueue(\(name))"
+        case .ManagedObjectContext:
+            return "ManagedObjectContext"
+        case .Custom:
+            return "Custom"
+        }
+    }
+    
     public typealias customFutureHandlerBlockOld = ((Any) -> Void)
 
     public typealias customFutureHandlerBlock = (() -> Void)
@@ -143,7 +252,7 @@ public enum Executor {
     // just call "callBack(data)" in your execution context of choice.
     public typealias CustomCallBackBlockOld = ((data:Any,callBack:customFutureHandlerBlock) -> Void)
 
-    public typealias CustomCallBackBlock = ((callback:customFutureHandlerBlock) -> Void)
+    public typealias CustomCallBackBlock = ((block:customFutureHandlerBlock) -> Void)
 
     // TODO - should these be configurable? Eventually I guess.
     public static var PrimaryExecutor = Executor.Current {
@@ -178,7 +287,7 @@ public enum Executor {
             case .MainAsync:
                 NSLog("it's probably a bad idea to set .Async to the Main Queue. You have been warned")
             case let .Queue(q):
-                assert(q != dispatch_get_main_queue(), "Async is not for the mainq")
+                assert(!q.isEqual(dispatch_get_main_queue()),"Async is not for the mainq")
             default:
                 break
             }
@@ -186,13 +295,13 @@ public enum Executor {
     }
     
     private static let mainQ            = dispatch_get_main_queue()
-    private static let userInteractiveQ = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
-    private static let userInitiatedQ   = dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
-    private static let defaultQ         = dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
-    private static let utilityQ         = dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
-    private static let backgroundQ      = dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
+    private static let userInteractiveQ = QosCompatible.UserInteractive.queue
+    private static let userInitiatedQ   = QosCompatible.UserInitiated.queue
+    private static let defaultQ         = QosCompatible.Default.queue
+    private static let utilityQ         = QosCompatible.Utility.queue
+    private static let backgroundQ      = QosCompatible.Background.queue
     
-    init(qos: NSQualityOfService) {
+    init(qos: QosCompatible) {
         switch qos {
         case .UserInteractive:
             self = .UserInteractive
@@ -207,6 +316,7 @@ public enum Executor {
         }
     }
     
+    @available(iOS 8.0, *)
     init(qos_class: qos_class_t) {
         switch qos_class.rawValue {
         case QOS_CLASS_USER_INTERACTIVE.rawValue:
@@ -235,20 +345,13 @@ public enum Executor {
 
     public static func createQueue(label: String?,
         type : SerialOrConcurrent,
-        qos : NSQualityOfService = .Default,
+        qos : QosCompatible = .Default,
         relative_priority: Int32 = 0) -> Executor {
-            let qos_class = qos.qos_class
-            let q_attr = type.q_attr
-            let c_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
-            let q : dispatch_queue_t
-            if let l = label {
-                q = dispatch_queue_create(l, c_attr)
-            }
-            else {
-                q = dispatch_queue_create(nil, c_attr)
-            }
+            
+            let q = qos.createQueue(label, q_attr: type.q_attr, relative_priority: relative_priority)
             return .Queue(q)
     }
+    
     public static func createOperationQueue(name: String?,
         maxConcurrentOperationCount : Int) -> Executor {
             
@@ -259,13 +362,13 @@ public enum Executor {
             
     }
     
-    public static func createConcurrentQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createConcurrentQueue(label : String? = nil,qos : QosCompatible = .Default) -> Executor  {
         return self.createQueue(label, type: .Concurrent, qos: qos, relative_priority: 0)
     }
     public static func createConcurrentQueue() -> Executor  {
         return self.createQueue(nil, type: .Concurrent, qos: .Default, relative_priority: 0)
     }
-    public static func createSerialQueue(_ label : String? = nil,qos : NSQualityOfService = .Default) -> Executor  {
+    public static func createSerialQueue(label : String? = nil,qos : QosCompatible = .Default) -> Executor  {
         return self.createQueue(label, type: .Serial, qos: qos, relative_priority: 0)
     }
     public static func createSerialQueue() -> Executor  {
@@ -283,19 +386,64 @@ public enum Executor {
         let executionBlock = self.callbackBlockFor(b)
         executionBlock()
     }
+
+    public func executeWithFuture<__Type>(block: () throws -> __Type) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            do {
+                let s = try block()
+                p.completeWithSuccess(s)
+            }
+            catch {
+                p.completeWithFail(error)
+            }
+        }
+        return p.future
+    }
     
-    public func executeAfterDelay(nanosecs n: Int64, block b: dispatch_block_t)  {
-        let executionBlock = self.callbackBlockFor(b)
+    public func executeWithFuture<__Type>(block: () throws -> Future<__Type>) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            do {
+                try block().onComplete { (completion) -> Void in
+                    p.complete(completion)
+                }
+            }
+            catch {
+                p.completeWithFail(error)
+            }
+        }
+        return p.future
+    }
+    
+    public func executeWithFuture<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type> {
+        let p = Promise<__Type>()
+        self.execute { () -> Void in
+            do {
+                let c = try block()
+                p.complete(c)
+            }
+            catch {
+                p.completeWithFail(error)
+            }
+        }
+        return p.future
+    }
+
+    
+    internal func _executeAfterDelay(nanosecs n: Int64, block: () -> Void)  {
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
-            executionBlock()
-        });
+            block()
+        })
     }
-    public func executeAfterDelay(secs : NSTimeInterval,block b: dispatch_block_t)  {
+
+    
+    public func executeAfterDelay(secs : NSTimeInterval,  block: () -> Void)  {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        self.executeAfterDelay(nanosecs:nanosecs,block: b)
+        return self._executeAfterDelay(nanosecs:nanosecs,block: block)
     }
 
     // This returns the underlyingQueue (if there is one).
@@ -352,8 +500,8 @@ public enum Executor {
     
     public static func getCurrentExecutor() -> Executor? {
         let threadDict = NSThread.currentThread().threadDictionary
-        let r = threadDict[GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY] as? Result<Executor>
-        return r?.result
+        let r = threadDict[GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY] as? Box<Executor>
+        return r?.value
     }
     
     public static func getCurrentQueue() -> dispatch_queue_t? {
@@ -446,7 +594,7 @@ public enum Executor {
         case let .Queue(q):
             switch e {
             case let .Queue(q2):
-                return (q == q2)
+                return (q.isEqual(q2))
             default:
                 return false
             }
@@ -502,14 +650,14 @@ public enum Executor {
     private static func setCurrentExecutor(e:Executor?) -> Executor? {
         let threadDict = NSThread.currentThread().threadDictionary
         let key = GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY
-        let current = threadDict[key] as? Result<Executor>
+        let current = threadDict[key] as? Box<Executor>
         if let ex = e {
-            threadDict.setObject(Result<Executor>(ex), forKey: key)
+            threadDict.setObject(Box<Executor>(ex), forKey: key)
         }
         else {
             threadDict.removeObjectForKey(key)
         }
-        return current?.result
+        return current?.value
     }
 
     public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void) {
@@ -642,7 +790,7 @@ public enum Executor {
         case let .Custom(customCallBack):
             
             let b = { (t:T) -> Void in
-                customCallBack(callback: { () -> Void in
+                customCallBack(block: { () -> Void in
                     block(t)
                 })
             }
@@ -676,10 +824,12 @@ let example_Of_A_Custom_Executor_That_has_unneeded_dispatches = Executor.Custom 
 
 let example_Of_A_Custom_Executor_Where_everthing_takes_5_seconds = Executor.Custom { (callback) -> Void in
     
-    Executor.Primary.executeAfterDelay(5) {
+    Executor.Primary.executeAfterDelay(5.0) { () -> Void in
         callback()
     }
+    
 }
+
 
 
 

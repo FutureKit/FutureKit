@@ -2,20 +2,21 @@
 A Swift based Future/Promises Library for IOS and OS X.   
 
 
+Note - FutureKit is going exclusivly Swift 2.0 only!
+
+There is still a Swift 1.2 branch that I will keep around. But - FutureKit's use of generics pushed swift 1.2 to the limits in a few places.   And it's just too hard to keep fixing for the edge cases.
+
+Swift 2.0 has fixed most of the issues we had with generics!  Plus the error handling integration makes FutureKit easier than ever.
+
+
+
 FutureKit is a Swift implementation of Futures and Promises, but modified specifically for iOS/OSX programmers.
 You can ready the wikipedia article here:
 http://en.wikipedia.org/wiki/Futures_and_promises  
 
 FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
-FutureKit is heading for beta! 
-
-We are almost feature complete.  The Cancellation strategy looks finalized.  Still some additional test coverage to finish.  
-
-Feel free to try it out.   I'm hoping to have a few sub-frameworks for adding FutureKit extensions to a few other Swift libraries (AlamoFire, Haneke) soon also.  
-
-
-- is 100% Swift.  It ONLY currently supports Swift 1.2 and XCode 6.3.  No Swift 1.1 support.  I have currently only been testing using iOS 8.0+.  The plan will be to fix compatibility issues with iOS 7.0.  But I wouldn’t be surprised if things break every know and then.  If you find a problem - submit an issue please!
+- is 100% Swift.  It ONLY currently supports Swift 2.0 and XCode 7.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting iOS 8.0+ and OSX 10.x.
 
 - is type safe.  It uses Swift Generics classes that can automatically infer the type you wish to return from asynchronous logic.  And supports all Swift types (Both 'Any' types, and 'AnyObject/NSObject' types!)
 
@@ -56,7 +57,7 @@ Instead we are gonna do this.
     let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
     let blurrImageFuture =  imageFuture.onSuccess(.UserInitiated) { (image) -> UIImage in {
          let burredImage = doBlurrEffect(image)
-         return burredImage 
+         return burredImage
     }
 
 blurrImageFuture is now a NEW Future<Image>.  That I have created from imageFuture.  I also defined I want that block to run in the .UserInitiated dispatch queue.  (Cause I need it fast!).
@@ -71,11 +72,11 @@ Or i could rewite it all in one line:
     MyApiClass().getAnImageFromServer()
              .onSuccess(.UserInitiated) { (image) -> UIImage in {
                              let burredImage = doBlurrEffect(image)
-                            return burredImage 
+                            return burredImage
              }.onSuccess(.Main) { (blurredImage) -> Void in
                              imageView.image = blurredImage;
-             }.onError { (error:NSError) -> Void in 
-                         // deal with any error that happened along the way 
+             }.onError { (error:NSError) -> Void in
+                         // deal with any error that happened along the way
              }
 
 That's the QUICK 1 minute answer of what this can do.  It let's you take any asynchronous operation and "map" it into a new one.   So you can take all your APIs and background logic and get them to easily conform to a universal way of interacting.    Which can let you get away with a LOT of crazy asynchronous execution, without giving up stability and ease of understanding.
@@ -90,9 +91,9 @@ A promise is a way for you write functions that returns Futures.
 
     func getAnImageFromServer(url : NSURL) -> Future<UIImage> {
         let p = Promise<UIImage>()
-        
+
         dispatch_async(...) {
-             // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches. 
+             // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches.
              let i = UIImage()
              p.completeWithSuccess(i)
         }
@@ -101,7 +102,7 @@ A promise is a way for you write functions that returns Futures.
 
 A Promise<T> is a promise to send something back a value (of type T) in the future.  When it's ready..  A Promise has to be completed with either Success/Fail or Cancelled.  Don't break your promises!  Always complete them.  And everyone will be happy.  Especially your code that is waiting for things.
 
-But it also means the API doesn't really need to bake a hole bunch of custom callback block handlers that return results.   And worry about what dispatch_queue those callback handlers have to running in.   Do you dispatch to mainQ before you call your callback handlers?  Or after?  Nobody seems to agree. 
+But it also means the API doesn't really need to bake a hole bunch of custom callback block handlers that return results.   And worry about what dispatch_queue those callback handlers have to running in.   Do you dispatch to mainQ before you call your callback handlers?  Or after?  Nobody seems to agree.
 
 But the Future object already offers a lot of cool built ways to get told when data is ready and when it fails.  And can handle which GCD queue is required for this reply.     
 
@@ -113,17 +114,17 @@ It also "inverts" the existing dispatch_async() logic.  Where first you call dis
 
     func oldwayToGetStuff(callback:(NSData) -> Void) {
         dispatch_async(StuffMaker().custom_queue_for_stuff)  {
-    
+
             // do stuff to make your NSData
             let d = StuffMaker().iBuildStuff()
-        
+
             dispatch_async(dispatch_get_main()) {
                 callback(d)
             }
         }
     }
 notice how I forgot to add error handling in that callback.  What if iBuildStuff() times out?  do I add more properties to the callback block?  add more blocks?  Every API wants to do it different and every choice makes my code less and less flexible.
-    
+
     class StuffMaker {
         func iBuildStuffWithFutures() -> Future<NSData> {
             let p = promise<NSData>()
@@ -161,5 +162,3 @@ I would love it to get feedback!  Tell me what you think is wrong.  You can foll
 
 - michael@futurekit.org
 - [@swiftfuturekit] (http://twitter.com/swiftfuturekit)
-
-

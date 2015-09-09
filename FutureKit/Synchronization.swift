@@ -1011,9 +1011,9 @@ public class CollectionAccessControl<C : MutableCollectionType, S: Synchronizati
 
 public class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationProtocol> {
     
-    typealias Index  = Key
-    typealias Element = Value
-    typealias DictionaryType = Dictionary<Key,Value>
+    public typealias Index  = Key
+    public typealias Element = Value
+    public typealias DictionaryType = Dictionary<Key,Value>
     
     var syncObject : S
     var dictionary : DictionaryType

@@ -1924,7 +1924,7 @@ internal protocol GenericOptional {
 
 
 extension Optional : GenericOptional {
-    typealias unwrappedType = T
+    typealias unwrappedType = Wrapped
     
     
     var genericOptionalEnumValue : GenericOptionalEnum {

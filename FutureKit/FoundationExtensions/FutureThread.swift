@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public class FutureThread {
+public class FutureThread {
     
     public typealias __Type = Any
     

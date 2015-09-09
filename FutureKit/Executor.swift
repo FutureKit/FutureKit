@@ -26,7 +26,6 @@ import Foundation
 import CoreData
 
 
-@available(iOS 8.0, *)
 public extension NSQualityOfService {
     
     public var qos_class : qos_class_t {
@@ -65,7 +64,6 @@ public enum QosCompatible : Int {
     case Default
     
     
-   @available(iOS 8.0, *)
    var qos_class : qos_class_t {
         switch self {
         case .UserInteractive:
@@ -84,34 +82,18 @@ public enum QosCompatible : Int {
     
     var queue : dispatch_queue_t {
         
-        if #available(iOS 8.0, *) {
-            switch self {
-            case .UserInteractive:
-                return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
-            case .UserInitiated:
-                return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
-            case .Utility:
-                return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
-            case .Background:
-                return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
-            case .Default:
-                return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
-                
-            }
-        }
-        else {
-            switch self {
-            case .UserInteractive:
-                return dispatch_get_main_queue()
-            case .UserInitiated:
-                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH,0)
-            case .Utility:
-                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW,0)
-            case .Background:
-                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,0)
-            case .Default:
-                return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0)
-            }
+        switch self {
+        case .UserInteractive:
+            return dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE,0)
+        case .UserInitiated:
+            return dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)
+        case .Utility:
+            return dispatch_get_global_queue(QOS_CLASS_UTILITY,0)
+        case .Background:
+            return dispatch_get_global_queue(QOS_CLASS_BACKGROUND,0)
+        case .Default:
+            return dispatch_get_global_queue(QOS_CLASS_DEFAULT,0)
+            
         }
     }
     
@@ -119,21 +101,14 @@ public enum QosCompatible : Int {
         var q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             
-            if #available(iOS 8.0, *) {
-                let qos_class = self.qos_class
-                q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
-            }
+            let qos_class = self.qos_class
+            q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             let q : dispatch_queue_t
             if let l = label {
                 q = dispatch_queue_create(l, q_attr)
             }
             else {
                 q = dispatch_queue_create(nil, q_attr)
-            }
-            if #available(iOS 8.0, *) {
-            }
-            else {
-                dispatch_set_target_queue(q,self.queue)
             }
             return q
     }
@@ -312,7 +287,7 @@ public enum Executor {
             case .MainAsync:
                 NSLog("it's probably a bad idea to set .Async to the Main Queue. You have been warned")
             case let .Queue(q):
-                assert(q != dispatch_get_main_queue(), "Async is not for the mainq")
+                assert(!q.isEqual(dispatch_get_main_queue()),"Async is not for the mainq")
             default:
                 break
             }
@@ -497,11 +472,7 @@ public enum Executor {
             case let .Queue(q):
                 return q
             case let .OperationQueue(opQueue):
-                if #available(iOS 8.0, *) {
-                    return opQueue.underlyingQueue
-                } else {
-                    return nil
-                }
+                return opQueue.underlyingQueue
             case let .ManagedObjectContext(context):
                 if (context.concurrencyType == .MainQueueConcurrencyType) {
                     return Executor.mainQ
@@ -623,7 +594,7 @@ public enum Executor {
         case let .Queue(q):
             switch e {
             case let .Queue(q2):
-                return (q == q2)
+                return (q.isEqual(q2))
             default:
                 return false
             }

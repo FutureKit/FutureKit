@@ -10,7 +10,7 @@ import FutureKit
 #endif
 import XCPlayground
 //: Seting XCPSetExecutionShouldContinueIndefinitely so we can run multi-threaded things.
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 //: # FutureBatch
 
 //: Sometimes you want to launch multiple Async commands and wait for them all to complete.  

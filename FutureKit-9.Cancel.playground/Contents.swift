@@ -2,7 +2,7 @@
 //: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 
 //: # Documentation TODO: 
 //:     (..Before we ship 1.0 pretty please..)

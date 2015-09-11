@@ -570,10 +570,15 @@ public class CancellationToken {
     
     private var onCancel : OnCancelHandler?
     private var onDeinit : OnDenitHandler
+
     
     internal init(onCancel c:OnCancelHandler, onDeinit d: OnDenitHandler) {
         self.onCancel = c
         self.onDeinit = d
+    }
+    
+    public var cancelRequested : Bool {
+        return (self.onCancel == nil)
     }
     
     final public func cancel(forced : Bool = false) {

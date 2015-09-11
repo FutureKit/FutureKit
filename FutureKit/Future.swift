@@ -576,7 +576,7 @@ public class CancellationToken {
         self.onDeinit = d
     }
     
-    final func cancel(forced : Bool = false) {
+    final public func cancel(forced : Bool = false) {
         self.onCancel?(forced:forced,token:self)
         self.onCancel = nil
     }

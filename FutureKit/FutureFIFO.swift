@@ -26,43 +26,45 @@ import Foundation
 
 
 // can execute a FIFO set of Blocks and Futures, guaranteeing that Blocks and Futures execute in order
-public class FutureFIFO {
+public class FutureFIFO<T> {
     
     private var lastFuture = Future<Any>(success: ())
     
-    
+    public init() {
+        
+    }
     // add a block and it won't execute until all previosuly submitted Blocks have finished and returned a result.
     // If the block returns a result, than the next ask in the queue is started.
     // If the block returns a Task, that Task must complete before the next block in the Queue is executed.
     
     // A Failed or Canceled task doesn't stop execution of the queue
     // If you care about the Result of specific committed block, you can add a dependency to the Task returned from this function
-    public final func addBlock<__Type>(executor: Executor, _ block: () -> __Type) -> Future<__Type> {
+/*    public final func add<T>(executor: Executor, _ block: () -> T) -> Future<T> {
         
-        let t = self.lastFuture.onComplete (executor) { (completion) -> __Type in
+        let t = self.lastFuture.onComplete (executor) { (completion) -> T in
             return block()
         }
         self.lastFuture = t.As()
         return t
     }
 
-    public final func addBlock<__Type>(block: () -> __Type) -> Future<__Type> {
+    public final func add<T>(block: () -> T) -> Future<T> {
         
-        return self.addBlock(.Primary,block)
-    }
+        return self.add(.Primary,block)
+    } */
 
-    public final func addBlock<__Type>(executor: Executor, _ block: () -> Future<__Type>) -> Future<__Type> {
+    public func add(executor: Executor, operation: () -> Future<T>) -> Future<T> {
     
-        let t = self.lastFuture.onComplete { (completion) -> Future<__Type> in
-            return block()
+        let t = self.lastFuture.onComplete { (completion) -> Future<T> in
+            return operation()
         }
         self.lastFuture = t.As()
         return t
     }
 
-    public final func addBlock<__Type>(block: () -> Future<__Type>) -> Future<__Type> {
+    public func add(operation: () -> Future<T>) -> Future<T> {
         
-        return self.addBlock(.Primary,block)
+        return self.add(.Primary,operation:operation)
     }
     
 

@@ -11,8 +11,8 @@ let stringFuture = Future<String>(success: "5")
 
 let intOptFuture : Future<Int?>
 intOptFuture  = stringFuture.onSuccess { (stringResult) -> Int? in
-    let s = Int(stringResult)
-    return s
+    let i = Int(stringResult)
+    return i
 }
 
 intOptFuture.onSuccess { (intResult : Int?) -> Void in
@@ -39,7 +39,8 @@ stringFuture.onSuccess { (stringResult:String) -> Int in
 //: 'func map<S>((T) -> S) -> Future<S>'
 
 let futureInt = stringFuture.map { (stringResult) -> Int in
-    Int(stringResult)! }
+    Int(stringResult)!
+}
 
 
 //: `futureInt` is automatically be inferred as Future<Int>.
@@ -74,12 +75,12 @@ gonnaTryHardAndNotFail.completeWithFail("Sorry. Maybe Next time.")
 //: # Completion
 //: Sometimes you want to create a dependent Future but conditionally decide inside the block whether the dependent block should Succeed or Fail, etc.   For this we have use a handler block with a different generic signature:
 
-//: 'func onComplete<S>((Completion<T>) -> Completion<S>) -> Future<S>'
+//: 'func onComplete<S>((FutureResult<T>) -> Completion<S>) -> Future<S>'
 
 //:  Don't worry if that seems hard to understand.  It's actually pretty straightforward.
 //: A Completion is a enumeration that is used to 'complete' a future.  A Future has a var
-//: `var completion : Completion<T>?`
-//: this var stores the completion value of the Future.  Note that it's optional.  That's because a Future may not be 'completed' yet.  When it's in an uncompleted state, it's completion var will be nil.
+//: `var result : FutureResult<T>?`
+//: this var stores the result of the Future.  Note that it's optional.  That's because a Future may not be 'completed' yet.  When it's in an uncompleted state, it's `result` var will be nil.
 
 //: If you examine the contents of a completed Future<T>, you will find a Completion<T> enumeration that must be one of the 3 possible values: `.Success(Result<T>)`, `.Fail(NSError)`, `.Cancel(Any?)`
 
@@ -190,11 +191,12 @@ sampleFuture.onComplete { (result) -> Completion<String> in
 //: 'func onComplete(block:(FutureResult<T>) -> Void)'
 
 //: We been using this one without me even mentioning it.  This block always returns a type of Future<Void> that always returns success.  So it can be composed and chained if needed.
-sampleFuture.onComplete { (result) -> Void in
+let f = sampleFuture.onComplete { (result) -> Void in
     if (result.isSuccess) {
         // store this great result in a database or something.
     }
 }
+print(f)
 
 //: 'func onComplete(block:(FutureResult<T>) -> __Type)'
 

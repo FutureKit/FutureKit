@@ -1296,16 +1296,9 @@ public class Future<T> : FutureProtocol{
 //    }
 
     // rather use map?  Sure!
-    public final func map<__Type>(executor : Executor, block:(T) throws -> __Type) -> Future<__Type> {
+    public final func map<__Type>(executor : Executor = .Primary, block:(T) throws -> __Type) -> Future<__Type> {
         return self.onSuccess(executor,block:block)
     }
-    
-    // rather use map?  Sure!
-    // This version of map ALWAYS uses .Immediate, instead of Executor.Primary.
-    public final func map<__Type>(block:(T) throws -> __Type) -> Future<__Type> {
-        return self.onSuccess(.Immediate,block:block)
-    }
-    
 
     
     // ---------------------------------------------------------------------------------------------------
@@ -1420,8 +1413,8 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
         return self.debugDescription
     }
     public var debugDescription: String {
-        let des = self.result?.description ?? "unfinished"
-        return "Future_\(String(T.self))_\(des)"
+        let des = self.result?.description ?? "nil"
+        return "Future<\(String(T.self))>{\(des)}"
     }
     public func debugQuickLookObject() -> AnyObject? {
         return self.debugDescription

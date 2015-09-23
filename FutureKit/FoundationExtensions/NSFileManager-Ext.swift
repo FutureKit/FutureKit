@@ -46,7 +46,7 @@ extension NSFileManager {
 
     func copyItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
     {
-        return executor.executeWithFuture { () -> Bool in
+        return executor.execute { () -> Bool in
             try self.copyItemAtURL(srcURL, toURL: dstURL)
             return true
         }
@@ -54,7 +54,7 @@ extension NSFileManager {
     
     func moveItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
     {
-        return executor.executeWithFuture { () -> Bool in
+        return executor.execute { () -> Bool in
             try self.moveItemAtURL(srcURL, toURL: dstURL)
             return true
         }
@@ -62,7 +62,7 @@ extension NSFileManager {
     }
     func linkItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
     {
-        return executor.executeWithFuture { () -> Bool in
+        return executor.execute { () -> Bool in
             try self.linkItemAtURL(srcURL, toURL: dstURL)
             return true
         }
@@ -70,7 +70,7 @@ extension NSFileManager {
     
     func removeItemAtURL(executor : Executor,URL: NSURL) -> Future<Bool>
     {
-        return executor.executeWithFuture { () -> Bool in
+        return executor.execute { () -> Bool in
             try self.removeItemAtURL(URL)
             return true
         }

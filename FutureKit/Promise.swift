@@ -117,6 +117,9 @@ public class Promise<T>  {
     public final func complete(completion : Completion<T>) {
         self.future.completeWith(completion)
     }
+    public final func complete(value : CompletionValue<T>) {
+        self.future.completeWith(value.completion)
+    }
     
     public final func completeWithSuccess(result : T) {
         self.future.completeWith(.Success(result))
@@ -131,8 +134,8 @@ public class Promise<T>  {
     public final func completeWithException(e : NSException) {
         self.future.completeWith(Completion<T>(exception: e))
     }
-    public final func completeWithCancel(forced:Bool = false) {
-        self.future.completeWith(.Cancelled(forced))
+    public final func completeWithCancel() {
+        self.future.completeWith(.Cancelled)
     }
     public final func completeUsingFuture(f : Future<T>) {
         self.future.completeWith(.CompleteUsing(f))
@@ -159,7 +162,7 @@ public class Promise<T>  {
     
     - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
-    public final func completeWithBlock(completionBlock : ()->Completion<T>) {
+    public final func completeWithBlock(completionBlock : () throws ->Completion<T>) {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock,onCompletionError: nil)
     }
     
@@ -176,7 +179,7 @@ public class Promise<T>  {
 
     - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
-    public final func completeWithBlocks(completionBlock : () ->Completion<T>, onAlreadyCompleted : () -> Void)
+    public final func completeWithBlocks(completionBlock : () throws ->Completion<T>, onAlreadyCompleted : () -> Void)
     {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock, onCompletionError: onAlreadyCompleted)
     }

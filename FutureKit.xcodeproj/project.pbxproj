@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; settings = {ASSET_TAGS = (); }; };
+		09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; settings = {ASSET_TAGS = (); }; };
+		092794BC1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; settings = {ASSET_TAGS = (); }; };
+		092794BD1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; settings = {ASSET_TAGS = (); }; };
 		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
-		0D7502B71AE6B114009C3F63 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B51AE6B114009C3F63 /* FTask.swift */; };
-		0D7502B81AE6B114009C3F63 /* FTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B51AE6B114009C3F63 /* FTask.swift */; };
 		0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
@@ -62,7 +64,6 @@
 		0DEA1BE51AE30B65000E126F /* FutureKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DEA1B951AE30853000E126F /* FutureKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BEE1AE3116A000E126F /* FutureKit_iOS_Tests.swift */; };
 		0DEA1BF01AE3116A000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1B911AE30853000E126F /* FutureKit.framework */; };
-		0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 		0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */; };
 		0DEA1C051AE313DD000E126F /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DEA1BAF1AE30872000E126F /* FutureKit.framework */; };
@@ -70,7 +71,6 @@
 		0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
 		0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
 		0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
-		DEBDAD3F1B3C5A78004310B9 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; };
 		DEBDAD401B3C5A78004310B9 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -99,11 +99,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
+		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Completion.swift; sourceTree = "<group>"; };
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; };
 		0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = convertPerfToCsv.swift; path = FutureKitTests/convertPerfToCsv.swift; sourceTree = "<group>"; };
 		0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFIFO.swift; sourceTree = "<group>"; };
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0D7502B51AE6B114009C3F63 /* FTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FTask.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ExtensionVars.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionHandler.h; sourceTree = "<group>"; };
@@ -118,7 +119,7 @@
 		0D8D9A481B3643B0003FBADD /* BlockBasedTestCase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockBasedTestCase.h; sourceTree = "<group>"; };
 		0DA41FCE1ADAFE5A00B58B0B /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Future.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; };
-		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; };
 		0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSOperation+FutureKit.swift"; sourceTree = "<group>"; };
 		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FutureKit iOS Testing App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -133,8 +134,8 @@
 		0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureKit_iOS_Testing_AppTests.swift; sourceTree = "<group>"; };
 		0DE35D981B389E480098930D /* BlockBasedTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockBasedTestCase.swift; sourceTree = "<group>"; };
 		0DE3AD6D1ADCB55C000345AD /* Executor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Executor.swift; sourceTree = "<group>"; };
-		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureBatch.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DE3AD6F1ADCBBF8000345AD /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Promise.swift; sourceTree = "<group>"; };
+		0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureBatch.swift; sourceTree = "<group>"; };
 		0DEA1B911AE30853000E126F /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1B941AE30853000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1B951AE30853000E126F /* FutureKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = FutureKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -199,14 +200,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0D7502B41AE6B114009C3F63 /* FTask */ = {
-			isa = PBXGroup;
-			children = (
-				0D7502B51AE6B114009C3F63 /* FTask.swift */,
-			);
-			path = FTask;
-			sourceTree = "<group>";
-		};
 		0D7502B61AE6B114009C3F63 /* FoundationExtensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -234,6 +227,7 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
+				09059C431BB23E3C00555E26 /* FutureKit.podspec */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,
 				0DB9799D1AE2A21100158386 /* FutureKitTests */,
@@ -263,6 +257,7 @@
 			isa = PBXGroup;
 			children = (
 				0DA41FCE1ADAFE5A00B58B0B /* Future.swift */,
+				092794BB1BB25DD300DFB56D /* Completion.swift */,
 				0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */,
 				0DE3AD6F1ADCBBF8000345AD /* Promise.swift */,
 				0DE3AD6D1ADCB55C000345AD /* Executor.swift */,
@@ -270,7 +265,6 @@
 				0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */,
 				0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */,
 				0D7502B91AE6B182009C3F63 /* Utils */,
-				0D7502B41AE6B114009C3F63 /* FTask */,
 				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
 			);
 			path = FutureKit;
@@ -658,7 +652,6 @@
 				0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BC81AE30885000E126F /* Future.swift in Sources */,
 				0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */,
-				0D7502B71AE6B114009C3F63 /* FTask.swift in Sources */,
 				0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */,
 				0DEA1BCA1AE30885000E126F /* Executor.swift in Sources */,
@@ -667,6 +660,7 @@
 				0DEA1BD11AE30885000E126F /* SyncWaitHandler.swift in Sources */,
 				0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */,
 				0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
+				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
@@ -682,7 +676,6 @@
 				0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BD51AE30886000E126F /* Future.swift in Sources */,
 				0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */,
-				0D7502B81AE6B114009C3F63 /* FTask.swift in Sources */,
 				0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */,
 				0DEA1BD71AE30886000E126F /* Executor.swift in Sources */,
@@ -691,6 +684,7 @@
 				0DEA1BDE1AE30886000E126F /* SyncWaitHandler.swift in Sources */,
 				0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */,
 				0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
+				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
@@ -701,13 +695,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */,
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
 				0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
+				09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */,
 				0DE35D9A1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
 				0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
-				DEBDAD3F1B3C5A78004310B9 /* PromiseTests.swift in Sources */,
-				0DEA1BF61AE31176000E126F /* BasicTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

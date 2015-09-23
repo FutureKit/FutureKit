@@ -32,30 +32,30 @@ class SyncWaitHandler<T>  {
     
     private var condition : NSCondition = NSCondition()
     
-    private var completion : Completion<T>?
+    private var value : CompletionValue<T>?
     
     init (waitingOnFuture f: Future<T>) {
-        f.onComplete { (c) -> Void in
+        f.onComplete { (v) -> Void in
             self.condition.lock()
-            self.completion = c
+            self.value = v
             self.condition.broadcast()
             self.condition.unlock()
         }
     }
     
-    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> Completion<T> {
+    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> CompletionValue<T> {
         self.condition.lock()
         if (warn && NSThread.isMainThread()) {
-            if (self.completion == nil) {
+            if (self.value == nil) {
                 warnOperationOnMainThread()
             }
         }
-        while (self.completion == nil) {
+        while (self.value == nil) {
             self.condition.wait()
         }
         self.condition.unlock()
         
-        return self.completion!
+        return self.value!
     }
     
 }

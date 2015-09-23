@@ -1,5 +1,5 @@
 //
-//  NSData-Ext.swift
+//  FutureFIFO.swift
 //  FutureKit
 //
 //  Created by Michael Gray on 4/21/15.

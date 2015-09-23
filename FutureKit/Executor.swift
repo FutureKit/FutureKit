@@ -46,6 +46,10 @@ public extension NSQualityOfService {
     }
 }
 
+final public class Box<T> {
+    public let value: T
+    public init(_ v: T) { self.value = v }
+}
 
 public enum QosCompatible : Int {
     /* UserInteractive QoS is used for work directly involved in providing an interactive UI such as processing events or drawing to the screen. */
@@ -243,16 +247,7 @@ public enum Executor {
         }
     }
     
-    public typealias customFutureHandlerBlockOld = ((Any) -> Void)
-
-    public typealias customFutureHandlerBlock = (() -> Void)
-
-    // define a Block with the following signature.
-    // we give you some taskInfo and a block called callBack
-    // just call "callBack(data)" in your execution context of choice.
-    public typealias CustomCallBackBlockOld = ((data:Any,callBack:customFutureHandlerBlock) -> Void)
-
-    public typealias CustomCallBackBlock = ((block:customFutureHandlerBlock) -> Void)
+    public typealias CustomCallBackBlock = ((block:() -> Void) -> Void)
 
     // TODO - should these be configurable? Eventually I guess.
     public static var PrimaryExecutor = Executor.Current {
@@ -382,14 +377,14 @@ public enum Executor {
     //          // insert code to run in the QOS_CLASS_BACKGROUND queue!
     //     }
     //
-    public func execute(block b: dispatch_block_t) {
+    public func executeBlock(block b: dispatch_block_t) {
         let executionBlock = self.callbackBlockFor(b)
         executionBlock()
     }
 
-    public func executeWithFuture<__Type>(block: () throws -> __Type) -> Future<__Type> {
+    public func execute<__Type>(block: () throws -> __Type) -> Future<__Type> {
         let p = Promise<__Type>()
-        self.execute { () -> Void in
+        self.executeBlock { () -> Void in
             do {
                 let s = try block()
                 p.completeWithSuccess(s)
@@ -401,12 +396,12 @@ public enum Executor {
         return p.future
     }
     
-    public func executeWithFuture<__Type>(block: () throws -> Future<__Type>) -> Future<__Type> {
+    public func execute<__Type>(block: () throws -> Future<__Type>) -> Future<__Type> {
         let p = Promise<__Type>()
-        self.execute { () -> Void in
+        self.executeBlock { () -> Void in
             do {
-                try block().onComplete { (completion) -> Void in
-                    p.complete(completion)
+                try block().onComplete { (value) -> Void in
+                    p.complete(value.completion)
                 }
             }
             catch {
@@ -416,9 +411,9 @@ public enum Executor {
         return p.future
     }
     
-    public func executeWithFuture<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type> {
+    public func execute<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type> {
         let p = Promise<__Type>()
-        self.execute { () -> Void in
+        self.executeBlock { () -> Void in
             do {
                 let c = try block()
                 p.complete(c)
@@ -431,16 +426,20 @@ public enum Executor {
     }
 
     
-    internal func _executeAfterDelay(nanosecs n: Int64, block: () -> Void)  {
+    internal func _executeAfterDelay<__Type>(nanosecs n: Int64, block: () throws -> __Type) -> Future<__Type> {
+        let p = Promise<__Type>()
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
-            block()
+            p.completeWithBlock {
+                return .Success(try block())
+            }
         })
+        return p.future
     }
 
     
-    public func executeAfterDelay(secs : NSTimeInterval,  block: () -> Void)  {
+    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> __Type) -> Future<__Type> {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
         return self._executeAfterDelay(nanosecs:nanosecs,block: block)

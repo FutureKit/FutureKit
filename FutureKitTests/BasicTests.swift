@@ -142,7 +142,7 @@ class FutureKitBasicTests: XCTestCase {
     func testFuture() {
         let x = Future<Int>(success: 5)
         
-        XCTAssert(x.completion!.result == 5, "it works")
+        XCTAssert(x.completionValue!.result == 5, "it works")
     }
     
     func testADoneFutureExpectation() {
@@ -159,7 +159,7 @@ class FutureKitBasicTests: XCTestCase {
     }
     func testContinueWithRandomly() {
         
-        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, "Description")
+        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, description: "Description")
         
         self.waitForExpectationsWithTimeout(120.0, handler: nil)
         

@@ -117,7 +117,7 @@ public class Promise<T>  {
     public final func complete(completion : Completion<T>) {
         self.future.completeWith(completion)
     }
-    public final func complete(value : CompletionValue<T>) {
+    public final func complete(value : FutureResult<T>) {
         self.future.completeWith(value.completion)
     }
     

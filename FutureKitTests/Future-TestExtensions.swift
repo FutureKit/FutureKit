@@ -29,7 +29,7 @@ import FutureKit
 extension Future {
     
     func expectationTestForCompletion(testcase: XCTestCase, description : String,
-        assertion : ((value : CompletionValue<T>) -> (assert:BooleanType,message:String)),
+        assertion : ((value : FutureResult<T>) -> (assert:BooleanType,message:String)),
         file: String = __FILE__,
         line: UInt = __LINE__
         ) -> XCTestExpectation! {
@@ -51,7 +51,7 @@ extension Future {
         file: String = __FILE__,
         line: UInt = __LINE__) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : CompletionValue<T>) -> (assert: BooleanType, message: String) in
+            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
                 switch value {
                 case let .Success(result):
                     return (test(result: result),"test result failure for Future with result \(result)" )
@@ -68,7 +68,7 @@ extension Future {
         line: UInt = __LINE__
         ) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : CompletionValue<T>) -> (assert: BooleanType, message: String) in
+            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
                 switch value {
                 case .Success:
                     return (true, "")

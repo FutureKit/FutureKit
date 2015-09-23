@@ -74,12 +74,12 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
 
 
 let catIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
-getCoolCatPic(catIFoundOnTumblr).onComplete { (completion) -> Void in
-    switch completion.state {
-    case .Success:
-        let i = completion.result
-    case .Fail:
-        let e = completion.error
+getCoolCatPic(catIFoundOnTumblr).onComplete { (result) -> Void in
+    switch result {
+    case let .Success(value):
+        let i = value
+    case let .Fail(error):
+        let e = error
     case .Cancelled:
         break
     }

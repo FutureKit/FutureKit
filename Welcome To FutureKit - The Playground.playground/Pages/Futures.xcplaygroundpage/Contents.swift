@@ -51,7 +51,7 @@ let f = asyncFuture5.onSuccess(.Main) { (result) -> Int in
 //: if you uncomment the next line, watch how compile complains (check the Console Output on the Timeline if you don't see an error in the editor)
 
 
-// asyncFuture5.onSuccess { (result: String) -> Void in  }
+// asyncFuture5.onSuccess { (value: String) -> Void in  }
 
 //: changing `(result:String)` to `(result:Int)` fixes the bug.  (Or just remove the type definition and let Swift infer the type needed)
 
@@ -69,19 +69,19 @@ cancelledFuture.onCancel { () -> Void in
 
 //: But if you don't want to add 3 handlers, it's more common to just add a single onComplete handler
 
-asyncFuture5.onComplete { (completion : Completion<Int>) -> Void in
-    switch completion.state {
-    case .Success:
-        let five = completion.result
-    case .Fail:
-        let e = completion.error
+asyncFuture5.onComplete { (result : FutureResult<Int>) -> Void in
+    switch result {
+    case let .Success(value):
+        let five = value
+    case let .Fail(error):
+        let e = error
     case .Cancelled:
         break
     }
 }
 //: What's Completion<Int>? A Completion is an enumeration that represents the "completion" of a future.  When returned to an OnComplete handler, it will always be one of three values .Success, .Fail, or .Cancelled.
 
-let completionOfAsyncFuture5 = asyncFuture5.completion!
+let completionOfAsyncFuture5 = asyncFuture5.result!
 // ".Success(5)"
 
 //: Seems easy?  Let's make them more fun.. 

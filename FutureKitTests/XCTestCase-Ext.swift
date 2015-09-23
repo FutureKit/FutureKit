@@ -30,7 +30,7 @@ extension XCTestCase {
     func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
         file: String = __FILE__,
         line: UInt = __LINE__,
-        assertion : ((value : CompletionValue<T>) -> (assert:BooleanType,message:String))
+        assertion : ((value : FutureResult<T>) -> (assert:BooleanType,message:String))
         ) -> XCTestExpectation! {
             
             let e = self.expectationWithDescription(description)
@@ -50,7 +50,7 @@ extension XCTestCase {
         test : ((result:T) -> BooleanType)
         ) -> XCTestExpectation! {
             
-            return self.expectationTestForFutureCompletion(description,future: f, file:file,line:line)  { (value : CompletionValue<T>) -> (assert: BooleanType, message: String) in
+            return self.expectationTestForFutureCompletion(description,future: f, file:file,line:line)  { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
                 switch value {
                 case let .Success(result):
                     return (test(result: result),"test result failure for Future with result \(result)" )

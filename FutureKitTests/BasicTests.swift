@@ -142,7 +142,7 @@ class FutureKitBasicTests: XCTestCase {
     func testFuture() {
         let x = Future<Int>(success: 5)
         
-        XCTAssert(x.completionValue!.result == 5, "it works")
+        XCTAssert(x.result!.value == 5, "it works")
     }
     
     func testADoneFutureExpectation() {

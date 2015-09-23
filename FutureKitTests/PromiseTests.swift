@@ -84,31 +84,31 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
         case NotCompleted:
             break
             
-        case let .Success(expectedResult):
+        case let .Success(expectedValue):
             let futureExecuctor = testVars.futureExecutor
             
             let onCompleteExpecation = testCase.expectationWithDescription("OnComplete")
             let onSuccessExpectation = testCase.expectationWithDescription("OnSuccess")
 
 
-            future.onComplete (futureExecuctor) { (value) -> Void in
+            future.onComplete (futureExecuctor) { (result) -> Void in
                 
-                switch value {
-                case let .Success(r):
-                    XCTAssert(r == expectedResult, "unexpected result!")
+                switch result {
+                case let .Success(value):
+                    XCTAssert(value == expectedValue, "unexpected result!")
                 default:
-                    XCTFail("completion with wrong value \(value)")
+                    XCTFail("completion with wrong value \(result)")
                 }
-                XCTAssert(value.result == expectedResult, "unexpected result!")
-                XCTAssert(value.error == nil, "unexpected error!")
-                XCTAssert(value.isSuccess == true, "unexpected state!")
-                XCTAssert(value.isFail == false, "unexpected state!")
-                XCTAssert(value.isCancelled == false, "unexpected state!")
+                XCTAssert(result.value == expectedValue, "unexpected result!")
+                XCTAssert(result.error == nil, "unexpected error!")
+                XCTAssert(result.isSuccess == true, "unexpected state!")
+                XCTAssert(result.isFail == false, "unexpected state!")
+                XCTAssert(result.isCancelled == false, "unexpected state!")
                 
                 onCompleteExpecation.fulfill()
             }
-            future.onSuccess (futureExecuctor) { (result) -> Void in
-                XCTAssert(result == expectedResult, "unexpected result!")
+            future.onSuccess (futureExecuctor) { (value) -> Void in
+                XCTAssert(value == expectedValue, "unexpected result!")
                 onSuccessExpectation.fulfill()
             }
             future.onCancel(futureExecuctor) { () -> Void in
@@ -124,26 +124,26 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
             let onCompleteExpecation = testCase.expectationWithDescription("OnComplete")
             let onFailExpectation = testCase.expectationWithDescription("OnFail")
             
-            future.onComplete (futureExecuctor) { (value) -> Void in
+            future.onComplete (futureExecuctor) { (result) -> Void in
                 
-                switch value {
+                switch result {
                 case let .Fail(error):
                     let nserror = error as! FutureKitError
                     XCTAssert(nserror == expectedError, "unexpected error! [\(nserror)]\n expected [\(expectedError)]")
                 default:
-                    XCTFail("completion with wrong value \(value)")
+                    XCTFail("completion with wrong value \(result)")
                 }
-                XCTAssert(value.result == nil, "unexpected result!")
-                let cnserror = value.error as! FutureKitError
+                XCTAssert(result.value == nil, "unexpected result!")
+                let cnserror = result.error as! FutureKitError
                 XCTAssert(cnserror == expectedError, "unexpected error! \(cnserror) expected \(expectedError)")
-                XCTAssert(value.isSuccess == false, "unexpected state!")
-                XCTAssert(value.isFail == true, "unexpected state!")
-                XCTAssert(value.isCancelled == false, "unexpected state!")
+                XCTAssert(result.isSuccess == false, "unexpected state!")
+                XCTAssert(result.isFail == true, "unexpected state!")
+                XCTAssert(result.isCancelled == false, "unexpected state!")
                 
                 onCompleteExpecation.fulfill()
             }
-            future.onSuccess (futureExecuctor) { (result) -> Void in
-                XCTFail("Did not expect onSuccess \(result)")
+            future.onSuccess (futureExecuctor) { (value) -> Void in
+                XCTFail("Did not expect onSuccess \(value)")
             }
             future.onCancel(futureExecuctor) { () -> Void in
                 XCTFail("Did not expect onCancel")
@@ -161,21 +161,21 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
             let onCompleteExpecation = testCase.expectationWithDescription("OnComplete")
             let onCancelExpectation = testCase.expectationWithDescription("OnCancel")
             
-            future.onComplete (futureExecutor) { (value) -> Void in
+            future.onComplete (futureExecutor) { (result) -> Void in
                 
-                switch value {
+                switch result {
                 case .Cancelled:
                     break;
                 default:
-                    XCTFail("completion with wrong value \(value)")
+                    XCTFail("completion with wrong value \(result)")
                 }
-                XCTAssert(value.error == nil, "unexpected error \(value)!")
-                XCTAssert(value.isCancelled, "unexpected state! \(value)")
+                XCTAssert(result.error == nil, "unexpected error \(result)!")
+                XCTAssert(result.isCancelled, "unexpected state! \(result)")
                 
                 onCompleteExpecation.fulfill()
             }
-            future.onSuccess (futureExecutor) { (result) -> Void in
-                XCTFail("Did not expect onSuccess \(result)")
+            future.onSuccess (futureExecutor) { (value) -> Void in
+                XCTFail("Did not expect onSuccess \(value)")
             }
             future.onCancel (futureExecutor) { (_) -> Void in
                 onCancelExpectation.fulfill()
@@ -889,14 +889,13 @@ class PromiseTests: FKTestCase {
         let anySuccessExpectation = self.expectationWithDescription("Future.onAnySuccess")
         
         
-        f.onComplete(futureExecutor) { (completion) -> Void in
+        f.onComplete(futureExecutor) { (result) -> Void in
             
-            switch completion {
-            case let .Success(t):
-                XCTAssert(t == success, "Didn't get expected success value \(success)")
-                XCTAssert(completion.result == success, "Didn't get expected success value \(success)")
+            switch result {
+            case let .Success(value):
+                XCTAssert(value == success, "Didn't get expected success value \(success)")
             default:
-                XCTFail("unexpectad completion value \(completion)")
+                XCTFail("unexpected result \(result)")
             }
             completeExpectation.fulfill()
         }

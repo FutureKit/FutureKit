@@ -26,29 +26,28 @@ import Foundation
 
 
 public protocol CompletionType {
-    typealias SuccessResultType
+    typealias ValueType
     
-    var result : SuccessResultType! { get }
+    var value : ValueType! { get }
     var error : ErrorType! { get }
     
     var isSuccess : Bool { get }
     var isFail : Bool { get }
     var isCancelled : Bool { get }
 
-    var completion : Completion<SuccessResultType> { get }
-    var value : CompletionValue<SuccessResultType> { get }
+    var completion : Completion<ValueType> { get }
+    var result : FutureResult<ValueType> { get }
 
 }
 /**
 Defines a simple enumeration of the legal Completion states of a Future.
 
-- Success: The Future has completed Succesfully.
-- Fail: The Future has failed.
-- Cancelled:  The Future was cancelled. This is typically not seen as an error.
+- case Success(T):      the Future has completed Succesfully.
+- case Fail(ErrorType): the Future has failed.
+- case Cancelled:       the Future was cancelled. This is typically not seen as an error.
 
-The enumeration is Objective-C Friendly
 */
-public enum CompletionValue<T>  {
+public enum FutureResult<T>  {
     
     case Success(T)
     case Fail(ErrorType)
@@ -66,51 +65,41 @@ public enum CompletionValue<T>  {
             }
         }
     }
-    public var value : CompletionValue<T> {
+    public var result : FutureResult<T> {
         return self
     }
     
 }
 
 /**
-Defines a an enumeration that stores both the state and the data associated with a Future completion.
+Defines a an enumeration that can be used to complete a Promise/Future.
 
-- Success(T): The Future completed Succesfully with a Result
+- Success(T): The Future should complete with a `FutureResult.Success(T)`
 
-- Fail(ErrorType): The Future has failed with an ErrorType.
+- Fail(ErrorType): The Future should complete with a `FutureResult.Fail(ErrorType)`
 
-- Cancelled(Any?):  The Future was cancelled. The cancellation can optionally include a token.
+- Cancelled:  
+    The Future should complete with with `FutureResult.Cancelled`.
 
-- CompleteUsing(FutureProtocol):  This Future will be completed with the result of a "sub" Future. Only used by block handlers.
+- CompleteUsing(Future<T>):  
+    The Future should be completed with the result of a another dependent Future, when the dependent Future completes.
+    
+    If The Future receives a cancelation request, than the cancellation request will be forwarded to the depedent future.
 */
 public enum Completion<T>  {
     
-    /**
-    Future completed with a result of T
-    */
     case Success(T)
     
-    /**
-    Future failed with error ErrorType
-    */
     case Fail(ErrorType)
     
-    /**
-    Future was Cancelled.
-    */
     case Cancelled
     
-    /**
-    This Future's completion will be set by some other Future<T>.  This will only be used as a return value from the onComplete/onSuccess/onFail/onCancel handlers.  the var "completion" on Future should never be set to 'CompleteUsing'.
-    
-    FutureProtocol needs to be a Future<S> where S : T
-    */
     case CompleteUsing(Future<T>)
 }
 
 
 
-public extension CompletionValue { // initializers
+public extension FutureResult { // initializers
     
     /**
     returns a .Fail(FutureNSError) with a simple error string message.
@@ -131,13 +120,13 @@ public extension CompletionValue { // initializers
     }
 }
 
-extension CompletionValue : CompletionType {
-    public typealias SuccessResultType = T
+extension FutureResult : CompletionType {
+    public typealias ValueType = T
    
     /**
     make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
     */
-    public var result : T! {
+    public var value : T! {
         get {
             switch self {
             case let .Success(t):
@@ -192,13 +181,93 @@ extension CompletionValue : CompletionType {
         }
     }
     
+    /** 
+    can be used inside a do/try/catch block to 'try' and get the result of a Future.
     
+    Useful if you want to use a swift 2.0 error handling block to resolve errors
+    
+        let f: Future<Int> = samplefunction()
+        f.onComplete { (value) -> Void in
+            do {
+                let r: Int = try resultValue()
+            }
+            catch {
+                print("error : \(error)")
+            }
+        }
+    
+    */
+    func tryValue() throws -> T {
+        switch self {
+        case let .Success(value):
+            return value
+        case let .Fail(error):
+            throw error
+        case .Cancelled:
+            throw FutureKitError(genericError: "Future was canceled.")
+        }
+    }
+    
+    /**
+    can be used inside a do/try/catch block to 'try' and get the result of a Future.
+    
+    Useful if you want to use a swift 2.0 error handling block to resolve errors
+    
+        let f: Future<Int> = samplefunction()
+        f.onComplete { (value) -> Void in
+            do {
+                try throwIfFail()
+            }
+            catch {
+                print("error : \(error)")
+            }
+        }`
+    
+    .Cancelled does not throw an error.  If you want to also trap cancellations use 'throwIfFailOrCancel()`
+    
+    */
+    func throwIfFail() throws {
+        switch self {
+        case let .Fail(error):
+            throw error
+        default:
+            break
+        }
+    }
+
+    /**
+    can be used inside a do/try/catch block to 'try' and get the result of a Future.
+    
+    Useful if you want to use a swift 2.0 error handling block to resolve errors
+    
+        let f: Future<Int> = samplefunction()
+        f.onComplete { (value) -> Void in
+            do {
+                try throwIfFailOrCancel()
+            }
+            catch {
+                print("error : \(error)")
+            }
+        }
+    
+    */
+    func throwIfFailOrCancel() throws {
+        switch self {
+        case let .Fail(error):
+            throw error
+        case .Cancelled:
+            throw FutureKitError(genericError: "Future was canceled.")
+        default:
+            break
+        }
+    }
+
 }
 
 
-public extension CompletionValue { // conversions
+public extension FutureResult { // conversions
     
-    public func As() -> CompletionValue<T> {
+    public func As() -> FutureResult<T> {
         return self
     }
     /**
@@ -215,15 +284,15 @@ public extension CompletionValue { // conversions
     
     - example:
     
-    `let c : CompletionValue<Int> = .Success(5)`
+    `let c : FutureResult<Int> = .Success(5)`
     
-    `let c2 : CompletionValue<Int32> =  c.As()`
+    `let c2 : FutureResult<Int32> =  c.As()`
     
     `assert(c2.result == Int32(5))`
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     */
-    public func As<S>() -> CompletionValue<S> {
+    public func As<S>() -> FutureResult<S> {
         switch self {
         case let .Success(t):
             let r = t as! S
@@ -241,16 +310,16 @@ public extension CompletionValue { // conversions
     WARNING: if `T as! S` isn't legal, than all Success values may be converted to nil
     - example:
     
-    let c : CompletionValue<String> = .Success("5")
-    let c2 : CompletionValue<[Int]?> =  c.convertOptional()
+    let c : FutureResult<String> = .Success("5")
+    let c2 : FutureResult<[Int]?> =  c.convertOptional()
     assert(c2.result == nil)
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     
-    - returns: a new completionValue of type Completion<S?>
+    - returns: a new result of type Completion<S?>
     
     */
-    public func convertOptional<S>() -> CompletionValue<S?> {
+    public func convertOptional<S>() -> FutureResult<S?> {
         switch self {
         case let .Success(t):
             let r = t as? S
@@ -263,7 +332,7 @@ public extension CompletionValue { // conversions
     }
 }
 
-extension CompletionValue : CustomStringConvertible, CustomDebugStringConvertible {
+extension FutureResult : CustomStringConvertible, CustomDebugStringConvertible {
     
     public var description: String {
         switch self {
@@ -318,7 +387,7 @@ public extension Completion { // initializers
 
 extension Completion : CompletionType { // properties
 
-    public typealias SuccessResultType = T
+    public typealias ValueType = T
     public var completion : Completion<T> {
         return self
     }
@@ -367,7 +436,7 @@ extension Completion : CompletionType { // properties
     /**
     get the Completion state for a completed state. It's easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).
     */
-    public var value : CompletionValue<T> {
+    public var result : FutureResult<T> {
         get {
             switch self {
             case let .Success(result):
@@ -377,7 +446,7 @@ extension Completion : CompletionType { // properties
             case .Cancelled:
                 return .Cancelled
             case .CompleteUsing:
-                let error = FutureKitError(genericError: "can't convert .CompleteUsing to CompletionValue<T>")
+                let error = FutureKitError(genericError: "can't convert .CompleteUsing to FutureResult<T>")
                 assertionFailure("\(error)")
                 return .Fail(error)
             }
@@ -387,7 +456,7 @@ extension Completion : CompletionType { // properties
     /**
     make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
     */
-    public var result : T! {
+    public var value : T! {
         get {
             switch self {
             case let .Success(t):
@@ -491,7 +560,7 @@ public extension Completion { // conversions
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     
-    - returns: a new completionValue of type Completion<S?>
+    - returns: a new result of type Completion<S?>
     
     */
     public func convertOptional<S>() -> Completion<S?> {

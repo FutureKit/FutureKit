@@ -32,7 +32,7 @@ class SyncWaitHandler<T>  {
     
     private var condition : NSCondition = NSCondition()
     
-    private var value : CompletionValue<T>?
+    private var value : FutureResult<T>?
     
     init (waitingOnFuture f: Future<T>) {
         f.onComplete { (v) -> Void in
@@ -43,7 +43,7 @@ class SyncWaitHandler<T>  {
         }
     }
     
-    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> CompletionValue<T> {
+    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> FutureResult<T> {
         self.condition.lock()
         if (warn && NSThread.isMainThread()) {
             if (self.value == nil) {

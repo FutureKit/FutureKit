@@ -84,7 +84,7 @@ gonnaTryHardAndNotFail.completeWithFail("Sorry. Maybe Next time.")
 //: If you examine the contents of a completed Future<T>, you will find a Completion<T> enumeration that must be one of the 3 possible values: `.Success(Result<T>)`, `.Fail(NSError)`, `.Cancel(Any?)`
 
 let anotherFuture5 = Future(success: 5)
-switch anotherFuture5.completion! {
+switch anotherFuture5.result! {
 case let .Success(x):
     let y = x
 default:
@@ -115,16 +115,16 @@ typealias keepTryingPayload = (tries:Int,result:String)
 func iWillKeepTryingTillItWorks(attemptNo: Int) -> Future<Int> {
     
     let numberOfAttempts = attemptNo + 1
-    return iMayFailRandomly().onComplete { (completion) -> Completion<Int> in
-        switch completion.state {
+    return iMayFailRandomly().onComplete { (result) -> Completion<Int> in
+        switch result {
             
-        case .Success:
-            _ = completion.result
-            return SUCCESS(numberOfAttempts)
+        case let .Success(value):
+            _ = value
+            return .Success(numberOfAttempts)
             
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(numberOfAttempts)
-            return COMPLETE_USING(nextFuture)
+            return .CompleteUsing(nextFuture)
         }
     }
 }
@@ -136,95 +136,73 @@ keepTrying.onSuccess { (tries) -> Void in
 
 //: ## CompletionState
 //: since onComplete will get a Completion<Int>, the natural idea would be to use switch (completion)
-futureInt.onComplete { (completion : Completion<Int>) -> Void in
-    switch completion {
+futureInt.onComplete { (result) -> Void in
+    switch result {
         
-    case let .Success(r):
-        let five = r
+    case let .Success(value):
+        let five = value
         
     case let .Fail(error):
         let e = error
         
     case .Cancelled:
         break
-        
-    case let .CompleteUsing(f):
-        assertionFailure("hey! FutureKit promised this wouldn't happen!")
-        break;
-    }
-}
-//: But it's annoying for a few reasons.
-//: 1. You have to add either `case .CompleteUsing`:, or a `default:`, because Swift requires switch to be complete.  But it's illegal to receive that completion value, in this function.  That case won't happen.
-//: 2. .Success currently uses an associated type of 'Result<T>'.  Which has more to do with a bug/limitation in Swift Generic enumerations (that we expect will get fixed in the future).
-//: So the simpler and alternate is to look at the var 'state' on the completion value.  It uses the related enumeration CompletionState.  Which is a simpler enumeration.
 
-//: Let's rewrite the same handler using the var `state`.
-futureInt.onComplete { (completion : Completion<Int>) -> Void in
-    switch completion.state {
-    case .Success:
-        let five = completion.result
-    case .Fail:
-        let e = completion.error
-    case .Cancelled:
-        break
     }
 }
 
 //: If all you care about is success or fail, you can use the isSuccess var
-futureInt.onComplete { (completion : Completion<Int>) -> Void in
-    if completion.isSuccess {
-        let five = completion.result
+futureInt.onComplete { (result : FutureResult<Int>) -> Void in
+    if result.isSuccess {
+        let five = result.result
     }
     else {
         // must have failed or was cancelled
     }
 }
-
-
 //: # onComplete handler varients
 //: There are actually 4 different variants of onComplete() handler
-//: - 'func onComplete(block:(Completion<T>) -> Completion<__Type>)'
-//: - 'func onComplete(block:(Completion<T>) -> Void)'
-//: - 'func onComplete(block:(Completion<T>) -> __Type)'
-//: - 'func onComplete(block:(Completion<T>) -> Future<S>)'
+//: - 'func onComplete(block:(FutureResult<T>) -> Completion<__Type>)'
+//: - 'func onComplete(block:(FutureResult<T>) -> Void)'
+//: - 'func onComplete(block:(FutureResult<T>) -> __Type)'
+//: - 'func onComplete(block:(FutureResult<T>) -> Future<S>)'
+
 // we are gonna use this future for the next few examples.
 let sampleFuture = Future(success: 5)
-//: 'func onComplete(block:(Completion<T>) -> Completion<__Type>)'
+//: 'func onComplete(block:(FutureResult<T>) -> Completion<__Type>)'
 
 //: The first version we have already seen.  It let's you receive a completion value from a target future, and return any sort of new result it wants (maybe it want's to Fail certain 'Success' results from it's target, or visa-versa).  It is very flexible.  You can compose a new future that returns anything you want.
 
 //: Here we will convert a .Fail into a .Success, but we still want to know if the Future was Cancelled:
-sampleFuture.onComplete { (c) -> Completion<String> in
-    switch c.state {
+sampleFuture.onComplete { (result) -> Completion<String> in
+    switch result {
         
-    case .Success:
-        return SUCCESS(String(c.result))
+    case let .Success(value):
+        return .Success(String(value))
         
-    case .Fail:
-        return SUCCESS("Some Default String we send when things Fail")
+    case .Fail(_):
+        return .Success("Some Default String we send when things Fail")
         
-    case let .Cancelled(token):
-        return CANCELLED()
+    case .Cancelled:
+        return .Cancelled
     }
 }
-
-
-//: 'func onComplete(block:(Completion<T>) -> Void)'
+//: 'func onComplete(block:(FutureResult<T>) -> Void)'
 
 //: We been using this one without me even mentioning it.  This block always returns a type of Future<Void> that always returns success.  So it can be composed and chained if needed.
-sampleFuture.onComplete { (c) -> Void in
-    if (c.isSuccess) {
+sampleFuture.onComplete { (result) -> Void in
+    if (result.isSuccess) {
         // store this great result in a database or something.
     }
 }
 
-//: 'func onComplete(block:(Completion<T>) -> __Type)'
+//: 'func onComplete(block:(FutureResult<T>) -> __Type)'
 
 //: This is almost identical to the 'Void' version EXCEPT you want to return a result of a different Type.  This block will compose a new future that returns .Success(result) where result is the value returned from the block.
-let futureString  = sampleFuture.onComplete { (c) -> String in
-    switch c.state {
-    case .Success:
-        return String(c.result)
+let futureString  = sampleFuture.onComplete { (result) -> String in
+    switch result {
+    case let .Success(value):
+        return String(value)
     default:
         return "Some Default String we send when things Fail"
     }
@@ -232,7 +210,7 @@ let futureString  = sampleFuture.onComplete { (c) -> String in
 let string = futureString.result!
 
 
-//: 'func onComplete(block:(Completion<T>) -> Future<__Type>)'
+//: 'func onComplete(block:(ResultValue<T>) -> Future<__Type>)'
 
 //: This version is equivilant to returning a Completion<__Type>.ContinueUsing(f) (using the first varient on onComplete).  It just looks cleaner:
 func coolFunctionThatAddsOneInBackground(num : Int) -> Future<Int> {
@@ -253,14 +231,14 @@ func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
 let coolFuture = sampleFuture.onComplete { (c1) -> Future<Int> in
     
     let beforeAdd = c1.result
-    return coolFunctionThatAddsOneInBackground(c1.result)
+    return coolFunctionThatAddsOneInBackground(c1.value)
         .onComplete { (c2) -> Future<Int> in
             let afterFirstAdd = c2.result
-            return coolFunctionThatAddsOneAtHighPriority(c2.result)
+            return coolFunctionThatAddsOneAtHighPriority(c2.value)
     }
 }
-coolFuture.onSuccess { (result) -> Void in
-    let x = result
+coolFuture.onSuccess { (value) -> Void in
+    let x = value
     
 }
 

@@ -26,7 +26,7 @@ import Foundation
 
 
 // can execute a FIFO set of Blocks and Futures, guaranteeing that Blocks and Futures execute in order
-public class FutureFIFO<T> {
+public class FutureFIFO {
     
     private var lastFuture = Future<Any>(success: ())
     
@@ -53,7 +53,7 @@ public class FutureFIFO<T> {
         return self.add(.Primary,block)
     } */
 
-    public func add(executor: Executor, operation: () -> Future<T>) -> Future<T> {
+    public func add<T>(executor: Executor = .Primary, operation: () -> Future<T>) -> Future<T> {
     
         let t = self.lastFuture.onComplete { (completion) -> Future<T> in
             return operation()
@@ -61,11 +61,5 @@ public class FutureFIFO<T> {
         self.lastFuture = t.As()
         return t
     }
-
-    public func add(operation: () -> Future<T>) -> Future<T> {
-        
-        return self.add(.Primary,operation:operation)
-    }
-    
 
 }

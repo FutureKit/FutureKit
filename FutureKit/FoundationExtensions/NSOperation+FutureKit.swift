@@ -211,7 +211,7 @@ public class _FutureAnyOperation : NSOperation, FutureProtocol {
         f.onComplete { (value) -> Void in
             self._is_executing = false
             self._is_finished = true
-            self.promise.complete(value.completion)
+            self.promise.complete(value)
         }
         if (earlyRelease) {
             self._is_executing = false
@@ -227,11 +227,18 @@ public class _FutureAnyOperation : NSOperation, FutureProtocol {
     public func As<S>() -> Future<S> {
         return self.promise.future.As()
     }
+    public func mapAs<S>() -> Future<S> {
+        return self.promise.future.As()
+    }
     
     public func convertOptional<S>() -> Future<S?> {
         return self.promise.future.convertOptional()
     }
-    
+
+    public func mapAsOptional<S>() -> Future<S> {
+        return self.promise.future.As()
+    }
+
 }
 
 

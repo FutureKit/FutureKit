@@ -400,7 +400,7 @@ public enum Executor {
         self.executeBlock { () -> Void in
             do {
                 try block().onComplete { (value) -> Void in
-                    p.complete(value.completion)
+                    p.complete(value)
                 }
             }
             catch {

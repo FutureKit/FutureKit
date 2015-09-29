@@ -35,8 +35,8 @@ public protocol CompletionType {
     var isFail : Bool { get }
     var isCancelled : Bool { get }
 
-    var completion : Completion<ValueType> { get }
-    var result : FutureResult<ValueType> { get }
+    var asCompletion : Completion<ValueType> { get }
+    var asResult : FutureResult<ValueType> { get }
 
 }
 /**
@@ -53,7 +53,7 @@ public enum FutureResult<T>  {
     case Fail(ErrorType)
     case Cancelled
     
-    public var completion : Completion<T> {
+    public var asCompletion : Completion<T> {
         get {
             switch self {
             case let .Success(result):
@@ -65,7 +65,7 @@ public enum FutureResult<T>  {
             }
         }
     }
-    public var result : FutureResult<T> {
+    public var asResult : FutureResult<T> {
         return self
     }
     
@@ -303,7 +303,19 @@ public extension FutureResult { // conversions
             return .Cancelled
         }
     }
-    
+
+    public func mapAs<S>() -> FutureResult<S> {
+        switch self {
+        case let .Success(t):
+            let r = t as! S
+            return .Success(r)
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        }
+    }
+
     /**
     convert this completion of type `Completion<T>` into another type `Completion<S?>`.
     
@@ -320,6 +332,17 @@ public extension FutureResult { // conversions
     
     */
     public func convertOptional<S>() -> FutureResult<S?> {
+        switch self {
+        case let .Success(t):
+            let r = t as? S
+            return .Success(r)
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        }
+    }
+    public func mapAsOptional<S>() -> FutureResult<S?> {
         switch self {
         case let .Success(t):
             let r = t as? S
@@ -388,7 +411,7 @@ public extension Completion { // initializers
 extension Completion : CompletionType { // properties
 
     public typealias ValueType = T
-    public var completion : Completion<T> {
+    public var asCompletion : Completion<T> {
         return self
     }
    
@@ -436,7 +459,7 @@ extension Completion : CompletionType { // properties
     /**
     get the Completion state for a completed state. It's easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).
     */
-    public var result : FutureResult<T> {
+    public var asResult : FutureResult<T> {
         get {
             switch self {
             case let .Success(result):
@@ -548,6 +571,20 @@ public extension Completion { // conversions
         }
     }
     
+    public func mapAs<S>() -> Completion<S> {
+        switch self {
+        case let .Success(t):
+            let r = t as! S
+            return .Success(r)
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        case let .CompleteUsing(f):
+            return .CompleteUsing(f.As())
+        }
+    }
+    
     /**
     convert this completion of type `Completion<T>` into another type `Completion<S?>`.
     
@@ -564,6 +601,19 @@ public extension Completion { // conversions
     
     */
     public func convertOptional<S>() -> Completion<S?> {
+        switch self {
+        case let .Success(t):
+            let r = t as? S
+            return .Success(r)
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        case let .CompleteUsing(f):
+            return .CompleteUsing(f.As())
+        }
+    }
+    public func mapAsOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
             let r = t as? S

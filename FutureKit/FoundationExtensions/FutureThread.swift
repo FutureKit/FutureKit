@@ -24,7 +24,7 @@ public class FutureThread {
     
     public init(block b: () -> __Type) {
         self.block = { () -> Completion<__Type> in
-            return SUCCESS(b())
+            return .Success(b())
         }
         self.thread = NSThread(target: self, selector: "thread_func", object: nil)
     }
@@ -35,7 +35,7 @@ public class FutureThread {
     
     public init(block b: () -> Future<__Type>) {
         self.block = { () -> Completion<__Type> in
-            return COMPLETE_USING(b())
+            return .CompleteUsing(b())
         }
         self.thread = NSThread(target: self, selector: "thread_func", object: nil)
     }

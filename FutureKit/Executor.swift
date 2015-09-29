@@ -201,7 +201,7 @@ public enum Executor {
     
     case ManagedObjectContext(NSManagedObjectContext)   // block will run inside the managed object's context via context.performBlock()
     
-    case Custom(CustomCallBackBlock)         // Don't like any of these?  Bake your own Executor!
+    case Custom(((() -> Void) -> Void))         // Don't like any of these?  Bake your own Executor!
     
     
     public var description : String {
@@ -249,7 +249,6 @@ public enum Executor {
     
     public typealias CustomCallBackBlock = ((block:() -> Void) -> Void)
 
-    // TODO - should these be configurable? Eventually I guess.
     public static var PrimaryExecutor = Executor.Current {
         willSet(newValue) {
             switch newValue {
@@ -268,7 +267,7 @@ public enum Executor {
             case .MainImmediate, .MainAsync, .Custom:
                 break
             default:
-                assertionFailure("MainStrategy must be either .MainImmediate or .MainAsync")
+                assertionFailure("MainStrategy must be either .MainImmediate or .MainAsync or .Custom")
             }
         }
     }
@@ -278,7 +277,7 @@ public enum Executor {
             case .Immediate, .StackCheckingImmediate,.MainImmediate:
                 assertionFailure("AsyncStrategy can't be Immediate!")
             case .Async, .Main, .Primary, .Current:
-                assertionFailure("Nope.  Nope. Nope.")
+                assertionFailure("Nope.  Nope. Nope. AsyncStrategy can't be .Async, .Main, .Primary, .Current!")
             case .MainAsync:
                 NSLog("it's probably a bad idea to set .Async to the Main Queue. You have been warned")
             case let .Queue(q):
@@ -401,7 +400,7 @@ public enum Executor {
         self.executeBlock { () -> Void in
             do {
                 try block().onComplete { (value) -> Void in
-                    p.complete(value.completion)
+                    p.complete(value)
                 }
             }
             catch {
@@ -426,23 +425,30 @@ public enum Executor {
     }
 
     
-    internal func _executeAfterDelay<__Type>(nanosecs n: Int64, block: () throws -> __Type) -> Future<__Type> {
+    internal func _executeAfterDelay<__Type>(nanosecs n: Int64, block: () throws -> Completion<__Type>) -> Future<__Type> {
         let p = Promise<__Type>()
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
             p.completeWithBlock {
-                return .Success(try block())
+                return try block()
             }
         })
         return p.future
     }
-
-    
+    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> Future<__Type>) -> Future<__Type> {
+        let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
+        let nanosecs = Int64(nanosecsDouble)
+        return self._executeAfterDelay(nanosecs: nanosecs) { () -> Completion<__Type> in
+            return .CompleteUsing(try block())
+        }
+    }
     public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> __Type) -> Future<__Type> {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        return self._executeAfterDelay(nanosecs:nanosecs,block: block)
+        return self._executeAfterDelay(nanosecs: nanosecs) { () -> Completion<__Type> in
+            return .Success(try block())
+        }
     }
 
     // This returns the underlyingQueue (if there is one).
@@ -789,9 +795,9 @@ public enum Executor {
         case let .Custom(customCallBack):
             
             let b = { (t:T) -> Void in
-                customCallBack(block: { () -> Void in
+                customCallBack { () -> Void in
                     block(t)
-                })
+                }
             }
             
             return b

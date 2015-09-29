@@ -35,8 +35,8 @@ public protocol CompletionType {
     var isFail : Bool { get }
     var isCancelled : Bool { get }
 
-    var completion : Completion<ValueType> { get }
-    var result : FutureResult<ValueType> { get }
+    func asCompletion() -> Completion<ValueType>
+    func asResult() -> FutureResult<ValueType>
 
 }
 /**
@@ -52,20 +52,21 @@ public enum FutureResult<T>  {
     case Success(T)
     case Fail(ErrorType)
     case Cancelled
-    
-    public var completion : Completion<T> {
-        get {
-            switch self {
-            case let .Success(result):
-                return .Success(result)
-            case let .Fail(error):
-                return .Fail(error)
-            case .Cancelled:
-                return .Cancelled
-            }
+
+}
+
+extension FutureResult {
+    public func asCompletion() -> Completion<T> {
+        switch self {
+        case let .Success(result):
+            return .Success(result)
+        case let .Fail(error):
+            return .Fail(error)
+        case .Cancelled:
+            return .Cancelled
         }
     }
-    public var result : FutureResult<T> {
+    public func asResult() -> FutureResult<T> {
         return self
     }
     
@@ -89,11 +90,8 @@ Defines a an enumeration that can be used to complete a Promise/Future.
 public enum Completion<T>  {
     
     case Success(T)
-    
     case Fail(ErrorType)
-    
     case Cancelled
-    
     case CompleteUsing(Future<T>)
 }
 
@@ -292,7 +290,34 @@ public extension FutureResult { // conversions
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     */
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
     public func As<S>() -> FutureResult<S> {
+        return mapAs()
+    }
+
+    /**
+    convert this completion of type Completion<T> into another type Completion<S>.
+    
+    may fail to compile if T is not convertable into S using "`as!`"
+    
+    works iff the following code works:
+    
+    'let t : T`
+    
+    'let s = t as! S'
+    
+    
+    - example:
+    
+    `let c : FutureResult<Int> = .Success(5)`
+    
+    `let c2 : FutureResult<Int32> =  c.As()`
+    
+    `assert(c2.result == Int32(5))`
+    
+    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+    */
+    public func mapAs<S>() -> FutureResult<S> {
         switch self {
         case let .Success(t):
             let r = t as! S
@@ -303,7 +328,7 @@ public extension FutureResult { // conversions
             return .Cancelled
         }
     }
-    
+
     /**
     convert this completion of type `Completion<T>` into another type `Completion<S?>`.
     
@@ -319,7 +344,11 @@ public extension FutureResult { // conversions
     - returns: a new result of type Completion<S?>
     
     */
+    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
     public func convertOptional<S>() -> FutureResult<S?> {
+        return mapAsOptional()
+    }
+    public func mapAsOptional<S>() -> FutureResult<S?> {
         switch self {
         case let .Success(t):
             let r = t as? S
@@ -388,7 +417,7 @@ public extension Completion { // initializers
 extension Completion : CompletionType { // properties
 
     public typealias ValueType = T
-    public var completion : Completion<T> {
+    public func asCompletion() -> Completion<T> {
         return self
     }
    
@@ -436,20 +465,18 @@ extension Completion : CompletionType { // properties
     /**
     get the Completion state for a completed state. It's easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).
     */
-    public var result : FutureResult<T> {
-        get {
-            switch self {
-            case let .Success(result):
-                return .Success(result)
-            case let .Fail(error):
-                return .Fail(error)
-            case .Cancelled:
-                return .Cancelled
-            case .CompleteUsing:
-                let error = FutureKitError(genericError: "can't convert .CompleteUsing to FutureResult<T>")
-                assertionFailure("\(error)")
-                return .Fail(error)
-            }
+    public func asResult() -> FutureResult<T> {
+        switch self {
+        case let .Success(result):
+            return .Success(result)
+        case let .Fail(error):
+            return .Fail(error)
+        case .Cancelled:
+            return .Cancelled
+        case .CompleteUsing:
+            let error = FutureKitError(genericError: "can't convert .CompleteUsing to FutureResult<T>")
+            assertionFailure("\(error)")
+            return .Fail(error)
         }
     }
     
@@ -534,7 +561,12 @@ public extension Completion { // conversions
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     */
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
     public func As<S>() -> Completion<S> {
+        return mapAs()
+    }
+    
+    public func mapAs<S>() -> Completion<S> {
         switch self {
         case let .Success(t):
             let r = t as! S
@@ -544,7 +576,7 @@ public extension Completion { // conversions
         case .Cancelled:
             return .Cancelled
         case let .CompleteUsing(f):
-            return .CompleteUsing(f.As())
+            return .CompleteUsing(f.mapAs())
         }
     }
     
@@ -563,7 +595,12 @@ public extension Completion { // conversions
     - returns: a new result of type Completion<S?>
     
     */
+    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
     public func convertOptional<S>() -> Completion<S?> {
+        return mapAsOptional()
+    }
+    
+    public func mapAsOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
             let r = t as? S
@@ -573,7 +610,7 @@ public extension Completion { // conversions
         case .Cancelled:
             return .Cancelled
         case let .CompleteUsing(f):
-            return .CompleteUsing(f.As())
+            return .CompleteUsing(f.mapAs())
         }
     }
 }

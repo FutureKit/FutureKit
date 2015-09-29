@@ -68,9 +68,7 @@ public class FutureBatchOf<T> {
     public init(f : [Future<T>]) {
         self.subFutures = f
         for s in self.subFutures {
-            if let t = s.getCancelToken() {
-                self.tokens.append(t)
-            }
+            self.tokens.append(s.getCancelToken())
         }
         self.resultsFuture = FutureBatchOf.resultsFuture(f)
     }
@@ -79,16 +77,8 @@ public class FutureBatchOf<T> {
         takes a list of Futures.  Each future will be converted into a Future that returns T.
     
     */
-    public convenience init(futures : [AnyObject]) {
+    public convenience init(_ futures : [FutureProtocol]) {
         let f : [Future<T>] = FutureBatch.convertArray(futures)
-        self.init(f:f)
-    }
-    
-    /**
-    takes a type-safe list of Futures.
-    */
-    public convenience init(array : NSArray) {
-        let f : [Future<T>] = FutureBatch.convertArray(array as [AnyObject])
         self.init(f:f)
     }
     
@@ -96,9 +86,9 @@ public class FutureBatchOf<T> {
         will forward a cancel request to each subFuture
         Doesn't guarantee that a particular future gets canceled
     */
-    func cancel(forced:Bool = false) {
+    func cancel(option:CancellationOptions = []) {
         for t in self.tokens {
-            t.cancel(forced)
+            t.cancel(option)
         }
     }
     
@@ -194,7 +184,7 @@ public class FutureBatchOf<T> {
         for future in self.subFutures {
             future.onComplete { (value) -> Void in
                 if (!value.isSuccess) {
-                    promise.complete(value.As())
+                    promise.complete(value.mapAs())
                 }
             }
         }
@@ -235,7 +225,7 @@ public class FutureBatchOf<T> {
     public class func convertArray<__Type>(array:[Future<T>]) -> [Future<__Type>] {
         var futures = [Future<__Type>]()
         for a in array {
-            futures.append(a.As())
+            futures.append(a.mapAs())
         }
         return futures
         
@@ -249,12 +239,11 @@ public class FutureBatchOf<T> {
         - parameter array: array of Futures
         - returns: an array of Futures converted to return type <S>
     */
-    public class func convertArray<__Type>(array:[AnyObject]) -> [Future<__Type>] {
+    public class func convertArray<__Type>(array:[FutureProtocol]) -> [Future<__Type>] {
         
         var futures = [Future<__Type>]()
-        for a in array {
-            let f = a as! FutureProtocol
-            futures.append(f.As())
+        for f in array {
+            futures.append(f.mapAs())
         }
         return futures
         
@@ -365,6 +354,124 @@ public class FutureBatchOf<T> {
     
 
 }
+
+
+extension Future {
+    public func combineWith<S>(s:Future<S>) -> Future<(T,S)> {
+        return FutureBatch([self,s]).future.map { array -> (T,S) in
+            return (array[0] as! T,
+                    array[1] as! S)
+        }
+    }
+    
+}
+
+public func combineFutures<A, B>(a: Future<A>, _ b: Future<B>) -> Future<(A, B)> {
+    return FutureBatch([a,b]).future.map { array -> (A, B) in
+        return (
+            array[0] as! A,
+            array[1] as! B)
+    }
+}
+
+public func combineFutures<A, B, C>(a: Future<A>, _ b: Future<B>, _ c: Future<C>) -> Future<(A, B, C)> {
+    return FutureBatch([a,b,c]).future.map { array -> (A, B, C) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C)
+    }
+}
+
+public func combineFutures<A, B, C, D>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>) -> Future<(A, B, C, D)> {
+    return FutureBatch([a,b,c,d]).future.map { array -> (A, B, C, D) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D)
+    }
+}
+
+public func combineFutures<A, B, C, D, E>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>) -> Future<(A, B, C, D, E)> {
+    return FutureBatch([a,b,c,d,e]).future.map { array -> (A, B, C, D, E) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D,
+            array[4] as! E)
+    }
+}
+
+public func combineFutures<A, B, C, D, E, F>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>) -> Future<(A, B, C, D, E, F)> {
+    return FutureBatch([a,b,c,d,e,f]).future.map { array -> (A, B, C, D, E, F) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D,
+            array[4] as! E,
+            array[5] as! F)
+    }
+}
+
+public func combineFutures<A, B, C, D, E, F, G>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>) -> Future<(A, B, C, D, E, F, G)> {
+    return FutureBatch([a,b,c,d,e,f,g]).future.map { array -> (A, B, C, D, E, F, G) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D,
+            array[4] as! E,
+            array[5] as! F,
+            array[6] as! G)
+    }
+}
+
+public func combineFutures<A, B, C, D, E, F, G, H>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>) -> Future<(A, B, C, D, E, F, G, H)> {
+    return FutureBatch([a,b,c,d,e,f,g,h]).future.map { array -> (A, B, C, D, E, F, G, H) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D,
+            array[4] as! E,
+            array[5] as! F,
+            array[6] as! G,
+            array[7] as! H)
+    }
+}
+public func combineFutures<A, B, C, D, E, F, G, H, I>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>, _ i: Future<I>) -> Future<(A, B, C, D, E, F, G, H, I)> {
+    return FutureBatch([a,b,c,d,e,f,g,h,i]).future.map { array -> (A, B, C, D, E, F, G, H, I) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D,
+            array[4] as! E,
+            array[5] as! F,
+            array[6] as! G,
+            array[7] as! H,
+            array[8] as! I)
+    }
+}
+public func combineFutures<A, B, C, D, E, F, G, H, I, J>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>, _ i: Future<I>, _ j: Future<J>) -> Future<(A, B, C, D, E, F, G, H, I, J)> {
+    return FutureBatch([a,b,c,d,e,f,g,h,i,j]).future.map { array -> (A, B, C, D, E, F, G, H, I, J) in
+        return (
+            array[0] as! A,
+            array[1] as! B,
+            array[2] as! C,
+            array[3] as! D,
+            array[4] as! E,
+            array[5] as! F,
+            array[6] as! G,
+            array[7] as! H,
+            array[8] as! I,
+            array[9] as! J)
+    }
+}
+
 
 
 

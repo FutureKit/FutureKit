@@ -26,7 +26,7 @@ import Foundation
 
 
 // can execute a FIFO set of Blocks and Futures, guaranteeing that Blocks and Futures execute in order
-public class FutureFIFO<T> {
+public class FutureFIFO {
     
     private var lastFuture = Future<Any>(success: ())
     
@@ -39,33 +39,13 @@ public class FutureFIFO<T> {
     
     // A Failed or Canceled task doesn't stop execution of the queue
     // If you care about the Result of specific committed block, you can add a dependency to the Task returned from this function
-/*    public final func add<T>(executor: Executor, _ block: () -> T) -> Future<T> {
-        
-        let t = self.lastFuture.onComplete (executor) { (completion) -> T in
-            return block()
-        }
-        self.lastFuture = t.As()
-        return t
-    }
-
-    public final func add<T>(block: () -> T) -> Future<T> {
-        
-        return self.add(.Primary,block)
-    } */
-
-    public func add(executor: Executor, operation: () -> Future<T>) -> Future<T> {
+    public func add<T>(executor: Executor = .Primary, operation: () -> Future<T>) -> Future<T> {
     
-        let t = self.lastFuture.onComplete { (completion) -> Future<T> in
+        let t = self.lastFuture.onComplete { _ in
             return operation()
         }
-        self.lastFuture = t.As()
+        self.lastFuture = t.mapAs()
         return t
     }
-
-    public func add(operation: () -> Future<T>) -> Future<T> {
-        
-        return self.add(.Primary,operation:operation)
-    }
-    
 
 }

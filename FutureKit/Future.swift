@@ -136,11 +136,15 @@ internal class CancellationTokenSource {
     
     
     private var handler : CancellationHandler?
+    private var forcedCancellationHandler : CancellationHandler
+    
+    init(forcedCancellationHandler h: CancellationHandler) {
+        self.forcedCancellationHandler = h
+    }
 
     private var cancellationIsSupported : Bool {
         return (self.handler != nil)
     }
-    
     
     // add blocks that will be called as soon as we initiate cancelation
     internal func addHandler(h : CancellationHandler) {
@@ -149,9 +153,9 @@ internal class CancellationTokenSource {
         }
         if let oldhandler = self.handler
         {
-            self.handler = { (forcedRequest) in
-                oldhandler(force: forcedRequest)
-                h(force: forcedRequest)
+            self.handler = { (options) in
+                oldhandler(options: options)
+                h(options: options)
             }
         }
         else {
@@ -165,43 +169,51 @@ internal class CancellationTokenSource {
         self.tokens.removeAll()
     }
 
-    internal func getNewTokenNoSynchronization(synchObject : SynchronizationProtocol) -> CancellationToken? {
+    internal func getNewToken(synchObject : SynchronizationProtocol, lockWhenAddingToken : Bool) -> CancellationToken {
         
         if !self.canBeCancelled {
-            return nil
+            return self._createUntrackedToken()
         }
-        let token = self._createNewToken(synchObject)
-        self.tokens.append(CancellationTokenPtr(token))
-        return token
-    }
-
-    internal func getNewToken(synchObject : SynchronizationProtocol) -> CancellationToken? {
+        let token = self._createTrackedToken(synchObject)
         
-        if !self.canBeCancelled {
-            return nil
-        }
-        let token = self._createNewToken(synchObject)
-        synchObject.lockAndModify { () -> Void in
-            if self.canBeCancelled {
-                self.tokens.append(CancellationTokenPtr(token))
+        
+        if (lockWhenAddingToken) {
+            synchObject.lockAndModify { () -> Void in
+                if self.canBeCancelled {
+                    self.tokens.append(CancellationTokenPtr(token))
+                }
             }
+        }
+        else {
+            self.tokens.append(CancellationTokenPtr(token))
         }
         return token
     }
 
     
-    private func _createNewToken(synchObject : SynchronizationProtocol) -> CancellationToken {
+    private func _createUntrackedToken() -> CancellationToken {
         
         return CancellationToken(
             
-            onCancel: { [weak self] (forced, token) -> Void in
-                    self?._cancelRequested(token, forced, synchObject)
-                },
+            onCancel: { [weak self] (options, token) -> Void in
+                self?._performCancel(options)
+            },
+            
+            onDeinit:nil)
+       
+    }
+    private func _createTrackedToken(synchObject : SynchronizationProtocol) -> CancellationToken {
+        
+        return CancellationToken(
+            
+            onCancel: { [weak self] (options, token) -> Void in
+                self?._cancelRequested(token, options, synchObject)
+            },
             
             onDeinit:{ [weak self] (token) -> Void in
-                    self?._clearInitializedToken(token,synchObject)
+                self?._clearInitializedToken(token,synchObject)
             })
-       
+        
     }
     
     private func _removeToken(cancelingToken:CancellationToken) {
@@ -217,26 +229,29 @@ internal class CancellationTokenSource {
     }
     
 
-    private func _performCancel(forced : Bool) {
-        if !self.canBeCancelled {
-            return
+    private func _performCancel(options : CancellationOptions) {
+        
+        if self.canBeCancelled {
+            if (options.contains(.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting)) {
+                self.tokens.removeAll()
+            }
+            // there are no active tokens remaining, so allow the cancellation
+            if (self.tokens.count == 0) {
+                self.handler?(options: options)
+                self.canBeCancelled = false
+                self.handler = nil
+            }
+            else {
+                self.pendingCancelRequestActive = true
+            }
         }
-        if (forced) {
-            self.tokens.removeAll()
-        }
-        // there are no active tokens remaining, so allow the cancellation
-        if (self.tokens.count == 0) {
-            self.handler?(force: forced)
-            self.canBeCancelled = false
-            self.handler = nil
-        }
-        else {
-            self.pendingCancelRequestActive = true
+        if options.contains(.ForceThisFutureToBeCancelledImmediately) {
+            self.forcedCancellationHandler(options: options)
         }
         
     }
     
-    private func _cancelRequested(cancelingToken:CancellationToken, _ forced : Bool,_ synchObject : SynchronizationProtocol) {
+    private func _cancelRequested(cancelingToken:CancellationToken, _ options : CancellationOptions,_ synchObject : SynchronizationProtocol) {
         
         synchObject.lockAndModify { () -> Void in
 
@@ -254,7 +269,7 @@ internal class CancellationTokenSource {
                 , "can't find the request token in our list of active tokens!")
             
             self._removeToken(cancelingToken)
-            self._performCancel(forced)
+            self._performCancel(options)
 
         }
         
@@ -267,7 +282,7 @@ internal class CancellationTokenSource {
             
             if (self.pendingCancelRequestActive && self.tokens.count == 0) {
                 self.canBeCancelled = false
-                self.handler?(force: false)
+                self.handler?(options: [])
             }
         }
     }
@@ -277,39 +292,83 @@ internal class CancellationTokenSource {
     
 }
 
-internal typealias CancellationHandler = ((force:Bool) -> Void)
 
 
-public class CancellationToken {
-    typealias OnCancelHandler = ((forced:Bool,token:CancellationToken) -> Void)
-    typealias OnDenitHandler = ((token:CancellationToken) -> Void)
-    
-    
-    private var onCancel : OnCancelHandler?
-    private var onDeinit : OnDenitHandler
+public struct CancellationOptions : OptionSetType{
+    public let rawValue : Int
+    public init(rawValue:Int){ self.rawValue = rawValue}
 
+    /**
+    When the request is forwarded to another future, that future should cancel itself - even if there are other futures waiting for a result.
+    example:
     
-    internal init(onCancel c:OnCancelHandler, onDeinit d: OnDenitHandler) {
-        self.onCancel = c
-        self.onDeinit = d
-    }
+        let future: Future<NSData> = someFunction()
+        let firstChildofFuture = future.onComplete { (result) in
+            print("firstChildofFuture = \(result)")
+        }
+        let firstChildCancelToken = firstDependentFuture.getCancelToken()
     
-    public var cancelRequested : Bool {
-        return (self.onCancel == nil)
-    }
+        let secondChildofFuture = future.onComplete { (result) in
+            print("secondChildofFuture result = \(result)")
+        }
+        firstChildCancelToken.cancel([.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting])
+        
+    should result in `future` and `secondChildofFuture` being cancelled.
+    otherwise future may ignore the firstChildCancelToken request to cancel, because it is still trying to satisify secondChildofFuture
+
+    */
+    static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
+  
+    /**
+    If this future is dependent on the result of another future (via onComplete or .CompleteUsing(f))
+    than this cancellation request should NOT be forwarded to that future.
+    depending on the future's implementation, you may need include .ForceThisFutureToBeCancelledImmediately for cancellation to be successful
     
-    final public func cancel(forced : Bool = false) {
-        self.onCancel?(forced:forced,token:self)
-        self.onCancel = nil
-    }
+    */
+    static let DoNotForwardRequest    = CancellationOptions(rawValue:2)
+
+    /**
+    this is allows you to 'short circuit' a Future's internal cancellation request logic.
+    The Cancellation request is still forwarded (unless .DoNotForwardRequest is also sent), but an unfinished Future will be forced into the .Cancelled state early.
     
-    deinit {
-        self.onDeinit(token: self)
-    }
-    
+    */
+    static let ForceThisFutureToBeCancelledImmediately    = CancellationOptions(rawValue:4)
+
     
 }
 
+internal typealias CancellationHandler = ((options:CancellationOptions) -> Void)
+
+public class CancellationToken {
+
+    final public func cancel(options : CancellationOptions = []) {
+        self.onCancel?(options:options,token:self)
+        self.onCancel = nil
+    }
+
+    public var cancelCanBeRequested : Bool {
+        return (self.onCancel != nil)
+    }
+
+    
+// private implementation details
+    deinit {
+        self.onDeinit?(token: self)
+        self.onDeinit = nil
+    }
+    
+
+    internal typealias OnCancelHandler = ((options : CancellationOptions,token:CancellationToken) -> Void)
+    internal typealias OnDenitHandler = ((token:CancellationToken) -> Void)
+
+    private var onCancel : OnCancelHandler?
+    private var onDeinit : OnDenitHandler?
+    
+    internal init(onCancel c:OnCancelHandler?, onDeinit d: OnDenitHandler?) {
+        self.onCancel = c
+        self.onDeinit = d
+    }
+}
 
 
 
@@ -342,7 +401,7 @@ public protocol FutureProtocol {
         let fofvoid: Future<Void> = f.As()
     
     */
-    func As<S>() -> Future<S>
+    func mapAs<S>() -> Future<S>
 
     /**
     convert Future<T> into another type Future<S?>.
@@ -356,7 +415,7 @@ public protocol FutureProtocol {
     
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     */
-    func convertOptional<S>() -> Future<S?>
+    func mapAsOptional<S>() -> Future<S?>
     
     
     var description: String { get }
@@ -428,7 +487,6 @@ public class Future<T> : FutureProtocol{
     is executed used `cancel()` has been requested.
     
     */
-    private var cancellationSource = CancellationTokenSource()
 
     
     internal func addRequestHandler(h : CancellationHandler) {
@@ -437,6 +495,14 @@ public class Future<T> : FutureProtocol{
             self.cancellationSource.addHandler(h)
         }
     }
+
+    lazy var cancellationSource: CancellationTokenSource = {
+        return CancellationTokenSource(forcedCancellationHandler: { [weak self] (options) -> Void in
+            
+            assert(options.contains(.ForceThisFutureToBeCancelledImmediately), "the forced cancellation handler is only supposed to run when the .ForceThisFutureToBeCancelledImmediately option is on")
+            self?.completeWith(.Cancelled)
+        })
+    }()
 
     
     /**
@@ -769,9 +835,12 @@ public class Future<T> : FutureProtocol{
                 f.onComplete(.Immediate)  { (nextComp) -> Void in
                     self.completeWith(nextComp.asCompletion)
                 }
-                if let token = f.getCancelToken() {
-                    self.addRequestHandler { (forced) in
-                        token.cancel(forced)
+                let token = f.getCancelToken()
+                if token.cancelCanBeRequested {
+                    self.addRequestHandler { (options : CancellationOptions) in
+                        if !options.contains(.DoNotForwardRequest) {
+                            token.cancel(options)
+                        }
                     }
                 }
             }
@@ -894,14 +963,13 @@ public class Future<T> : FutureProtocol{
                 case .None:
                     self.__callbacks = [callback]
                 }
-                if let t = self.cancellationSource.getNewTokenNoSynchronization(self.synchObject) {
-                    promise.onRequestCancel(.Immediate) { (force) -> CancelRequestResponse in
-                        t.cancel(force)
-                        return .DoNothing
+                let t = self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken: false)
+                promise.onRequestCancel(.Immediate) { (options) -> CancelRequestResponse<S> in
+                    if !options.contains(.DoNotForwardRequest) {
+                        t.cancel(options)
                     }
+                    return .Continue
                 }
-                
-                
                 return nil
             }
         }, then: { (currentCompletionValue) -> Void in
@@ -918,6 +986,15 @@ public class Future<T> : FutureProtocol{
         the compile should automatically figure out which version of As() execute
     */
     public final func As() -> Future<T> {
+        return self
+    }
+
+    /**
+    if we try to convert a future from type T to type T, just ignore the request.
+    
+    the swift compiler can automatically figure out which version of mapAs() execute
+    */
+    public final func mapAs() -> Future<T> {
         return self
     }
 
@@ -946,16 +1023,38 @@ public class Future<T> : FutureProtocol{
     
     - returns: a new Future of with the result type of __Type
     */
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
     public final func As<__Type>() -> Future<__Type> {
-        return self.onSuccess(.Immediate) { (result) -> Completion<__Type> in
-            let r = result as! __Type
-            return SUCCESS(r)
-        }
+        return self.mapAs()
     }
+    /**
+    convert this future of type `Future<T>` into another future type `Future<__Type>`
+    
+    WARNING: if `T as! __Type` isn't legal, than your code may generate an exception.
+    
+    works iff the following code works:
+    
+    let t : T
+    let s = t as! __Type
+    
+    example:
+    
+    let f = Future<Int>(success:5)
+    let f2 : Future<Int32> = f.As()
+    assert(f2.result! == Int32(5))
+    
+    you will need to formally declare the type of the new variable in order for Swift to perform the correct conversion.
+    
+    the following conversions should always work for any future
+    
+    let fofany : Future<Any> = f.As()
+    let fofvoid: Future<Void> = f.As()
+    
+    - returns: a new Future of with the result type of __Type
+    */
     public final func mapAs<__Type>() -> Future<__Type> {
-        return self.onSuccess(.Immediate) { (result) -> Completion<__Type> in
-            let r = result as! __Type
-            return SUCCESS(r)
+        return self.map(.Immediate) { (result) -> __Type in
+            return result as! __Type
         }
     }
     
@@ -975,16 +1074,30 @@ public class Future<T> : FutureProtocol{
     - returns: a new Future of with the result type of __Type?
 
     */
+    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
     public final func convertOptional<__Type>() -> Future<__Type?> {
-        return self.onSuccess(.Immediate) { (result) -> Completion<__Type?> in
-            let r = result as? __Type
-            return SUCCESS(r)
-        }
+        return mapAsOptional()
     }
+
+    /**
+    convert `Future<T>` into another type `Future<__Type?>`.
+    
+    WARNING: if `T as! __Type` isn't legal, than all Success values may be converted to nil
+    
+    example:
+    
+    let f = Future<String>(success:"5")
+    let f2 : Future<[Int]?> = f.convertOptional()
+    assert(f2.result! == nil)
+    
+    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
+    
+    - returns: a new Future of with the result type of __Type?
+    
+    */
     public final func mapAsOptional<__Type>() -> Future<__Type?> {
-        return self.onSuccess(.Immediate) { (result) -> Completion<__Type?> in
-            let r = result as? __Type
-            return SUCCESS(r)
+        return self.map(.Immediate) { (result) -> __Type? in
+            return result as? __Type
         }
     }
 
@@ -1391,11 +1504,15 @@ public class Future<T> : FutureProtocol{
     
     /**
     */
-    public final func getCancelToken() -> CancellationToken? {
-        return self.cancellationSource.getNewToken(self.synchObject)
+    public final func getCancelToken() -> CancellationToken {
+        return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
     }
+
     
-    
+    public final func withCancelToken() -> (Future<T>,CancellationToken) {
+        return (self,self.getCancelToken())
+    }
+
     public final func waitUntilCompleted() -> FutureResult<T> {
         let s = SyncWaitHandler<T>(waitingOnFuture: self)
         return s.waitUntilCompleted(doMainQWarning: true)
@@ -1686,7 +1803,7 @@ class classWithMethodsThatReturnFutures {
     
     func convertingAFuture() -> Future<NSString> {
         let f = convertNumbersToString()
-        return f.As()
+        return f.mapAs()
     }
     
     

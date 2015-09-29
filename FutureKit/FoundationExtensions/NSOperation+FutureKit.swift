@@ -109,7 +109,7 @@ public class FutureOperation<T> : _FutureAnyOperation {
     }
 
     public var future : Future<T> {
-        return self.promise.future.As()
+        return self.promise.future.mapAs()
     }
 
     public init(block b: () -> Future<T>) {
@@ -205,7 +205,7 @@ public class _FutureAnyOperation : NSOperation, FutureProtocol {
 
         let (future,earlyRelease) = self.getSubFuture()
         
-        let f : Future<Any> = future.As()
+        let f : Future<Any> = future.mapAs()
         self.subFuture = f
         self.cancelToken = f.getCancelToken()
         f.onComplete { (value) -> Void in
@@ -224,19 +224,21 @@ public class _FutureAnyOperation : NSOperation, FutureProtocol {
         self.cancelToken?.cancel()
     }
     
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
     public func As<S>() -> Future<S> {
-        return self.promise.future.As()
+        return self.mapAs()
     }
     public func mapAs<S>() -> Future<S> {
-        return self.promise.future.As()
+        return self.promise.future.mapAs()
     }
     
+    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
     public func convertOptional<S>() -> Future<S?> {
-        return self.promise.future.convertOptional()
+        return self.mapAsOptional()
     }
 
-    public func mapAsOptional<S>() -> Future<S> {
-        return self.promise.future.As()
+    public func mapAsOptional<S>() -> Future<S?> {
+        return self.promise.future.mapAsOptional()
     }
 
 }

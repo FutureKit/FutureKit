@@ -68,9 +68,7 @@ public class FutureBatchOf<T> {
     public init(f : [Future<T>]) {
         self.subFutures = f
         for s in self.subFutures {
-            if let t = s.getCancelToken() {
-                self.tokens.append(t)
-            }
+            self.tokens.append(s.getCancelToken())
         }
         self.resultsFuture = FutureBatchOf.resultsFuture(f)
     }
@@ -88,9 +86,9 @@ public class FutureBatchOf<T> {
         will forward a cancel request to each subFuture
         Doesn't guarantee that a particular future gets canceled
     */
-    func cancel(forced:Bool = false) {
+    func cancel(option:CancellationOptions = []) {
         for t in self.tokens {
-            t.cancel(forced)
+            t.cancel(option)
         }
     }
     
@@ -186,7 +184,7 @@ public class FutureBatchOf<T> {
         for future in self.subFutures {
             future.onComplete { (value) -> Void in
                 if (!value.isSuccess) {
-                    promise.complete(value.As())
+                    promise.complete(value.mapAs())
                 }
             }
         }
@@ -227,7 +225,7 @@ public class FutureBatchOf<T> {
     public class func convertArray<__Type>(array:[Future<T>]) -> [Future<__Type>] {
         var futures = [Future<__Type>]()
         for a in array {
-            futures.append(a.As())
+            futures.append(a.mapAs())
         }
         return futures
         
@@ -245,7 +243,7 @@ public class FutureBatchOf<T> {
         
         var futures = [Future<__Type>]()
         for f in array {
-            futures.append(f.As())
+            futures.append(f.mapAs())
         }
         return futures
         

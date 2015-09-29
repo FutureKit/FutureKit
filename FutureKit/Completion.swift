@@ -52,7 +52,10 @@ public enum FutureResult<T>  {
     case Success(T)
     case Fail(ErrorType)
     case Cancelled
-    
+
+}
+
+extension FutureResult {
     public var asCompletion : Completion<T> {
         get {
             switch self {
@@ -89,11 +92,8 @@ Defines a an enumeration that can be used to complete a Promise/Future.
 public enum Completion<T>  {
     
     case Success(T)
-    
     case Fail(ErrorType)
-    
     case Cancelled
-    
     case CompleteUsing(Future<T>)
 }
 
@@ -292,18 +292,33 @@ public extension FutureResult { // conversions
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     */
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
     public func As<S>() -> FutureResult<S> {
-        switch self {
-        case let .Success(t):
-            let r = t as! S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        }
+        return mapAs()
     }
 
+    /**
+    convert this completion of type Completion<T> into another type Completion<S>.
+    
+    may fail to compile if T is not convertable into S using "`as!`"
+    
+    works iff the following code works:
+    
+    'let t : T`
+    
+    'let s = t as! S'
+    
+    
+    - example:
+    
+    `let c : FutureResult<Int> = .Success(5)`
+    
+    `let c2 : FutureResult<Int32> =  c.As()`
+    
+    `assert(c2.result == Int32(5))`
+    
+    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+    */
     public func mapAs<S>() -> FutureResult<S> {
         switch self {
         case let .Success(t):
@@ -331,16 +346,9 @@ public extension FutureResult { // conversions
     - returns: a new result of type Completion<S?>
     
     */
+    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
     public func convertOptional<S>() -> FutureResult<S?> {
-        switch self {
-        case let .Success(t):
-            let r = t as? S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        }
+        return mapAsOptional()
     }
     public func mapAsOptional<S>() -> FutureResult<S?> {
         switch self {
@@ -557,18 +565,9 @@ public extension Completion { // conversions
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     */
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
     public func As<S>() -> Completion<S> {
-        switch self {
-        case let .Success(t):
-            let r = t as! S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        case let .CompleteUsing(f):
-            return .CompleteUsing(f.As())
-        }
+        return mapAs()
     }
     
     public func mapAs<S>() -> Completion<S> {
@@ -581,7 +580,7 @@ public extension Completion { // conversions
         case .Cancelled:
             return .Cancelled
         case let .CompleteUsing(f):
-            return .CompleteUsing(f.As())
+            return .CompleteUsing(f.mapAs())
         }
     }
     
@@ -600,19 +599,11 @@ public extension Completion { // conversions
     - returns: a new result of type Completion<S?>
     
     */
+    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
     public func convertOptional<S>() -> Completion<S?> {
-        switch self {
-        case let .Success(t):
-            let r = t as? S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        case let .CompleteUsing(f):
-            return .CompleteUsing(f.As())
-        }
+        return mapAsOptional()
     }
+    
     public func mapAsOptional<S>() -> Completion<S?> {
         switch self {
         case let .Success(t):
@@ -623,7 +614,7 @@ public extension Completion { // conversions
         case .Cancelled:
             return .Cancelled
         case let .CompleteUsing(f):
-            return .CompleteUsing(f.As())
+            return .CompleteUsing(f.mapAs())
         }
     }
 }

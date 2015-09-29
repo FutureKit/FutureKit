@@ -26,7 +26,7 @@ import Foundation
 
 public enum CancelRequestResponse<T> {
     case Continue            // the promise will not be completed
-    case Complete(Completion<T>)  // the promise will be completed with Cancel
+    case Complete(Completion<T>)  // ex: .Complete(.Cancelled)
 }
 
 public class Promise<T>  {
@@ -45,7 +45,7 @@ public class Promise<T>  {
         self.future.completeWith(completion)
     }
     public final func complete(value : FutureResult<T>) {
-        self.future.completeWith(value.asCompletion)
+        self.future.completeWith(value.asCompletion())
     }
     
     public final func completeWithSuccess(result : T) {

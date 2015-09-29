@@ -590,7 +590,7 @@ private enum PromiseFunctions<T : Equatable> {
             promise.completeWithCancel()
 
         case let .completeUsingFuture(future):
-            promise.completeUsingFuture(future.As())
+            promise.completeUsingFuture(future.mapAs())
 
         case let .completeWithBlock(block):
             promise.completeWithBlock { () -> Completion<T> in

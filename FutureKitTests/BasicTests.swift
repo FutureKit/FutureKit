@@ -59,7 +59,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
         case let .Success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
             let result = (tries:attemptNo,result:yay)
-            return SUCCESS(result)
+            return .Success(result)
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
             return .CompleteUsing(nextFuture)

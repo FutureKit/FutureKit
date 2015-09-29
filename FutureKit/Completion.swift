@@ -35,8 +35,8 @@ public protocol CompletionType {
     var isFail : Bool { get }
     var isCancelled : Bool { get }
 
-    var asCompletion : Completion<ValueType> { get }
-    var asResult : FutureResult<ValueType> { get }
+    func asCompletion() -> Completion<ValueType>
+    func asResult() -> FutureResult<ValueType>
 
 }
 /**
@@ -56,19 +56,17 @@ public enum FutureResult<T>  {
 }
 
 extension FutureResult {
-    public var asCompletion : Completion<T> {
-        get {
-            switch self {
-            case let .Success(result):
-                return .Success(result)
-            case let .Fail(error):
-                return .Fail(error)
-            case .Cancelled:
-                return .Cancelled
-            }
+    public func asCompletion() -> Completion<T> {
+        switch self {
+        case let .Success(result):
+            return .Success(result)
+        case let .Fail(error):
+            return .Fail(error)
+        case .Cancelled:
+            return .Cancelled
         }
     }
-    public var asResult : FutureResult<T> {
+    public func asResult() -> FutureResult<T> {
         return self
     }
     
@@ -419,7 +417,7 @@ public extension Completion { // initializers
 extension Completion : CompletionType { // properties
 
     public typealias ValueType = T
-    public var asCompletion : Completion<T> {
+    public func asCompletion() -> Completion<T> {
         return self
     }
    
@@ -467,20 +465,18 @@ extension Completion : CompletionType { // properties
     /**
     get the Completion state for a completed state. It's easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).
     */
-    public var asResult : FutureResult<T> {
-        get {
-            switch self {
-            case let .Success(result):
-                return .Success(result)
-            case let .Fail(error):
-                return .Fail(error)
-            case .Cancelled:
-                return .Cancelled
-            case .CompleteUsing:
-                let error = FutureKitError(genericError: "can't convert .CompleteUsing to FutureResult<T>")
-                assertionFailure("\(error)")
-                return .Fail(error)
-            }
+    public func asResult() -> FutureResult<T> {
+        switch self {
+        case let .Success(result):
+            return .Success(result)
+        case let .Fail(error):
+            return .Fail(error)
+        case .Cancelled:
+            return .Cancelled
+        case .CompleteUsing:
+            let error = FutureKitError(genericError: "can't convert .CompleteUsing to FutureResult<T>")
+            assertionFailure("\(error)")
+            return .Fail(error)
         }
     }
     

@@ -423,24 +423,6 @@ public protocol FutureProtocol {
 }
 
 
-
-public func SUCCESS<T>(result : T) -> Completion<T> {
-    return .Success(result)
-}
-public func FAIL<T>(error : ErrorType) -> Completion<T> {
-    return .Fail(error)
-}
-public func FAIL<T>(message : String) -> Completion<T> {
-    return Completion<T>(failWithErrorMessage: message)
-}
-public func CANCELLED<T>() -> Completion<T> {
-    return .Cancelled
-}
-public func COMPLETE_USING<T>(f : Future<T>) -> Completion<T> {
-    return .CompleteUsing(f)
-}
-
-
 /**
 
     `Future<T>`
@@ -814,7 +796,7 @@ public class Future<T> : FutureProtocol{
                 let callbacks = self.__callbacks
                 self.__callbacks = nil
                 self.cancellationSource.clear()
-                self.__result = c.asResult
+                self.__result = c.asResult()
                 if (GLOBAL_PARMS.REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE) {
                     // let's execute OSMemoryBarrier() prior to changing the syncObject
                     // https://www.mikeash.com/pyblog/friday-qa-2009-07-10-type-specifiers-in-c-part-3.html
@@ -833,7 +815,7 @@ public class Future<T> : FutureProtocol{
             }
             if let f = modifyBlockReturned.continueUsing {
                 f.onComplete(.Immediate)  { (nextComp) -> Void in
-                    self.completeWith(nextComp.asCompletion)
+                    self.completeWith(nextComp.asCompletion())
                 }
                 let token = f.getCancelToken()
                 if token.cancelCanBeRequested {
@@ -1147,7 +1129,7 @@ public class Future<T> : FutureProtocol{
     */
     public final func onComplete<__Type>(executor: Executor = .Primary, block:(result:FutureResult<T>) throws -> FutureResult<__Type>) -> Future<__Type> {
         return self.onComplete(executor) { (result) -> Completion<__Type> in
-            return try block(result:result).asCompletion
+            return try block(result:result).asCompletion()
         }
     }
 
@@ -1447,14 +1429,14 @@ public class Future<T> : FutureProtocol{
     public final func onSuccess<__Type>(executor : Executor = .Primary,
         block:(T) throws -> FutureResult<__Type>) -> Future<__Type> {
             return self.onSuccess(executor) { (value : T) -> Completion<__Type> in
-                return try block(value).asCompletion
+                return try block(value).asCompletion()
             }
     }
     
     public final func onAnySuccess<__Type>(executor : Executor = .Primary,
         block:(Any) throws -> FutureResult<__Type>) -> Future<__Type> {
             return self.onAnySuccess(executor) { (value) -> Completion<__Type> in
-                return try block(value).asCompletion
+                return try block(value).asCompletion()
             }
     }
 
@@ -1477,7 +1459,7 @@ public class Future<T> : FutureProtocol{
                 return .Fail(try block(error))
             }
             else {
-                return result.asCompletion
+                return result.asCompletion()
             }
         }
     }
@@ -1725,7 +1707,7 @@ class classWithMethodsThatReturnFutures {
             case 1:
                 return .Cancelled
             default:
-                return SUCCESS(["Hi" : 5])
+                return .Success(["Hi" : 5])
             }
         }
     }
@@ -1747,7 +1729,7 @@ class classWithMethodsThatReturnFutures {
         }
         
         self.iMayFailRandomly().onAnySuccess { (value) -> Completion<Int> in
-            return SUCCESS(5)
+            return .Success(5)
         }
             
         

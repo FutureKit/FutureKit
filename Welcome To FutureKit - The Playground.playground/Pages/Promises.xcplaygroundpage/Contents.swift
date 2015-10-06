@@ -56,13 +56,20 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
                     catPicturePromise.completeWithSuccess(i)
             }
             else {
-                catPicturePromise.completeWithFail("couldn't understand the data returned from the server \(url) - \(response)")
+                catPicturePromise.completeWithErrorMessage("couldn't understand the data returned from the server \(url) - \(response)")
             }
         }
         // make sure to keep your promises!
         // promises are promises!
         assert(catPicturePromise.isCompleted)
     })
+    
+    // add a cancellation Request handler.  If someone wants to cancel the Future, what should we do?
+    catPicturePromise.onRequestCancel { (options) -> CancelRequestResponse<UIImage> in
+        task.cancel()
+        return .Complete(.Cancelled)
+    }
+    
     // start downloading.
     task.resume()
     
@@ -73,8 +80,11 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
 
 
 
-let catIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
-getCoolCatPic(catIFoundOnTumblr).onComplete { (result) -> Void in
+let catUrlIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
+
+let imageFuture = getCoolCatPic(catUrlIFoundOnTumblr)
+    
+imageFuture.onComplete { (result) -> Void in
     switch result {
     case let .Success(value):
         let i = value

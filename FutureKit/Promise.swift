@@ -33,9 +33,6 @@ public class Promise<T>  {
     
     public var future : Future<T>
 
-
-    
-    
     public init() {
         self.future = Future<T>()
     }
@@ -55,6 +52,9 @@ public class Promise<T>  {
         self.future.completeWith(.Fail(error))
     }
     public final func completeWithFail(errorMessage : String) {
+        self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
+    }
+    public final func completeWithErrorMessage(errorMessage : String) {
         self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
     }
     

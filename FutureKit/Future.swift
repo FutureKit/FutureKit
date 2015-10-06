@@ -446,12 +446,7 @@ public class Future<T> : FutureProtocol{
         this is used as the internal storage for `var completion`
         it is not thread-safe to read this directly. use `var synchObject`
     */
-    private final var __result : FutureResult<T>? {
-        didSet(c) {
-            if (c != nil) {
-            }
-        }
-    }
+    private final var __result : FutureResult<T>?
     
 //    private final let lock = NSObject()
     

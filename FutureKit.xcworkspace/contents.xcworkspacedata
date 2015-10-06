@@ -7,4 +7,7 @@
    <FileRef
       location = "group:FutureKit.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:FutureKit+ReactiveCocoa.playground">
+   </FileRef>
 </Workspace>

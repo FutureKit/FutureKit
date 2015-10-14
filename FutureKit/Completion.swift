@@ -266,7 +266,7 @@ extension FutureResult : CompletionType {
 public extension FutureResult { // conversions
     
     
-    public func map<S>(block:(T) throws -> S) -> Completion<S> {
+    public func map<S>(block:(T) throws -> S) -> FutureResult<S> {
         switch self {
         case let .Success(t):
             do {

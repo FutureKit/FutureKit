@@ -265,6 +265,23 @@ extension FutureResult : CompletionType {
 
 public extension FutureResult { // conversions
     
+    
+    public func map<S>(block:(T) throws -> S) -> Completion<S> {
+        switch self {
+        case let .Success(t):
+            do {
+                return .Success(try block(t))
+            }
+            catch {
+                return .Fail(error)
+            }
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        }
+    }
+
     public func As() -> FutureResult<T> {
         return self
     }
@@ -539,6 +556,52 @@ public extension Completion { // conversions
     public func As() -> Completion<T> {
         return self
     }
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
+    public func As<S>() -> Completion<S> {
+        return mapAs()
+    }
+
+    
+    /**
+     convert this completion of type Completion<T> into another type Completion<S>.
+     
+     may fail to compile if T is not convertable into S using "`as!`"
+     
+     works iff the following code works:
+     
+     'let t : T`
+     
+     'let s = t as! S'
+     
+     
+     - example:
+     
+     `let c : Complete<Int> = .Success(5)`
+     
+     `let c2 : Complete<Int32> =  c.mapAs()`
+     
+     `assert(c2.result == Int32(5))`
+     
+     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+     */
+    public func map<S>(block:(T) throws -> S) -> Completion<S> {
+        switch self {
+        case let .Success(t):
+            do {
+                return .Success(try block(t))
+            }
+            catch {
+                return .Fail(error)
+            }
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        case let .CompleteUsing(f):
+            return .CompleteUsing(f.map(block:block))
+        }
+    }
+    
     /**
     convert this completion of type Completion<T> into another type Completion<S>.
     
@@ -555,17 +618,12 @@ public extension Completion { // conversions
     
     `let c : Complete<Int> = .Success(5)`
     
-    `let c2 : Complete<Int32> =  c.As()`
+    `let c2 : Complete<Int32> =  c.mapAs()`
     
     `assert(c2.result == Int32(5))`
     
     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
     */
-    @available(*, deprecated=1.1, message="renamed to mapAs()")
-    public func As<S>() -> Completion<S> {
-        return mapAs()
-    }
-    
     public func mapAs<S>() -> Completion<S> {
         switch self {
         case let .Success(t):

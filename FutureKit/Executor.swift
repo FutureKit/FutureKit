@@ -175,6 +175,10 @@ public enum Executor {
     case Current                    // Will try to use the current Executor.
                                     // If the current block isn't running in an Executor, will return Main if running in the main thread, otherwise .Async
 
+    case CurrentAsync               // Will try to use the current Executor, but guarantees that the operation will always call a dispatch_async() before executing.
+                                    // If the current block isn't running in an Executor, will return MainAsync if running in the main thread, otherwise .Async
+    
+
     case Immediate                  // Never performs an Async Dispatch, Ok for simple mappings. But use with care!
     // Blocks using the Immediate executor can run in ANY Block
 
@@ -214,6 +218,8 @@ public enum Executor {
             return "Async"
         case .Current:
             return "Current"
+        case .CurrentAsync:
+            return "CurrentAsync"
         case .Immediate:
             return "Immediate"
         case .StackCheckingImmediate:
@@ -276,12 +282,12 @@ public enum Executor {
             switch newValue {
             case .Immediate, .StackCheckingImmediate,.MainImmediate:
                 assertionFailure("AsyncStrategy can't be Immediate!")
-            case .Async, .Main, .Primary, .Current:
-                assertionFailure("Nope.  Nope. Nope. AsyncStrategy can't be .Async, .Main, .Primary, .Current!")
+            case .Async, .Main, .Primary, .Current, .CurrentAsync:
+                assertionFailure("Nope.  Nope. Nope. AsyncStrategy can't be .Async, .Main, .Primary, .Current!, .CurrentAsync")
             case .MainAsync:
                 NSLog("it's probably a bad idea to set .Async to the Main Queue. You have been warned")
             case let .Queue(q):
-                assert(!q.isEqual(dispatch_get_main_queue()),"Async is not for the mainq")
+                assert(!(q !== dispatch_get_main_queue()),"Async is not for the mainq")
             default:
                 break
             }
@@ -351,7 +357,6 @@ public enum Executor {
             
             let oq = NSOperationQueue()
             oq.name = name
-            
             return .OperationQueue(oq)
             
     }
@@ -491,7 +496,7 @@ public enum Executor {
         }
     }
     
-    static var SmartCurrent : Executor {  // should always return a 'real_executor', never a virtual one!
+    static var SmartCurrent : Executor {  // should always return a 'real` executor, never a virtual one, like Main, Current, Immediate
         get {
             if let current = getCurrentExecutor() {
                 return current
@@ -503,6 +508,11 @@ public enum Executor {
         }
     }
     
+    /**
+        So this will try and find the if the current code is running inside of an executor block.
+        It uses a Thread dictionary to maintain the current running Executor.
+        Will never return .Immediate, instead it will return the actual running Executor if known
+    */
     public static func getCurrentExecutor() -> Executor? {
         let threadDict = NSThread.currentThread().threadDictionary
         let r = threadDict[GLOBAL_PARMS.CURRENT_EXECUTOR_PROPERTY] as? Box<Executor>
@@ -513,139 +523,69 @@ public enum Executor {
         return getCurrentExecutor()?.underlyingQueue
     }
     
+    
+    
+    /**
+        Will compare to Executors.
+        warning: .Custom Executors can't be compared and will always return 'false' when compared.
+    */
     public func isEqualTo(e:Executor) -> Bool {
         switch self {
         case .Primary:
-            switch e {
-            case .Primary:
-                return true
-            default:
-                return false
-            }
+            if case .Primary = e { return true } else { return false }
         case .Main:
-            switch e {
-            case .Main:
-                return true
-            default:
-                return false
-            }
+            if case .Main = e { return true } else { return false }
         case .Async:
-            switch e {
-            case .Async:
-                return true
-            default:
-                return false
-            }
-            
+            if case .Async = e { return true } else { return false }
         case .Current:
-            switch e {
-            case .Current:
-                return true
-            default:
-                return false
-            }
-            
+            if case .Current = e { return true } else { return false }
+        case .CurrentAsync:
+            if case .CurrentAsync = e { return true } else { return false }
         case .MainImmediate:
-            switch e {
-            case .MainImmediate:
-                return true
-            default:
-                return false
-            }
+            if case .MainImmediate = e { return true } else { return false }
         case .MainAsync:
-            switch e {
-            case .MainAsync:
-                return true
-            default:
-                return false
-            }
-            
+            if case .MainAsync = e { return true } else { return false }
         case UserInteractive:
-            switch e {
-            case .UserInteractive:
-                return true
-            default:
-                return false
-            }
+            if case .UserInteractive = e { return true } else { return false }
         case UserInitiated:
-            switch e {
-            case .UserInitiated:
-                return true
-            default:
-                return false
-            }
+            if case .UserInitiated = e { return true } else { return false }
         case Default:
-            switch e {
-            case .Default:
-                return true
-            default:
-                return false
-            }
+            if case .Default = e { return true } else { return false }
         case Utility:
-            switch e {
-            case .Utility:
-                return true
-            default:
-                return false
-            }
+            if case .Utility = e { return true } else { return false }
         case Background:
-            switch e {
-            case .Background:
-                return true
-            default:
-                return false
-            }
-            
+            if case .Background = e { return true } else { return false }
         case let .Queue(q):
-            switch e {
-            case let .Queue(q2):
-                return (q.isEqual(q2))
-            default:
-                return false
+            if case let .Queue(q2) = e {
+                return q === q2
             }
-            
+            return false
         case let .OperationQueue(opQueue):
-            switch e {
-            case let .OperationQueue(opQueue2):
-                return (opQueue == opQueue2)
-            default:
-                return false
+            if case let .OperationQueue(opQueue2) = e {
+                return opQueue === opQueue2
             }
-            
+            return false
         case let .ManagedObjectContext(context):
-            switch e {
-            case let .ManagedObjectContext(context2):
-                return (context == context2)
-            default:
-                return false
+            if case let .ManagedObjectContext(context2) = e {
+                return context === context2
             }
+            return false
         case .Immediate:
-            switch e {
-            case .Immediate:
-                return true
-            default:
-                return false
-            }
+            if case .Immediate = e { return true } else { return false }
         case .StackCheckingImmediate:
-            switch e {
-            case .StackCheckingImmediate:
-                return true
-            default:
-                return false
-            }
+            if case .StackCheckingImmediate = e { return true } else { return false }
         case .Custom:
-            switch e {
-            case .Custom:
-                NSLog("we can't compare Custom Executors!  isTheCurrentlyRunningExecutor may fail on .Custom types")
-                return false
-            default:
-                return false
-            }
+            // anyone know a good way to compare closures?
+            return false
         }
         
     }
     
     var isTheCurrentlyRunningExecutor : Bool {
+        if case .Custom = self {
+            NSLog("we can't compare Custom Executors!  isTheCurrentlyRunningExecutor will always return false when executing .Custom")
+            return false
+        }
         if let e = Executor.getCurrentExecutor() {
             return self.isEqualTo(e)
         }
@@ -682,6 +622,37 @@ public enum Executor {
         }
     }
 
+    
+    /*  
+        we need to figure out what the real executor we need to guarantee that execution will happen asyncronously.
+        This maps the 'best' executor to guarantee a dispatch_async() to use given the current executor
+    
+        Most executors are already async, and in that case this will return 'self'
+    */
+    private var asyncExecutor : Executor {
+        
+        switch self {
+        case .Primary:
+            return Executor.PrimaryExecutor.asyncExecutor
+        case .Main, .MainImmediate:
+            return .MainAsync
+        case .Current, .CurrentAsync:
+            return Executor.SmartCurrent.asyncExecutor
+        case .Immediate, .StackCheckingImmediate:
+            return Executor.AsyncExecutor
+            
+        case let .ManagedObjectContext(context):
+            if (context.concurrencyType == .MainQueueConcurrencyType) {
+                return .MainAsync
+            }
+            else {
+                return self
+            }
+        default:
+            return self
+        }
+    }
+    
     /*  we need to figure out what the real executor will be used
         'unwraps' the virtual Executors like .Primary,.Main,.Async,.Current
     */
@@ -696,6 +667,8 @@ public enum Executor {
             return Executor.AsyncExecutor.real_executor
         case .Current:
             return Executor.SmartCurrent
+        case .CurrentAsync:
+            return Executor.SmartCurrent.asyncExecutor
         case let .ManagedObjectContext(context):
             if (context.concurrencyType == .MainQueueConcurrencyType) {
                 return Executor.MainExecutor.real_executor
@@ -720,7 +693,10 @@ public enum Executor {
             
         case .Current:
             return Executor.SmartCurrent.getblock_for_callbackBlockFor(block)
-            
+
+        case .CurrentAsync:
+            return Executor.SmartCurrent.asyncExecutor.getblock_for_callbackBlockFor(block)
+
         case .MainImmediate:
             let newblock = { (t:T) -> Void in
                 if (NSThread.isMainThread()) {

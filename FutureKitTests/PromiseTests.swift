@@ -29,9 +29,9 @@ class FKTestCase : BlockBasedTestCase {
 }
 
 
-private enum PromiseState :  CustomStringConvertible, CustomDebugStringConvertible {
+private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebugStringConvertible {
     case NotCompleted
-    case Success(Any)
+    case Success(T)
     case Fail(FutureKitError)
     case Cancelled
     
@@ -40,9 +40,9 @@ private enum PromiseState :  CustomStringConvertible, CustomDebugStringConvertib
         case .NotCompleted:
             return "NotCompleted"
         case let .Success(r):
-            return "Success\(r)"
-        case .Fail:
-            return "Fail"
+            return "Success(\(r))"
+        case let .Fail(e):
+            return "Fail(\(e))"
         case .Cancelled:
             return "Cancelled"
         }
@@ -59,14 +59,13 @@ private enum PromiseState :  CustomStringConvertible, CustomDebugStringConvertib
     }
     
     
-    func create<T>() -> Promise<T>   // create a promise in state
+    func create() -> Promise<T>   // create a promise in state
     {
         let p = Promise<T>()
         switch self {
         case .NotCompleted:
             break
-        case let .Success(a):
-            let result = a as! T
+        case let .Success(result):
             p.completeWithSuccess(result)
         case let .Fail(e):
             p.completeWithFail(e)
@@ -78,43 +77,46 @@ private enum PromiseState :  CustomStringConvertible, CustomDebugStringConvertib
     
     
     
-    func addExpectations<T : Equatable>(promise : Promise<T>,testCase : FKTestCase,testVars: PromiseTestCase<T>, name : String) { // validate promise in this state
+    func addExpectations(promise : Promise<T>,testCase : FKTestCase,testVars: PromiseTestCase<T>, name : String) { // validate promise in this state
         let future = promise.future
         
         switch self {
         case NotCompleted:
             break
             
-        case let .Success(r):
-            let expectedResult = r as! T
+        case let .Success(expectedValue):
             let futureExecuctor = testVars.futureExecutor
             
             let onCompleteExpecation = testCase.expectationWithDescription("OnComplete")
             let onSuccessExpectation = testCase.expectationWithDescription("OnSuccess")
-            
-            future.onSuccess (futureExecuctor) { (result) -> Void in
-                XCTAssert(result == expectedResult, "unexpected result!")
-                onSuccessExpectation.fulfill()
-            }
-            future.onComplete (futureExecuctor) { (completion) -> Void in
+
+
+            future.onComplete (futureExecuctor) { (result) -> Void in
                 
-                switch completion {
-                case let .Success(r):
-                    XCTAssert(r == expectedResult, "unexpected result!")
+                switch result {
+                case let .Success(value):
+                    XCTAssert(value == expectedValue, "unexpected result!")
                 default:
-                    XCTFail("completion in wrong state \(completion)")
+                    XCTFail("completion with wrong value \(result)")
                 }
-                XCTAssert(completion.state == .Success, "unexpected state!")
-                XCTAssert(completion.result == expectedResult, "unexpected result!")
-                XCTAssert(completion.error == nil, "unexpected error!")
-                XCTAssert(completion.isSuccess == true, "unexpected state!")
-                XCTAssert(completion.isFail == false, "unexpected state!")
-                XCTAssert(completion.isCancelled == false, "unexpected state!")
-                XCTAssert(completion.isCompleteUsing == false, "unexpected state!")
+                XCTAssert(result.value == expectedValue, "unexpected result!")
+                XCTAssert(result.error == nil, "unexpected error!")
+                XCTAssert(result.isSuccess == true, "unexpected state!")
+                XCTAssert(result.isFail == false, "unexpected state!")
+                XCTAssert(result.isCancelled == false, "unexpected state!")
                 
                 onCompleteExpecation.fulfill()
             }
-            
+            future.onSuccess (futureExecuctor) { (value) -> Void in
+                XCTAssert(value == expectedValue, "unexpected result!")
+                onSuccessExpectation.fulfill()
+            }
+            future.onCancel(futureExecuctor) { () -> Void in
+                XCTFail("Did not expect onCancel")
+            }
+            future.onFail (futureExecuctor) { (error) -> Void in
+                XCTFail("Did not expect onFail \(error)")
+            }
             
         case let .Fail(expectedError):
             let futureExecuctor = testVars.futureExecutor
@@ -122,59 +124,71 @@ private enum PromiseState :  CustomStringConvertible, CustomDebugStringConvertib
             let onCompleteExpecation = testCase.expectationWithDescription("OnComplete")
             let onFailExpectation = testCase.expectationWithDescription("OnFail")
             
+            future.onComplete (futureExecuctor) { (result) -> Void in
+                
+                switch result {
+                case let .Fail(error):
+                    let nserror = error as! FutureKitError
+                    XCTAssert(nserror == expectedError, "unexpected error! [\(nserror)]\n expected [\(expectedError)]")
+                default:
+                    XCTFail("completion with wrong value \(result)")
+                }
+                XCTAssert(result.value == nil, "unexpected result!")
+                let cnserror = result.error as! FutureKitError
+                XCTAssert(cnserror == expectedError, "unexpected error! \(cnserror) expected \(expectedError)")
+                XCTAssert(result.isSuccess == false, "unexpected state!")
+                XCTAssert(result.isFail == true, "unexpected state!")
+                XCTAssert(result.isCancelled == false, "unexpected state!")
+                
+                onCompleteExpecation.fulfill()
+            }
+            future.onSuccess (futureExecuctor) { (value) -> Void in
+                XCTFail("Did not expect onSuccess \(value)")
+            }
+            future.onCancel(futureExecuctor) { () -> Void in
+                XCTFail("Did not expect onCancel")
+            }
             future.onFail (futureExecuctor) { (error) -> Void in
                 let nserror = error as! FutureKitError
                 XCTAssert(nserror == expectedError, "unexpected error! [\(nserror)]\n expected [\(expectedError)]")
                 onFailExpectation.fulfill()
             }
-            future.onComplete (futureExecuctor) { (completion) -> Void in
-                
-                switch completion {
-                case let .Fail(error):
-                    let nserror = error as! FutureKitError
-                    XCTAssert(nserror == expectedError, "unexpected error! [\(nserror)]\n expected [\(expectedError)]")
-                default:
-                    XCTFail("completion in wrong state \(completion)")
-                }
-                XCTAssert(completion.state == .Fail, "unexpected state!")
-                XCTAssert(completion.result == nil, "unexpected result!")
-                let cnserror = completion.error as! FutureKitError
-                XCTAssert(cnserror == expectedError, "unexpected error! \(cnserror) expected \(expectedError)")
-                XCTAssert(completion.isSuccess == false, "unexpected state!")
-                XCTAssert(completion.isFail == true, "unexpected state!")
-                XCTAssert(completion.isCancelled == false, "unexpected state!")
-                XCTAssert(completion.isCompleteUsing == false, "unexpected state!")
-                
-                onCompleteExpecation.fulfill()
-            }
+
             
         case .Cancelled:
-            let futureExecuctor = testVars.futureExecutor
+            let futureExecutor = testVars.futureExecutor
             
             let onCompleteExpecation = testCase.expectationWithDescription("OnComplete")
             let onCancelExpectation = testCase.expectationWithDescription("OnCancel")
             
-            future.onCancel (futureExecuctor) { (_) -> Void in
-                onCancelExpectation.fulfill()
-            }
-            future.onComplete (futureExecuctor) { (completion) -> Void in
+            future.onComplete (futureExecutor) { (result) -> Void in
                 
-                switch completion {
+                switch result {
                 case .Cancelled:
                     break;
                 default:
-                    XCTFail("completion in wrong state \(completion)")
+                    XCTFail("completion with wrong value \(result)")
                 }
-                XCTAssert(completion.error == nil, "unexpected error \(completion)!")
-                XCTAssert(completion.state == .Cancelled, "unexpected state! \(completion)")
+                XCTAssert(result.error == nil, "unexpected error \(result)!")
+                XCTAssert(result.isCancelled, "unexpected state! \(result)")
                 
                 onCompleteExpecation.fulfill()
             }
+            future.onSuccess (futureExecutor) { (value) -> Void in
+                XCTFail("Did not expect onSuccess \(value)")
+            }
+            future.onCancel (futureExecutor) { (_) -> Void in
+                onCancelExpectation.fulfill()
+            }
+            future.onFail (futureExecutor) { (error) -> Void in
+                XCTFail("Did not expect onFail \(error)")
+            }
+
         }
         
     }
     
-    func validate<T : Equatable>(promise : Promise<T>,testCase : FKTestCase,testVars: PromiseTestCase<T>, name : String) { // validate promise in this state
+    func validate(promise : Promise<T>,testCase : FKTestCase,testVars: PromiseTestCase<T>, name : String) { // validate promise in this state
         
         switch self {
         case NotCompleted:
@@ -217,14 +231,14 @@ func howMuchTimeLeft() -> String {
 }
 
 private struct PromiseFunctionTest<T : Equatable> {
-    typealias TupleType = (PromiseState,PromiseFunctions,PromiseState)
+    typealias TupleType = (PromiseState<T>,PromiseFunctions<T>,PromiseState<T>)
     
-    let initialState : PromiseState
-    let functionToTest : PromiseFunctions
-    let finalExpectedState : PromiseState
+    let initialState : PromiseState<T>
+    let functionToTest : PromiseFunctions<T>
+    let finalExpectedState : PromiseState<T>
     
     
-    init(_ initialState : PromiseState, _ functionToTest : PromiseFunctions,_ finalExpectedState : PromiseState) {
+    init(_ initialState : PromiseState<T>, _ functionToTest : PromiseFunctions<T>,_ finalExpectedState : PromiseState<T>) {
         self.initialState = initialState
         self.functionToTest = functionToTest
         self.finalExpectedState = finalExpectedState
@@ -302,8 +316,8 @@ extension PromiseFunctionTest {
         let unfinishedFuture = promiseForUnfinishedFuture.future
         
         
-        let failErrorMessage = PromiseState(errorMessage: errorMessage)
-        let failException = PromiseState(exception:exception)
+        let failErrorMessage = PromiseState<T>(errorMessage: errorMessage)
+        let failException = PromiseState<T>(exception:exception)
 
         
         let blockThatMakesDelayedFuture = { (delay : NSTimeInterval, completion:Completion<T>) -> Future<T> in
@@ -314,9 +328,11 @@ extension PromiseFunctionTest {
             return p.future
         }
         
-        let autoDelay = NSTimeInterval(0.2)
+        let autoDelay = NSTimeInterval(0.1)
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .automaticallyCancelAfter(autoDelay), .NotCompleted))
+        tests.append(PromiseFunctionTest<T>(.NotCompleted,    .automaticallyCancelAfter(autoDelay), .NotCompleted))
+        
+        
         tests.append(PromiseFunctionTest(.NotCompleted,    .automaticallyCancelAfter(autoDelay), .Cancelled))
         tests.append(PromiseFunctionTest(.Success(result), .automaticallyCancelAfter(autoDelay), .Success(result)))
         tests.append(PromiseFunctionTest(.Fail(error),     .automaticallyCancelAfter(autoDelay), .Fail(error)))
@@ -329,40 +345,42 @@ extension PromiseFunctionTest {
         tests.append(PromiseFunctionTest(.Fail(error),     .automaticallyFailAfter(autoDelay, error2), .Fail(error)))
         tests.append(PromiseFunctionTest(.Cancelled,       .automaticallyFailAfter(autoDelay, error), .Cancelled))
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(SUCCESS(result)),  .Success(result)))
-        tests.append(PromiseFunctionTest(.Success(result), .complete(SUCCESS(result2)), .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error),     .complete(SUCCESS(result)),  .Fail(error)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(SUCCESS(result)),  .Cancelled))
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.Success(result)),  .Success(result)))
+        tests.append(PromiseFunctionTest(.Success(result), .complete(.Success(result2)), .Success(result)))
+        tests.append(PromiseFunctionTest(.Fail(error),     .complete(.Success(result)),  .Fail(error)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.Success(result)),  .Cancelled))
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(FAIL(error)),  .Fail(error)))
-        tests.append(PromiseFunctionTest(.Success(result), .complete(FAIL(error)),  .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error),     .complete(FAIL(error2)), .Fail(error)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(FAIL(error)),  .Cancelled))
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.Fail(error)),  .Fail(error)))
+        tests.append(PromiseFunctionTest(.Success(result), .complete(.Fail(error)),  .Success(result)))
+        tests.append(PromiseFunctionTest(.Fail(error),     .complete(.Fail(error2)), .Fail(error)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.Fail(error)),  .Cancelled))
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(CANCELLED()),  .Cancelled))
-        tests.append(PromiseFunctionTest(.Success(result), .complete(CANCELLED()),  .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error),     .complete(CANCELLED()),  .Fail(error)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(CANCELLED()),  .Cancelled))
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.Cancelled),  .Cancelled))
+        tests.append(PromiseFunctionTest(.Success(result), .complete(.Cancelled),  .Success(result)))
+        tests.append(PromiseFunctionTest(.Fail(error),     .complete(.Cancelled),  .Fail(error)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.Cancelled),  .Cancelled))
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(COMPLETE_USING(successFuture).As()), .Success(result)))
-        tests.append(PromiseFunctionTest(.Success(result2),.complete(COMPLETE_USING(successFuture).As()), .Success(result2)))
-        tests.append(PromiseFunctionTest(.Fail(error),     .complete(COMPLETE_USING(successFuture).As()), .Fail(error)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(COMPLETE_USING(successFuture).As()), .Cancelled))
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.CompleteUsing(successFuture)),.Success(result)))
+        tests.append(PromiseFunctionTest(.Success(result2),.complete(.CompleteUsing(successFuture)), .Success(result2)))
+        tests.append(PromiseFunctionTest(.Fail(error),     .complete(.CompleteUsing(successFuture)), .Fail(error)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.CompleteUsing(successFuture)), .Cancelled))
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(COMPLETE_USING(failedFuture).As()), .Fail(error)))
-        tests.append(PromiseFunctionTest(.Success(result), .complete(COMPLETE_USING(failedFuture).As()), .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error2),    .complete(COMPLETE_USING(failedFuture).As()), .Fail(error2)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(COMPLETE_USING(failedFuture).As()), .Cancelled))
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.CompleteUsing(failedFuture)), .Fail(error)))
+        tests.append(PromiseFunctionTest(.Success(result), .complete(.CompleteUsing(failedFuture)), .Success(result)))
+        tests.append(PromiseFunctionTest(.Fail(error2),    .complete(.CompleteUsing(failedFuture)), .Fail(error2)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.CompleteUsing(failedFuture)), .Cancelled))
 
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(COMPLETE_USING(cancelledFuture).As()), .Cancelled))
-        tests.append(PromiseFunctionTest(.Success(result), .complete(COMPLETE_USING(cancelledFuture).As()), .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error),     .complete(COMPLETE_USING(cancelledFuture).As()), .Fail(error)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(COMPLETE_USING(cancelledFuture).As()), .Cancelled))
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.CompleteUsing(cancelledFuture)), .Cancelled))
+        tests.append(PromiseFunctionTest(.Success(result), .complete(.CompleteUsing(cancelledFuture)), .Success(result)))
         
-        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(COMPLETE_USING(unfinishedFuture).As()), .NotCompleted))
-        tests.append(PromiseFunctionTest(.Success(result), .complete(COMPLETE_USING(unfinishedFuture).As()), .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error),     .complete(COMPLETE_USING(unfinishedFuture).As()), .Fail(error)))
-        tests.append(PromiseFunctionTest(.Cancelled,       .complete(COMPLETE_USING(unfinishedFuture).As()), .Cancelled))
+        
+        tests.append(PromiseFunctionTest(.Fail(error),     .complete(.CompleteUsing(cancelledFuture)), .Fail(error)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.CompleteUsing(cancelledFuture)), .Cancelled))
+        
+        tests.append(PromiseFunctionTest(.NotCompleted,    .complete(.CompleteUsing(unfinishedFuture)), .NotCompleted))
+        tests.append(PromiseFunctionTest(.Success(result), .complete(.CompleteUsing(unfinishedFuture)), .Success(result)))
+        tests.append(PromiseFunctionTest(.Fail(error),     .complete(.CompleteUsing(unfinishedFuture)), .Fail(error)))
+        tests.append(PromiseFunctionTest(.Cancelled,       .complete(.CompleteUsing(unfinishedFuture)), .Cancelled))
 
 
         
@@ -387,30 +405,30 @@ extension PromiseFunctionTest {
 
         tests.append(PromiseFunctionTest(.NotCompleted,     .completeUsingFuture(failedFuture), .Fail(error)))
         
-        let successBlock = { () -> Completion<Any> in
-            return SUCCESS(result)
+        let successBlock = { () -> Completion<T> in
+            return .Success(result)
         }
-        let failBlock = { () -> Completion<Any> in
-            return FAIL(error)
+        let failBlock = { () -> Completion<T> in
+            return .Fail(error)
         }
         
-        let delayedSuccessBlock =  { () -> Completion<Any> in
-            let f = blockThatMakesDelayedFuture(autoDelay,SUCCESS(result))
+        let delayedSuccessBlock =  { () -> Completion<T> in
+            let f = blockThatMakesDelayedFuture(autoDelay,.Success(result))
             
-            return .CompleteUsing(f.As())
+            return .CompleteUsing(f)
         }
 
-        let extraDelayedSuccessBlock =  { () -> Completion<Any> in
-            let f = blockThatMakesDelayedFuture(autoDelay,SUCCESS(result))
-            let f2 = blockThatMakesDelayedFuture(autoDelay,COMPLETE_USING(f))
+        let extraDelayedSuccessBlock =  { () -> Completion<T> in
+            let f = blockThatMakesDelayedFuture(autoDelay,.Success(result))
+            let f2 = blockThatMakesDelayedFuture(autoDelay,.CompleteUsing(f))
             
-            return .CompleteUsing(f2.As())
+            return .CompleteUsing(f2)
         }
-        let extraDelayedFailBlock =  { () -> Completion<Any> in
-            let f = blockThatMakesDelayedFuture(autoDelay,FAIL(error))
-            let f2 = blockThatMakesDelayedFuture(autoDelay,COMPLETE_USING(f))
+        let extraDelayedFailBlock =  { () -> Completion<T> in
+            let f = blockThatMakesDelayedFuture(autoDelay,.Fail(error))
+            let f2 = blockThatMakesDelayedFuture(autoDelay,.CompleteUsing(f))
             
-            return .CompleteUsing(f2.As())
+            return .CompleteUsing(f2)
         }
         
 
@@ -440,14 +458,14 @@ extension PromiseFunctionTest {
         tests.append(PromiseFunctionTest(.Fail(error2), .completeWithBlocksOnAlreadyCompleted(failBlock,false), .Fail(error2)))
 
         
-        tests.append(PromiseFunctionTest(.NotCompleted, .tryComplete(SUCCESS(result),true), .Success(result)))
+        tests.append(PromiseFunctionTest(.NotCompleted, .tryComplete(.Success(result),true), .Success(result)))
 
-        tests.append(PromiseFunctionTest(.NotCompleted, .tryComplete(FAIL(error),true), .Fail(error)))
+        tests.append(PromiseFunctionTest(.NotCompleted, .tryComplete(.Fail(error),true), .Fail(error)))
 
-        tests.append(PromiseFunctionTest(.Success(result2), .tryComplete(SUCCESS(result),false), .Success(result2)))
-        tests.append(PromiseFunctionTest(.Success(result), .tryComplete(FAIL(error),false), .Success(result)))
-        tests.append(PromiseFunctionTest(.Fail(error), .tryComplete(SUCCESS(result),false), .Fail(error)))
-        tests.append(PromiseFunctionTest(.Fail(error2), .tryComplete(FAIL(error),false), .Fail(error2)))
+        tests.append(PromiseFunctionTest(.Success(result2), .tryComplete(.Success(result),false), .Success(result2)))
+        tests.append(PromiseFunctionTest(.Success(result), .tryComplete(.Fail(error),false), .Success(result)))
+        tests.append(PromiseFunctionTest(.Fail(error), .tryComplete(.Success(result),false), .Fail(error)))
+        tests.append(PromiseFunctionTest(.Fail(error2), .tryComplete(.Fail(error),false), .Fail(error2)))
 
         
         tests.append(PromiseFunctionTest(.NotCompleted, .completeWithBlocksOnAlreadyCompleted(failBlock,true), .Fail(error)))
@@ -469,7 +487,7 @@ extension PromiseFunctionTest {
 
 
 
-private enum PromiseFunctions {
+private enum PromiseFunctions<T : Equatable> {
     
     
     case automaticallyCancelAfter(NSTimeInterval)
@@ -483,23 +501,23 @@ private enum PromiseFunctions {
     
 //    case automaticallyCancelOnRequestCancel
     
-    case complete(Completion<Any>)
-    case completeWithSuccess(Any)
+    case complete(Completion<T>)
+    case completeWithSuccess(T)
     case completeWithFail(ErrorType)
     case completeWithFailErrorMessage(String)
     case completeWithException(NSException)
     case completeWithCancel
     case completeUsingFuture(FutureProtocol)
     
-    case completeWithBlock(()->Completion<Any>)
+    case completeWithBlock(()->Completion<T>)
     //  The block is executed.  The Bool should be TRUE is we expect that the completeWithBlocks will succeed.
-    case completeWithBlocksOnAlreadyCompleted(()->Completion<Any>,Bool)
+    case completeWithBlocksOnAlreadyCompleted(()->Completion<T>,Bool)
     
     case failIfNotCompleted(ErrorType)
     case failIfNotCompletedErrorMessage(String)
     
-    case tryComplete(Completion<Any>,Bool)     // The Bool should be TRUE is we expect that the tryComplete will succeed.
-    case completeWithOnCompletionError(Completion<Any>,Bool)  // last value is TRUE if we expect the completion to succeed
+    case tryComplete(Completion<T>,Bool)     // The Bool should be TRUE is we expect that the tryComplete will succeed.
+    case completeWithOnCompletionError(Completion<T>,Bool)  // last value is TRUE if we expect the completion to succeed
     
     
     
@@ -531,7 +549,7 @@ private enum PromiseFunctions {
     }
     
     
-    func executeWith<T>(promise : Promise<T>,test : PromiseTestCase<T>, testCase : FKTestCase, expectation:XCTestExpectation?)
+    func executeWith(promise : Promise<T>,test : PromiseTestCase<T>, testCase : FKTestCase, expectation:XCTestExpectation?)
     
     {
         switch self {
@@ -556,8 +574,7 @@ private enum PromiseFunctions {
             promise.complete(completion.As())
 
             
-        case let .completeWithSuccess(r):
-            let result = r as! T
+        case let .completeWithSuccess(result):
             promise.completeWithSuccess(result)
 
         case let .completeWithFail(error):
@@ -573,7 +590,7 @@ private enum PromiseFunctions {
             promise.completeWithCancel()
 
         case let .completeUsingFuture(future):
-            promise.completeUsingFuture(future.As())
+            promise.completeUsingFuture(future.mapAs())
 
         case let .completeWithBlock(block):
             promise.completeWithBlock { () -> Completion<T> in
@@ -684,7 +701,7 @@ private enum PromiseFunctions {
             
             
         case let .tryComplete(completion,_):
-            return "tryComplete\(completion.state)"
+            return "tryComplete\(completion)"
             
         case .completeWithOnCompletionError(_,_):
             return "completeWithOnCompletionError"
@@ -733,6 +750,7 @@ class PromiseTests: FKTestCase {
         let quick_executors_list : [Executor] = [
             .MainAsync,
             .Async,
+            .Current,
             .Immediate]
 
         let future_executors : [Executor] = [.MainAsync, .MainImmediate]
@@ -871,14 +889,13 @@ class PromiseTests: FKTestCase {
         let anySuccessExpectation = self.expectationWithDescription("Future.onAnySuccess")
         
         
-        f.onComplete(futureExecutor) { (completion) -> Void in
+        f.onComplete(futureExecutor) { (result) -> Void in
             
-            switch completion {
-            case let .Success(t):
-                XCTAssert(t == success, "Didn't get expected success value \(success)")
-                XCTAssert(completion.result == success, "Didn't get expected success value \(success)")
+            switch result {
+            case let .Success(value):
+                XCTAssert(value == success, "Didn't get expected success value \(success)")
             default:
-                XCTFail("unexpectad completion value \(completion)")
+                XCTFail("unexpected result \(result)")
             }
             completeExpectation.fulfill()
         }

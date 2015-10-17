@@ -28,16 +28,16 @@ import FutureKit
 
 extension Future {
     
-    func expectationTestForCompletion(testcase: XCTestCase, _ description : String,
-        assertion : ((completion : Completion<T>) -> (assert:BooleanType,message:String)),
+    func expectationTestForCompletion(testcase: XCTestCase, description : String,
+        assertion : ((value : FutureResult<T>) -> (assert:BooleanType,message:String)),
         file: String = __FILE__,
         line: UInt = __LINE__
         ) -> XCTestExpectation! {
             
             let e = testcase.expectationWithDescription(description)
             
-            self.onComplete { (completion) -> Void in
-                let test = assertion(completion:completion)
+            self.onComplete { (value) -> Void in
+                let test = assertion(value:value)
                 
                 XCTAssert(test.assert,test.message,file:file,line:line)
                 e.fulfill()
@@ -46,18 +46,16 @@ extension Future {
     }
     
     
-    func expectationTestForSuccess(testcase: XCTestCase, _ description : String,
+    func expectationTestForSuccess(testcase: XCTestCase, description : String,
         test : ((result:T) -> BooleanType),
         file: String = __FILE__,
         line: UInt = __LINE__) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description, assertion: { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
-                switch completion.state {
-                case .Success:
-                    let result = completion.result
+            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
+                switch value {
+                case let .Success(result):
                     return (test(result: result),"test result failure for Future with result \(result)" )
-                case .Fail:
-                    let e = completion.error
+                case let .Fail(e):
                     return (false,"Future Failed with \(e)" )
                 case .Cancelled:
                     return (false,"Future Cancelled" )
@@ -65,17 +63,16 @@ extension Future {
                 },file:file,line:line)
     }
     
-    func expectationTestForAnySuccess(testcase: XCTestCase, _  description : String,
+    func expectationTestForAnySuccess(testcase: XCTestCase, description : String,
         file: String = __FILE__,
         line: UInt = __LINE__
         ) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description, assertion: { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
-                switch completion.state {
+            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
+                switch value {
                 case .Success:
                     return (true, "")
-                case .Fail:
-                    let e = completion.error
+                case let .Fail(e):
                     return (false,"Future Failed with \(e)" )
                 case .Cancelled:
                     return (false,"Future Cancelled" )

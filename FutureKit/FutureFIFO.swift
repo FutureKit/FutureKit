@@ -1,5 +1,5 @@
 //
-//  NSData-Ext.swift
+//  FutureFIFO.swift
 //  FutureKit
 //
 //  Created by Michael Gray on 4/21/15.
@@ -30,40 +30,22 @@ public class FutureFIFO {
     
     private var lastFuture = Future<Any>(success: ())
     
-    
+    public init() {
+        
+    }
     // add a block and it won't execute until all previosuly submitted Blocks have finished and returned a result.
     // If the block returns a result, than the next ask in the queue is started.
     // If the block returns a Task, that Task must complete before the next block in the Queue is executed.
     
     // A Failed or Canceled task doesn't stop execution of the queue
     // If you care about the Result of specific committed block, you can add a dependency to the Task returned from this function
-    public final func addBlock<__Type>(executor: Executor, _ block: () -> __Type) -> Future<__Type> {
-        
-        let t = self.lastFuture.onComplete (executor) { (completion) -> __Type in
-            return block()
+    public func add<T>(executor: Executor = .Primary, operation: () -> Future<T>) -> Future<T> {
+    
+        let t = self.lastFuture.onComplete { _ in
+            return operation()
         }
-        self.lastFuture = t.As()
+        self.lastFuture = t.mapAs()
         return t
     }
-
-    public final func addBlock<__Type>(block: () -> __Type) -> Future<__Type> {
-        
-        return self.addBlock(.Primary,block)
-    }
-
-    public final func addBlock<__Type>(executor: Executor, _ block: () -> Future<__Type>) -> Future<__Type> {
-    
-        let t = self.lastFuture.onComplete { (completion) -> Future<__Type> in
-            return block()
-        }
-        self.lastFuture = t.As()
-        return t
-    }
-
-    public final func addBlock<__Type>(block: () -> Future<__Type>) -> Future<__Type> {
-        
-        return self.addBlock(.Primary,block)
-    }
-    
 
 }

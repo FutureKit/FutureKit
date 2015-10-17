@@ -2,36 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:FutureKit-1. Future.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-2. Promise.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-3. Composition.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-4. Completion.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-5. onComplete.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-6. onSuccess.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-7. onFail-onCancel.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-8.Executors.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-9.Cancel.playground">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit-10. FutureBatch.playground">
+      location = "group:/Users/mgray/repos/FutureKit/Welcome To FutureKit - The Playground.playground">
    </FileRef>
    <FileRef
       location = "group:FutureKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:FutureKit+ReactiveCocoa.playground">
    </FileRef>
 </Workspace>

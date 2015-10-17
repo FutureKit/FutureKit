@@ -42,7 +42,7 @@ extension NSData {
     */
     class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
         
-        return executor.executeWithFuture { () -> NSData in
+        return executor.execute { () -> NSData in
             return try NSData(contentsOfFile: path, options: readOptionsMask)
         }
     }
@@ -78,7 +78,7 @@ extension NSData {
     class func data(executor : Executor, contentsOfURL url: NSURL, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
     
         
-        return executor.executeWithFuture { () -> NSData in
+        return executor.execute { () -> NSData in
             let data = try NSData(contentsOfURL: url, options: readOptionsMask)
             return data
         }

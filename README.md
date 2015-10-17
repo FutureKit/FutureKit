@@ -8,14 +8,7 @@
 
 A Swift based Future/Promises Library for IOS and OS X.   
 
-
-Note - FutureKit is going exclusivly Swift 2.0 only!
-
-There is still a Swift 1.2 branch that I will keep around. But - FutureKit's use of generics pushed swift 1.2 to the limits in a few places.   And it's just too hard to keep fixing for the edge cases.
-
-Swift 2.0 has fixed most of the issues we had with generics!  Plus the error handling integration makes FutureKit easier than ever.
-
-
+Note - FutureKit is now exclusivly Swift 2.0 only.
 
 FutureKit is a Swift implementation of Futures and Promises, but modified specifically for iOS/OSX programmers.
 You can ready the wikipedia article here:
@@ -23,23 +16,29 @@ http://en.wikipedia.org/wiki/Futures_and_promises
 
 FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
-- is 100% Swift.  It ONLY currently supports Swift 2.0 and XCode 7.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting iOS 8.0+ and OSX 10.x.
+- is 100% Swift.  It ONLY currently supports Swift 2.0 and XCode 7+.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting swift 2.0+ compatble SDKs (iOS 8.0+, OSX 10.x.)
 
-- is type safe.  It uses Swift Generics classes that can automatically infer the type you wish to return from asynchronous logic.  And supports all Swift types (Both 'Any' types, and 'AnyObject/NSObject' types!)
+- is type safe.  It uses Swift Generics classes that can automatically infer the type you wish to return from asynchronous logic.  And supports both value and reference Swift types (Both 'Any' types, and 'AnyObject/NSObject' types.)
+
+- Is Swift 2.0 error handling friendly.  All FutureKit handler methods can already catch and complete a Future using any ErrorType.  So you don't need to wrap your code with 'do/try/catch'.
+
+- FutureKit in Swift 2.0 is designed to simplify error handling, allowing you to attach a single error handler that can catch any error that may occur.  This can make dealing with composing async operations much easier and more reliable.
 
 - uses simple to understand methods (onComplete/onSuccess/onFail etc) that let's you simplify complex asynchronous operations into clear and simple to understand logic.
 
 - is highly composable, since any existing Future can be used to generate a new Future.  And Errors and Cancelations can be automatically passed through, simplifying error handling logic.
-- Super easy cancelation composition (which is a fancy way to say cancel works when you want it to automatically).  Future's are designed so there is never any confusion about whether an asynchronous operation completed, failed, or was canceled.  And the CONSUMER has full control over whether he needs to be notified that the operation was canceled or not.   (0% confusion about whether your completion blocks will get called when the operation is cancelled).
+- 
+- Super easy cancelation composition (which is a fancy way to say cancel works when you want it to automatically).  Future's are designed so there is never any confusion about whether an asynchronous operation completed, failed, or was canceled.  And the consumer has full control over whether he needs to be notified that the operation was canceled or not.   (0% confusion about whether your completion blocks will get called when the operation is cancelled).
 
-- works well editing code within XCode 6.3 auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
+- works well editing code within XCode auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
 
 - simplifies the use of Apple GCD by using Executors - a simple Swift enumeration that simplifies the most common iOS/OSX Dispatch Queues (Main,Default,Background, etc).  Allowing you to guarantee that logic will always be executed in the context you want.  (You never have to worry about having to call the correct dispatch_async() function again).  
+
 - is highly tunable, allowing you to configure how the primary Executors (Immediate vs Async) execute, and what sort Thread Synchronization FutureKit will use (Barriers - Locks, etc).  Allowing you to tune FutureKit's logic to match what you need.  
 
 # What the Heck is a Future?
 
-So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another process possible running in another thread.  Or maybe a resource that needs to loaded from an external server.
+So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another process possible running in another thread.  Or maybe a resource that needs to loaded from an external server.  
 
     let imageView : UIImageView =  // some view on my view controller.
     let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
@@ -48,7 +47,7 @@ There are few things that are interesting.  This object represents both that an 
 
 now I can do this:
 
-    imageFuture.onSuccess(.Main) { (image) -> Void in
+    imageFuture.onSuccess(.Main) {  image  in
         imageView.image = image
     }
 
@@ -82,7 +81,7 @@ Or I could rewite it all in one line:
                             return blurredImage 
              }.onSuccess(.Main) { (blurredImage) -> Void in
                              imageView.image = blurredImage;
-             }.onError { (error:NSError) -> Void in
+             }.onError { error in
                          // deal with any error that happened along the way
              }
 
@@ -137,7 +136,7 @@ notice how I forgot to add error handling in that callback.  What if iBuildStuff
             let p = Promise<NSData>()
             dispatch_async(self.mycustomqueue)  {
                  // do stuff to make your NSData
-                if (SUCCEESS) {
+                if (SUCCESS) {
                     let goodStuff = NSData()
                     p.completeWithSuccess(goodStuff)
                 }

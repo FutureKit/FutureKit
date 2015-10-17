@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>DictionaryWithSynchronization Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/DictionaryWithSynchronization" class="dashAnchor"></a>
+    <a title="DictionaryWithSynchronization Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (16% documented)</p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html"> Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        DictionaryWithSynchronization Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+          <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes.html#/s:C9FutureKit23ArrayWithFastLockAccess">ArrayWithFastLockAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ArrayWithSynchronization.html">ArrayWithSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Box.html">Box</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/CancellationToken.html">CancellationToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/CollectionAccessControl.html">CollectionAccessControl</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithBarrierAccess.html">DictionaryWithBarrierAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithFastLockAccess.html">DictionaryWithFastLockAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithSynchronization.html">DictionaryWithSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Future.html">Future</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureBatchOf.html">FutureBatchOf</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureFIFO.html">FutureFIFO</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureOperation.html">FutureOperation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/s:C9FutureKit20FutureOperationQueue">FutureOperationQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureThread.html">FutureThread</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSLockSynchronization.html">NSLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSObjectLockSynchronization.html">NSObjectLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSRecursiveLockSynchronization.html">NSRecursiveLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt32.html">OSAtomicInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt64.html">OSAtomicInt64</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSSpinLockSynchronization.html">OSSpinLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PThreadMutexSynchronization.html">PThreadMutexSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Promise.html">Promise</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/QueueBarrierSynchronization.html">QueueBarrierSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/QueueSerialSynchronization.html">QueueSerialSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/UnsafeSynchronization.html">UnsafeSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/_FutureAnyOperation.html">_FutureAnyOperation</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CancelRequestResponse.html">CancelRequestResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Completion.html">Completion</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Executor.html">Executor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureKitError.html">FutureKitError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureOperationQueuePriority.html">FutureOperationQueuePriority</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureResult.html">FutureResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/QosCompatible.html">QosCompatible</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/SerialOrConcurrent.html">SerialOrConcurrent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/SynchronizationType.html">SynchronizationType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Completion.html">Completion</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Future.html">Future</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/FutureResult.html">FutureResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/NSQualityOfService.html">NSQualityOfService</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:ZF9FutureKitoi2eeFTOS_14FutureKitErrorS0__Sb">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu0_rFTGCS_6Futureq__GS0_q0___GS0_Tq_q0___">combineFutures(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu1_rFTGCS_6Futureq__GS0_q0__GS0_q1___GS0_Tq_q0_q1___">combineFutures(_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu2_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2___GS0_Tq_q0_q1_q2___">combineFutures(_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu3_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3___GS0_Tq_q0_q1_q2_q3___">combineFutures(_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu4_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4___GS0_Tq_q0_q1_q2_q3_q4___">combineFutures(_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu5_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5___GS0_Tq_q0_q1_q2_q3_q4_q5___">combineFutures(_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu6_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6___GS0_Tq_q0_q1_q2_q3_q4_q5_q6___">combineFutures(_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu7_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6__GS0_q7___GS0_Tq_q0_q1_q2_q3_q4_q5_q6_q7___">combineFutures(_:_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu8_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6__GS0_q7__GS0_q8___GS0_Tq_q0_q1_q2_q3_q4_q5_q6_q7_q8___">combineFutures(_:_:_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit25warnOperationOnMainThreadFT_T_">warnOperationOnMainThread()</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/CompletionType.html">CompletionType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/FutureProtocol.html">FutureProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/SynchronizationProtocol.html">SynchronizationProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CancellationOptions.html">CancellationOptions</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ExtensionVarHandlerFor.html">ExtensionVarHandlerFor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/GLOBAL_PARMS.html">GLOBAL_PARMS</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>DictionaryWithSynchronization</h1>
+            <p>Undocumented</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronizationcu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FMGS0_q_q0_q1__FT_GS0_q_q0_q1__"></a>
+                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronizationcu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FMGS0_q_q0_q1__FT_GS0_q_q0_q1__">init()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronizationcu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FMGS0_q_q0_q1__FTGVSs10Dictionaryq_q0__q1__GS0_q_q0_q1__"></a>
+                    <a name="//apple_ref/swift/Method/init(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronizationcu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FMGS0_q_q0_q1__FTGVSs10Dictionaryq_q0__q1__GS0_q_q0_q1__">init(_:_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronizationcu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FMGS0_q_q0_q1__Fq1_GS0_q_q0_q1__"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronizationcu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FMGS0_q_q0_q1__Fq1_GS0_q_q0_q1__">init(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronization8getValueu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__Fq_GCS_6FutureGSqq0___"></a>
+                    <a name="//apple_ref/swift/Method/getValue(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronization8getValueu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__Fq_GCS_6FutureGSqq0___">getValue(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronization12getValueSyncu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__Fq_GSqq0__"></a>
+                    <a name="//apple_ref/swift/Method/getValueSync(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronization12getValueSyncu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__Fq_GSqq0__">getValueSync(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronization8setValueu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__FTq0_6forKeyq__GCS_6FutureP__"></a>
+                    <a name="//apple_ref/swift/Method/setValue(_:forKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronization8setValueu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__FTq0_6forKeyq__GCS_6FutureP__">setValue(_:forKey:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit29DictionaryWithSynchronization11updateValueu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__FTq0_6forKeyq__GCS_6FutureGSqq0___"></a>
+                    <a name="//apple_ref/swift/Method/updateValue(_:forKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit29DictionaryWithSynchronization11updateValueu1_Rq_Ss8Hashableq1_S_23SynchronizationProtocol_FGS0_q_q0_q1__FTq0_6forKeyq__GCS_6FutureGSqq0___">updateValue(_:forKey:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC9FutureKit29DictionaryWithSynchronization5countSi"></a>
+                    <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9FutureKit29DictionaryWithSynchronization5countSi">count</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC9FutureKit29DictionaryWithSynchronization7isEmptySb"></a>
+                    <a name="//apple_ref/swift/Property/isEmpty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9FutureKit29DictionaryWithSynchronization7isEmptySb">isEmpty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.3.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

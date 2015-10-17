@@ -1,81 +1,16 @@
-Future.swift
-	public struct GLOBAL_PARMS
-	public static var LOCKING_STRATEGY : SynchronizationType = .NSLock
-	public static var BATCH_FUTURES_WITH_CHAINING : Bool = false
-	public enum FErrors : Int
-	public class FutureNSError : NSError
-	public init(genericError : String)
-	public init(error : FErrors, userInfo: [NSObject : AnyObject]?)
-	public init(exception: NSException)
-	required public init(coder aDecoder: NSCoder)
-	public override var localizedDescription: String
-	public var genericError : String?
-	public var isSuccess : Bool
-	public var isFail : Bool
-	public var isCancelled : Bool
-	public var isCompleteUsing : Bool
-	public func convert() -> Completion<T>
-	public var description: String
-	public var debugDescription: String
-	public init(afterDelay:NSTimeInterval, completeWith: Completion<T>) {    // emits a .Success after delay
-	public init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
-	public func onComplete<__Type>(block:(conpletion:Completion<T>)-> Future<__Type>) -> Future<__Type>
-	public func onSuccess<__Type>(block:(result:T)-> Void) -> Future<Void>
-	public func onAnySuccess<__Type>(executor : Executor, _ block:()-> __Type) -> Future<__Type>
-	public func onAnySuccess<__Type>(block:()-> __Type) -> Future<__Type>
-	public func map<__Type>(executor : Executor, block:(result:T)-> __Type) -> Future<__Type>
-	public func map<__Type>(block:(result:T) -> __Type) -> Future<__Type>
-	public func onSuccess<__Type>(executor : Executor, _ block:(result:T)-> Future<__Type>) -> Future<__Type>
-	public func onSuccess<__Type>(block:(result:T)-> Future<__Type>) -> Future<__Type>
-	public func onAnySuccess<__Type>(executor : Executor, _ block:()-> Future<__Type>) -> Future<__Type>
-	public func onAnySuccess<__Type>(block:()-> Future<__Type>) -> Future<__Type>
-	public func waitUntilCompleted() -> Completion<T>
-	public func waitForResult() -> T?
-	public func _waitUntilCompletedOnMainQueue() -> Completion<T>
-	public var description: String
-	public var debugDescription: String
-	public func debugQuickLookObject() -> AnyObject?
-	public func toFutureAnyObject<T : AnyObject>(f : Future<T>) -> Future<AnyObject>
-	public func toFutureAnyObjectOpt<T : AnyObject>(f : Future<T?>) -> Future<AnyObject?>
-FutureBatch.swift
-	public class FutureBatchOf<T>
-	public var subFutures  = [Future<T>]()
-	public var completionsFuture : Future<[Completion<T>]>
-	public lazy var future : Future<[T]> = FutureBatchOf.checkAllCompletionsSucceeded(self.completionsFuture)
-	public init(f : [Future<T>])
-	public convenience init(futures : [AnyObject])
-	public convenience init(array : NSArray)
-	public class func convertArray<S>(array:[Future<T>]) -> [Future<S>]
-	public class func convertArray<S>(array:[AnyObject]) -> [Future<S>]
-	public class func sequenceCompletionsWithSyncObject<T>(array : [Future<T>]) -> Future<[Completion<T>]>
-	public class func sequenceCompletionsByChaining<T>(array : [Future<T>]) -> Future<[Completion<T>]>
-	public class func futureWithSubFuturesAndSuccessChecks<T>(array : [Future<T>]) -> Future<[T]>
-	public class func futureWithSubFutures<T>(array : [Future<T>]) -> Future<[Completion<T>]>
-	public class func checkAllCompletionsSucceeded<T>(f : Future<[Completion<T>]>) -> Future<[T]>
-Executor.swift
-	public var qos_class : qos_class_t
-	public enum SerialOrConcurrent: Int
-	public var q_attr : dispatch_queue_attr_t
-	public enum Executor
-	public static var PrimaryExecutor = Executor.Immediate
-	public static var MainExecutor = Executor.MainImmediate
-	public static var AsyncExecutor = Executor.Default
-	public static func createQueue(label: String?,
-        type : SerialOrConcurrent,
-        qos : NSQualityOfService = .Default,
-        relative_priority: Int32 = 0) -> Executor
-	public static func createOperationQueue(label: String?,
-        type : SerialOrConcurrent,
-        qos : NSQualityOfService = .Default,
-        relative_priority: Int32 = 0) -> Executor
-	public static func createConcurrentQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor
-	public static func createConcurrentQueue() -> Executor
-	public static func createSerialQueue(label : String? = nil,qos : NSQualityOfService = .Default) -> Executor
-	public static func createSerialQueue() -> Executor
-	public func execute(block b: dispatch_block_t)
-	public func executeAfterDelay(nanosecs : Int64, block b: dispatch_block_t)
-	public func executeAfterDelay(secs : NSTimeInterval,block b: dispatch_block_t)
-	public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void)
+ExtensionVars.swift
+	public struct ExtensionVarHandlerFor<A : AnyObject>
+	public init()
+	public func setStrongValueOn<T : Any>(object:A, value : T?)
+	public func setStrongValueOn<T : AnyObject>(object:A, value : T?)
+	public func setWeakValueOn<T : AnyObject>(object:A, value : T?)
+	public func setCopyValueOn<T : AnyObject>(object:A, value : T?)
+	public func setValueOn<T : Any>(object:A, value : T?)
+	public func setValueOn<T : AnyObject>(object:A, value : T?)
+	public func getValueFrom<T : Any>(object:A) -> T?
+	public func getValueFrom<T : Any>(object:A, defaultvalue : T) -> T
+	public func getValueFrom<T : Any>(object:A, defaultvalueblock : () -> T) -> T
+	public func clear(object:A)
 OSAtomicInt.swift
 	public class OSAtomicInt32
 	public var memory : Int32
@@ -99,87 +34,439 @@ OSAtomicInt.swift
 	public func addBarrier(theAmount: Int64) -> Int64
 	public func ifEqualTo(value : Int64, thenReplaceWith : Int64) -> Bool
 	public func ifEqualToBarrier(value : Int64, thenReplaceWith : Int64) -> Bool
+FutureThread.swift
+	public class FutureThread
+	public var future: Future<__Type>
+	public init(block b: () -> __Type)
+	public init(block b: () -> Completion<__Type>)
+	public init(block b: () -> Future<__Type>)
+	public func thread_func()
+	public func start()
+Future.swift
+	public struct GLOBAL_PARMS
+	public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
+	public static let REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE = true
+	public enum FutureKitError : ErrorType, Equatable
+	case GenericError(String)
+	case ResultConversionError(String)
+	case CompletionConversionError(String)
+	case ContinueWithConversionError(String)
+	case ErrorForMultipleErrors(String,[ErrorType])
+	case ExceptionCaught(NSException,[NSObject:AnyObject]?)
+	public init(genericError : String)
+	public init(exception: NSException)
+	public func == (l: FutureKitError, r: FutureKitError) -> Bool
+	public struct CancellationOptions : OptionSetType
+	public let rawValue : Int
+	public init(rawValue:Int){ self.rawValue = rawValue}
+	public class CancellationToken
+	final public func cancel(options : CancellationOptions = [])
+	public var cancelCanBeRequested : Bool
+	var description: String { get }
+	public convenience init(delay:NSTimeInterval, completeWith: Completion<T>)
+	public convenience init(afterDelay:NSTimeInterval, completeWith: Completion<T>) {    // emits a .Success after delay
+	public convenience init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
+	public func waitForSuccess<__Type>(timeout: NSTimeInterval,
+        executor : Executor,
+        didSucceed:(T)-> __Type,
+        timedOut:()-> Completion<__Type>
+        ) -> Future<__Type>
+	public final func onFailorCancel(executor : Executor = .Primary,
+        block:(result:FutureResult<T>)-> Void)
+	public final func onAnySuccess<__Type>(executor : Executor = .Primary,
+        block:(Any) throws -> __Type) -> Future<__Type>
+	public final func onSuccess<__Type>(executor : Executor = .Primary,
+        block:(T) throws -> FutureResult<__Type>) -> Future<__Type>
+	public final func onAnySuccess<__Type>(executor : Executor = .Primary,
+        block:(Any) throws -> FutureResult<__Type>) -> Future<__Type>
+	public final func map<__Type>(executor : Executor = .Primary, block:(T) throws -> __Type) -> Future<__Type>
+	public final func mapError(executor : Executor = .Primary, block:(ErrorType) throws -> ErrorType) -> Future<T>
+	public final func onSuccess<__Type>(executor : Executor = .Primary,
+        block:(T) throws -> Future<__Type>) -> Future<__Type>
+	public final func onAnySuccess<__Type>(executor : Executor = .Primary,
+        block:(Any) throws -> Future<__Type>) -> Future<__Type>
+	public final func withCancelToken() -> (Future<T>,CancellationToken)
+	public final func waitUntilCompleted() -> FutureResult<T>
+	public final func waitForResult() -> T?
+	public final func _waitUntilCompletedOnMainQueue() -> FutureResult<T>
+	public var description: String
+	public var debugDescription: String
+	public func debugQuickLookObject() -> AnyObject?
+FutureBatch.swift
+	public class FutureBatchOf<T>
+	public final func onFirstFail(executor : Executor = .Primary,block:(value:FutureResult<T>, future:Future<T>, index:Int)-> Void) -> Future<[T]>
+	public func combineWith<S>(s:Future<S>) -> Future<(T,S)>
+	public func combineFutures<A, B>(a: Future<A>, _ b: Future<B>) -> Future<(A, B)>
+	public func combineFutures<A, B, C>(a: Future<A>, _ b: Future<B>, _ c: Future<C>) -> Future<(A, B, C)>
+	public func combineFutures<A, B, C, D>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>) -> Future<(A, B, C, D)>
+	public func combineFutures<A, B, C, D, E>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>) -> Future<(A, B, C, D, E)>
+	public func combineFutures<A, B, C, D, E, F>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>) -> Future<(A, B, C, D, E, F)>
+	public func combineFutures<A, B, C, D, E, F, G>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>) -> Future<(A, B, C, D, E, F, G)>
+	public func combineFutures<A, B, C, D, E, F, G, H>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>) -> Future<(A, B, C, D, E, F, G, H)>
+	public func combineFutures<A, B, C, D, E, F, G, H, I>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>, _ i: Future<I>) -> Future<(A, B, C, D, E, F, G, H, I)>
+	public func combineFutures<A, B, C, D, E, F, G, H, I, J>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>, _ i: Future<I>, _ j: Future<J>) -> Future<(A, B, C, D, E, F, G, H, I, J)>
+FutureFIFO.swift
+	public class FutureFIFO
+	public init()
+	public func add<T>(executor: Executor = .Primary, operation: () -> Future<T>) -> Future<T>
+Executor.swift
+	public var qos_class : qos_class_t
+	final public class Box<T>
+	public let value: T
+	public init(_ v: T) { self.value = v }
+	public enum QosCompatible : Int
+	case UserInteractive
+	case UserInitiated
+	case Utility
+	case Background
+	case Default
+	public func createQueue(label: String?,
+        var q_attr : dispatch_queue_attr_t!,
+        relative_priority: Int32 = 0) -> dispatch_queue_t
+	public enum SerialOrConcurrent: Int
+	case Serial
+	case Concurrent
+	public var q_attr : dispatch_queue_attr_t!
+	public enum Executor
+	case Primary                    // use the default configured executor.  Current set to Immediate.
+	case Main                       // will use MainAsync or MainImmediate based on MainStrategy
+	case Async                      // Always performs an Async Dispatch to some non-main q (usually Default)
+	case Current                    // Will try to use the current Executor.
+	case CurrentAsync               // Will try to use the current Executor, but guarantees that the operation will always call a dispatch_async() before executing.
+	case Immediate                  // Never performs an Async Dispatch, Ok for simple mappings. But use with care!
+	case StackCheckingImmediate     // Will try to perform immediate, but does some stack checking.  Safer than Immediate
+	case MainAsync                  // will always do a dispatch_async to the mainQ
+	case MainImmediate              // will try to avoid dispatch_async if already on the MainQ
+	case UserInteractive            // QOS_CLASS_USER_INTERACTIVE
+	case UserInitiated              // QOS_CLASS_USER_INITIATED
+	case Default                    // QOS_CLASS_DEFAULT
+	case Utility                    // QOS_CLASS_UTILITY
+	case Background                 // QOS_CLASS_BACKGROUND
+	case Queue(dispatch_queue_t)    // Dispatch to a Queue of your choice!
+	case OperationQueue(NSOperationQueue)    // Dispatch to a Queue of your choice!
+	case ManagedObjectContext(NSManagedObjectContext)   // block will run inside the managed object's context via context.performBlock()
+	case Custom(((() -> Void) -> Void))         // Don't like any of these?  Bake your own Executor!
+	public var description : String
+	public static var PrimaryExecutor = Executor.Current
+	public static var MainExecutor = Executor.MainImmediate
+	public static var AsyncExecutor = Executor.Default
+	public static func createQueue(label: String?,
+        type : SerialOrConcurrent,
+        qos : QosCompatible = .Default,
+        relative_priority: Int32 = 0) -> Executor
+	public static func createOperationQueue(name: String?,
+        maxConcurrentOperationCount : Int) -> Executor
+	public static func createConcurrentQueue(label : String? = nil,qos : QosCompatible = .Default) -> Executor
+	public static func createConcurrentQueue() -> Executor
+	public static func createSerialQueue(label : String? = nil,qos : QosCompatible = .Default) -> Executor
+	public static func createSerialQueue() -> Executor
+	public func executeBlock(block b: dispatch_block_t)
+	public func execute<__Type>(block: () throws -> __Type) -> Future<__Type>
+	public func execute<__Type>(block: () throws -> Future<__Type>) -> Future<__Type>
+	public func execute<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type>
+	public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> Future<__Type>) -> Future<__Type>
+	public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> __Type) -> Future<__Type>
+	public static func getCurrentQueue() -> dispatch_queue_t?
+	public func callbackBlockFor<T>(block: (T) -> Void) -> ((T) -> Void)
 Synchronization.swift
 	public protocol SynchronizationProtocol
-	public enum SynchronizationType
+	init()
+	func lockAndModify<T>(waitUntilDone wait: Bool, modifyBlock:() -> T,
+	func lockAndRead<T>(waitUntilDone wait: Bool, readBlock:() -> T,
+	func lockAndModify(modifyBlock:() -> Void)
+	func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	func lockAndRead(readBlock:() -> Void)
+	func lockAndReadSync<T>(readBlock:() -> T) -> T
+	func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	func readFuture<T>(executor _ : Executor, block:() -> T) -> Future<T>
+	func modifyFuture<T>(executor _ : Executor, block:() -> T) -> Future<T>
+	public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConvertible
+	case BarrierConcurrent
+	case BarrierSerial
+	case SerialQueue
+	case NSObjectLock
+	case NSLock
+	case NSRecursiveLock
+	case OSSpinLock
+	case PThreadMutex
+	case Unsafe
+	public var maxLockWaitTimeAllowed : NSTimeInterval
+	public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock,PThreadMutex]
+	public func lockObject() -> SynchronizationProtocol
+	public var description : String
+	public var debugDescription : String
 	public class QueueBarrierSynchronization : SynchronizationProtocol
 	required public init()
-	public func readSync<T>(block:() -> T) -> T
-	public func readAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modify(block:() -> Void)
-	public func modifyAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modifySync<T>(block:() -> T) -> T
+	public init(type : dispatch_queue_attr_t!, _ q: QosCompatible = .Default, _ p :Int32 = 0)
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
 	public class QueueSerialSynchronization : SynchronizationProtocol
 	required public init()
-	public func readSync<T>(block:() -> T) -> T
-	public func readAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modify(block:() -> Void)
-	public func modifyAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modifySync<T>(block:() -> T) -> T
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public class NSObjectLockSynchronization : SynchronizationProtocol
+	required public init()
+	public init(lock l: AnyObject)
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
 	public class NSLockSynchronization : SynchronizationProtocol
 	required public init()
-	public func readSync<T>(block:() -> T) -> T
-	public func readAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modify(block:() -> Void)
-	public func modifySync<T>(block:() -> T) -> T
-	public func modifyAsync<T>(block:() -> T, done : (T) -> Void)
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public class OSSpinLockSynchronization : SynchronizationProtocol
+	required public init()
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public class PThreadMutexSynchronization : SynchronizationProtocol
+	required public init()
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
 	public class NSRecursiveLockSynchronization : SynchronizationProtocol
 	required public init()
-	public func readSync<T>(block:() -> T) -> T
-	public func readAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modify(block:() -> Void)
-	public func modifySync<T>(block:() -> T) -> T
-	public func modifyAsync<T>(block:() -> T, done : (T) -> Void)
-	public class SynchronizationObject<P : SynchronizationProtocol>
-	public init(_ p : P)
-	public init(_ p : P, _ executor : Executor)
-	public func readSync<T>(block:() -> T) -> T
-	public func readAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modify(block:() -> Void)
-	public func modifySync<T>(block:() -> T) -> T
-	public func modifyAsync<T>(block:() -> T, done : (T) -> Void)
-	public func modify<T>(future b:() -> T) -> Future<T>
-	public func read<T>(future b:() -> T) -> Future<T>
-	public func read<T>(block:() -> T, executor : Executor) -> Future<T>
-	public func modify<T>(block:() -> T, executor : Executor) -> Future<T>
-FutureWait.swift
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public class UnsafeSynchronization : SynchronizationProtocol
+	required public init()
+	public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:() -> T,
+        then : ((T) -> Void)? = nil)
+	public final func lockAndModify(modifyBlock:() -> Void)
+	public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void)
+	public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T
+	public final func lockAndRead(readBlock:() -> Void)
+	public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void)
+	public final func lockAndReadSync<T>(readBlock:() -> T) -> T
+	public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T>
+	public class CollectionAccessControl<C : MutableCollectionType, S: SynchronizationProtocol>
+	public init(c : C, _ s: S)
+	public func getValue(key : Index) -> Future<Element>
+	public class DictionaryWithSynchronization<Key : Hashable, Value, S: SynchronizationProtocol>
+	public init()
+	public init(_ d : DictionaryType, _ s: S)
+	public init(_ s: S)
+	public func getValue(key : Key) -> Future<Value?>
+	public func getValueSync(key : Key) -> Value?
+	public func setValue(value: Value, forKey key: Key) -> Future<Any>
+	public func updateValue(value: Value, forKey key: Key) -> Future<Value?>
+	public var count: Int
+	public var isEmpty: Bool
+	public class ArrayWithSynchronization<T, S: SynchronizationProtocol> : CollectionAccessControl< Array<T> , S>
+	public init()
+	public init(array : Array<T>, _ a: S)
+	public init(a: S)
+	public var count: Int
+	public var isEmpty: Bool
+	public var first: T?
+	public var last: T?
+	public func getValue(atIndex i: Int) -> Future<T>
+	public func append(newElement: T)
+	public func removeLast() -> T
+	public func insert(newElement: T, atIndex i: Int)
+	public func removeAtIndex(index: Int) -> T
+	public class DictionaryWithFastLockAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,SynchronizationType.LightAndFastSyncType>
+	public  override init()
+	public  init(d : Dictionary<Key,Value>)
+	public class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryWithSynchronization<Key,Value,QueueBarrierSynchronization>
+	public  init(queue : dispatch_queue_t)
+	public  init(d : Dictionary<Key,Value>,queue : dispatch_queue_t)
+	public class ArrayWithFastLockAccess<T> : ArrayWithSynchronization<T,SynchronizationType.LightAndFastSyncType>
+SyncWaitHandler.swift
 	public func warnOperationOnMainThread()
-FTask.swift
-	public class FTaskCompletion : NSObject
-	public class FTaskPromise : NSObject
-	public override init()
-	public var ftask : FTask
-	public final func complete(completion c: FTaskCompletion)
-	public final func completeWithSuccess(result : rtype)
-	public final func completeWithFail(e : NSError)
-	public final func completeWithException(e : NSException)
-	public final func completeWithCancel()
-	public final func continueWithFuture(f : FTask)
-	public final func complete(completion c: FTaskCompletion,onCompletionError errorBlock: completionErrorHandler)
-	public class FTaskPromise : NSObject
-	public override var description: String
-	public override var debugDescription: String
-	public func debugQuickLookObject() -> AnyObject?
-	@objc public enum FTaskExecutor : Int
-	public class FTask : NSObject
-	public class FTask : NSObject
+NSOperation+FutureKit.swift
+	public enum FutureOperationQueuePriority : Int
+	case VeryLow    = -8
+	case Low        = -4
+	case Normal     = 0
+	case High       = 4
+	case VeryHigh   = 8
+	public class FutureOperation<T> : _FutureAnyOperation
+	public class func OperationWithBlock(block b: () -> Future<T>) -> FutureOperation<T>
+	public class func OperationWithBlock(blockWithEarlyReleaseOption b: FutureOperationBlockType) -> FutureOperation<T>
+	public var future : Future<T>
+	public init(block b: () -> Future<T>)
+	public init(blockWithEarlyReleaseOption b: FutureOperationBlockType)
+	public class _FutureAnyOperation : NSOperation, FutureProtocol
+	override public var asynchronous : Bool
+	override public var executing : Bool
+	override public var finished : Bool
+	public init(block : () -> FutureProtocol)
+	public init(blockWithEarlyReleaseOption : FutureAnyOperationBlockType)
+	override public func main()
+	override public func cancel()
+	public func As<S>() -> Future<S>
+	public func mapAs<S>() -> Future<S>
+	public func convertOptional<S>() -> Future<S?>
+	public func mapAsOptional<S>() -> Future<S?>
+	public class FutureOperationQueue : NSOperationQueue
+Completion.swift
+	public protocol CompletionType
+	var value : ValueType! { get }
+	var error : ErrorType! { get }
+	var isSuccess : Bool { get }
+	var isFail : Bool { get }
+	var isCancelled : Bool { get }
+	func asCompletion() -> Completion<ValueType>
+	func asResult() -> FutureResult<ValueType>
+	case Success(T)
+	case Fail(ErrorType)
+	case Cancelled
+	public func asCompletion() -> Completion<T>
+	public func asResult() -> FutureResult<T>
+	case Success(T)
+	case Fail(ErrorType)
+	case Cancelled
+	case CompleteUsing(Future<T>)
+	public init(success s:T)
+	public var isSuccess : Bool
+	public var isFail : Bool
+	public var isCancelled : Bool
+	public func map<S>(block:(T) throws -> S) -> FutureResult<S>
+	public func As() -> FutureResult<T>
+	public func mapAsOptional<S>() -> FutureResult<S?>
+	public var description: String
+	public var debugDescription: String
+	public init(success s:T)
+	public func asCompletion() -> Completion<T>
+	public var isSuccess : Bool
+	public var isFail : Bool
+	public var isCancelled : Bool
+	public var isCompleteUsing : Bool
+	public func As() -> Completion<T>
+	public func As<S>() -> Completion<S>
+	public func mapAsOptional<S>() -> Completion<S?>
+	public var description: String
+	public var debugDescription: String
 Promise.swift
+	public enum CancelRequestResponse<T>
+	case Continue            // the promise will not be completed
+	case Complete(Completion<T>)  // ex: .Complete(.Cancelled)
 	public class Promise<T>
 	public var future : Future<T>
 	public init()
-	public init(automaticallyFailAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__)
-	public init(automaticallyAssertAfter: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__)
 	public final func complete(completion : Completion<T>)
-	public final func completeWithVoidSuccess()
+	public final func complete(value : FutureResult<T>)
 	public final func completeWithSuccess(result : T)
-	public final func completeWithFail(e : NSError)
+	public final func completeWithFail(error : ErrorType)
 	public final func completeWithFail(errorMessage : String)
+	public final func completeWithErrorMessage(errorMessage : String)
 	public final func completeWithException(e : NSException)
 	public final func completeWithCancel()
-	public final func completeWithCancel(token:Any?)
-	public final func continueWithFuture(f : Future<T>)
-	public final func failIfNotCompleted(e : NSError) -> Bool
+	public final func completeUsingFuture(f : Future<T>)
+	public convenience init(automaticallyCancelAfter delay: NSTimeInterval)
+	public convenience init(automaticallyFailAfter delay: NSTimeInterval, error:ErrorType )
+	public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__)
+	public final func automaticallyCancelAfter(delay: NSTimeInterval)
+	public final func automaticallyFailAfter(delay: NSTimeInterval, error:ErrorType)
+	public final func automaticallyAssertOnFail(message:String, file : String = __FILE__, line : Int32 = __LINE__)
+	public final func onRequestCancel(executor:Executor = .Primary, handler: (options:CancellationOptions) -> CancelRequestResponse<T>)
+	public final func automaticallyCancelOnRequestCancel()
+	public final func failIfNotCompleted(e : ErrorType) -> Bool
 	public final func failIfNotCompleted(errorMessage : String) -> Bool
 	public var isCompleted : Bool
-	public final func syncComplete(completion : Completion<T>) -> Bool
-	public final func complete(completion : Completion<T>,onCompletionError errorBlock: completionErrorHandler)
+	public final func tryComplete(completion : Completion<T>) -> Bool
+	public final func complete(completion : Completion<T>,onCompletionError errorBlock: CompletionErrorHandler)

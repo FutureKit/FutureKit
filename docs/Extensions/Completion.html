@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Completion Extension Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Extension/Completion" class="dashAnchor"></a>
+    <a title="Completion Extension Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (16% documented)</p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html"> Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        Completion Extension Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+          <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes.html#/s:C9FutureKit23ArrayWithFastLockAccess">ArrayWithFastLockAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ArrayWithSynchronization.html">ArrayWithSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Box.html">Box</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/CancellationToken.html">CancellationToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/CollectionAccessControl.html">CollectionAccessControl</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithBarrierAccess.html">DictionaryWithBarrierAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithFastLockAccess.html">DictionaryWithFastLockAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithSynchronization.html">DictionaryWithSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Future.html">Future</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureBatchOf.html">FutureBatchOf</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureFIFO.html">FutureFIFO</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureOperation.html">FutureOperation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/s:C9FutureKit20FutureOperationQueue">FutureOperationQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureThread.html">FutureThread</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSLockSynchronization.html">NSLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSObjectLockSynchronization.html">NSObjectLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSRecursiveLockSynchronization.html">NSRecursiveLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt32.html">OSAtomicInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt64.html">OSAtomicInt64</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSSpinLockSynchronization.html">OSSpinLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PThreadMutexSynchronization.html">PThreadMutexSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Promise.html">Promise</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/QueueBarrierSynchronization.html">QueueBarrierSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/QueueSerialSynchronization.html">QueueSerialSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/UnsafeSynchronization.html">UnsafeSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/_FutureAnyOperation.html">_FutureAnyOperation</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CancelRequestResponse.html">CancelRequestResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Completion.html">Completion</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Executor.html">Executor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureKitError.html">FutureKitError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureOperationQueuePriority.html">FutureOperationQueuePriority</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureResult.html">FutureResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/QosCompatible.html">QosCompatible</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/SerialOrConcurrent.html">SerialOrConcurrent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/SynchronizationType.html">SynchronizationType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Completion.html">Completion</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Future.html">Future</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/FutureResult.html">FutureResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/NSQualityOfService.html">NSQualityOfService</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:ZF9FutureKitoi2eeFTOS_14FutureKitErrorS0__Sb">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu0_rFTGCS_6Futureq__GS0_q0___GS0_Tq_q0___">combineFutures(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu1_rFTGCS_6Futureq__GS0_q0__GS0_q1___GS0_Tq_q0_q1___">combineFutures(_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu2_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2___GS0_Tq_q0_q1_q2___">combineFutures(_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu3_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3___GS0_Tq_q0_q1_q2_q3___">combineFutures(_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu4_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4___GS0_Tq_q0_q1_q2_q3_q4___">combineFutures(_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu5_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5___GS0_Tq_q0_q1_q2_q3_q4_q5___">combineFutures(_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu6_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6___GS0_Tq_q0_q1_q2_q3_q4_q5_q6___">combineFutures(_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu7_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6__GS0_q7___GS0_Tq_q0_q1_q2_q3_q4_q5_q6_q7___">combineFutures(_:_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu8_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6__GS0_q7__GS0_q8___GS0_Tq_q0_q1_q2_q3_q4_q5_q6_q7_q8___">combineFutures(_:_:_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit25warnOperationOnMainThreadFT_T_">warnOperationOnMainThread()</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/CompletionType.html">CompletionType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/FutureProtocol.html">FutureProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/SynchronizationProtocol.html">SynchronizationProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CancellationOptions.html">CancellationOptions</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ExtensionVarHandlerFor.html">ExtensionVarHandlerFor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/GLOBAL_PARMS.html">GLOBAL_PARMS</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Completion</h1>
+              <div class="declaration">
+                <div class="Swift">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>Defines a an enumeration that can be used to complete a Promise/Future.</p>
+
+<ul>
+<li><p>Success(T): The Future should complete with a <code>FutureResult.Success(T)</code></p></li>
+<li><p>Fail(ErrorType): The Future should complete with a <code>FutureResult.Fail(ErrorType)</code></p></li>
+<li><p>Cancelled:<br>
+The Future should complete with with <code>FutureResult.Cancelled</code>.</p></li>
+<li><p>CompleteUsing(Future<T>):<br>
+The Future should be completed with the result of a another dependent Future, when the dependent Future completes.</p>
+
+<p>If The Future receives a cancelation request, than the cancellation request will be forwarded to the depedent future.</p></li>
+</ul>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10CompletioncurFMGS0_q__FT20failWithErrorMessageSS_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init(failWithErrorMessage:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10CompletioncurFMGS0_q__FT20failWithErrorMessageSS_GS0_q__">init(failWithErrorMessage:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>returns a .Fail(FutureNSError) with a simple error string message.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">failWithErrorMessage</span> <span class="p">:</span> <span class="kt">String</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10CompletioncurFMGS0_q__FT9exceptionCSo11NSException_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init(exception:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10CompletioncurFMGS0_q__FT9exceptionCSo11NSException_GS0_q__">init(exception:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>converts an NSException into an NSError.
+useful for generic Objective-C excecptions into a Future</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">exception</span> <span class="nv">ex</span><span class="p">:</span><span class="kt">NSException</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10CompletioncurFMGS0_q__FT7successq__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init(success:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10CompletioncurFMGS0_q__FT7successq__GS0_q__">init(success:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion12asCompletionurFGS0_q__FT_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/asCompletion()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion12asCompletionurFGS0_q__FT_GS0_q__">asCompletion()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion9isSuccessSb"></a>
+                    <a name="//apple_ref/swift/Property/isSuccess" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion9isSuccessSb">isSuccess</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion6isFailSb"></a>
+                    <a name="//apple_ref/swift/Property/isFail" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion6isFailSb">isFail</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion11isCancelledSb"></a>
+                    <a name="//apple_ref/swift/Property/isCancelled" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion11isCancelledSb">isCancelled</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion15isCompleteUsingSb"></a>
+                    <a name="//apple_ref/swift/Property/isCompleteUsing" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion15isCompleteUsingSb">isCompleteUsing</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion8asResulturFGS0_q__FT_GOS_12FutureResultq__"></a>
+                    <a name="//apple_ref/swift/Method/asResult()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion8asResulturFGS0_q__FT_GOS_12FutureResultq__">asResult()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>get the Completion state for a completed state. It&rsquo;s easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">asResult</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">FutureResult</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion5valueGSQq__"></a>
+                    <a name="//apple_ref/swift/Property/value" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion5valueGSQq__">value</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>make sure this enum is a .Success before calling <code>result</code>. Do a check &lsquo;completion.state {}` or .isFail() first.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">value</span> <span class="p">:</span> <span class="kt">T</span><span class="o">!</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion5errorGSQPSs9ErrorType__"></a>
+                    <a name="//apple_ref/swift/Property/error" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion5errorGSQPSs9ErrorType__">error</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>make sure this enum is a .Fail before calling <code>result</code>. Use a switch or check .isError() first.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">error</span> <span class="p">:</span> <span class="kt">ErrorType</span><span class="o">!</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion2AsurFGS0_q__FT_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/As()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion2AsurFGS0_q__FT_GS0_q__">As()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion2Asu__rFGS0_q__FT_GS0_qd___"></a>
+                    <a name="//apple_ref/swift/Method/As()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion2Asu__rFGS0_q__FT_GS0_qd___">As()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion3mapu__rFGS0_q__FFzq_qd__GS0_qd___"></a>
+                    <a name="//apple_ref/swift/Method/map(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion3mapu__rFGS0_q__FFzq_qd__GS0_qd___">map(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>convert this completion of type Completion<T> into another type Completion<S>.</p>
+
+<p>may fail to compile if T is not convertable into S using <q>`as!`</q></p>
+
+<p>works iff the following code works:</p>
+
+<p>&lsquo;let t : T`</p>
+
+<p>&lsquo;let s = t as! S&rsquo;</p>
+
+<ul>
+<li>example:</li>
+</ul>
+
+<p><code>let c : Complete&lt;Int&gt; = .Success(5)</code></p>
+
+<p><code>let c2 : Complete&lt;Int32&gt; =  c.mapAs()</code></p>
+
+<p><code>assert(c2.result == Int32(5))</code></p>
+
+<p>you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">map</span><span class="o">&lt;</span><span class="kt">S</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">block</span><span class="p">:(</span><span class="kt">T</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">S</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">S</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion5mapAsu__rFGS0_q__FT_GS0_qd___"></a>
+                    <a name="//apple_ref/swift/Method/mapAs()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion5mapAsu__rFGS0_q__FT_GS0_qd___">mapAs()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>convert this completion of type Completion<T> into another type Completion<S>.</p>
+
+<p>may fail to compile if T is not convertable into S using <q>`as!`</q></p>
+
+<p>works iff the following code works:</p>
+
+<p>&lsquo;let t : T`</p>
+
+<p>&lsquo;let s = t as! S&rsquo;</p>
+
+<ul>
+<li>example:</li>
+</ul>
+
+<p><code>let c : Complete&lt;Int&gt; = .Success(5)</code></p>
+
+<p><code>let c2 : Complete&lt;Int32&gt; =  c.mapAs()</code></p>
+
+<p><code>assert(c2.result == Int32(5))</code></p>
+
+<p>you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">mapAs</span><span class="o">&lt;</span><span class="kt">S</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">S</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion15convertOptionalu__rFGS0_q__FT_GS0_GSqqd____"></a>
+                    <a name="//apple_ref/swift/Method/convertOptional()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion15convertOptionalu__rFGS0_q__FT_GS0_GSqqd____">convertOptional()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>convert this completion of type <code>Completion&lt;T&gt;</code> into another type <code>Completion&lt;S?&gt;</code>.</p>
+
+<p>WARNING: if <code>T as! S</code> isn&rsquo;t legal, than all Success values may be converted to nil
+- example:</p>
+
+<p>let c : Complete<String> = .Success(<q>5</q>)
+let c2 : Complete&lt;[Int]?&gt; =  c.convertOptional()
+assert(c2.result == nil)</p>
+
+<p>you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">convertOptional</span><span class="o">&lt;</span><span class="kt">S</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">?</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>a new result of type Completion<S?></p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO9FutureKit10Completion13mapAsOptionalu__rFGS0_q__FT_GS0_GSqqd____"></a>
+                    <a name="//apple_ref/swift/Method/mapAsOptional()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO9FutureKit10Completion13mapAsOptionalu__rFGS0_q__FT_GS0_GSqqd____">mapAsOptional()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion11descriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion11descriptionSS">description</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vO9FutureKit10Completion16debugDescriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/debugDescription" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO9FutureKit10Completion16debugDescriptionSS">debugDescription</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="Swift">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Completion</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.3.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

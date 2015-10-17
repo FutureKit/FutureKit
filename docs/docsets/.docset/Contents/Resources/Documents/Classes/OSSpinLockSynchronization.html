@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>OSSpinLockSynchronization Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/OSSpinLockSynchronization" class="dashAnchor"></a>
+    <a title="OSSpinLockSynchronization Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (16% documented)</p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html"> Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        OSSpinLockSynchronization Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+          <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes.html#/s:C9FutureKit23ArrayWithFastLockAccess">ArrayWithFastLockAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ArrayWithSynchronization.html">ArrayWithSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Box.html">Box</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/CancellationToken.html">CancellationToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/CollectionAccessControl.html">CollectionAccessControl</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithBarrierAccess.html">DictionaryWithBarrierAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithFastLockAccess.html">DictionaryWithFastLockAccess</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DictionaryWithSynchronization.html">DictionaryWithSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Future.html">Future</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureBatchOf.html">FutureBatchOf</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureFIFO.html">FutureFIFO</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureOperation.html">FutureOperation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/s:C9FutureKit20FutureOperationQueue">FutureOperationQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FutureThread.html">FutureThread</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSLockSynchronization.html">NSLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSObjectLockSynchronization.html">NSObjectLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NSRecursiveLockSynchronization.html">NSRecursiveLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt32.html">OSAtomicInt32</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSAtomicInt64.html">OSAtomicInt64</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OSSpinLockSynchronization.html">OSSpinLockSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PThreadMutexSynchronization.html">PThreadMutexSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Promise.html">Promise</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/QueueBarrierSynchronization.html">QueueBarrierSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/QueueSerialSynchronization.html">QueueSerialSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/UnsafeSynchronization.html">UnsafeSynchronization</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/_FutureAnyOperation.html">_FutureAnyOperation</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CancelRequestResponse.html">CancelRequestResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Completion.html">Completion</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Executor.html">Executor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureKitError.html">FutureKitError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureOperationQueuePriority.html">FutureOperationQueuePriority</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/FutureResult.html">FutureResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/QosCompatible.html">QosCompatible</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/SerialOrConcurrent.html">SerialOrConcurrent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/SynchronizationType.html">SynchronizationType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Completion.html">Completion</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/Future.html">Future</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/FutureResult.html">FutureResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Extensions/NSQualityOfService.html">NSQualityOfService</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:ZF9FutureKitoi2eeFTOS_14FutureKitErrorS0__Sb">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu0_rFTGCS_6Futureq__GS0_q0___GS0_Tq_q0___">combineFutures(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu1_rFTGCS_6Futureq__GS0_q0__GS0_q1___GS0_Tq_q0_q1___">combineFutures(_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu2_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2___GS0_Tq_q0_q1_q2___">combineFutures(_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu3_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3___GS0_Tq_q0_q1_q2_q3___">combineFutures(_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu4_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4___GS0_Tq_q0_q1_q2_q3_q4___">combineFutures(_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu5_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5___GS0_Tq_q0_q1_q2_q3_q4_q5___">combineFutures(_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu6_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6___GS0_Tq_q0_q1_q2_q3_q4_q5_q6___">combineFutures(_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu7_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6__GS0_q7___GS0_Tq_q0_q1_q2_q3_q4_q5_q6_q7___">combineFutures(_:_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit14combineFuturesu8_rFTGCS_6Futureq__GS0_q0__GS0_q1__GS0_q2__GS0_q3__GS0_q4__GS0_q5__GS0_q6__GS0_q7__GS0_q8___GS0_Tq_q0_q1_q2_q3_q4_q5_q6_q7_q8___">combineFutures(_:_:_:_:_:_:_:_:_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:F9FutureKit25warnOperationOnMainThreadFT_T_">warnOperationOnMainThread()</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/CompletionType.html">CompletionType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/FutureProtocol.html">FutureProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/SynchronizationProtocol.html">SynchronizationProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+          <a href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CancellationOptions.html">CancellationOptions</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ExtensionVarHandlerFor.html">ExtensionVarHandlerFor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/GLOBAL_PARMS.html">GLOBAL_PARMS</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>OSSpinLockSynchronization</h1>
+            <p>Undocumented</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronizationcFMS0_FT_S0_"></a>
+                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronizationcFMS0_FT_S0_">init()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization13lockAndModifyurFS0_FT13waitUntilDoneSb11modifyBlockFT_q_4thenGSqFq_T___T_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndModify(waitUntilDone:modifyBlock:then:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization13lockAndModifyurFS0_FT13waitUntilDoneSb11modifyBlockFT_q_4thenGSqFq_T___T_">lockAndModify(waitUntilDone:modifyBlock:then:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization11lockAndReadurFS0_FT13waitUntilDoneSb9readBlockFT_q_4thenGSqFq_T___T_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndRead(waitUntilDone:readBlock:then:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization11lockAndReadurFS0_FT13waitUntilDoneSb9readBlockFT_q_4thenGSqFq_T___T_">lockAndRead(waitUntilDone:readBlock:then:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization13lockAndModifyFS0_FFT_T_T_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndModify(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization13lockAndModifyFS0_FFT_T_T_">lockAndModify(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization18lockAndModifyAsyncurFS0_FTFT_q_4thenFq_T__T_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndModifyAsync(_:then:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization18lockAndModifyAsyncurFS0_FTFT_q_4thenFq_T__T_">lockAndModifyAsync(_:then:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization17lockAndModifySyncurFS0_FFT_q_q_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndModifySync(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization17lockAndModifySyncurFS0_FFT_q_q_">lockAndModifySync(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization11lockAndReadFS0_FFT_T_T_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndRead(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization11lockAndReadFS0_FFT_T_T_">lockAndRead(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization16lockAndReadAsyncurFS0_FTFT_q_4thenFq_T__T_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndReadAsync(_:then:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization16lockAndReadAsyncurFS0_FTFT_q_4thenFq_T__T_">lockAndReadAsync(_:then:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization15lockAndReadSyncurFS0_FFT_q_q_"></a>
+                    <a name="//apple_ref/swift/Method/lockAndReadSync(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization15lockAndReadSyncurFS0_FFT_q_q_">lockAndReadSync(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization10readFutureurFS0_FT8executorOS_8Executor5blockFT_q__GCS_6Futureq__"></a>
+                    <a name="//apple_ref/swift/Method/readFuture(executor:block:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization10readFutureurFS0_FT8executorOS_8Executor5blockFT_q__GCS_6Futureq__">readFuture(executor:block:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9FutureKit25OSSpinLockSynchronization12modifyFutureurFS0_FT8executorOS_8Executor5blockFT_q__GCS_6Futureq__"></a>
+                    <a name="//apple_ref/swift/Method/modifyFuture(executor:block:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9FutureKit25OSSpinLockSynchronization12modifyFutureurFS0_FT8executorOS_8Executor5blockFT_q__GCS_6Futureq__">modifyFuture(executor:block:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2015 <a class="link" href="" target="_blank" rel="external"></a>. All rights reserved. (Last updated: 2015-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.3.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

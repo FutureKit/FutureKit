@@ -40,16 +40,20 @@ FutureKit uses Swift generic classes, to allow you to easily deal with asynchron
 
 So the simple answer is that Future is an object that represents that you will get something in the future.  Usually from another process possible running in another thread.  Or maybe a resource that needs to loaded from an external server.  
 
-    let imageView : UIImageView =  // some view on my view controller.
-    let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
+```swift
+let imageView : UIImageView =  // some view on my view controller.
+let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
+```
 
 There are few things that are interesting.  This object represents both that an image will arrive, and it will give me universal way to handle failures and cancellation.    It could be that MyApiClass() is using NSURLSessions, or AlamoFire, combined with some kinda cool image cache based on SDWebImage.  But this viewController doesn't care.  Just give me a `Future<UIImage>`.  Somehow.
 
 now I can do this:
 
-    imageFuture.onSuccess(.Main) {  image  in
-        imageView.image = image
-    }
+```swift
+imageFuture.onSuccess(.Main) {  image  in
+    imageView.image = image
+}
+```
 
 This is a quick way of saying "when it's done, on the MainQ, set the image to an ImageView.
 
@@ -60,30 +64,36 @@ So know you have two asynchronous dependencies, one async call for the network, 
 
 Instead we are gonna do this.
 
-    let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
-    let blurImageFuture =  imageFuture.onSuccess(.UserInitiated) { (image) -> UIImage in
-         let blurredImage = doBlurEffect(image)
-         return blurredImage 
-    }
+```swift
+let imageFuture : Future<UIImage> = MyApiClass().getAnImageFromServer()
+let blurImageFuture =  imageFuture.onSuccess(.UserInitiated) { (image) -> UIImage in
+     let blurredImage = doBlurEffect(image)
+     return blurredImage 
+}
+```
 
 blurrImageFuture is now a NEW Future<Image>.  That I have created from imageFuture.  I also defined I want that block to run in the .UserInitiated dispatch queue.  (Cause I need it fast!).
 
-    blurImageFuture.onSuccess(.Main) { (blurredImage) -> Void in
-         imageView.image = blurredImage;
-    }
+```swift
+blurImageFuture.onSuccess(.Main) { (blurredImage) -> Void in
+     imageView.image = blurredImage;
+}
+```
 
 
 Or I could rewite it all in one line:
 
-    MyApiClass().getAnImageFromServer()
-             .onSuccess(.UserInitiated) { (image) -> UIImage in {
-                            let blurredImage = doBlurEffect(image)
-                            return blurredImage 
-             }.onSuccess(.Main) { (blurredImage) -> Void in
-                             imageView.image = blurredImage;
-             }.onError { error in
-                         // deal with any error that happened along the way
-             }
+```swift
+MyApiClass().getAnImageFromServer()
+     .onSuccess(.UserInitiated) { (image) -> UIImage in {
+                    let blurredImage = doBlurEffect(image)
+                    return blurredImage 
+     }.onSuccess(.Main) { (blurredImage) -> Void in
+                     imageView.image = blurredImage;
+     }.onError { error in
+                 // deal with any error that happened along the way
+     }
+```
 
 That's the QUICK 1 minute answer of what this can do.  It let's you take any asynchronous operation and "map" it into a new one.   So you can take all your APIs and background logic and get them to easily conform to a universal way of interacting.    Which can let you get away with a LOT of crazy asynchronous execution, without giving up stability and ease of understanding.
 
@@ -95,16 +105,18 @@ It's a neat way to stitch all your Asynchronous issues around a small set of cla
 
 A promise is a way for you write functions that returns Futures.  
 
-    func getAnImageFromServer(url : NSURL) -> Future<UIImage> {
-        let p = Promise<UIImage>()
+```swift
+func getAnImageFromServer(url : NSURL) -> Future<UIImage> {
+    let p = Promise<UIImage>()
 
-        dispatch_async(...) {
-             // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches.
-             let i = UIImage()
-             p.completeWithSuccess(i)
-        }
-        return p.future
+    dispatch_async(...) {
+         // do some crazy logic, or go to the internet and get a UIImageView.  Check some Image Caches.
+         let i = UIImage()
+         p.completeWithSuccess(i)
     }
+    return p.future
+}
+```
 
 A Promise<T> is a promise to send something back a value (of type T) in the future.  When it's ready..  A Promise has to be completed with either Success/Fail or Cancelled.  Don't break your promises!  Always complete them.  And everyone will be happy.  Especially your code that is waiting for things.
 
@@ -118,35 +130,40 @@ And since Futures can be composed from Futures, and Futures can be used to compl
 
 It also "inverts" the existing dispatch_async() logic.  Where first you call dispatch_async(some_custom_queue) and THEN you call some api call to start it working.   
 
-    func oldwayToGetStuff(callback:(NSData) -> Void) {
-        dispatch_async(StuffMaker().custom_queue_for_stuff)  {
+```swift
+func oldwayToGetStuff(callback:(NSData) -> Void) {
+    dispatch_async(StuffMaker().custom_queue_for_stuff)  {
 
-            // do stuff to make your NSData
-            let d = StuffMaker().iBuildStuff()
+        // do stuff to make your NSData
+        let d = StuffMaker().iBuildStuff()
 
-            dispatch_async(dispatch_get_main()) {
-                callback(d)
-            }
+        dispatch_async(dispatch_get_main()) {
+            callback(d)
         }
     }
+}
+```
+
 notice how I forgot to add error handling in that callback.  What if iBuildStuff() times out?  do I add more properties to the callback block?  add more blocks?  Every API wants to do it different and every choice makes my code less and less flexible.
 
-    class StuffMaker {
-        func iBuildStuffWithFutures() -> Future<NSData> {
-            let p = Promise<NSData>()
-            dispatch_async(self.mycustomqueue)  {
-                 // do stuff to make your NSData
-                if (SUCCESS) {
-                    let goodStuff = NSData()
-                    p.completeWithSuccess(goodStuff)
-                }
-                else {
-                    p.completeWithFail(NSError())
-                }
+```swift
+class StuffMaker {
+    func iBuildStuffWithFutures() -> Future<NSData> {
+        let p = Promise<NSData>()
+        dispatch_async(self.mycustomqueue)  {
+             // do stuff to make your NSData
+            if (SUCCESS) {
+                let goodStuff = NSData()
+                p.completeWithSuccess(goodStuff)
             }
-            return p.future()
+            else {
+                p.completeWithFail(NSError())
+            }
         }
+        return p.future()
     }
+}
+```
 
 Notice we are now calling StuffMaker() directly, without having to dispatch first.  And I'm not calling dispatch_async() AGAIN before I call the callback block.   I will let the consumer of the Future decide where he wants his handlers to run.
 

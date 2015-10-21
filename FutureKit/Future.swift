@@ -533,6 +533,16 @@ public class Future<T> : FutureProtocol{
             return (self.cancellationSource.cancellationIsSupported)
         }
     }
+    
+    /**
+    returns: true if the Future has completed with any completion value.
+    
+    is NOT threadsafe
+    */
+    private final var __isCompleted : Bool {
+        return (self.__result != nil)
+    }
+
     /**
     returns: true if the Future has completed with any completion value.
     
@@ -540,7 +550,7 @@ public class Future<T> : FutureProtocol{
     */
     public final var isCompleted : Bool {
         return self.synchObject.lockAndReadSync { () -> Bool in
-            return (self.__result != nil)
+            return self.__isCompleted
         }
     
     }
@@ -1253,6 +1263,45 @@ public class Future<T> : FutureProtocol{
             return p.future
     }
 
+    
+    /**
+    executes a block only if the Future has not completed.  Will prevent the Future from completing until AFTER the block finishes.
+    
+    Warning : do not cause the target to complete or call getCancelationToken() or call cancel() on an existing cancel token for this target inside this block.  On some FutureKit implementations, this will cause a deadlock.
+    
+    It may be better to safer and easier to just guarantee your onSuccess/onComplete logic run inside the same serial dispatch queue or Executor (eg .Main) and examine the var 'result' or 'isCompleted' inside the same context.
+
+    - returns: the value returned from the block if the block executed, or nil if the block didn't execute
+    */
+    public final func IfNotCompleted<__Type>(block:() -> __Type) -> __Type? {
+        return self.synchObject.lockAndReadSync { () -> __Type? in
+            if !self.__isCompleted {
+                return block()
+            }
+            return nil
+        }
+    }
+
+    
+    /**
+    executes a block and provides a 'thread safe' version of the current result.
+    
+    In the case where the current result is nil, than the future will be prevented from completing until after this block is done executing.
+    
+    Warning : do not cause the target to complete or call getCancelationToken() or call cancel() on an existing cancel token for this target inside this block.  On some FutureKit implementations, this will cause a deadlock.  
+    Instead use a returned value from the function to decide to complete or cancel the target.
+    
+    It may be better to safer and easier to just guarantee your onSuccess/onComplete logic run inside the same serial dispatch queue or Executor (eg .Main) and examine the var 'result' or 'isCompleted' inside the same context.
+    
+    - returns: the value returned from the block if the block executed
+    */
+    public final func checkResult<__Type>(block:(FutureResult<T>?) -> __Type) -> __Type {
+        return self.synchObject.lockAndReadSync { () -> __Type in
+            return block(self.__result)
+        }
+    }
+    
+
 
     
     /**
@@ -1319,6 +1368,7 @@ public class Future<T> : FutureProtocol{
     - parameter block: a block that returns the completion value of the returned Future.
     - returns: a new future of type `Future<__Type>`
     */
+    @available(*, deprecated=1.1, message="depricated in latest swift 2, use onSuccess",renamed="onSuccess")
     public final func onAnySuccess<__Type>(executor : Executor = .Primary,
         block:(Any) throws -> Completion<__Type>) -> Future<__Type> {
             
@@ -1414,6 +1464,7 @@ public class Future<T> : FutureProtocol{
     }
     
   
+    @available(*, deprecated=1.1, message="depricated in latest swift 2, use onSuccess",renamed="onSuccess")
     public final func onAnySuccess<__Type>(executor : Executor = .Primary,
         block:(Any) throws -> __Type) -> Future<__Type> {
         return self.onAnySuccess(executor) { (value) -> Completion<__Type> in
@@ -1428,6 +1479,7 @@ public class Future<T> : FutureProtocol{
             }
     }
     
+    @available(*, deprecated=1.1, message="depricated in latest swift 2, use onSuccess",renamed="onSuccess")
     public final func onAnySuccess<__Type>(executor : Executor = .Primary,
         block:(Any) throws -> FutureResult<__Type>) -> Future<__Type> {
             return self.onAnySuccess(executor) { (value) -> Completion<__Type> in
@@ -1471,6 +1523,7 @@ public class Future<T> : FutureProtocol{
         }
     }
     
+    @available(*, deprecated=1.1, message="depricated in latest swift 2, use onSuccess",renamed="onSuccess")
     public final func onAnySuccess<__Type>(executor : Executor = .Primary,
         block:(Any) throws -> Future<__Type>) -> Future<__Type> {
         return self.onAnySuccess(executor) { (value) -> Completion<__Type> in
@@ -1723,12 +1776,12 @@ class classWithMethodsThatReturnFutures {
             }
         }
         
-        self.iMayFailRandomly().onAnySuccess { (value) -> Completion<Int> in
+        self.iMayFailRandomly().onSuccess { (value) -> Completion<Int> in
             return .Success(5)
         }
             
         
-        self.iMayFailRandomly().onAnySuccess { (value) -> Void in
+        self.iMayFailRandomly().onSuccess { (value) -> Void in
             NSLog("")
         }
     
@@ -1753,9 +1806,9 @@ class classWithMethodsThatReturnFutures {
     
     func imGonnaMapAVoidToAnInt() -> Future<Int> {
         
-        let f = self.iDontReturnValues().onAnySuccess { (_) -> Void in
+        let f = self.iDontReturnValues().onSuccess { (_) -> Void in
             NSLog("do stuff")
-        }.onAnySuccess { (value) -> Int in
+        }.onSuccess { (value) -> Int in
             return 5
         }.onSuccess(.Primary) {(fffive) -> Float in
             Float(fffive + 10)

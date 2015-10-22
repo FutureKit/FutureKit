@@ -65,7 +65,7 @@ public class FutureBatchOf<T> {
     /**
         takes a type-safe list of Futures.
     */
-    public init(f : [Future<T>]) {
+    public init(futures f : [Future<T>]) {
         self.subFutures = f
         for s in self.subFutures {
             self.tokens.append(s.getCancelToken())
@@ -79,7 +79,7 @@ public class FutureBatchOf<T> {
     */
     public convenience init(_ futures : [FutureProtocol]) {
         let f : [Future<T>] = FutureBatch.convertArray(futures)
-        self.init(f:f)
+        self.init(futures:f)
     }
     
     /**
@@ -125,14 +125,14 @@ public class FutureBatchOf<T> {
         :block: block block to execute as soon as each Future completes.
     */
     public final func onEachComplete<__Type>(executor : Executor = .Primary,
-        block:(value:FutureResult<T>, future:Future<T>, index:Int)-> __Type) -> Future<[__Type]> {
+        block:(result:FutureResult<T>, future:Future<T>, index:Int)-> __Type) -> Future<[__Type]> {
         
         var futures = [Future<__Type>]()
         
         for (index, future) in self.subFutures.enumerate() {
             
-            let f = future.onComplete { (value) -> __Type in
-                return block(value: value, future:future,index: index)
+            let f = future.onComplete { result in
+                return block(result: result, future:future,index: index)
             }
             futures.append(f)
         }
@@ -140,8 +140,7 @@ public class FutureBatchOf<T> {
     }
     
     
-    typealias FailOrCancelReportTuple = (FutureResult<T>, Future<T>, Int)
-    typealias FailOrCancelHandler = (value:FutureResult<T>, future:Future<T>, index:Int) -> Void
+    typealias FailOrCancelHandler = (FutureResult<T>, Future<T>, Int) -> Void
 
     private final func _onFirstFailOrCancel(executor : Executor = .Immediate,
                             ignoreCancel:Bool = false,
@@ -151,30 +150,28 @@ public class FutureBatchOf<T> {
         if let block = block {
             
             // this will complete as soon as ONE Future Fails or is Cancelled.
-            let failOrCancelPromise = Promise<FailOrCancelReportTuple>()
+            let failOrCancelPromise = Promise<(FutureResult<T>, Future<T>, Int)>()
             
             for (index, future) in self.subFutures.enumerate() {
-                future.onComplete { (value) -> Void in
+                future.onComplete { value in
                     if (!value.isSuccess) {
                         // fail immediately on the first subFuture failure
                         // which ever future fails first will complete the promises
                         // the others will be ignored
                         if (!value.isCancelled || !ignoreCancel) {
-                            let report : FailOrCancelReportTuple = (value, future, index)
-                            failOrCancelPromise.completeWithSuccess(report)
+                            failOrCancelPromise.completeWithSuccess((value, future, index))
                         }
                     }
                 }
             }
             // We want to 'Cancel' this future if it is successful (so we don't call the block)
-            self.batchFuture.onSuccess (.Immediate) { (_) -> Void in
+            self.batchFuture.onSuccess (.Immediate) { _ in
                 failOrCancelPromise.completeWithCancel()
             }
             
             // As soon as the first Future fails, call the block handler.
-            failOrCancelPromise.future.onAnySuccess(executor) { (result) -> Void in
-                let (value,future,index) = (result as! FailOrCancelReportTuple)
-                block(value: value, future: future, index: index)
+            failOrCancelPromise.future.onSuccess(executor) { (result,future,index)  in
+                block(result, future, index)
             }
         }
         
@@ -182,13 +179,13 @@ public class FutureBatchOf<T> {
         let promise = Promise<[T]>()
 
         for future in self.subFutures {
-            future.onComplete { (value) -> Void in
+            future.onComplete { value in
                 if (!value.isSuccess) {
                     promise.complete(value.mapAs())
                 }
             }
         }
-        self.batchFuture.onComplete (.Immediate) { (value) -> Void in
+        self.batchFuture.onComplete (.Immediate) { value in
             promise.complete(value)
         }
         return promise.future
@@ -241,11 +238,7 @@ public class FutureBatchOf<T> {
     */
     public class func convertArray<__Type>(array:[FutureProtocol]) -> [Future<__Type>] {
         
-        var futures = [Future<__Type>]()
-        for f in array {
-            futures.append(f.mapAs())
-        }
-        return futures
+        return array.map { $0.mapAs() }
         
     }
     
@@ -355,123 +348,46 @@ public class FutureBatchOf<T> {
 
 }
 
-
 extension Future {
     public func combineWith<S>(s:Future<S>) -> Future<(T,S)> {
-        return FutureBatch([self,s]).future.map { array -> (T,S) in
-            return (array[0] as! T,
-                    array[1] as! S)
-        }
+        return FutureBatch([self,s]).future.map { $0.toTuple() }
     }
-    
 }
 
 public func combineFutures<A, B>(a: Future<A>, _ b: Future<B>) -> Future<(A, B)> {
-    return FutureBatch([a,b]).future.map { array -> (A, B) in
-        return (
-            array[0] as! A,
-            array[1] as! B)
-    }
+    return FutureBatch([a,b]).future.map { $0.toTuple() }
 }
 
 public func combineFutures<A, B, C>(a: Future<A>, _ b: Future<B>, _ c: Future<C>) -> Future<(A, B, C)> {
-    return FutureBatch([a,b,c]).future.map { array -> (A, B, C) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C)
-    }
+    return FutureBatch([a,b,c]).future.map { $0.toTuple() }
 }
 
 public func combineFutures<A, B, C, D>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>) -> Future<(A, B, C, D)> {
-    return FutureBatch([a,b,c,d]).future.map { array -> (A, B, C, D) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D)
-    }
+    return FutureBatch([a,b,c,d]).future.map { $0.toTuple() }
 }
 
 public func combineFutures<A, B, C, D, E>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>) -> Future<(A, B, C, D, E)> {
-    return FutureBatch([a,b,c,d,e]).future.map { array -> (A, B, C, D, E) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D,
-            array[4] as! E)
-    }
+    return FutureBatch([a,b,c,d,e]).future.map { $0.toTuple() }
 }
 
 public func combineFutures<A, B, C, D, E, F>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>) -> Future<(A, B, C, D, E, F)> {
-    return FutureBatch([a,b,c,d,e,f]).future.map { array -> (A, B, C, D, E, F) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D,
-            array[4] as! E,
-            array[5] as! F)
-    }
+    return FutureBatch([a,b,c,d,e,f]).future.map { $0.toTuple() }
 }
 
 public func combineFutures<A, B, C, D, E, F, G>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>) -> Future<(A, B, C, D, E, F, G)> {
-    return FutureBatch([a,b,c,d,e,f,g]).future.map { array -> (A, B, C, D, E, F, G) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D,
-            array[4] as! E,
-            array[5] as! F,
-            array[6] as! G)
-    }
+    return FutureBatch([a,b,c,d,e,f,g]).future.map { $0.toTuple() }
 }
 
 public func combineFutures<A, B, C, D, E, F, G, H>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>) -> Future<(A, B, C, D, E, F, G, H)> {
-    return FutureBatch([a,b,c,d,e,f,g,h]).future.map { array -> (A, B, C, D, E, F, G, H) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D,
-            array[4] as! E,
-            array[5] as! F,
-            array[6] as! G,
-            array[7] as! H)
-    }
+    return FutureBatch([a,b,c,d,e,f,g,h]).future.map { $0.toTuple() }
 }
+
 public func combineFutures<A, B, C, D, E, F, G, H, I>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>, _ i: Future<I>) -> Future<(A, B, C, D, E, F, G, H, I)> {
-    return FutureBatch([a,b,c,d,e,f,g,h,i]).future.map { array -> (A, B, C, D, E, F, G, H, I) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D,
-            array[4] as! E,
-            array[5] as! F,
-            array[6] as! G,
-            array[7] as! H,
-            array[8] as! I)
-    }
+    return FutureBatch([a,b,c,d,e,f,g,h,i]).future.map { $0.toTuple() }
 }
+
 public func combineFutures<A, B, C, D, E, F, G, H, I, J>(a: Future<A>, _ b: Future<B>, _ c: Future<C>, _ d: Future<D>, _ e: Future<E>, _ f: Future<F>, _ g: Future<G>, _ h: Future<H>, _ i: Future<I>, _ j: Future<J>) -> Future<(A, B, C, D, E, F, G, H, I, J)> {
-    return FutureBatch([a,b,c,d,e,f,g,h,i,j]).future.map { array -> (A, B, C, D, E, F, G, H, I, J) in
-        return (
-            array[0] as! A,
-            array[1] as! B,
-            array[2] as! C,
-            array[3] as! D,
-            array[4] as! E,
-            array[5] as! F,
-            array[6] as! G,
-            array[7] as! H,
-            array[8] as! I,
-            array[9] as! J)
-    }
+    return FutureBatch([a,b,c,d,e,f,g,h,i,j]).future.map { $0.toTuple() }
 }
-
-
 
 

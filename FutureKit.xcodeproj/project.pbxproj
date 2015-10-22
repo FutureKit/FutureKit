@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		090112C11BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; settings = {ASSET_TAGS = (); }; };
+		090112C21BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; settings = {ASSET_TAGS = (); }; };
 		09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; settings = {ASSET_TAGS = (); }; };
 		09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; settings = {ASSET_TAGS = (); }; };
 		092794BC1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; settings = {ASSET_TAGS = (); }; };
@@ -99,6 +101,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		090112C01BD851CB002EB82D /* Tuples.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuples.swift; sourceTree = "<group>"; };
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -220,6 +223,7 @@
 				0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */,
 				0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */,
 				0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */,
+				090112C01BD851CB002EB82D /* Tuples.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -663,6 +667,7 @@
 				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
+				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -687,6 +692,7 @@
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
+				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

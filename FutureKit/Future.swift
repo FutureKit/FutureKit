@@ -255,19 +255,6 @@ internal class CancellationTokenSource {
         
         synchObject.lockAndModify { () -> Void in
 
-            assert({
-                
-                let cancelingTokenCount = self.tokens.filter { (tokenPtr) -> Bool in
-                    if let token = tokenPtr.value {
-                        return (token === cancelingToken)
-                    }
-                    return false
-                    }.count
-                
-                return (cancelingTokenCount == 1)}()
-                
-                , "can't find the request token in our list of active tokens!")
-            
             self._removeToken(cancelingToken)
             self._performCancel(options)
 

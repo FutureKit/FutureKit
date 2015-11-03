@@ -641,7 +641,7 @@ public class Future<T> : FutureProtocol{
     
     can only be used to a create a Future that should always succeed.
     */
-    public init(_ executor : Executor, block: () throws -> T) {
+    public init(_ executor : Executor = .Immediate, block: () throws -> T) {
         let block = executor.callbackBlockFor { () -> Void in
             do {
                 let r = try block()
@@ -662,7 +662,7 @@ public class Future<T> : FutureProtocol{
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init(_ executor : Executor, block: () throws -> Completion<T>) {
+    public init(_ executor : Executor = .Immediate, block: () throws -> Completion<T>) {
         executor.execute { () -> Void in
             do {
                 self.completeWith(try block())
@@ -673,25 +673,6 @@ public class Future<T> : FutureProtocol{
             }
         }
     }
-
-
-    /**
-    Creates a future by executes block inside of an Executor, and when it's complete, sets the completion = block()
-    
-    can be used to create a Future that may succeed or fail.
-    
-    the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
-    */
-    public init(block: () throws -> Completion<T>) {
-        do {
-            self.completeWith(try block())
-        }
-        catch {
-            self.completeWith(.Fail(error))
-            
-        }
-    }
-    
 
     /**
         will complete the future and cause any registered callback blocks to be executed.

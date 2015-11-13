@@ -1350,18 +1350,62 @@ public class Future<T> : FutureProtocol{
     
     If the target is completed with a .Fail, then the block will be executed using the supplied Executor.  
     
-    This method does **not** return a new Future.  If you need a new future, than use `onComplete()` instead.
+    This method returns a new Future.  Which is identical to the depedent Future, with the added Failure handler, that will execute before the Future completes.
+     Failures are still forwarded.  If you need to create side effects on errors, consider onComplete or mapError
     
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.
     */
     public final func onFail(executor : Executor = .Primary,
-        block:(error:ErrorType)-> Void)
+        block:(error:ErrorType)-> Void) -> Future<T>
     {
-        self.onComplete(executor) { (result) -> Void in
+        return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isFail) {
                 block(error: result.error)
             }
+            return result.asCompletion()
+        }
+    }
+
+    /**
+     takes a block and executes it iff the target is completed with a .Fail
+     
+     If the target is completed with a .Fail, then the block will be executed using the supplied Executor.
+     
+     This method returns a new Future.  Failures can be be remapped to different Completions.  (Such as consumed or ignored or retried via returning .CompleteUsing()
+     
+     - parameter executor: an Executor to use to execute the block when it is ready to run.
+     - parameter block: a block can process the error of a future.
+     */
+    public final func onFail(executor : Executor = .Primary,
+        block:(error:ErrorType)-> Completion<T>) -> Future<T>
+    {
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            if (result.isFail) {
+                return block(error: result.error)
+            }
+            return result.asCompletion()
+        }
+    }
+
+    /**
+     takes a block and executes it iff the target is completed with a .Fail
+     
+     If the target is completed with a .Fail, then the block will be executed using the supplied Executor.
+     
+     This method returns a new Future.  Failures can be be remapped to different Completions.  (Such as consumed or ignored or retried via returning .CompleteUsing()
+     
+     - parameter executor: an Executor to use to execute the block when it is ready to run.
+     - parameter block: a block can process the error of a future.
+     */
+    public final func onFail(executor : Executor = .Primary,
+        block:(error:ErrorType)-> Future<T>) -> Future<T>
+    {
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            if (result.isFail) {
+                return .CompleteUsing(block(error: result.error))
+            }
+            return result.asCompletion()
         }
     }
 
@@ -1370,40 +1414,138 @@ public class Future<T> : FutureProtocol{
     
     If the target is completed with a .Cancelled, then the block will be executed using the supplied Executor.  
     
-    This method does **not** return a new Future.  If you need a new future, than use `onComplete()` instead.
-    
+     This method returns a new Future.  Cancellations
+     
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    public final func onCancel(executor : Executor = .Primary, block:()-> Void)
+    public final func onCancel(executor : Executor = .Primary, block:()-> Void) -> Future<T>
     {
-        self.onComplete(executor) { (result) -> Void in
+        return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isCancelled) {
                 block()
             }
+            return result.asCompletion()
         }
     }
 
+    /**
+     takes a block and executes it iff the target is completed with a .Cancelled
+     
+     If the target is completed with a .Cancelled, then the block will be executed using the supplied Executor.
+     
+     This method returns a new Future.  Cancellations
+     
+     - parameter executor: an Executor to use to execute the block when it is ready to run.
+     - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
+     */
+    public final func onCancel(executor : Executor = .Primary, block:()-> Completion<T>) -> Future<T>
+    {
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            if (result.isCancelled) {
+                return block()
+            }
+            return result.asCompletion()
+        }
+    }
+    /**
+     takes a block and executes it iff the target is completed with a .Cancelled
+     
+     If the target is completed with a .Cancelled, then the block will be executed using the supplied Executor.
+     
+     This method returns a new Future.  Cancellations
+     
+     - parameter executor: an Executor to use to execute the block when it is ready to run.
+     - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
+     */
+    public final func onCancel(executor : Executor = .Primary, block:()-> Future<T>) -> Future<T>
+    {
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            if (result.isCancelled) {
+                return .CompleteUsing(block())
+            }
+            return result.asCompletion()
+        }
+    }
+
+    
     /*:
     takes a block and executes it iff the target is completed with a .Fail or .Cancel
     
     If the target is completed with a .Fail, then the block will be executed using the supplied Executor.
     If the target is completed with a .Cancel, then the block will be executed using the supplied Executor.
     
-    This method does **not** return a new Future.  If you need a new future, than use `onComplete()` instead.
+    This method returns a new Future.  Which is identical to the depedent Future, with the added Fail/Cancel handler, that will execute after the dependent completes.
+    Cancelations and Failures are still forwarded.
     
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
     public final func onFailorCancel(executor : Executor = .Primary,
-        block:(result:FutureResult<T>)-> Void)
+        block:(FutureResult<T>)-> Void) -> Future<T>
     {
-        self.onComplete(executor) { (result) -> Void in
-            if (result.isFail || result.isCancelled) {
-                block(result: result)
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            switch result {
+            case .Fail, .Cancelled:
+                block(result)
+            case .Success(_):
+                break
+            }
+            return result.asCompletion()
+        }
+    }
+ 
+    
+    /*:
+    takes a block and executes it iff the target is completed with a .Fail or .Cancel
+    
+    If the target is completed with a .Fail, then the block will be executed using the supplied Executor.
+    If the target is completed with a .Cancel, then the block will be executed using the supplied Executor.
+    
+    This method returns a new Future.  Which is identical to the depedent Future, with the added Fail/Cancel handler, that will execute after the dependent completes.
+    Cancelations and Failures are still forwarded.
+    
+    - parameter executor: an Executor to use to execute the block when it is ready to run.
+    - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
+    */
+    public final func onFailorCancel(executor : Executor = .Primary,
+        block:(FutureResult<T>)-> Completion<T>) -> Future<T>
+    {
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            switch result {
+                case .Fail, .Cancelled:
+                    return block(result)
+                case let .Success(value):
+                    return .Success(value)
             }
         }
     }
+    
+    /*:
+    takes a block and executes it iff the target is completed with a .Fail or .Cancel
+    
+    If the target is completed with a .Fail, then the block will be executed using the supplied Executor.
+    If the target is completed with a .Cancel, then the block will be executed using the supplied Executor.
+    
+    This method returns a new Future.  Which is identical to the depedent Future, with the added Fail/Cancel handler, that will execute after the dependent completes.
+    Cancelations and Failures are still forwarded.
+    
+    - parameter executor: an Executor to use to execute the block when it is ready to run.
+    - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
+    */
+    public final func onFailorCancel(executor : Executor = .Primary,
+        block:(FutureResult<T>)-> Future<T>) -> Future<T>
+    {
+        return self.onComplete(executor) { (result) -> Completion<T> in
+            switch result {
+            case .Fail, .Cancelled:
+                return .CompleteUsing(block(result))
+            case let .Success(value):
+                return .Success(value)
+            }
+        }
+    }
+
     
     /**
     takes a block and executes it iff the target is completed with a .Success

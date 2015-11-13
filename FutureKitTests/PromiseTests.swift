@@ -718,8 +718,10 @@ class PromiseTests: FKTestCase {
 
     class func testsFor<T : Equatable>(result:T, result2:T) -> [BlockBasedTest] {
         
+        let opQueue = NSOperationQueue()
+        opQueue.maxConcurrentOperationCount = 2
         
-        let custom : Executor.CustomCallBackBlock = { (callback) -> Void in
+/*        let custom : Executor.CustomCallBackBlock = { (callback) -> Void in
             Executor.Background.execute {
                 Executor.Main.execute {
                     callback()
@@ -727,8 +729,6 @@ class PromiseTests: FKTestCase {
             }
         }
         
-        let opQueue = NSOperationQueue()
-        opQueue.maxConcurrentOperationCount = 2
         
         let q = dispatch_queue_create("custom q", DISPATCH_QUEUE_CONCURRENT)
         
@@ -745,7 +745,7 @@ class PromiseTests: FKTestCase {
             .StackCheckingImmediate,
             .OperationQueue(opQueue),
             .Custom(custom),
-            .Queue(q)]
+            .Queue(q)] */
 
         let quick_executors_list : [Executor] = [
             .MainAsync,
@@ -753,7 +753,7 @@ class PromiseTests: FKTestCase {
             .Current,
             .Immediate]
 
-        let future_executors : [Executor] = [.MainAsync, .MainImmediate]
+//        let future_executors : [Executor] = [.MainAsync, .MainImmediate]
 
         
         var blockTests = [BlockBasedTest]()
@@ -837,9 +837,7 @@ class PromiseTests: FKTestCase {
         let success: () = ()
         
         let completeExpectation = self.expectationWithDescription("Future.onComplete")
-//        let successExpectation = self.expectationWithDescription("Future.onSuccess")
-        let anySuccessExpectation = self.expectationWithDescription("Future.onAnySuccess")
-        
+        let successExpectation = self.expectationWithDescription("Future.onSuccess")
         
         f.onComplete(futureExecutor) { (completion) -> Void in
             
@@ -854,16 +852,11 @@ class PromiseTests: FKTestCase {
         
         // TODO: Can we get this to compile?
         
-/*        f.onSuccess(futureExecutor) { (result:()) -> Void in
+        f.onSuccess(futureExecutor) { (result:()) -> Void in
             
             successExpectation.fulfill()
             
-        } */
-        f.onAnySuccess(futureExecutor) { (result) -> Void in
-            XCTAssert(result is Void, "Didn't get expected success value \(success)")
-            anySuccessExpectation.fulfill()
         }
-        
         f.onFail(futureExecutor) { (error) -> Void in
             XCTFail("unexpectad onFail error \(error)")
             
@@ -886,7 +879,6 @@ class PromiseTests: FKTestCase {
         
         let completeExpectation = self.expectationWithDescription("Future.onComplete")
         let successExpectation = self.expectationWithDescription("Future.onSuccess")
-        let anySuccessExpectation = self.expectationWithDescription("Future.onAnySuccess")
         
         
         f.onComplete(futureExecutor) { (result) -> Void in
@@ -906,13 +898,6 @@ class PromiseTests: FKTestCase {
             successExpectation.fulfill()
             
         }
-        f.onAnySuccess(futureExecutor) { (result) -> Void in
-            let r = result as! T
-            XCTAssert(r == success, "Didn't get expected success value \(success)")
-            anySuccessExpectation.fulfill()
-            
-        }
-        
         f.onFail(futureExecutor) { (error) -> Void in
             XCTFail("unexpectad onFail error \(error)")
             

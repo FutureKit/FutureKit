@@ -8,12 +8,21 @@ import FutureKit
     typealias UIImage = NSImage
 #endif
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(true)
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # Promises.
-//: Promises are used to create your own Futures.
-//: When you want to write a function or method that returns a Future, you will most likely want to create a Promise.
+/** 
+Promises are used to create your own Futures.
+When you want to write a function or method that returns a Future, you will most likely want to create a Promise. 
+*/
 
 //:This is a **promise**.   It helps you return Futures when you need to.  When you create a Promise object, you are also creating a "promise" to complete a Future.   It's contract.  Don't break your promises, or you will have code that hangs.
+
+
+//: In some other implementations of Future/Promises, (like Javascript) they will use a single type (usually called a Promise).   FutureKit (like Scala) we separate these two views into two interlated types.
+
+//: A Future is a consumer interface.   It gives a way to request blocks to be executed once an asynchronous job is done.
+
+//: a Promise is a producer interface.  It gives a way to notify consumers the outcome, of the asynchronous job.
 
 let namesPromise = Promise<[String]>()
 
@@ -83,14 +92,19 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
 let catUrlIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
 
 let imageFuture = getCoolCatPic(catUrlIFoundOnTumblr)
-    
+
+let token = imageFuture.getCancelToken()
+token.cancel()
+
 imageFuture.onComplete { (result) -> Void in
+    print(result)
     switch result {
     case let .Success(value):
         let i = value
     case let .Fail(error):
         let e = error
     case .Cancelled:
+        print("canceled")
         break
     }
 }

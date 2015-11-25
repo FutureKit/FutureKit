@@ -1,8 +1,10 @@
 //: # Welcome to FutureKit!
-//: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.  If import FutureKit is failing, make sure you build the OSX Framework in the workspace!
+//: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.
 import FutureKit
+//: If import FutureKit is failing, make sure you build the OSX Framework in the workspace!
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(true)
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+
 //: # Let's get started!
 
 //: This is a Future:
@@ -17,11 +19,13 @@ let resultOfFuture5 = future5Int.result!
 let futureFail = Future<Int>(failWithErrorMessage:"I have no 5's for you today.")
 let failed5result = futureFail.result
 let e = futureFail.error
-//: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.  Optionally you can send a reason, but it's not required.  In FutureKit a Fail means that something went wrong, and you should cope with that.  a Cancel is usually considered "legal", like canceling active API requests when a window is closed.
+//: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.
+//: In FutureKit a Fail means that something went wrong, and you should cope with that.  a Cancel is usually considered "legal", like canceling active API requests when a window is closed.
+//: We treat cancellations as special, (so that they are easy to ignore).
 let cancelledFuture = Future<Int>(cancelled: ())
 let cancelledResult = cancelledFuture.result
 //: These aren't very interesting Futures. Let's make something a bit more interesting:
-let asyncFuture5 = Future(.Background) { () -> Int in
+let asyncFuture5 = Future(.Background) {
     return 5
 }
 //: This is also a Future<Int>. The swift compiler figured it out, because I added a block that returns an Int.

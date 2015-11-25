@@ -2,16 +2,17 @@
 
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(true)
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+
 //: # onComplete handler varients
 //: There are actually 4 different variants of onComplete() handler.  Each returns a different Type.
-//: - 'func onComplete(block:(FutureType<T>) -> Completion<__Type>) -> Future<_Type>'
-//: - 'func onComplete(block:(FutureType<T>) -> Void)  -> Future<Void>'
-//: - 'func onComplete(block:(FutureType<T>) -> __Type) -> Future<__Type>'
-//: - 'func onComplete(block:(FutureType<T>) -> Future<__Type>) -> Future<__Type>'
+//: - 'func onComplete(block:(FutureResult<T>) -> Completion<__Type>) -> Future<_Type>'
+//: - 'func onComplete(block:(FutureResult<T>) -> Void)  -> Future<Void>'
+//: - 'func onComplete(block:(FutureResult<T>) -> __Type) -> Future<__Type>'
+//: - 'func onComplete(block:(FutureResult<T>) -> Future<__Type>) -> Future<__Type>'
 // we are gonna use this future for the next few examples.
 let sampleFuture = Future(success: 5)
-//: 'func onComplete(block:(FutureType<T>) -> Completion<__Type>) -> Future<_Type>'
+//: 'func onComplete(block:(FutureResult<T>) -> Completion<__Type>) -> Future<_Type>'
 
 //: The first version we have already seen.  It let's you receive a completion value from a target future, and return any sort of new result it wants (maybe it want's to Fail certain 'Success' results from it's target, or visa-versa).  It is very flexible.  You can compose a new future that returns anything you want.
 

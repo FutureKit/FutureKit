@@ -3,17 +3,28 @@
    version = "3.0">
    <TimelineItems>
       <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=1334&amp;EndingColumnNumber=26&amp;EndingLineNumber=43&amp;StartingColumnNumber=25&amp;StartingLineNumber=43&amp;Timestamp=465330975.398622"
+         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=1795&amp;EndingColumnNumber=26&amp;EndingLineNumber=52&amp;StartingColumnNumber=25&amp;StartingLineNumber=52&amp;Timestamp=469580343.398172"
          selectedRepresentationIndex = "0"
          shouldTrackSuperviewWidth = "NO">
       </LoggerValueHistoryTimelineItem>
       <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=2395&amp;EndingColumnNumber=14&amp;EndingLineNumber=78&amp;StartingColumnNumber=13&amp;StartingLineNumber=78&amp;Timestamp=465330975.398882"
+         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=2953&amp;EndingColumnNumber=14&amp;EndingLineNumber=91&amp;StartingColumnNumber=13&amp;StartingLineNumber=91&amp;Timestamp=470078292.950878"
          selectedRepresentationIndex = "0"
          shouldTrackSuperviewWidth = "NO">
       </LoggerValueHistoryTimelineItem>
       <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=3503&amp;EndingColumnNumber=14&amp;EndingLineNumber=89&amp;StartingColumnNumber=13&amp;StartingLineNumber=89&amp;Timestamp=465330975.436782"
+         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=4061&amp;EndingColumnNumber=14&amp;EndingLineNumber=103&amp;StartingColumnNumber=13&amp;StartingLineNumber=103&amp;Timestamp=470078292.951074"
+         selectedRepresentationIndex = "0"
+         shouldTrackSuperviewWidth = "NO">
+      </LoggerValueHistoryTimelineItem>
+      <LoggerValueHistoryTimelineItem
+         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=1520&amp;EndingColumnNumber=26&amp;EndingLineNumber=51&amp;StartingColumnNumber=25&amp;StartingLineNumber=51&amp;Timestamp=470069394.917391"
+         selectedRepresentationIndex = "0"
+         shouldTrackSuperviewWidth = "NO">
+      </LoggerValueHistoryTimelineItem>
+      <LoggerValueHistoryTimelineItem
+         documentLocation = "#CharacterRangeLen=1&amp;CharacterRangeLoc=2652&amp;EndingColumnNumber=14&amp;EndingLineNumber=90&amp;StartingColumnNumber=13&amp;StartingLineNumber=90&amp;Timestamp=470078292.951444"
+         lockedSize = "{175, 155}"
          selectedRepresentationIndex = "0"
          shouldTrackSuperviewWidth = "NO">
       </LoggerValueHistoryTimelineItem>

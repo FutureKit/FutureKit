@@ -103,6 +103,8 @@
 /* Begin PBXFileReference section */
 		090112C01BD851CB002EB82D /* Tuples.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuples.swift; sourceTree = "<group>"; };
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
+		09061E071C063ADF00F799A9 /* FutureKit+AlamoFire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FutureKit+AlamoFire.swift"; sourceTree = "<group>"; };
+		09061E081C063ADF00F799A9 /* FutureKit+RAC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FutureKit+RAC.swift"; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = convertPerfToCsv.swift; path = FutureKitTests/convertPerfToCsv.swift; sourceTree = "<group>"; };
@@ -203,6 +205,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		09061E041C0627EE00F799A9 /* 3rdPartyExtensions */ = {
+			isa = PBXGroup;
+			children = (
+				09061E071C063ADF00F799A9 /* FutureKit+AlamoFire.swift */,
+				09061E081C063ADF00F799A9 /* FutureKit+RAC.swift */,
+			);
+			path = 3rdPartyExtensions;
+			sourceTree = "<group>";
+		};
 		0D7502B61AE6B114009C3F63 /* FoundationExtensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -260,6 +271,7 @@
 		0DA41FB01ADAFE3D00B58B0B /* FutureKit */ = {
 			isa = PBXGroup;
 			children = (
+				09061E041C0627EE00F799A9 /* 3rdPartyExtensions */,
 				0DA41FCE1ADAFE5A00B58B0B /* Future.swift */,
 				092794BB1BB25DD300DFB56D /* Completion.swift */,
 				0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */,

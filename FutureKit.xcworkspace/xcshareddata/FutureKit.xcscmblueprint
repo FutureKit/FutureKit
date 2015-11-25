@@ -10,6 +10,7 @@
     "95438028B10BBB846574013D29F154A00556A9D1" : 0,
     "E084C86B03F81D63323C9E7510697EA528A758C7" : 0,
     "51B210D0D41486D3ADD6940D57E4480BBD4DE4C5" : 0,
+    "F2F2564304FC3B4014F80F62D64DACDBD6E0C7B0" : 0,
     "95DE17A5219F9963BFC5201C57F75BD96CB46948" : 0,
     "B521A9A43F2D8C0BFE65948465239FE1301DA81F" : 0
   },
@@ -21,6 +22,7 @@
     "95438028B10BBB846574013D29F154A00556A9D1" : "ReactiveCocoa\/Carthage\/Checkouts\/Nimble\/",
     "E084C86B03F81D63323C9E7510697EA528A758C7" : "ReactiveCocoa\/Carthage\/Checkouts\/xcconfigs\/",
     "51B210D0D41486D3ADD6940D57E4480BBD4DE4C5" : "ReactiveCocoa\/",
+    "F2F2564304FC3B4014F80F62D64DACDBD6E0C7B0" : "ios-cover-pages\/External\/SQToolkit\/",
     "95DE17A5219F9963BFC5201C57F75BD96CB46948" : "FutureKit",
     "B521A9A43F2D8C0BFE65948465239FE1301DA81F" : "ios-cover-pages\/Carthage\/Checkouts\/EasyMapping\/"
   },
@@ -67,6 +69,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jspahrsummers\/xcconfigs.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E084C86B03F81D63323C9E7510697EA528A758C7"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "ssh:\/\/stash.nyc.squarespace.net:7999\/MOBILE\/squarespace-mobile-toolkit.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F2F2564304FC3B4014F80F62D64DACDBD6E0C7B0"
     }
   ]
 }

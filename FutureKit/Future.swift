@@ -36,7 +36,7 @@ public struct GLOBAL_PARMS {
     static let STACK_CHECKING_MAX_DEPTH = 20
     
     public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
-    public static let REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE = true
+    public static let REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE = false
     
 }
 
@@ -912,9 +912,10 @@ public class Future<T> : FutureProtocol{
                 // we only allocate an array after getting the first __callbacks.
                 // cause we are hyper sensitive about not allocating extra stuff for temporary transient Futures.
                 switch self.__callbacks {
-                case var .Some(cb):
-                    cb.append(callback)
-                    self.__callbacks = cb
+                case let .Some(cb):
+                    var newcb = cb
+                    newcb.append(callback)
+                    self.__callbacks = newcb
                 case .None:
                     self.__callbacks = [callback]
                 }

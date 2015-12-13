@@ -36,7 +36,6 @@ public struct GLOBAL_PARMS {
     static let STACK_CHECKING_MAX_DEPTH = 20
     
     public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
-    public static let REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE = false
     
 }
 
@@ -558,42 +557,36 @@ public class Future<T> : FutureProtocol{
     */
     public init(completed:FutureResult<T>) {  // returns an completed Task
         self.__result = completed
-        self.synchObject = UnsafeSynchronization()
     }
     /**
         creates a completed Future with a completion == .Success(success)
     */
     public init(success:T) {  // returns an completed Task  with result T
         self.__result = .Success(success)
-        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Error(failed)
     */
     public init(failed:ErrorType) {  // returns an completed Task that has Failed with this error
         self.__result = .Fail(failed)
-        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(failWithErrorMessage))
     */
     public init(failWithErrorMessage errorMessage: String) {
         self.__result = FutureResult<T>(failWithErrorMessage:errorMessage)
-        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(exception))
     */
     public init(exception:NSException) {  // returns an completed Task that has Failed with this error
         self.__result = FutureResult<T>(exception:exception)
-        self.synchObject = UnsafeSynchronization()
     }
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
     public init(cancelled:()) {  // returns an completed Task that has Failed with this error
         self.__result = .Cancelled
-        self.synchObject = UnsafeSynchronization()
     }
 
     /**
@@ -770,14 +763,6 @@ public class Future<T> : FutureProtocol{
                 self.__callbacks = nil
                 self.cancellationSource.clear()
                 self.__result = c.asResult()
-                if (GLOBAL_PARMS.REMOVE_THREAD_SYNCHRONIZATION_WHEN_FUTURE_IS_COMPLETE) {
-                    // let's execute OSMemoryBarrier() prior to changing the syncObject
-                    // https://www.mikeash.com/pyblog/friday-qa-2009-07-10-type-specifiers-in-c-part-3.html
-                    // This makes sure all the 'clear' values on the object are set correctly, before removing the
-                    // synchronization object's protection
-                    OSMemoryBarrier()
-                    self.synchObject = UnsafeSynchronization()
-                }
                 return ModifyBlockReturnType(callbacks,self.__result,nil)
             }
         }, then:{ (modifyBlockReturned:ModifyBlockReturnType) -> Void in

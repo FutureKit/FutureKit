@@ -2,12 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/mgray/repos/FutureKit/Welcome To FutureKit - The Playground.playground">
+      location = "group:Welcome To FutureKit - The Playground.playground">
    </FileRef>
    <FileRef
       location = "group:FutureKit.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:FutureKit+ReactiveCocoa.playground">
    </FileRef>
 </Workspace>

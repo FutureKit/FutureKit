@@ -102,17 +102,17 @@ public enum QosCompatible : Int {
     }
     
     public func createQueue(label: String?,
-        var q_attr : dispatch_queue_attr_t!,
+        q_attr : dispatch_queue_attr_t!,
         relative_priority: Int32 = 0) -> dispatch_queue_t {
             
             let qos_class = self.qos_class
-            q_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
+            let nq_attr = dispatch_queue_attr_make_with_qos_class(q_attr,qos_class, relative_priority)
             let q : dispatch_queue_t
             if let l = label {
-                q = dispatch_queue_create(l, q_attr)
+                q = dispatch_queue_create(l, nq_attr)
             }
             else {
-                q = dispatch_queue_create(nil, q_attr)
+                q = dispatch_queue_create(nil, nq_attr)
             }
             return q
     }

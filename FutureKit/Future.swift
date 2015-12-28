@@ -1289,24 +1289,6 @@ public class Future<T> : FutureProtocol{
     }
     
     /**
-    takes a block and executes it if the target is completed with a .Success
-    
-    If the target is completed with a .Success, then the block will be executed using the supplied Executor.
-    
-    - parameter __Type: the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
-    - parameter executor: an Executor to use to execute the block when it is ready to run.
-    - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
-    - returns: a `Future<Void>` that completes after this block has executed.
-    */
-    public final func onSuccess(executor : Executor = .Primary,
-        block:(T) throws -> Void) -> Future<Void> {
-        
-        return self.onSuccess(executor) { (value) -> Completion<Void> in
-            return .Success(try block(value))
-        }
-    }
-
-    /**
     takes a block and executes it iff the target is completed with a .Success.  
     
     Currently, in swift 2.0, this is the only way to add a Success handler to a future of type `Future<Void>` or `Future<()>`.  But can be used with Future's of all types.  All results are converted to Any in your code.  This can be used as the 'type-unsafe' version of `OnSuccess`

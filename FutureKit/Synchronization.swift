@@ -94,7 +94,6 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
     case NSObjectLock
     case NSLock
     case NSRecursiveLock
-    case OSSpinLock
     case PThreadMutex
 //	case NSLockWithSafetyChecks
 //	case NSRecursiveLockWithSafetyChecks
@@ -104,7 +103,7 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
         return 30.0
     }
     
-    public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,OSSpinLock,PThreadMutex]
+    public static let allValues = [BarrierConcurrent, BarrierSerial, SerialQueue,NSObjectLock,NSLock,NSRecursiveLock,PThreadMutex]
 
     public func lockObject() -> SynchronizationProtocol {
         switch self {
@@ -120,8 +119,6 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
             return NSLockSynchronization()
         case NSRecursiveLock:
             return NSRecursiveLockSynchronization()
-        case OSSpinLock:
-            return OSSpinLockSynchronization()
         case PThreadMutex:
             return PThreadMutexSynchronization()
 /*        case NSLockWithSafetyChecks:
@@ -147,8 +144,6 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
             return "NSLock"
         case NSRecursiveLock:
             return "NSRecursiveLock"
-        case OSSpinLock:
-            return "OSSpinLock"
         case PThreadMutex:
             return "PThreadMutex"
         case Unsafe:
@@ -161,7 +156,7 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
     }
     
     // some typealias for the default recommended Objects
-    typealias LightAndFastSyncType = OSSpinLockSynchronization
+    typealias LightAndFastSyncType = PThreadMutexSynchronization
     typealias SlowOrComplexSyncType = QueueBarrierSynchronization
 
 }
@@ -499,105 +494,6 @@ public class NSLockSynchronization : SynchronizationProtocol {
     
     final func synchronized<T>(block:() -> T) -> T {
         return synchronizedWithLock(self.lock) { () -> T in
-            return block()
-        }
-    }
-    
-    public final func lockAndModify<T>(
-        waitUntilDone wait: Bool = false,
-        modifyBlock:() -> T,
-        then : ((T) -> Void)? = nil) {
-            
-            if let then = then {
-                let retVal = self.synchronized(modifyBlock)
-                then( retVal)
-            }
-            else {
-                self.synchronized(modifyBlock)
-            }
-    }
-    
-    public final func lockAndRead<T>(
-        waitUntilDone wait: Bool = false,
-        readBlock:() -> T,
-        then : ((T) -> Void)? = nil) {
-            
-            self.lockAndModify(waitUntilDone: wait, modifyBlock: readBlock, then: then)
-    }
-    
-    
-    // this should be in the swift 2.0 protocol extension, for now we do a big cut/paste
-    
-    public final func lockAndModify(modifyBlock:() -> Void) {
-        self.lockAndModify(waitUntilDone: false, modifyBlock: modifyBlock, then: nil)
-    }
-    
-    public final func lockAndModifyAsync<T>(modifyBlock:() -> T, then : (T) -> Void) {
-        self.lockAndModify(waitUntilDone: false, modifyBlock: modifyBlock, then: then)
-    }
-    
-    public final func lockAndModifySync<T>(modifyBlock:() -> T) -> T {
-        
-        var retVal : T?
-        self.lockAndModify(waitUntilDone: true, modifyBlock: modifyBlock) { (modifyBlockReturned) -> Void in
-            retVal = modifyBlockReturned
-        }
-        return retVal!
-    }
-    
-    public final func lockAndRead(readBlock:() -> Void) {
-        self.lockAndRead(waitUntilDone: false, readBlock: readBlock, then: nil)
-    }
-    
-    public final func lockAndReadAsync<T>(readBlock:() -> T, then : (T) -> Void) {
-        self.lockAndRead(waitUntilDone: false, readBlock: readBlock, then: then)
-    }
-    
-    public final func lockAndReadSync<T>(readBlock:() -> T) -> T {
-        
-        var retVal : T?
-        self.lockAndRead(waitUntilDone: true, readBlock: readBlock) { (readBlockReturned) -> Void in
-            retVal = readBlockReturned
-        }
-        return retVal!
-    }
-    public final func readFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
-        let p = Promise<T>()
-        
-        self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
-            p.completeWithSuccess(readBlockReturned)
-        }
-        
-        return p.future
-    }
-    public final func modifyFuture<T>(executor executor : Executor = .Primary, block:() -> T) -> Future<T> {
-        let p = Promise<T>()
-        
-        self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in
-            p.completeWithSuccess(modifyBlockReturned)
-        }
-        return p.future
-    }
-
-    
-}
-
-func synchronizedWithSpinLock<T>(l: UnSafeMutableContainer<OSSpinLock>, @noescape closure:  ()->T) -> T {
-    OSSpinLockLock(l.unsafe_pointer)
-    let retVal: T = closure()
-    OSSpinLockUnlock(l.unsafe_pointer)
-    return retVal
-}
-
-public class OSSpinLockSynchronization : SynchronizationProtocol {
-    
-    var lock = UnSafeMutableContainer<OSSpinLock>(OS_SPINLOCK_INIT)
-
-    required public init() {
-
-    }
-    final func synchronized<T>(block:() -> T) -> T {
-        return synchronizedWithSpinLock(self.lock) { () -> T in
             return block()
         }
     }

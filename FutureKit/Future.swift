@@ -35,7 +35,7 @@ public struct GLOBAL_PARMS {
     static let CURRENT_EXECUTOR_PROPERTY = "FutureKit.Executor.Current"
     static let STACK_CHECKING_MAX_DEPTH = 20
     
-    public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
+    public static var LOCKING_STRATEGY : SynchronizationType = .PThreadMutex
     
 }
 

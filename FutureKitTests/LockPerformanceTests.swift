@@ -202,7 +202,7 @@ class LockPerformanceTests: BlockBasedTestCase {
             thread.start()
         }
         
-        self.expectationTestForFutureSuccess("threads", future: FutureBatchOf(f:futures).future)
+        self.expectationTestForFutureSuccess("threads", future: FutureBatchOf(futures:futures).future)
         self.waitForExpectationsWithTimeout(600, handler: nil)
     }
     

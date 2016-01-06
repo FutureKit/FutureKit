@@ -35,7 +35,7 @@ public struct GLOBAL_PARMS {
     static let CURRENT_EXECUTOR_PROPERTY = "FutureKit.Executor.Current"
     static let STACK_CHECKING_MAX_DEPTH = 20
     
-    public static var LOCKING_STRATEGY : SynchronizationType = .OSSpinLock
+    public static var LOCKING_STRATEGY : SynchronizationType = .PThreadMutex
     
 }
 
@@ -303,7 +303,7 @@ public struct CancellationOptions : OptionSetType{
     otherwise future may ignore the firstChildCancelToken request to cancel, because it is still trying to satisify secondChildofFuture
 
     */
-    static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
+    public static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
   
     /**
     If this future is dependent on the result of another future (via onComplete or .CompleteUsing(f))
@@ -311,14 +311,14 @@ public struct CancellationOptions : OptionSetType{
     depending on the future's implementation, you may need include .ForceThisFutureToBeCancelledImmediately for cancellation to be successful
     
     */
-    static let DoNotForwardRequest    = CancellationOptions(rawValue:2)
+    public static let DoNotForwardRequest    = CancellationOptions(rawValue:2)
 
     /**
     this is allows you to 'short circuit' a Future's internal cancellation request logic.
     The Cancellation request is still forwarded (unless .DoNotForwardRequest is also sent), but an unfinished Future will be forced into the .Cancelled state early.
     
     */
-    static let ForceThisFutureToBeCancelledImmediately    = CancellationOptions(rawValue:4)
+    public static let ForceThisFutureToBeCancelledImmediately    = CancellationOptions(rawValue:4)
 
     
 }

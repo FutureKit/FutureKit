@@ -357,11 +357,30 @@ public class CancellationToken {
 }
 
 
+// Type Erased Future
+public protocol AnyFuture {
+    
+    var futureAny : Future<Any> { get }
+
+    func mapAs<S>() -> Future<S>
+
+}
 
 /**
     All Futures use the protocol FutureProtocol
 */
-public protocol FutureProtocol {
+public protocol FutureProtocol : AnyFuture {
+    
+    typealias T
+    
+    var result : FutureResult<T>? { get }
+
+    var value : T? { get }
+    
+    
+    
+    func onComplete<__Type>(executor : Executor,block:(result:FutureResult<T>) throws -> Completion<__Type>) -> Future<__Type>
+    
     /**
     convert this future of type `Future<T>` into another future type `Future<S>`
     
@@ -406,6 +425,14 @@ public protocol FutureProtocol {
     
     var description: String { get }
     
+}
+
+public extension FutureProtocol  {
+    
+    var futureAny : Future<Any> {
+        return self.mapAs()
+    }
+
 }
 
 
@@ -1042,6 +1069,45 @@ public class Future<T> : FutureProtocol{
         }
     }
 
+    
+    /**
+     executes a block only if the Future has not completed.  Will prevent the Future from completing until AFTER the block finishes.
+     
+     Warning : do not cause the target to complete or call getCancelationToken() or call cancel() on an existing cancel token for this target inside this block.  On some FutureKit implementations, this will cause a deadlock.
+     
+     It may be better to safer and easier to just guarantee your onSuccess/onComplete logic run inside the same serial dispatch queue or Executor (eg .Main) and examine the var 'result' or 'isCompleted' inside the same context.
+     
+     - returns: the value returned from the block if the block executed, or nil if the block didn't execute
+     */
+    public final func IfNotCompleted<__Type>(block:() -> __Type) -> __Type? {
+        return self.synchObject.lockAndReadSync { () -> __Type? in
+            if !self.__isCompleted {
+                return block()
+            }
+            return nil
+        }
+    }
+    
+    
+    /**
+     executes a block and provides a 'thread safe' version of the current result.
+     
+     In the case where the current result is nil, than the future will be prevented from completing until after this block is done executing.
+     
+     Warning : do not cause the target to complete or call getCancelationToken() or call cancel() on an existing cancel token for this target inside this block.  On some FutureKit implementations, this will cause a deadlock.
+     Instead use a returned value from the function to decide to complete or cancel the target.
+     
+     It may be better to safer and easier to just guarantee your onSuccess/onComplete logic run inside the same serial dispatch queue or Executor (eg .Main) and examine the var 'result' or 'isCompleted' inside the same context.
+     
+     - returns: the value returned from the block if the block executed
+     */
+    public final func checkResult<__Type>(block:(FutureResult<T>?) -> __Type) -> __Type {
+        return self.synchObject.lockAndReadSync { () -> __Type in
+            return block(self.__result)
+        }
+    }
+    
+
 // ---------------------------------------------------------------------------------------------------
 // Block Handlers
 // ---------------------------------------------------------------------------------------------------
@@ -1075,6 +1141,22 @@ public class Future<T> : FutureProtocol{
         return promise.future
     }
     
+    /**
+     */
+    public final func getCancelToken() -> CancellationToken {
+        return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
+    }
+    
+    
+    public final func withCancelToken() -> (Future<T>,CancellationToken) {
+        return (self,self.getCancelToken())
+    }
+
+    
+}
+
+extension FutureProtocol {
+
     
     /**
     executes a block using the supplied Executor if and when the target future is completed.  Will execute immediately if the target is already completed.
@@ -1218,44 +1300,6 @@ public class Future<T> : FutureProtocol{
     }
 
     
-    /**
-    executes a block only if the Future has not completed.  Will prevent the Future from completing until AFTER the block finishes.
-    
-    Warning : do not cause the target to complete or call getCancelationToken() or call cancel() on an existing cancel token for this target inside this block.  On some FutureKit implementations, this will cause a deadlock.
-    
-    It may be better to safer and easier to just guarantee your onSuccess/onComplete logic run inside the same serial dispatch queue or Executor (eg .Main) and examine the var 'result' or 'isCompleted' inside the same context.
-
-    - returns: the value returned from the block if the block executed, or nil if the block didn't execute
-    */
-    public final func IfNotCompleted<__Type>(block:() -> __Type) -> __Type? {
-        return self.synchObject.lockAndReadSync { () -> __Type? in
-            if !self.__isCompleted {
-                return block()
-            }
-            return nil
-        }
-    }
-
-    
-    /**
-    executes a block and provides a 'thread safe' version of the current result.
-    
-    In the case where the current result is nil, than the future will be prevented from completing until after this block is done executing.
-    
-    Warning : do not cause the target to complete or call getCancelationToken() or call cancel() on an existing cancel token for this target inside this block.  On some FutureKit implementations, this will cause a deadlock.  
-    Instead use a returned value from the function to decide to complete or cancel the target.
-    
-    It may be better to safer and easier to just guarantee your onSuccess/onComplete logic run inside the same serial dispatch queue or Executor (eg .Main) and examine the var 'result' or 'isCompleted' inside the same context.
-    
-    - returns: the value returned from the block if the block executed
-    */
-    public final func checkResult<__Type>(block:(FutureResult<T>?) -> __Type) -> __Type {
-        return self.synchObject.lockAndReadSync { () -> __Type in
-            return block(self.__result)
-        }
-    }
-    
-
 
     
     /**
@@ -1288,24 +1332,6 @@ public class Future<T> : FutureProtocol{
         }
     }
     
-    /**
-    takes a block and executes it if the target is completed with a .Success
-    
-    If the target is completed with a .Success, then the block will be executed using the supplied Executor.
-    
-    - parameter __Type: the type of the new Future that will be returned.  When using XCode auto-complete, you will need to modify this into the swift Type you wish to return.
-    - parameter executor: an Executor to use to execute the block when it is ready to run.
-    - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
-    - returns: a `Future<Void>` that completes after this block has executed.
-    */
-    public final func onSuccess(executor : Executor = .Primary,
-        block:(T) throws -> Void) -> Future<Void> {
-        
-        return self.onSuccess(executor) { (value) -> Completion<Void> in
-            return .Success(try block(value))
-        }
-    }
-
     /**
     takes a block and executes it iff the target is completed with a .Success.  
     
@@ -1628,16 +1654,6 @@ public class Future<T> : FutureProtocol{
     }
     
     
-    /**
-    */
-    public final func getCancelToken() -> CancellationToken {
-        return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
-    }
-
-    
-    public final func withCancelToken() -> (Future<T>,CancellationToken) {
-        return (self,self.getCancelToken())
-    }
 
     public final func waitUntilCompleted() -> FutureResult<T> {
         let s = SyncWaitHandler<T>(waitingOnFuture: self)
@@ -1656,7 +1672,7 @@ public class Future<T> : FutureProtocol{
 
 
 
-extension Future {
+extension FutureProtocol {
     /**
     **NOTE** identical to `onAnySuccess()`
     
@@ -1768,7 +1784,7 @@ extension Optional : GenericOptional {
 
 }
 
-extension Future where T : GenericOptional {
+extension FutureProtocol where T : GenericOptional {
 
     func As<OptionalS: GenericOptional>() -> Future<OptionalS.unwrappedType?> {
         return self.map { (value) -> OptionalS.unwrappedType? in
@@ -1782,7 +1798,7 @@ extension Future where T : GenericOptional {
 
 }
 
-extension Future  {
+extension FutureProtocol  {
     
     func AsOptional<OptionalS: GenericOptional>() -> Future<OptionalS.unwrappedType?> {
         return self.map { (value) -> OptionalS.unwrappedType? in

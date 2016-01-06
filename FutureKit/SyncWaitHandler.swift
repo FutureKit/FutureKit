@@ -34,7 +34,7 @@ class SyncWaitHandler<T>  {
     
     private var value : FutureResult<T>?
     
-    init (waitingOnFuture f: Future<T>) {
+    init<F:FutureProtocol where F.T == T>(waitingOnFuture f: F) {
         f.onComplete { (v) -> Void in
             self.condition.lock()
             self.value = v

@@ -540,7 +540,6 @@
 					};
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
-						DevelopmentTeam = AUXUTTBC4T;
 					};
 					0DEA1BAE1AE30872000E126F = {
 						CreatedOnToolsVersion = 6.3;

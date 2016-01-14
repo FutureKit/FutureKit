@@ -400,23 +400,8 @@ public enum Executor {
         return p.future
     }
     
-    public func execute<__Type>(block: () throws -> Future<__Type>) -> Future<__Type> {
-        let p = Promise<__Type>()
-        self.executeBlock { () -> Void in
-            do {
-                try block().onComplete { (value) -> Void in
-                    p.complete(value)
-                }
-            }
-            catch {
-                p.completeWithFail(error)
-            }
-        }
-        return p.future
-    }
-    
-    public func execute<__Type>(block: () throws -> Completion<__Type>) -> Future<__Type> {
-        let p = Promise<__Type>()
+    public func execute<C:CompletionType>(block: () throws -> C) -> Future<C.ValueType> {
+        let p = Promise<C.ValueType>()
         self.executeBlock { () -> Void in
             do {
                 let c = try block()
@@ -430,8 +415,8 @@ public enum Executor {
     }
 
     
-    internal func _executeAfterDelay<__Type>(nanosecs n: Int64, block: () throws -> Completion<__Type>) -> Future<__Type> {
-        let p = Promise<__Type>()
+    internal func _executeAfterDelay<C:CompletionType>(nanosecs n: Int64, block: () throws -> C) -> Future<C.ValueType> {
+        let p = Promise<C.ValueType>()
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
@@ -441,17 +426,14 @@ public enum Executor {
         })
         return p.future
     }
-    public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> Future<__Type>) -> Future<__Type> {
+    public func executeAfterDelay<C:CompletionType>(secs : NSTimeInterval,  block: () throws -> C) -> Future<C.ValueType> {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        return self._executeAfterDelay(nanosecs: nanosecs) { () -> Completion<__Type> in
-            return .CompleteUsing(try block())
-        }
+        return self._executeAfterDelay(nanosecs: nanosecs,block:block)
     }
+    
     public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> __Type) -> Future<__Type> {
-        let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
-        let nanosecs = Int64(nanosecsDouble)
-        return self._executeAfterDelay(nanosecs: nanosecs) { () -> Completion<__Type> in
+        return self.executeAfterDelay(secs) { () -> Completion<__Type> in
             return .Success(try block())
         }
     }

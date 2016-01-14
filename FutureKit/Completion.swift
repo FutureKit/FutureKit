@@ -28,17 +28,12 @@ import Foundation
 public protocol CompletionType {
     typealias ValueType
     
-    var value : ValueType! { get }
-    var error : ErrorType! { get }
-    
-    var isSuccess : Bool { get }
-    var isFail : Bool { get }
-    var isCancelled : Bool { get }
-
-    func asCompletion() -> Completion<ValueType>
-    func asResult() -> FutureResult<ValueType>
-
+    var completion : Completion<ValueType> { get }
 }
+
+
+
+
 /**
 Defines a simple enumeration of the legal Completion states of a Future.
 
@@ -55,22 +50,6 @@ public enum FutureResult<T>  {
 
 }
 
-extension FutureResult {
-    public func asCompletion() -> Completion<T> {
-        switch self {
-        case let .Success(result):
-            return .Success(result)
-        case let .Fail(error):
-            return .Fail(error)
-        case .Cancelled:
-            return .Cancelled
-        }
-    }
-    public func asResult() -> FutureResult<T> {
-        return self
-    }
-    
-}
 
 /**
 Defines a an enumeration that can be used to complete a Promise/Future.
@@ -97,6 +76,51 @@ public enum Completion<T>  {
 
 
 
+extension Future : CompletionType {
+    
+    public typealias ValueType = T
+    
+    public var completion : Completion<ValueType> {
+        return .CompleteUsing(self)
+    }
+    
+}
+
+extension Promise : CompletionType {
+    
+    public typealias ValueType = T
+    
+    public var completion : Completion<ValueType> {
+        return .CompleteUsing(self.future)
+    }
+}
+
+extension Completion : CompletionType { // properties
+    
+    public typealias ValueType = T
+    public var completion : Completion<ValueType> {
+        return self
+    }
+}
+
+
+extension FutureResult : CompletionType {
+    
+    public typealias ValueType = T
+
+    public var completion : Completion<ValueType> {
+        switch self {
+        case let .Success(result):
+            return .Success(result)
+        case let .Fail(error):
+            return .Fail(error)
+        case .Cancelled:
+            return .Cancelled
+        }
+    }
+}
+
+
 public extension FutureResult { // initializers
     
     /**
@@ -118,17 +142,22 @@ public extension FutureResult { // initializers
     }
 }
 
-extension FutureResult : CompletionType {
-    public typealias ValueType = T
-   
+public extension CompletionType {
     /**
     make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
     */
-    public var value : T! {
+    public var value : ValueType! {
         get {
-            switch self {
+            switch self.completion {
             case let .Success(t):
                 return t
+            case let .CompleteUsing(f):
+                if let v = f.value {
+                    return v
+                }
+                else {
+                    return nil
+                }
             default:
                 return nil
             }
@@ -139,7 +168,7 @@ extension FutureResult : CompletionType {
     */
     public var error : ErrorType! {
         get {
-            switch self {
+            switch self.completion {
             case let .Fail(e):
                 return e
             default:
@@ -150,7 +179,7 @@ extension FutureResult : CompletionType {
     
     public var isSuccess : Bool {
         get {
-            switch self {
+            switch self.completion {
             case .Success:
                 return true
             default:
@@ -160,7 +189,7 @@ extension FutureResult : CompletionType {
     }
     public var isFail : Bool {
         get {
-            switch self {
+            switch self.completion {
             case .Fail:
                 return true
             default:
@@ -170,7 +199,7 @@ extension FutureResult : CompletionType {
     }
     public var isCancelled : Bool {
         get {
-            switch self {
+            switch self.completion {
             case .Cancelled:
                 return true
             default:
@@ -178,6 +207,47 @@ extension FutureResult : CompletionType {
             }
         }
     }
+    
+    public var isCompleteUsing : Bool {
+        get {
+            switch self.completion {
+            case .CompleteUsing:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+    
+    internal var completeUsingFuture:Future<ValueType>! {
+        get {
+            switch self.completion {
+            case let .CompleteUsing(f):
+                return f
+            default:
+                return nil
+            }
+        }
+    }
+
+
+    
+    var result : FutureResult<ValueType>!  {
+        
+        switch self.completion {
+            case .CompleteUsing:
+                return nil
+            case let .Success(value):
+                return .Success(value)
+            case let .Fail(error):
+                return .Fail(error)
+            case .Cancelled:
+                return .Cancelled
+        }
+        
+    }
+    
+
     
     /** 
     can be used inside a do/try/catch block to 'try' and get the result of a Future.
@@ -195,14 +265,19 @@ extension FutureResult : CompletionType {
         }
     
     */
-    func tryValue() throws -> T {
-        switch self {
+    func tryValue() throws -> ValueType {
+        switch self.completion {
         case let .Success(value):
             return value
         case let .Fail(error):
             throw error
         case .Cancelled:
             throw FutureKitError(genericError: "Future was canceled.")
+        case let .CompleteUsing(f):
+            if let v = f.value {
+                return v
+            }
+            throw FutureKitError(genericError: "Future was not completed.")
         }
     }
     
@@ -225,7 +300,7 @@ extension FutureResult : CompletionType {
     
     */
     func throwIfFail() throws {
-        switch self {
+        switch self.completion {
         case let .Fail(error):
             throw error
         default:
@@ -250,7 +325,7 @@ extension FutureResult : CompletionType {
     
     */
     func throwIfFailOrCancel() throws {
-        switch self {
+        switch self.completion {
         case let .Fail(error):
             throw error
         case .Cancelled:
@@ -259,15 +334,34 @@ extension FutureResult : CompletionType {
             break
         }
     }
-
-}
-
-
-public extension FutureResult { // conversions
     
     
-    public func map<S>(block:(T) throws -> S) -> FutureResult<S> {
-        switch self {
+    /**
+     convert this completion of type Completion<T> into another type Completion<S>.
+     
+     may fail to compile if T is not convertable into S using "`as!`"
+     
+     works iff the following code works:
+     
+     'let t : T`
+     
+     'let s = t as! S'
+     
+     
+     - example:
+     
+     `let c : Complete<Int> = .Success(5)`
+     
+     `let c2 : Complete<Int32> =  c.mapAs()`
+     
+     `assert(c2.result == Int32(5))`
+     
+     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+     */
+
+    public func map<S>(block:(ValueType) throws -> S) -> Completion<S> {
+        
+        switch self.completion {
         case let .Success(t):
             do {
                 return .Success(try block(t))
@@ -279,63 +373,60 @@ public extension FutureResult { // conversions
             return .Fail(f)
         case .Cancelled:
             return .Cancelled
+        case let .CompleteUsing(f):
+            
+            let mapf :Future<S> = f.map(.Primary,block: block)
+            return .CompleteUsing(mapf)
         }
     }
-
-    public func As() -> FutureResult<T> {
-        return self
-    }
+    
     /**
-    convert this completion of type Completion<T> into another type Completion<S>.
-    
-    may fail to compile if T is not convertable into S using "`as!`"
-    
-    works iff the following code works:
-    
-    'let t : T`
-    
-    'let s = t as! S'
-    
-    
-    - example:
-    
-    `let c : FutureResult<Int> = .Success(5)`
-    
-    `let c2 : FutureResult<Int32> =  c.As()`
-    
-    `assert(c2.result == Int32(5))`
-    
-    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-    */
-    @available(*, deprecated=1.1, message="renamed to mapAs()")
-    public func As<S>() -> FutureResult<S> {
-        return mapAs()
-    }
+     convert this completion of type `Completion<T>` into another type `Completion<S?>`.
+     
+     WARNING: if `T as! S` isn't legal, than all Success values may be converted to nil
+     - example:
+     
+     let c : Complete<String> = .Success("5")
+     let c2 : Complete<[Int]?> =  c.convertOptional()
+     assert(c2.result == nil)
+     
+     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+     
+     - returns: a new result of type Completion<S?>
+     
+     */
+    public func mapAsOptional<O : GenericOptional>() -> Completion<O.Wrapped?> {
 
+        return self.map { v -> O.Wrapped? in
+            return v as? O.Wrapped
+        }
+
+    }
+    
     /**
-    convert this completion of type Completion<T> into another type Completion<S>.
-    
-    may fail to compile if T is not convertable into S using "`as!`"
-    
-    works iff the following code works:
-    
-    'let t : T`
-    
-    'let s = t as! S'
-    
-    
-    - example:
-    
-    `let c : FutureResult<Int> = .Success(5)`
-    
-    `let c2 : FutureResult<Int32> =  c.As()`
-    
-    `assert(c2.result == Int32(5))`
-    
-    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-    */
-    public func mapAs<S>() -> FutureResult<S> {
-        switch self {
+     convert this completion of type Completion<T> into another type Completion<S>.
+     
+     may fail to compile if T is not convertable into S using "`as!`"
+     
+     works iff the following code works:
+     
+     'let t : T`
+     
+     'let s = t as! S'
+     
+     
+     - example:
+     
+     `let c : Complete<Int> = .Success(5)`
+     
+     `let c2 : Complete<Int32> =  c.mapAs()`
+     
+     `assert(c2.result == Int32(5))`
+     
+     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
+     */
+    public func mapAs<S>() -> Completion<S> {
+        switch self.completion {
         case let .Success(t):
             let r = t as! S
             return .Success(r)
@@ -343,40 +434,23 @@ public extension FutureResult { // conversions
             return .Fail(f)
         case .Cancelled:
             return .Cancelled
+        case let .CompleteUsing(f):
+            return .CompleteUsing(f.mapAs())
         }
     }
 
-    /**
-    convert this completion of type `Completion<T>` into another type `Completion<S?>`.
-    
-    WARNING: if `T as! S` isn't legal, than all Success values may be converted to nil
-    - example:
-    
-    let c : FutureResult<String> = .Success("5")
-    let c2 : FutureResult<[Int]?> =  c.convertOptional()
-    assert(c2.result == nil)
-    
-    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-    
-    - returns: a new result of type Completion<S?>
-    
-    */
-    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
-    public func convertOptional<S>() -> FutureResult<S?> {
-        return mapAsOptional()
+
+    public func As() -> Completion<ValueType> {
+        return self.completion
     }
-    public func mapAsOptional<S>() -> FutureResult<S?> {
-        switch self {
-        case let .Success(t):
-            let r = t as? S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        }
+    
+    @available(*, deprecated=1.1, message="renamed to mapAs()")
+    public func As<S>() -> Completion<S> {
+        return self.mapAs()
     }
+    
 }
+
 
 extension FutureResult : CustomStringConvertible, CustomDebugStringConvertible {
     
@@ -431,247 +505,22 @@ public extension Completion { // initializers
     }
 }
 
-extension Completion : CompletionType { // properties
-
-    public typealias ValueType = T
-    public func asCompletion() -> Completion<T> {
-        return self
-    }
-   
-    public var isSuccess : Bool {
-        get {
-            switch self {
-            case .Success:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-    public var isFail : Bool {
-        get {
-            switch self {
-            case .Fail:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-    public var isCancelled : Bool {
-        get {
-            switch self {
-            case .Cancelled:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-    public var isCompleteUsing : Bool {
-        get {
-            switch self {
-            case .CompleteUsing:
-                return true
-            default:
-                return false
-            }
-        }
+extension CompletionType {
+    
+    @available(*, deprecated=1.1, message="depricated use completion",renamed="completion")
+    func asCompletion() -> Completion<ValueType> {
+        return self.completion
     }
     
-    /**
-    get the Completion state for a completed state. It's easier to create a switch statement on a completion.state, rather than the completion itself (since a completion block will never be sent a .CompleteUsing).
-    */
-    public func asResult() -> FutureResult<T> {
-        switch self {
-        case let .Success(result):
-            return .Success(result)
-        case let .Fail(error):
-            return .Fail(error)
-        case .Cancelled:
-            return .Cancelled
-        case .CompleteUsing:
-            let error = FutureKitError(genericError: "can't convert .CompleteUsing to FutureResult<T>")
-            assertionFailure("\(error)")
-            return .Fail(error)
-        }
-    }
-    
-    /**
-    make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
-    */
-    public var value : T! {
-        get {
-            switch self {
-            case let .Success(t):
-                return t
-            default:
-                //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
-                return nil
-            }
-        }
-    }
-/*    public var forced : Bool {
-        get {
-            switch self {
-            case let .Cancelled(forced):
-                return forced
-            default:
-                //                assertionFailure("don't call result without checking that the enumeration is .Error first.")
-                return false
-            }
-        }
-    } */
-    
-    /**
-    make sure this enum is a .Fail before calling `result`. Use a switch or check .isError() first.
-    */
-    public var error : ErrorType! {
-        get {
-            switch self {
-            case let .Fail(e):
-                return e
-            default:
-                //                assertionFailure("don't call .error without checking that the enumeration is .Error first.")
-                return nil
-            }
-        }
-    }
-    
-    internal var completeUsingFuture:Future<T>! {
-        get {
-            switch self {
-            case let .CompleteUsing(f):
-                return f.As()
-            default:
-                return nil
-            }
-        }
+    @available(*, deprecated=1.1, message="depricated use result",renamed="result")
+    func asResult() -> FutureResult<ValueType> {
+        return self.result
     }
     
 }
 
-public extension Completion { // conversions
-    
-    public func As() -> Completion<T> {
-        return self
-    }
-    @available(*, deprecated=1.1, message="renamed to mapAs()")
-    public func As<S>() -> Completion<S> {
-        return mapAs()
-    }
 
-    
-    /**
-     convert this completion of type Completion<T> into another type Completion<S>.
-     
-     may fail to compile if T is not convertable into S using "`as!`"
-     
-     works iff the following code works:
-     
-     'let t : T`
-     
-     'let s = t as! S'
-     
-     
-     - example:
-     
-     `let c : Complete<Int> = .Success(5)`
-     
-     `let c2 : Complete<Int32> =  c.mapAs()`
-     
-     `assert(c2.result == Int32(5))`
-     
-     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-     */
-    public func map<S>(block:(T) throws -> S) -> Completion<S> {
-        switch self {
-        case let .Success(t):
-            do {
-                return .Success(try block(t))
-            }
-            catch {
-                return .Fail(error)
-            }
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        case let .CompleteUsing(f):
-            return .CompleteUsing(f.map(block:block))
-        }
-    }
-    
-    /**
-    convert this completion of type Completion<T> into another type Completion<S>.
-    
-    may fail to compile if T is not convertable into S using "`as!`"
-    
-    works iff the following code works:
-    
-    'let t : T`
-    
-    'let s = t as! S'
-    
-    
-    - example:
-    
-    `let c : Complete<Int> = .Success(5)`
-    
-    `let c2 : Complete<Int32> =  c.mapAs()`
-    
-    `assert(c2.result == Int32(5))`
-    
-    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-    */
-    public func mapAs<S>() -> Completion<S> {
-        switch self {
-        case let .Success(t):
-            let r = t as! S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        case let .CompleteUsing(f):
-            return .CompleteUsing(f.mapAs())
-        }
-    }
-    
-    /**
-    convert this completion of type `Completion<T>` into another type `Completion<S?>`.
-    
-    WARNING: if `T as! S` isn't legal, than all Success values may be converted to nil
-    - example:
-    
-    let c : Complete<String> = .Success("5")
-    let c2 : Complete<[Int]?> =  c.convertOptional()
-    assert(c2.result == nil)
-    
-    you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-    
-    - returns: a new result of type Completion<S?>
-    
-    */
-    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
-    public func convertOptional<S>() -> Completion<S?> {
-        return mapAsOptional()
-    }
-    
-    public func mapAsOptional<S>() -> Completion<S?> {
-        switch self {
-        case let .Success(t):
-            let r = t as? S
-            return .Success(r)
-        case let .Fail(f):
-            return .Fail(f)
-        case .Cancelled:
-            return .Cancelled
-        case let .CompleteUsing(f):
-            return .CompleteUsing(f.mapAs())
-        }
-    }
-}
+
 
 extension Completion : CustomStringConvertible, CustomDebugStringConvertible {
     

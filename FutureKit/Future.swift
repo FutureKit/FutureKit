@@ -423,6 +423,8 @@ public protocol FutureProtocol : AnyFuture {
     
     var description: String { get }
     
+    func getCancelToken() -> CancellationToken
+    
 }
 
 public extension FutureProtocol  {
@@ -442,7 +444,7 @@ public extension FutureProtocol  {
 
 
 */
-public class Future<T> : FutureProtocol{
+public class Future<T> : FutureProtocol {
     
     public typealias ReturnType = T
     
@@ -948,25 +950,7 @@ public class Future<T> : FutureProtocol{
         })
     }
     
-    /**
-        if we try to convert a future from type T to type T, just ignore the request.
-    
-        the compile should automatically figure out which version of As() execute
-    */
-    public final func As() -> Future<T> {
-        return self
-    }
-
-    /**
-    if we try to convert a future from type T to type T, just ignore the request.
-    
-    the swift compiler can automatically figure out which version of mapAs() execute
-    */
-    public final func mapAs() -> Future<T> {
-        return self
-    }
-
-    /**
+   /**
     convert this future of type `Future<T>` into another future type `Future<__Type>`
     
     WARNING: if `T as! __Type` isn't legal, than your code may generate an exception.
@@ -1147,16 +1131,34 @@ public class Future<T> : FutureProtocol{
         return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
     }
     
-    
-    public final func withCancelToken() -> (Future<T>,CancellationToken) {
-        return (self,self.getCancelToken())
-    }
-
-    
 }
 
 extension FutureProtocol {
+    
+    
+    /**
+     if we try to convert a future from type T to type T, just ignore the request.
+     
+     the compile should automatically figure out which version of As() execute
+     */
+    public final func As() -> Self {
+        return self
+    }
+    
+    /**
+     if we try to convert a future from type T to type T, just ignore the request.
+     
+     the swift compiler can automatically figure out which version of mapAs() execute
+     */
+    public final func mapAs() -> Self {
+        return self
+    }
+    
+    
 
+    public final func withCancelToken() -> (Self,CancellationToken) {
+        return (self,self.getCancelToken())
+    }
     
     public final func onComplete<C: CompletionType>(block:(result:FutureResult<T>) throws -> C) -> Future<C.T> {
         return self.onComplete(.Primary,block:block)

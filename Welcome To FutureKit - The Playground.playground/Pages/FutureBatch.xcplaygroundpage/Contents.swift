@@ -29,7 +29,7 @@ let arrayOfFutures = [futureOne,futureTwo,futureThree]
 //: in FutureKit,you use a class called FutureBatch.
 
 
-let batch = FutureBatchOf<Int>(f: arrayOfFutures)
+let batch = FutureBatchOf<Int>(futures: arrayOfFutures)
 
 
 let f = batch.future.onSuccess { (results: [Int]) -> Void in

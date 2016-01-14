@@ -15,6 +15,8 @@
 		092794BD1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
 		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
+		0D5810D51C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
+		0D5810D61C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
@@ -105,6 +107,7 @@
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0D5810D41C4784E600ED5972 /* ErrorTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorTypes.swift; sourceTree = "<group>"; };
 		0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = convertPerfToCsv.swift; path = FutureKitTests/convertPerfToCsv.swift; sourceTree = "<group>"; };
 		0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFIFO.swift; sourceTree = "<group>"; };
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -264,6 +267,7 @@
 				092794BB1BB25DD300DFB56D /* Completion.swift */,
 				0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */,
 				0DE3AD6F1ADCBBF8000345AD /* Promise.swift */,
+				0D5810D41C4784E600ED5972 /* ErrorTypes.swift */,
 				0DE3AD6D1ADCB55C000345AD /* Executor.swift */,
 				0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */,
 				0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */,
@@ -654,6 +658,7 @@
 				0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BC81AE30885000E126F /* Future.swift in Sources */,
 				0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */,
+				0D5810D51C4784E600ED5972 /* ErrorTypes.swift in Sources */,
 				0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */,
 				0DEA1BCA1AE30885000E126F /* Executor.swift in Sources */,
@@ -679,6 +684,7 @@
 				0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BD51AE30886000E126F /* Future.swift in Sources */,
 				0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */,
+				0D5810D61C4784E600ED5972 /* ErrorTypes.swift in Sources */,
 				0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */,
 				0DEA1BD71AE30886000E126F /* Executor.swift in Sources */,

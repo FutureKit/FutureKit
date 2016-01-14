@@ -582,9 +582,9 @@ public class Future<T> : FutureProtocol {
     /**
     creates a completed Future.
     */
-    public init(completed:FutureResult<T>) {  // returns an completed Task
-        self.__result = completed
-    }
+//    public init(result:FutureResult<T>) {  // returns an completed Task
+//        self.__result = result
+//    }
     /**
         creates a completed Future with a completion == .Success(success)
     */
@@ -650,8 +650,8 @@ public class Future<T> : FutureProtocol {
     
     can only be used to a create a Future that should always succeed.
     */
-    public init(_ executor : Executor = .Immediate, block: () throws -> T) {
-        let block = executor.callbackBlockFor { () -> Void in
+    public init(_ executor : Executor = .Immediate , block: () throws -> T) {
+        let wrappedBlock = executor.callbackBlockFor { () -> Void in
             do {
                 let r = try block()
                 self.completeWith(.Success(r))
@@ -661,7 +661,13 @@ public class Future<T> : FutureProtocol {
 
             }
         }
-        block()
+        wrappedBlock()
+    }
+    public init(_ executor : Executor = .Immediate, @autoclosure(escaping) block: () -> T) {
+        let wrappedBlock = executor.callbackBlockFor { () -> Void in
+            self.completeWith(.Success(block()))
+        }
+        wrappedBlock()
     }
     
     /**
@@ -671,15 +677,16 @@ public class Future<T> : FutureProtocol {
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init<C:CompletionType where C.T == T>(_ executor : Executor = .Immediate, block: () throws -> C) {
+    public init<C:CompletionType where C.T == T>(_ executor : Executor  = .Immediate, block: () throws -> C) {
         executor.execute { () -> Void in
-            do {
-                self.completeWith(try block())
-            }
-            catch {
-                self.completeWith(.Fail(error))
-                
-            }
+            self.completeWithBlocks(completionBlock: {
+                return try block()
+            })
+        }
+    }
+    public init<C:CompletionType where C.T == T>(_ executor : Executor  = .Immediate, @autoclosure(escaping)  block: () -> C) {
+        executor.execute { () -> Void in
+            self.completeWith(block())
         }
     }
 
@@ -1622,6 +1629,7 @@ private var futureWithNoResult = Future<Any>()
 class classWithMethodsThatReturnFutures {
     
     func iReturnAnInt() -> Future<Int> {
+        
         return Future (.Immediate) { () -> Int in
             return 5
         }

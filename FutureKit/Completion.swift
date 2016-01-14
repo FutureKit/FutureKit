@@ -25,13 +25,36 @@
 import Foundation
 
 
+// the onSuccess and onComplete handlers will return either a generic type __Type, or any object confirming to the CompletionType.
+
+//    CompletionType include Completion<T>, FutureResult<T>, Future<T>, Promise<T>...
+
+
 public protocol CompletionType {
-    typealias ValueType
+    typealias T
     
-    var completion : Completion<ValueType> { get }
+    var completion : Completion<T> { get }
+    
 }
 
 
+// a type-erased CompletionType
+public struct AnyCompletion : CompletionType {
+    public typealias T = Any
+    
+    public var completion : Completion<Any>
+   
+    init<C:CompletionType>(completionType:C) {
+        self.completion = completionType.completion.mapAs()
+    }
+    
+}
+
+extension CompletionType {
+    func toAnyCompletion() -> AnyCompletion {
+        return AnyCompletion(completionType: self)
+    }
+}
 
 
 /**
@@ -78,9 +101,7 @@ public enum Completion<T>  {
 
 extension Future : CompletionType {
     
-    public typealias ValueType = T
-    
-    public var completion : Completion<ValueType> {
+    public var completion : Completion<T> {
         return .CompleteUsing(self)
     }
     
@@ -88,17 +109,14 @@ extension Future : CompletionType {
 
 extension Promise : CompletionType {
     
-    public typealias ValueType = T
-    
-    public var completion : Completion<ValueType> {
+    public var completion : Completion<T> {
         return .CompleteUsing(self.future)
     }
 }
 
 extension Completion : CompletionType { // properties
     
-    public typealias ValueType = T
-    public var completion : Completion<ValueType> {
+    public var completion : Completion<T> {
         return self
     }
 }
@@ -106,9 +124,7 @@ extension Completion : CompletionType { // properties
 
 extension FutureResult : CompletionType {
     
-    public typealias ValueType = T
-
-    public var completion : Completion<ValueType> {
+    public var completion : Completion<T> {
         switch self {
         case let .Success(result):
             return .Success(result)
@@ -118,7 +134,25 @@ extension FutureResult : CompletionType {
             return .Cancelled
         }
     }
+    
 }
+
+public func SUCCESS<T>(value:T) -> Completion<T>  {
+    return Completion<T>(success: value)
+}
+
+public func FAIL<T>(fail:ErrorType) -> Completion<T> {
+    return Completion<T>(fail: fail)
+}
+
+public func CANCELLED<T>(cancelled:()) -> Completion<T> {
+    return Completion<T>(cancelled: cancelled)
+}
+
+public func COMPLETE_USING<T>(completeUsing:Future<T>) -> Completion<T> {
+    return Completion<T>(completeUsing: completeUsing)
+}
+
 
 
 public extension FutureResult { // initializers
@@ -137,16 +171,24 @@ public extension FutureResult { // initializers
         self = .Fail(FutureKitError(exception: ex))
     }
     
-    public init(success s:T) {
-        self = .Success(s)
+    public init(success:T) {
+        self = .Success(success)
     }
+    
+    public init(fail: ErrorType) {
+        self = .Fail(fail)
+    }
+    public init(cancelled: ()) {
+        self = .Cancelled
+    }
+
 }
 
 public extension CompletionType {
     /**
     make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
     */
-    public var value : ValueType! {
+    public var value : T! {
         get {
             switch self.completion {
             case let .Success(t):
@@ -219,7 +261,7 @@ public extension CompletionType {
         }
     }
     
-    internal var completeUsingFuture:Future<ValueType>! {
+    internal var completeUsingFuture:Future<T>! {
         get {
             switch self.completion {
             case let .CompleteUsing(f):
@@ -232,7 +274,7 @@ public extension CompletionType {
 
 
     
-    var result : FutureResult<ValueType>!  {
+    var result : FutureResult<T>!  {
         
         switch self.completion {
             case .CompleteUsing:
@@ -265,7 +307,7 @@ public extension CompletionType {
         }
     
     */
-    func tryValue() throws -> ValueType {
+    func tryValue() throws -> T {
         switch self.completion {
         case let .Success(value):
             return value
@@ -359,7 +401,7 @@ public extension CompletionType {
      you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
      */
 
-    public func map<S>(block:(ValueType) throws -> S) -> Completion<S> {
+    public func map<__Type>(block:(T) throws -> __Type) -> Completion<__Type> {
         
         switch self.completion {
         case let .Success(t):
@@ -375,7 +417,7 @@ public extension CompletionType {
             return .Cancelled
         case let .CompleteUsing(f):
             
-            let mapf :Future<S> = f.map(.Primary,block: block)
+            let mapf :Future<__Type> = f.map(.Primary,block: block)
             return .CompleteUsing(mapf)
         }
     }
@@ -395,7 +437,7 @@ public extension CompletionType {
      - returns: a new result of type Completion<S?>
      
      */
-    public func mapAsOptional<O : GenericOptional>() -> Completion<O.Wrapped?> {
+    public func mapAsOptional<O : OptionalProtocol>() -> Completion<O.Wrapped?> {
 
         return self.map { v -> O.Wrapped? in
             return v as? O.Wrapped
@@ -425,10 +467,10 @@ public extension CompletionType {
      
      you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
      */
-    public func mapAs<S>() -> Completion<S> {
+    public func mapAs<__Type>() -> Completion<__Type> {
         switch self.completion {
         case let .Success(t):
-            let r = t as! S
+            let r = t as! __Type
             return .Success(r)
         case let .Fail(f):
             return .Fail(f)
@@ -440,12 +482,12 @@ public extension CompletionType {
     }
 
 
-    public func As() -> Completion<ValueType> {
+    public func As() -> Completion<T> {
         return self.completion
     }
     
     @available(*, deprecated=1.1, message="renamed to mapAs()")
-    public func As<S>() -> Completion<S> {
+    public func As<__Type>() -> Completion<__Type> {
         return self.mapAs()
     }
     
@@ -500,20 +542,31 @@ public extension Completion { // initializers
         self = .Fail(FutureKitError(exception: ex))
     }
     
-    public init(success s:T) {
-        self = .Success(s)
+    public init(success:T) {
+        self = .Success(success)
     }
+
+    public init(fail: ErrorType) {
+        self = .Fail(fail)
+    }
+    public init(cancelled: ()) {
+        self = .Cancelled
+    }
+    public init(completeUsing:Future<T>){
+        self = .CompleteUsing(completeUsing)
+    }
+
 }
 
 extension CompletionType {
     
     @available(*, deprecated=1.1, message="depricated use completion",renamed="completion")
-    func asCompletion() -> Completion<ValueType> {
+    func asCompletion() -> Completion<T> {
         return self.completion
     }
     
     @available(*, deprecated=1.1, message="depricated use result",renamed="result")
-    func asResult() -> FutureResult<ValueType> {
+    func asResult() -> FutureResult<T> {
         return self.result
     }
     

@@ -37,9 +37,22 @@ public class Promise<T>  {
     public init() {
         self.future = Future<T>()
     }
+    public required init(success:T) {
+        self.future = Future<T>(success: success)
+    }
+    public required init(fail:ErrorType) {
+        self.future = Future<T>(fail: fail)
+    }
+    public required init(cancelled:()) {
+        self.future = Future<T>(cancelled: cancelled)
+    }
+    public required init(completeUsing:Future<T>) {
+        self.future = Future<T>(completeUsing: completeUsing)
+    }
     
+    // *  complete commands  */
     
-    public final func complete<C:CompletionType where C.ValueType == T>(completion : C) {
+    public final func complete<C:CompletionType where C.T == T>(completion : C) {
         self.future.completeWith(completion.completion)
     }
     
@@ -148,7 +161,7 @@ public class Promise<T>  {
     
     - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
-    public final func completeWithBlock<C:CompletionType where C.ValueType == T>(completionBlock : () throws ->C) {
+    public final func completeWithBlock<C:CompletionType where C.T == T>(completionBlock : () throws ->C) {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock,onCompletionError: nil)
     }
     
@@ -165,7 +178,7 @@ public class Promise<T>  {
 
     - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
-    public final func completeWithBlocks<C:CompletionType where C.ValueType == T>(completionBlock : () throws ->C, onAlreadyCompleted : () -> Void)
+    public final func completeWithBlocks<C:CompletionType where C.T == T>(completionBlock : () throws ->C, onAlreadyCompleted : () -> Void)
     {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock, onCompletionError: onAlreadyCompleted)
     }
@@ -193,14 +206,14 @@ public class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func tryComplete<C:CompletionType where C.ValueType == T>(completion : C) -> Bool {
+    public final func tryComplete<C:CompletionType where C.T == T>(completion : C) -> Bool {
         return self.future.completeWithSync(completion)
     }
     
     public typealias CompletionErrorHandler = (() -> Void)
     // execute a block if the completion "fails" because the future is already completed.
     
-    public final func complete<C:CompletionType where C.ValueType == T>(completion : C,onCompletionError errorBlock: CompletionErrorHandler) {
+    public final func complete<C:CompletionType where C.T == T>(completion : C,onCompletionError errorBlock: CompletionErrorHandler) {
         self.future.completeWith(completion.completion,onCompletionError:errorBlock)
     }
     

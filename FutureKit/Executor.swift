@@ -400,8 +400,8 @@ public enum Executor {
         return p.future
     }
     
-    public func execute<C:CompletionType>(block: () throws -> C) -> Future<C.ValueType> {
-        let p = Promise<C.ValueType>()
+    public func execute<C:CompletionType>(block: () throws -> C) -> Future<C.T> {
+        let p = Promise<C.T>()
         self.executeBlock { () -> Void in
             do {
                 let c = try block()
@@ -415,8 +415,8 @@ public enum Executor {
     }
 
     
-    internal func _executeAfterDelay<C:CompletionType>(nanosecs n: Int64, block: () throws -> C) -> Future<C.ValueType> {
-        let p = Promise<C.ValueType>()
+    internal func _executeAfterDelay<C:CompletionType>(nanosecs n: Int64, block: () throws -> C) -> Future<C.T> {
+        let p = Promise<C.T>()
         let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
@@ -426,7 +426,7 @@ public enum Executor {
         })
         return p.future
     }
-    public func executeAfterDelay<C:CompletionType>(secs : NSTimeInterval,  block: () throws -> C) -> Future<C.ValueType> {
+    public func executeAfterDelay<C:CompletionType>(secs : NSTimeInterval,  block: () throws -> C) -> Future<C.T> {
         let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
         return self._executeAfterDelay(nanosecs: nanosecs,block:block)

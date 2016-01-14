@@ -272,9 +272,6 @@ internal class CancellationTokenSource {
             }
         }
     }
-
-
-    
     
 }
 
@@ -380,7 +377,7 @@ public protocol FutureProtocol : AnyFuture {
     
     
     
-    func onComplete<C: CompletionType>(executor : Executor,block:(result:FutureResult<T>) throws -> C) -> Future<C.ValueType>
+    func onComplete<C: CompletionType>(executor : Executor,block:(result:FutureResult<T>) throws -> C) -> Future<C.T>
     
     /**
     convert this future of type `Future<T>` into another future type `Future<S>`
@@ -589,14 +586,14 @@ public class Future<T> : FutureProtocol{
     /**
         creates a completed Future with a completion == .Success(success)
     */
-    public init(success:T) {  // returns an completed Task  with result T
+    public required init(success:T) {  // returns an completed Task  with result T
         self.__result = .Success(success)
     }
     /**
     creates a completed Future with a completion == .Error(failed)
     */
-    public init(failed:ErrorType) {  // returns an completed Task that has Failed with this error
-        self.__result = .Fail(failed)
+    public required init(fail:ErrorType) {  // returns an completed Task that has Failed with this error
+        self.__result = .Fail(fail)
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(failWithErrorMessage))
@@ -620,11 +617,11 @@ public class Future<T> : FutureProtocol{
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
-    public init(future f:Future<T>) {  // returns an completed Task that has Failed with this error
+    public init(completeUsing f:Future<T>) {  // returns an completed Task that has Failed with this error
         self.completeWith(.CompleteUsing(f))
     }
 
-    public convenience init<C:CompletionType where C.ValueType == T>(delay:NSTimeInterval, completeWith: C) {
+    public convenience init<C:CompletionType where C.T == T>(delay:NSTimeInterval, completeWith: C) {
         let executor: Executor = .Primary
         
         let p = Promise<T>()
@@ -632,7 +629,7 @@ public class Future<T> : FutureProtocol{
         executor.executeAfterDelay(delay) { () -> Void in
             p.complete(completeWith)
         }
-        self.init(future:p.future)
+        self.init(completeUsing:p.future)
     }
     
     public convenience init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
@@ -643,7 +640,7 @@ public class Future<T> : FutureProtocol{
         executor.executeAfterDelay(afterDelay) {
             p.completeWithSuccess(success)
         }
-        self.init(future:p.future)
+        self.init(completeUsing:p.future)
     }
     
     /**
@@ -672,7 +669,7 @@ public class Future<T> : FutureProtocol{
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init<C:CompletionType where C.ValueType == T>(_ executor : Executor = .Immediate, block: () throws -> C) {
+    public init<C:CompletionType where C.T == T>(_ executor : Executor = .Immediate, block: () throws -> C) {
         executor.execute { () -> Void in
             do {
                 self.completeWith(try block())
@@ -694,7 +691,7 @@ public class Future<T> : FutureProtocol{
         - parameter completion: the value to complete the Future with
     
     */
-    internal final func completeAndNotify<C:CompletionType where C.ValueType == T>(completion : C) {
+    internal final func completeAndNotify<C:CompletionType where C.T == T>(completion : C) {
         
         return self.completeWithBlocks(waitUntilDone: false,
             completionBlock: { () -> C in
@@ -717,7 +714,7 @@ public class Future<T> : FutureProtocol{
 
     */
 
-    internal final func completeAndNotify<C:CompletionType where C.ValueType == T>(completion : C, onCompletionError : CompletionErrorHandler) {
+    internal final func completeAndNotify<C:CompletionType where C.T == T>(completion : C, onCompletionError : CompletionErrorHandler) {
         
         
         self.completeWithBlocks(waitUntilDone: false, completionBlock: { () -> C in
@@ -739,7 +736,7 @@ public class Future<T> : FutureProtocol{
     - returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
 
     */
-    internal final func completeAndNotifySync<C:CompletionType where C.ValueType == T>(completion : C) -> Bool {
+    internal final func completeAndNotifySync<C:CompletionType where C.T == T>(completion : C) -> Bool {
         
         var ret = true
         self.completeWithBlocks(waitUntilDone: true, completionBlock: { () -> C in
@@ -751,7 +748,7 @@ public class Future<T> : FutureProtocol{
         return ret
    }
     
-    internal final func completeWithBlocks<C:CompletionType where C.ValueType == T>(
+    internal final func completeWithBlocks<C:CompletionType where C.T == T>(
             waitUntilDone wait:Bool = false,
             completionBlock : () throws -> C,
             onCompletionError : (() -> Void)? = nil) {
@@ -826,7 +823,7 @@ public class Future<T> : FutureProtocol{
         return self.completeAndNotify(completion)
     }
     
-    internal func completeWith<C:CompletionType where C.ValueType == T>(completion : C) {
+    internal func completeWith<C:CompletionType where C.T == T>(completion : C) {
         return self.completeAndNotify(completion)
     }
 
@@ -842,7 +839,7 @@ public class Future<T> : FutureProtocol{
     
     - returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
     */
-    internal func completeWithSync<C:CompletionType where C.ValueType == T>(completion : C) -> Bool {
+    internal func completeWithSync<C:CompletionType where C.T == T>(completion : C) -> Bool {
         
         return self.completeAndNotifySync(completion)
     }
@@ -867,7 +864,7 @@ public class Future<T> : FutureProtocol{
     - parameter onCompletionError: a block to execute if the Future has already been completed.
     */
     
-    internal func completeWith<C:CompletionType where C.ValueType == T>(completion : C, onCompletionError errorBlock: CompletionErrorHandler) {
+    internal func completeWith<C:CompletionType where C.T == T>(completion : C, onCompletionError errorBlock: CompletionErrorHandler) {
         return self.completeAndNotify(completion,onCompletionError: errorBlock)
     }
     
@@ -882,9 +879,9 @@ public class Future<T> : FutureProtocol{
     - returns: a tuple (promise,callbackblock) a new promise and a completion block that can be added to __callbacks
     
     */
-    internal final func createPromiseAndCallback<C:CompletionType>(forBlock: ((FutureResult<T>) throws -> C)) -> (promise : Promise<C.ValueType> , completionCallback :completion_block_type) {
+    internal final func createPromiseAndCallback<C:CompletionType>(forBlock: ((FutureResult<T>) throws -> C)) -> (promise : Promise<C.T> , completionCallback :completion_block_type) {
         
-        let promise = Promise<C.ValueType>()
+        let promise = Promise<C.T>()
 
         let completionCallback : completion_block_type = {(comp) -> Void in
             do {
@@ -1134,7 +1131,7 @@ public class Future<T> : FutureProtocol{
     - returns: a new Future that returns results of type __Type  (Future<__Type>)
     
     */
-    public final func onComplete<C: CompletionType>(executor : Executor = .Primary,block:(result:FutureResult<T>) throws -> C) -> Future<C.ValueType> {
+    public final func onComplete<C: CompletionType>(executor : Executor,block:(result:FutureResult<T>) throws -> C) -> Future<C.T> {
         
         let (promise, completionCallback) = self.createPromiseAndCallback(block)
         let block = executor.callbackBlockFor(completionCallback)
@@ -1161,6 +1158,11 @@ public class Future<T> : FutureProtocol{
 extension FutureProtocol {
 
     
+    public final func onComplete<C: CompletionType>(block:(result:FutureResult<T>) throws -> C) -> Future<C.T> {
+        return self.onComplete(.Primary,block:block)
+    }
+
+    
     /**
     executes a block using the supplied Executor if and when the target future is completed.  Will execute immediately if the target is already completed.
     
@@ -1171,10 +1173,13 @@ extension FutureProtocol {
     - parameter block: a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
     - returns: a new Future that returns results of type __Type
     */
-    public final func onComplete<__Type>(executor: Executor = .Primary, block:(result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
+    public final func onComplete<__Type>(executor: Executor, block:(result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
         return self.onComplete(executor) { (result) -> Completion<__Type> in
             return .Success(try block(result:result))
         }
+    }
+    public final func onComplete<__Type>(block:(result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
+        return self.onComplete(.Primary,block:block)
     }
     
       
@@ -1199,9 +1204,9 @@ extension FutureProtocol {
         executor : Executor,
         didComplete:(FutureResult<T>) throws -> C,
         timedOut:() throws -> C
-        ) -> Future<C.ValueType> {
+        ) -> Future<C.T> {
             
-            let p = Promise<C.ValueType>()
+            let p = Promise<C.T>()
             p.automaticallyCancelOnRequestCancel()
             self.onComplete(executor) { (c) -> Void in
                 p.completeWithBlock({ () -> C in
@@ -1236,11 +1241,11 @@ extension FutureProtocol {
 
     public func waitForSuccess<C:CompletionType>(timeout: NSTimeInterval,
         executor : Executor,
-        didSucceed:(T) throws -> C.ValueType,
+        didSucceed:(T) throws -> C.T,
         timedOut:() throws -> C
-        ) -> Future<C.ValueType> {
+        ) -> Future<C.T> {
             
-            let p = Promise<C.ValueType>()
+            let p = Promise<C.T>()
             p.automaticallyCancelOnRequestCancel()
             self.onSuccess { (result) -> Void in
                 p.completeWithSuccess(try didSucceed(result))
@@ -1290,8 +1295,8 @@ extension FutureProtocol {
     - returns: a new Future of type Future<__Type>
     */
     public final func onSuccess<C: CompletionType>(executor : Executor = .Primary,
-        block:(T) throws -> C) -> Future<C.ValueType> {
-        return self.onComplete(executor)  { (result) -> Completion<C.ValueType> in
+        block:(T) throws -> C) -> Future<C.T> {
+        return self.onComplete(executor)  { (result) -> Completion<C.T> in
             switch result {
             case let .Success(value):
                 return try block(value).completion
@@ -1362,7 +1367,7 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block can process the error of a future.
      */
-    public final func onFail<C:CompletionType where C.ValueType == T>(executor : Executor = .Primary,
+    public final func onFail<C:CompletionType where C.T == T>(executor : Executor = .Primary,
         block:(error:ErrorType)-> C) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
@@ -1403,7 +1408,7 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
      */
-    public final func onCancel<C:CompletionType where C.ValueType == T>(executor : Executor = .Primary, block:()-> C) -> Future<T>
+    public final func onCancel<C:CompletionType where C.T == T>(executor : Executor = .Primary, block:()-> C) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isCancelled) {
@@ -1453,7 +1458,7 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    public final func onFailorCancel<C:CompletionType where C.ValueType == T>(executor : Executor = .Primary,
+    public final func onFailorCancel<C:CompletionType where C.T == T>(executor : Executor = .Primary,
         block:(FutureResult<T>)-> C) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
@@ -1530,7 +1535,7 @@ extension FutureProtocol {
 
 extension Future {
   
-    final func then<C:CompletionType where C.ValueType == T>(executor : Executor = .Primary, block:(T) -> C) -> Future<C.ValueType> {
+    final func then<C:CompletionType>(executor : Executor = .Primary, block:(T) -> C) -> Future<C.T> {
         return self.onSuccess(executor,block: block)
     }
     final func then<__Type>(executor : Executor = .Primary,block:(T) -> __Type) -> Future<__Type> {
@@ -1553,7 +1558,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     
 }
 
-public protocol GenericOptional {
+public protocol OptionalProtocol {
     typealias Wrapped
     
     func isNil() -> Bool
@@ -1569,7 +1574,7 @@ public protocol GenericOptional {
 }
 
 
-extension Optional : GenericOptional {
+extension Optional : OptionalProtocol {
     
     public func isNil() -> Bool {
         switch self {
@@ -1585,9 +1590,9 @@ extension Optional : GenericOptional {
 
 }
 
-extension FutureProtocol where T : GenericOptional {
+extension FutureProtocol where T : OptionalProtocol {
 
-    func As<OptionalS: GenericOptional>() -> Future<OptionalS.Wrapped?> {
+    func As<OptionalS: OptionalProtocol>() -> Future<OptionalS.Wrapped?> {
         return self.map { (value) -> OptionalS.Wrapped? in
             
             if (value.isNil()) {
@@ -1601,7 +1606,7 @@ extension FutureProtocol where T : GenericOptional {
 
 extension FutureProtocol  {
     
-    func AsOptional<OptionalS: GenericOptional>() -> Future<OptionalS.Wrapped?> {
+    func AsOptional<OptionalS: OptionalProtocol>() -> Future<OptionalS.Wrapped?> {
         return self.map { (value) -> OptionalS.Wrapped? in
             return value as? OptionalS.Wrapped
         }
@@ -1719,28 +1724,29 @@ class classWithMethodsThatReturnFutures {
     
     func imGonnaMapAVoidToAnInt() -> Future<Int> {
         
-        let f = self.iDontReturnValues().onSuccess { (_) -> Void in
+        let x = self.iDontReturnValues()
+        .onSuccess { _ -> Void in
             NSLog("do stuff")
-        }.onSuccess { (value) -> Int in
+        }.onSuccess { _ -> Int in
             return 5
-        }.onSuccess(.Primary) {(fffive) -> Float in
+        }.onSuccess(.Primary) { fffive in
             Float(fffive + 10)
-        }.onSuccess { (floatFifteen) -> Int in
-            Int(floatFifteen) + 5
+        }
+        return x.onSuccess {
+            Int($0) + 5
         }
         
-        return f
     }
     
     func adding5To5Makes10() -> Future<Int> {
-        return self.imGonnaMapAVoidToAnInt().onSuccess { (value) -> Int in
+        return self.imGonnaMapAVoidToAnInt().onSuccess { (value) in
             return value + 5
         }
     }
 
     func convertNumbersToString() -> Future<String> {
-        return self.imGonnaMapAVoidToAnInt().onSuccess { (value) -> String in
-            return "\(value)"
+        return self.imGonnaMapAVoidToAnInt().onSuccess {
+            return "\($0)"
         }
     }
     

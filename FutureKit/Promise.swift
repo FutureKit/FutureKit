@@ -89,7 +89,12 @@ public class Promise<T>  {
         self.init()
         self.automaticallyFailAfter(delay,error:error)
     }
-    
+
+    public convenience init(automaticallyFailAfter delay: NSTimeInterval, errorMessage:String ) {
+        self.init()
+        self.automaticallyFailAfter(delay,error:FutureKitError(genericError: errorMessage))
+    }
+
     // untestable?
     public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
         self.init()

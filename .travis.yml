@@ -1,0 +1,15 @@
+language: objective-c
+
+sudo: false # Enable container-based builds
+
+script:
+  - scan -w FutureKit.xcworkspace -s "FutureKit OSX"
+  - scan -w FutureKit.xcworkspace -s "FutureKit iOS"
+  - scan -w FutureKit.xcworkspace -s "FutureKit iOS Testing App"
+
+branches:
+  only: # whitelist
+    - master
+
+notifications:
+  email: false

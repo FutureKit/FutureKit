@@ -2,6 +2,8 @@ language: objective-c
 
 sudo: false # Enable container-based builds
 
+install: gem install scan
+
 script:
   - scan -w FutureKit.xcworkspace -s "FutureKit OSX"
   - scan -w FutureKit.xcworkspace -s "FutureKit iOS"

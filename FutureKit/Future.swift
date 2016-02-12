@@ -253,12 +253,10 @@ internal class CancellationTokenSource {
     private func _cancelRequested(cancelingToken:CancellationToken, _ options : CancellationOptions,_ synchObject : SynchronizationProtocol) {
         
         synchObject.lockAndModify { () -> Void in
-
             self._removeToken(cancelingToken)
-            self._performCancel(options)
-
         }
-        
+        self._performCancel(options)
+       
     }
     
     private func _clearInitializedToken(token:CancellationToken,_ synchObject : SynchronizationProtocol) {
@@ -272,9 +270,6 @@ internal class CancellationTokenSource {
             }
         }
     }
-
-
-    
     
 }
 

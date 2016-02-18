@@ -2,7 +2,6 @@
 
 import FutureKit
 import XCPlayground
-//XCPSetExecutionShouldContinueIndefinitely(true)
 XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # Futures are composable.
 

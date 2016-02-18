@@ -2,7 +2,7 @@
 
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(true)
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # onComplete handler varients
 //: There are actually 4 different variants of onComplete() handler.  Each returns a different Type.
 //: - 'func onComplete(block:(FutureType<T>) -> Completion<__Type>) -> Future<_Type>'

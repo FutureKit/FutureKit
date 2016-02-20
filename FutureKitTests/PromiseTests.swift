@@ -16,7 +16,7 @@ class FKTestCase : BlockBasedTestCase {
     var current_expecatation_count = 0
 
     override func expectationWithDescription(description: String) -> XCTestExpectation {
-        current_expecatation_count++
+        current_expecatation_count += 1
         return super.expectationWithDescription(description)
     }
     
@@ -252,7 +252,7 @@ private struct PromiseFunctionTest<T : Equatable> {
         
         
         NSLog("testsNumber = \(_testsNumber) ")
-        _testsNumber++
+        _testsNumber += 1
         NSLog("PromiseFunctionTest = \(howMuchTimeLeft()), \(_testsNumber)/\(_number_of_tests)")
         
         let promise : Promise<T> = initialState.create()

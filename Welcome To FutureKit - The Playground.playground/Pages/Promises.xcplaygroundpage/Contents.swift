@@ -23,14 +23,14 @@ let namesFuture :Future<[String]> = namesPromise.future
 var timeCounter = 0
 namesFuture.onSuccess(.Main) { (names : [String]) -> Void in
     for name in names {
-        let timeCount = timeCounter++
+        let timeCount = timeCounter += 1
         let greeting = "Happy Future Day \(name)!"
         print(greeting)
     }
 }
 //: so we have a nice routine that wants to greet all the names, but someone has to actually SUPPLY the  names.  Where are they?
 let names = ["Skyer","David","Jess"]
-let t = timeCounter++
+let t = timeCounter += 1
 namesPromise.completeWithSuccess(names)
 //: Notice how the timeCounter shows us that the logic inside onSuccess() is executing after we execute completeWithSuccess().
 

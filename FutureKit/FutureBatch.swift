@@ -273,7 +273,7 @@ public class FutureBatchOf<T> {
                 future.onComplete(.Immediate) { (value) -> Void in
                     promise.synchObject.lockAndModifyAsync({ () -> Int in
                         result[index] = value
-                        total--
+                        total -= 1
                         return total
                     }, then: { (currentTotal) -> Void in
                         if (currentTotal == 0) {
@@ -309,7 +309,7 @@ public class FutureBatchOf<T> {
                 case let .Fail(error):
                     errors.append(error)
                 case .Cancelled:
-                    cancellations++
+                    cancellations += 1
                 }
             }
             if (errors.count > 0) {

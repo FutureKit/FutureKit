@@ -52,7 +52,7 @@ func iMayFailRandomly() -> Future<String>  {
 typealias keepTryingResultType = (tries:Int,result:String)
 func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:String)> {
     
-    attemptNo++
+    attemptNo += 1
     return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
         NSLog("completion = \(completion)")
         switch completion {

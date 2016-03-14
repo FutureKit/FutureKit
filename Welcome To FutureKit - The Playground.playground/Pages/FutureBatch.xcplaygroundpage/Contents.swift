@@ -9,7 +9,7 @@ import FutureKit
 #endif
 import XCPlayground
 //: Seting XCPSetExecutionShouldContinueIndefinitely so we can run multi-threaded things.
-XCPSetExecutionShouldContinueIndefinitely(true)
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # FutureBatch
 
 //: Sometimes you want to launch multiple Async commands and wait for them all to complete.
@@ -29,7 +29,7 @@ let arrayOfFutures = [futureOne,futureTwo,futureThree]
 //: in FutureKit,you use a class called FutureBatch.
 
 
-let batch = FutureBatchOf<Int>(futures: arrayOfFutures)
+let batch = FutureBatchOf<Int>(futures: <#T##[Future<Int>]#>): arrayOfFutures)
 
 
 let f = batch.future.onSuccess { (results: [Int]) -> Void in

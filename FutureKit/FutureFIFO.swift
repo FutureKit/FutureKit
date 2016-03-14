@@ -41,7 +41,7 @@ public class FutureFIFO {
     // If you care about the Result of specific committed block, you can add a dependency to the Task returned from this function
     public func add<T>(executor: Executor = .Primary, operation: () throws -> Future<T>) -> Future<T> {
     
-        let t = self.lastFuture.onComplete { _ in
+        let t = self.lastFuture.onComplete(executor) { _ in
             return try operation()
         }
         self.lastFuture = t.mapAs()

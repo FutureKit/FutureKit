@@ -2,7 +2,7 @@
 
 import FutureKit
 import XCPlayground
-XCPSetExecutionShouldContinueIndefinitely(true)
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # Futures are composable.
 
 //: adding a block handler to a Future via onComplete/onSuccess doesn't just give you a way to get a result from a future.  It's also a way to create a new Future.
@@ -155,7 +155,7 @@ futureInt.onComplete { (result) -> Void in
 //: If all you care about is success or fail, you can use the isSuccess var
 futureInt.onComplete { (result : FutureResult<Int>) -> Void in
     if result.isSuccess {
-        let five = result.result
+        let five = result.asResult()
     }
     else {
         // must have failed or was cancelled
@@ -232,10 +232,10 @@ func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
 }
 let coolFuture = sampleFuture.onComplete { (c1) -> Future<Int> in
     
-    let beforeAdd = c1.result
+    let beforeAdd = c1.asResult()
     return coolFunctionThatAddsOneInBackground(c1.value)
         .onComplete { (c2) -> Future<Int> in
-            let afterFirstAdd = c2.result
+            let afterFirstAdd = c2.asResult()
             return coolFunctionThatAddsOneAtHighPriority(c2.value)
     }
 }

@@ -1,6 +1,6 @@
 # FutureKit for Swift
 
-[![Cocoapods Compatible](https://img.shields.io/cocoapods/v/FutureKit.svg)](https://img.shields.io/cocoapods/v/FutureKit.svg)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/FutureKit.svg)](https://img.shields.io/cocoapods/v/FutureKit.svg)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License](https://img.shields.io/cocoapods/l/FutureKit.svg?style=flat&color=gray)](http://cocoadocs.org/docsets/FutureKit)
 [![Platform](https://img.shields.io/cocoapods/p/FutureKit.svg?style=flat)](http://cocoadocs.org/docsets/FutureKit)
@@ -16,7 +16,7 @@ http://en.wikipedia.org/wiki/Futures_and_promises
 
 FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
-- is 100% Swift.  It ONLY currently supports Swift 2.0 and XCode 7+.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting swift 2.0+ compatble SDKs (iOS 8.0+, OSX 10.x.)
+- is 100% Swift.  It ONLY currently supports Swift 2.0 and Xcode 7+.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting swift 2.0+ compatble SDKs (iOS 8.0+, OSX 10.x.)
 
 - is type safe.  It uses Swift Generics classes that can automatically infer the type you wish to return from asynchronous logic.  And supports both value and reference Swift types (Both 'Any' types, and 'AnyObject/NSObject' types.)
 
@@ -30,7 +30,7 @@ FutureKit uses Swift generic classes, to allow you to easily deal with asynchron
 - 
 - Super easy cancelation composition (which is a fancy way to say cancel works when you want it to automatically).  Future's are designed so there is never any confusion about whether an asynchronous operation completed, failed, or was canceled.  And the consumer has full control over whether he needs to be notified that the operation was canceled or not.   (0% confusion about whether your completion blocks will get called when the operation is cancelled).
 
-- works well editing code within XCode auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
+- works well editing code within Xcode auto-completion.  The combination of type-inference and code-completion makes FutureKit coding fast and easy.
 
 - simplifies the use of Apple GCD by using Executors - a simple Swift enumeration that simplifies the most common iOS/OSX Dispatch Queues (Main,Default,Background, etc).  Allowing you to guarantee that logic will always be executed in the context you want.  (You never have to worry about having to call the correct dispatch_async() function again).  
 
@@ -171,10 +171,10 @@ Now you 100% guarantee that the code you want will ALWAYS run in the dispatch_qu
 
 # Documentation
 
-FutureKit documentation is being written as XCode Playgrounds.  The best way to start is to open the FutureKit.workspace and then opening the Playground inside.  (If you open the Playgrounds outside of the workspace, then FutureKit module may not import correctly).
-The XCode Playgrounds probably require XCode 6.3 (in order to see the Markup correctly)
+FutureKit documentation is being written as Xcode Playgrounds.  The best way to start is to open the FutureKit.workspace and then opening the Playground inside.  (If you open the Playgrounds outside of the workspace, then FutureKit module may not import correctly).
+The Xcode Playgrounds probably require Xcode 6.3 (in order to see the Markup correctly)
 
-If you are impatient, or not near your copy of XCode, you can try to read the first intro "raw" playground here:
+If you are impatient, or not near your copy of Xcode, you can try to read the first intro "raw" playground here:
 https://github.com/FutureKit/FutureKit/blob/master/FutureKit-Future.playground/Contents.swift
 
 There is also docs directory, that is generated using jazzy. https://github.com/realm/jazzy.  The plan is to get as close to 100% as possible (We are at 25%!).  So currently there is a lot of missing documentation.

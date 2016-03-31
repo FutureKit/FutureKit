@@ -1110,6 +1110,9 @@ public class DictionaryWithBarrierAccess<Key : Hashable, Value> : DictionaryWith
 
 public class ArrayWithFastLockAccess<T> : ArrayWithSynchronization<T,SynchronizationType.LightAndFastSyncType> {
     
+    override public init() {
+        super.init(array: Array<T>(), SynchronizationType.LightAndFastSyncType())
+    }
     
 }
 

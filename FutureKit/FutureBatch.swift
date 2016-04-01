@@ -167,12 +167,14 @@ public class FutureBatchOf<T> {
             // We want to 'Cancel' this future if it is successful (so we don't call the block)
             self.batchFuture.onSuccess (.Immediate) { _ in
                 failOrCancelPromise.completeWithCancel()
+            }.onFail { _ in
+                    
             }
             
             // As soon as the first Future fails, call the block handler.
             failOrCancelPromise.future.onSuccess(executor) { (result,future,index)  in
                 block(result, future, index)
-            }
+            }.ignoreFailures()
         }
         
         // this future will be 'almost' like batchFuture, except it fails immediately without waiting for the other futures to complete.

@@ -98,14 +98,10 @@ extension NSOperation {
 
 public class FutureOperation<T> : _FutureAnyOperation {
     
-    public typealias FutureOperationBlockType = () -> (future:Future<T>,releaseOperationEarly:Bool)
+    public typealias FutureOperationBlockType = () -> (Future<T>)
 
     public class func OperationWithBlock(block b: () -> Future<T>) -> FutureOperation<T> {
         return FutureOperation<T>(block:b)
-    }
-
-    public class func OperationWithBlock(blockWithEarlyReleaseOption b: FutureOperationBlockType) -> FutureOperation<T> {
-        return FutureOperation<T>(blockWithEarlyReleaseOption:b)
     }
 
     public var future : Future<T> {
@@ -118,23 +114,13 @@ public class FutureOperation<T> : _FutureAnyOperation {
         })
     }
 
-    // you can figure out if the Future is already done, or more importantly may be running on some other operation.
-    // Useful when using cached Future's.   The NSOperation will finish executing early.  But the var `future` still won't
-    // complete until the future completes.
-    public init(blockWithEarlyReleaseOption b: FutureOperationBlockType) {
-        super.init(blockWithEarlyReleaseOption: { () -> (future:AnyFuture,releaseOperationEarly:Bool) in
-            let (f,r) = b()
-            return (f,r)
-        })
-    }
-
 }
 
 
 public class _FutureAnyOperation : NSOperation, AnyFuture {
     
 //    private var getSubFuture : () -> FutureProtocol
-    public typealias FutureAnyOperationBlockType = () -> (future:AnyFuture,releaseOperationEarly:Bool)
+    public typealias FutureAnyOperationBlockType = () -> AnyFuture
     private var getSubFuture: FutureAnyOperationBlockType
 
     
@@ -174,24 +160,12 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
     }
     
     public init(block : () -> AnyFuture) {
-        self.getSubFuture = { () -> (future:AnyFuture,releaseOperationEarly:Bool) in
-            return (block(),false)
-        }
+        self.getSubFuture = block
         self._is_executing = false
         self._is_finished = false
         super.init()
     }
     
-    // you can figure out if the Future is already done, or more importantly may be running on some other operation.
-    // Useful when using cached Future's.   The NSOperation will finish executing early.  But the var `future` still won't 
-    // complete until the future completes.
-    public init(blockWithEarlyReleaseOption : FutureAnyOperationBlockType) {
-        self.getSubFuture = blockWithEarlyReleaseOption
-        self._is_executing = false
-        self._is_finished = false
-        super.init()
-    }
-
     
     override public func main() {
         
@@ -204,19 +178,15 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         
         self._is_executing = true
 
-        let (future,earlyRelease) = self.getSubFuture()
+        let future = self.getSubFuture()
         
-        let f : Future<Any> = future.mapAs()
+        let f : Future<Any> = future.futureAny
         self.futureAny = f
         self.cancelToken = f.getCancelToken()
         f.onComplete { (value) -> Void in
             self._is_executing = false
             self._is_finished = true
             self.promise.complete(value)
-        }
-        if (earlyRelease) {
-            self._is_executing = false
-            self._is_finished = true
         }
         
     }
@@ -254,9 +224,9 @@ public class FutureOperationQueue : NSOperationQueue {
     returns a new Future<T> that can be used to compose when this operation runs and completes
     
     */
-    func addFutureOperationBlock<T>(priority : FutureOperationQueuePriority = .Normal, block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
+    public func add<T>(priority : FutureOperationQueuePriority = .Normal, block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
         
-        let operation = FutureOperation.OperationWithBlock(blockWithEarlyReleaseOption: block)
+        let operation = FutureOperation.OperationWithBlock(block: block)
         operation.futureOperationQueuePriority = priority
         
         if (OSFeature.NSOperationQueuePriority.is_supported) {
@@ -278,14 +248,6 @@ public class FutureOperationQueue : NSOperationQueue {
         
     }
     
-    
-    func addFutureOperationBlock<T>(priority : FutureOperationQueuePriority = .Normal, block: () -> Future<T>) -> Future<T> {
-        
-        return self.addFutureOperationBlock(priority) { () -> (future: Future<T>, releaseOperationEarly: Bool) in
-            return (block(),false)
-        }
-    }
-
     
 }
 

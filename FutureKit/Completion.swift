@@ -31,7 +31,7 @@ import Foundation
 
 
 public protocol CompletionType : CustomStringConvertible, CustomDebugStringConvertible {
-    typealias T
+    associatedtype T
     
     var completion : Completion<T> { get }
     

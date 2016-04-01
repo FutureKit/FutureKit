@@ -369,7 +369,7 @@ public protocol AnyFuture {
 */
 public protocol FutureProtocol : AnyFuture {
     
-    typealias T
+    associatedtype T
     
     var result : FutureResult<T>? { get }
 
@@ -1259,7 +1259,7 @@ extension FutureProtocol {
             p.automaticallyCancelOnRequestCancel()
             self.onSuccess { (result) -> Void in
                 p.completeWithSuccess(try didSucceed(result))
-            }
+            }.ignoreFailures()
             
             executor.executeAfterDelay(timeout)  {
                 p.completeWithBlock { () -> C in
@@ -1304,6 +1304,7 @@ extension FutureProtocol {
     - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
     - returns: a new Future of type Future<__Type>
     */
+    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
     public final func onSuccess<C: CompletionType>(executor : Executor = .Primary,
         block:(T) throws -> C) -> Future<C.T> {
         return self.onComplete(executor)  { (result) -> Completion<C.T> in
@@ -1337,6 +1338,7 @@ extension FutureProtocol {
      
      - returns: a new Future of type Future<__Type>
      */
+    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
     public final func onSuccess<__Type>(executor : Executor = .Primary,
         block:(T) throws -> __Type) -> Future<__Type> {
             return self.onSuccess(executor) { (value : T) -> Completion<__Type> in
@@ -1505,6 +1507,32 @@ extension FutureProtocol {
             }
         }
     }
+    
+    /*:
+     
+     this is basically a noOp method, but it removes the unused result compiler warning to add an error handler to your future.
+     Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
+
+     */
+    public final func ignoreFailures() -> Self
+    {
+        return self
+    }
+
+    /*:
+     
+     this is basically a noOp method, but it removes the unused result compiler warning to add an error handler to your future.
+     Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
+     
+     */
+    public final func assertOnFail() -> Self
+    {
+        self.onFail { error in
+            
+            assertionFailure("Future failed unexpectantly")
+        }
+        return self
+    }
 
     
     
@@ -1569,7 +1597,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 public protocol OptionalProtocol {
-    typealias Wrapped
+    associatedtype Wrapped
     
     func isNil() -> Bool
     func unwrap() -> Wrapped
@@ -1707,12 +1735,12 @@ class classWithMethodsThatReturnFutures {
         
         self.iMayFailRandomly().onSuccess { (value) -> Completion<Int> in
             return .Success(5)
-        }
+        }.ignoreFailures()
             
         
         self.iMayFailRandomly().onSuccess { (value) -> Void in
             NSLog("")
-        }
+        }.ignoreFailures()
     
         
     }
@@ -1728,7 +1756,7 @@ class classWithMethodsThatReturnFutures {
             dispatch_async(dispatch_get_main_queue()) {
                 p.completeWithSuccess(())
             }
-        }
+        }.ignoreFailures()
         // let's do some async dispatching of things here:
         return p.future
     }

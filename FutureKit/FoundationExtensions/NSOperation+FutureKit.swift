@@ -98,9 +98,9 @@ extension NSOperation {
 
 public class FutureOperation<T> : _FutureAnyOperation {
     
-    public typealias FutureOperationBlockType = () -> (Future<T>)
+    public typealias FutureOperationBlockType = () throws -> (Future<T>)
 
-    public class func OperationWithBlock(block b: () -> Future<T>) -> FutureOperation<T> {
+    public class func OperationWithBlock(block b: () throws -> Future<T>) -> FutureOperation<T> {
         return FutureOperation<T>(block:b)
     }
 
@@ -108,9 +108,9 @@ public class FutureOperation<T> : _FutureAnyOperation {
         return self.promise.future.mapAs()
     }
 
-    public init(block b: () -> Future<T>) {
-        super.init(block: { () -> AnyFuture in
-            return b()
+    public init(block b: () throws -> Future<T>) {
+        super.init(block: { () throws -> AnyFuture in
+            return try b()
         })
     }
 
@@ -120,7 +120,7 @@ public class FutureOperation<T> : _FutureAnyOperation {
 public class _FutureAnyOperation : NSOperation, AnyFuture {
     
 //    private var getSubFuture : () -> FutureProtocol
-    public typealias FutureAnyOperationBlockType = () -> AnyFuture
+    public typealias FutureAnyOperationBlockType = () throws -> AnyFuture
     private var getSubFuture: FutureAnyOperationBlockType
 
     
@@ -159,7 +159,7 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         return _is_finished
     }
     
-    public init(block : () -> AnyFuture) {
+    public init(block : () throws -> AnyFuture) {
         self.getSubFuture = block
         self._is_executing = false
         self._is_finished = false
@@ -178,9 +178,13 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         
         self._is_executing = true
 
-        let future = self.getSubFuture()
-        
-        let f : Future<Any> = future.futureAny
+        let f: Future<Any>
+        do {
+            f = try self.getSubFuture().futureAny
+        }
+        catch {
+            f = Future(fail: error)
+        }
         self.futureAny = f
         self.cancelToken = f.getCancelToken()
         f.onComplete { (value) -> Void in

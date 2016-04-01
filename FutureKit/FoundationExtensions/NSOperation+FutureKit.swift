@@ -187,7 +187,7 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         }
         self.futureAny = f
         self.cancelToken = f.getCancelToken()
-        f.onComplete { (value) -> Void in
+        f.onComplete(executor) { (value) -> Void in
             self._is_executing = false
             self._is_finished = true
             self.promise.complete(value)

@@ -109,7 +109,7 @@ public class FutureOperation<T> : _FutureAnyOperation {
     }
 
     public init(executor:Executor = .Primary, block b: () throws -> Future<T>) {
-        super.init(block: { () throws -> AnyFuture in
+        super.init(executor: executor,block: { () throws -> AnyFuture in
             return try b()
         })
     }
@@ -233,7 +233,7 @@ public class FutureOperationQueue : NSOperationQueue {
                     priority : FutureOperationQueuePriority = .Normal,
                     block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
         
-        let operation = FutureOperation.OperationWithBlock(block: block)
+        let operation = FutureOperation.OperationWithBlock(executor,block: block)
         operation.futureOperationQueuePriority = priority
         
         if (OSFeature.NSOperationQueuePriority.is_supported) {

@@ -100,15 +100,15 @@ public class FutureOperation<T> : _FutureAnyOperation {
     
     public typealias FutureOperationBlockType = () throws -> (Future<T>)
 
-    public class func OperationWithBlock(block b: () throws -> Future<T>) -> FutureOperation<T> {
-        return FutureOperation<T>(block:b)
+    public class func OperationWithBlock(executor:Executor = .Primary, block b: () throws -> Future<T>) -> FutureOperation<T> {
+        return FutureOperation<T>(executor: executor,block:b)
     }
 
     public var future : Future<T> {
         return self.promise.future.mapAs()
     }
 
-    public init(block b: () throws -> Future<T>) {
+    public init(executor:Executor = .Primary, block b: () throws -> Future<T>) {
         super.init(block: { () throws -> AnyFuture in
             return try b()
         })
@@ -123,6 +123,8 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
     public typealias FutureAnyOperationBlockType = () throws -> AnyFuture
     private var getSubFuture: FutureAnyOperationBlockType
 
+    
+    public var executor: Executor
     
     public var futureAny = Future<Any>(success: ())
     
@@ -159,7 +161,8 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         return _is_finished
     }
     
-    public init(block : () throws -> AnyFuture) {
+    public init(executor:Executor = .Primary, block : () throws -> AnyFuture) {
+        self.executor = executor
         self.getSubFuture = block
         self._is_executing = false
         self._is_finished = false
@@ -178,12 +181,9 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         
         self._is_executing = true
 
-        let f: Future<Any>
-        do {
-            f = try self.getSubFuture().futureAny
-        }
-        catch {
-            f = Future(fail: error)
+        
+        let f: Future<Any> = self.executor.execute { () -> Future<Any> in
+            return try self.getSubFuture().futureAny
         }
         self.futureAny = f
         self.cancelToken = f.getCancelToken()
@@ -228,7 +228,10 @@ public class FutureOperationQueue : NSOperationQueue {
     returns a new Future<T> that can be used to compose when this operation runs and completes
     
     */
-    public func add<T>(priority : FutureOperationQueuePriority = .Normal, block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
+    public func add<T>(executor: Executor = .Primary,
+
+                    priority : FutureOperationQueuePriority = .Normal,
+                    block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
         
         let operation = FutureOperation.OperationWithBlock(block: block)
         operation.futureOperationQueuePriority = priority

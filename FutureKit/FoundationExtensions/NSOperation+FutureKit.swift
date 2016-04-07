@@ -161,7 +161,7 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
         return _is_finished
     }
     
-    public init(executor:Executor = .Primary, block : () throws -> AnyFuture) {
+    public init(executor:Executor, block : () throws -> AnyFuture) {
         self.executor = executor
         self.getSubFuture = block
         self._is_executing = false

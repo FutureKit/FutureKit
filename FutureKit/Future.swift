@@ -362,6 +362,8 @@ public protocol AnyFuture {
 
     func mapAs<S>() -> Future<S>
 
+    func mapAs() -> Future<Void>
+
 }
 
 /**
@@ -420,7 +422,10 @@ public protocol FutureProtocol : AnyFuture {
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     */
     func mapAsOptional<S>() -> Future<S?>
+ 
     
+    func mapAs() -> Future<Void>
+
     
     var description: String { get }
     

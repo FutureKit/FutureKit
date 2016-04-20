@@ -1022,7 +1022,15 @@ public class Future<T> : FutureProtocol {
             return result as! __Type
         }
     }
+
     
+    
+    public final func mapAs() -> Future<Void> {
+        return self.map(.Immediate) { (result) -> Void in
+            return ()
+        }
+    }
+
     /**
     convert `Future<T>` into another type `Future<__Type?>`.
     

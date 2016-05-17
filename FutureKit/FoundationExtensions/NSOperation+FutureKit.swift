@@ -219,9 +219,9 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
 }
 
 
-public class FutureOperationQueue : NSOperationQueue {
-    
-    let syncObject = SynchronizationType.LightAndFastSyncType()
+public typealias FutureOperationQueue = NSOperationQueue
+
+public extension NSOperationQueue {
     
     /*: just add an Operation using a block that returns a Future.
     
@@ -236,20 +236,7 @@ public class FutureOperationQueue : NSOperationQueue {
         let operation = FutureOperation.OperationWithBlock(executor,block: block)
         operation.futureOperationQueuePriority = priority
         
-        if (OSFeature.NSOperationQueuePriority.is_supported) {
-            self.addOperation(operation)
-        }
-        else {
-            // GOTTA MUCK WITH Depedencies.  Sigh.  So let's lock access to make sure we don't miss an operation
-            self.syncObject.lockAndModify { () -> Void in
-                for existingOps  in self.operations as [NSOperation] {
-                    if (existingOps.futureOperationQueuePriority.rawValue < priority.rawValue) {
-                        existingOps.addDependency(operation)
-                    }
-                }
-                self.addOperation(operation)
-            }
-        }
+        self.addOperation(operation)
         
         return operation.future
         

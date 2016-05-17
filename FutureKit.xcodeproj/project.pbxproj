@@ -33,6 +33,8 @@
 		0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
 		0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
 		0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
+		0D75B9CC1CEB8307002452F6 /* NSCache+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */; };
+		0D75B9CD1CEB8370002452F6 /* NSCache+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */; };
 		0D7CC61F1B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0D7CC6201B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
@@ -118,6 +120,7 @@
 		0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = OSAtomicInt.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSFileManager-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSData-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSCache+FutureKit.swift"; sourceTree = "<group>"; };
 		0D7CC61E1B390D2500006CBF /* OSFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSFeature.swift; sourceTree = "<group>"; };
 		0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit iOS Tests-Bridging-Header.h"; sourceTree = "<group>"; };
 		0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit OSX Tests-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -213,6 +216,7 @@
 				0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */,
 				0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */,
 				0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */,
+				0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */,
 			);
 			path = FoundationExtensions;
 			sourceTree = "<group>";
@@ -670,6 +674,7 @@
 				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
+				0D75B9CC1CEB8307002452F6 /* NSCache+FutureKit.swift in Sources */,
 				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
 			);
@@ -696,6 +701,7 @@
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
+				0D75B9CD1CEB8370002452F6 /* NSCache+FutureKit.swift in Sources */,
 				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
 			);

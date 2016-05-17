@@ -30,7 +30,7 @@ class FutureCacheEntry<T> {
 
 
 
-extension NSCache {
+public extension NSCache {
     
     private func _findOrFetch<T>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> FutureCacheEntry<T> {
         
@@ -64,7 +64,7 @@ extension NSCache {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    func findOrFetch<T>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch<T>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> Future<T> {
         
         return _findOrFetch(key,expireTime: expireTime,onFetch: onFetch).future
     }
@@ -80,7 +80,7 @@ extension NSCache {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    func findOrFetch<T : HasCacheCost>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch<T : HasCacheCost>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> Future<T> {
         
         let entry =  _findOrFetch(key,expireTime: expireTime,onFetch: onFetch)
         return entry.future.onSuccess { value in

@@ -1152,6 +1152,15 @@ public class Future<T> : FutureProtocol {
         return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
     }
     
+    
+    
+    
+    public final func delay(delay: NSTimeInterval) -> Future<T> {
+        let completion: Completion<T> = .CompleteUsing(self)
+        return Future(delay:delay, completeWith: completion)
+    }
+    
+    
 }
 
 extension FutureProtocol {

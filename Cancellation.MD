@@ -36,6 +36,10 @@ You can also just call 'getCancelToken()' at the tail of your chain.
        }.getCancelToken()
 ```
 
+Remember:  Cancellations are never guaranteed!  You may still get a Success or Fail response, even if you 'requested' a cancelation.  This is intentional by design.   Think of the cancellation as a polite 'request' to be please stop, I dont need the answer anymore.  But since there is always a chance that the future has already been completed prior to the cancellation request, it's good form to never assume you will get a cancellation result, just because you requested a cancellation.
+
+Also:  If the Future hasn't been implemented to support being cancelled, than the cancel() request will ALWAYS be ignored!  
+
 
 Implementing Cancellation in your custom Promises:
 ---------------

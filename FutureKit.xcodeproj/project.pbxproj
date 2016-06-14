@@ -125,6 +125,7 @@
 		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSOperation+FutureKit.swift"; sourceTree = "<group>"; };
 		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DBB33421D0F973A0092BF7B /* Cancellation.MD */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Cancellation.MD; sourceTree = "<group>"; };
 		0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FutureKit iOS Testing App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DDE32631B38BD28007C39D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DDE32641B38BD28007C39D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -231,6 +232,7 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
+				0DBB33421D0F973A0092BF7B /* Cancellation.MD */,
 				09059C431BB23E3C00555E26 /* FutureKit.podspec */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,

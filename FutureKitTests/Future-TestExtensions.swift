@@ -30,12 +30,12 @@ extension Future {
     
     func expectationTestForCompletion(testcase: XCTestCase, description : String,
         assertion : ((value : FutureResult<T>) -> (assert:BooleanType,message:String)),
-        file: String = __FILE__,
-        line: UInt = __LINE__
+        file: StaticString = #file,
+        line: UInt = #line
         ) -> XCTestExpectation! {
             
             let e = testcase.expectationWithDescription(description)
-            
+        
             self.onComplete { (value) -> Void in
                 let test = assertion(value:value)
                 
@@ -48,8 +48,8 @@ extension Future {
     
     func expectationTestForSuccess(testcase: XCTestCase, description : String,
         test : ((result:T) -> BooleanType),
-        file: String = __FILE__,
-        line: UInt = __LINE__) -> XCTestExpectation! {
+        file: StaticString = #file,
+        line: UInt = #line) -> XCTestExpectation! {
             
             return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
                 switch value {
@@ -64,8 +64,8 @@ extension Future {
     }
     
     func expectationTestForAnySuccess(testcase: XCTestCase, description : String,
-        file: String = __FILE__,
-        line: UInt = __LINE__
+        file: StaticString = #file,
+        line: UInt = #line
         ) -> XCTestExpectation! {
             
             return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in

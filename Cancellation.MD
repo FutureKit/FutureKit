@@ -123,9 +123,12 @@ and than later..
    token1.cancel()
 ```
 
-What happens?  Well.. by default.. the cancellation request is actually IGNORED.  Why?  Because the future will detect that has generated two tokens.   And so while the first consumer is no longer intestested in the result.. that doesn't mean the second one is not.  
+What happens?  Well.. by default.. all of these futures will be cancelled.  But is this the right behavior?
 
-Instead of a dependent "chain" , FutureKit has figured out that there is a dependent "tree" of futures.   And while one 'branch' isn't interested in the 'top' of the tree, that doesn't mean other branches still aren't.  So it will NOT forward the cancellation in this case.  It's 'protecting' token1's interest in the result of 'future'
+While the first consumer is no longer intestested in the result.. that doesn't mean the second one is not.  
+
+Instead of a dependent "chain" , FutureKit has figured out that there is a dependent "tree" of futures.   And while one 'branch' isn't interested in the 'top' of the tree, that doesn't mean other branches still aren't.  By default FutureKit 2.0 will now forward this result (FutureKit 1.x used to not forward).
+
 
 This sort of thing can happen if you also 'compose' two futures from the same shared future, since deep inside onSuccess() and onComplete() is a call to getCancellationToken()...
 
@@ -145,9 +148,8 @@ What can you do?
 well there is some options on cancel.  They all have horribly long names, but that's intentional so people understand whats happening when there are dependent 'trees' vs a single 'chain'
 
 ```
-  token.cancel([.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting])  // all futures in a dependent tree of futures will be cancelled!
+  token.cancel([.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting])  // Don't cancel other futures that still want the depdent future.
 ```
-This will always cause the cancellation to be forwarded, even if it causes other consumers to get a cancellation result, when they didn't perform a cancellation.   
 
 There is also a way to NOT forward your cancellation 'up' the chain.  Let's say you are using a subFuture, that you want to cancel, without cancelling the whole chain.
 

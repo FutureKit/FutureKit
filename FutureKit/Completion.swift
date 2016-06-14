@@ -26,7 +26,7 @@ import Foundation
 
 
 public protocol CompletionType {
-    typealias ValueType
+    associatedtype ValueType
     
     var value : ValueType! { get }
     var error : ErrorType! { get }

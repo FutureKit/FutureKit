@@ -80,7 +80,7 @@ public class Promise<T>  {
     }
     
     // untestable?
-    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
+    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : String = #file, line : Int32 = #line) {
         self.init()
     }
     
@@ -100,7 +100,7 @@ public class Promise<T>  {
     }
 
     
-    public final func automaticallyAssertOnFail(message:String, file : String = __FILE__, line : Int32 = __LINE__) {
+    public final func automaticallyAssertOnFail(message:String, file : String = #file, line : Int32 = #line) {
         self.future.onFail { (error) -> Void in
             assertionFailure("\(message) on at:\(file):\(line)")
             return

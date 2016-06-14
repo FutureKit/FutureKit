@@ -231,7 +231,7 @@ internal class CancellationTokenSource {
     private func _performCancel(options : CancellationOptions) {
         
         if self.canBeCancelled {
-            if (options.contains(.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting)) {
+            if (!options.contains(.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting)) {
                 self.tokens.removeAll()
             }
             // there are no active tokens remaining, so allow the cancellation
@@ -279,6 +279,10 @@ public struct CancellationOptions : OptionSetType{
     public let rawValue : Int
     public init(rawValue:Int){ self.rawValue = rawValue}
 
+    
+    @available(*, deprecated=1.1, message="depricated, cancellation forwards to all dependent futures by default use onSuccess",renamed="DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting")
+    public static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:0)
+
     /**
     When the request is forwarded to another future, that future should cancel itself - even if there are other futures waiting for a result.
     example:
@@ -292,13 +296,13 @@ public struct CancellationOptions : OptionSetType{
         let secondChildofFuture = future.onComplete { (result) in
             print("secondChildofFuture result = \(result)")
         }
-        firstChildCancelToken.cancel([.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting])
+        firstChildCancelToken.cancel([.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting])
         
-    should result in `future` and `secondChildofFuture` being cancelled.
+    should result in `future` and `secondChildofFuture` not being cancelled.
     otherwise future may ignore the firstChildCancelToken request to cancel, because it is still trying to satisify secondChildofFuture
 
     */
-    public static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
+    public static let DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
   
     /**
     If this future is dependent on the result of another future (via onComplete or .CompleteUsing(f))
@@ -314,6 +318,7 @@ public struct CancellationOptions : OptionSetType{
     
     */
     public static let ForceThisFutureToBeCancelledImmediately    = CancellationOptions(rawValue:4)
+    
 
     
 }
@@ -1730,7 +1735,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 internal protocol GenericOptional {
-    typealias unwrappedType
+    associatedtype unwrappedType
     
     func isNil() -> Bool
     func unwrap() -> unwrappedType

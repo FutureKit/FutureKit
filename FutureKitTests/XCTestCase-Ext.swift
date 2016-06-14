@@ -28,8 +28,8 @@ import XCTest
 extension XCTestCase {
     
     func expectationTestForFutureCompletion<T>(description : String, future f: Future<T>,
-        file: String = __FILE__,
-        line: UInt = __LINE__,
+        file: StaticString = #file,
+        line: UInt = #line,
         assertion : ((value : FutureResult<T>) -> (assert:BooleanType,message:String))
         ) -> XCTestExpectation! {
             
@@ -45,8 +45,8 @@ extension XCTestCase {
     }
     
     func expectationTestForFutureSuccess<T>(description : String,future f: Future<T>,
-        file: String = __FILE__,
-        line: UInt = __LINE__,
+        file: StaticString = #file,
+        line: UInt = #line,
         test : ((result:T) -> BooleanType)
         ) -> XCTestExpectation! {
             
@@ -63,8 +63,8 @@ extension XCTestCase {
     }
     
     func expectationTestForFutureSuccess<T>(description : String, future f: Future<T>,
-        file: String = __FILE__,
-        line: UInt = __LINE__
+        file: StaticString = #file,
+        line: UInt = #line
         ) -> XCTestExpectation! {
             
             return self.expectationTestForFutureSuccess(description, future: f, test: { (result) -> BooleanType in

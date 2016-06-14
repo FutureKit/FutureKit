@@ -9,7 +9,7 @@
 import Foundation
 
 private protocol _OptionalType {
-    typealias Wrapped
+    associatedtype Wrapped
     
     var _optional : Wrapped? { get }
     

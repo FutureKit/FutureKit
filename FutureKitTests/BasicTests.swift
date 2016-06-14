@@ -158,8 +158,8 @@ class FutureKitBasicTests: XCTestCase {
         
     }
     func testContinueWithRandomly() {
-        
-        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, description: "Description")
+        var i = 0
+        iWillKeepTryingTillItWorks(&i).expectationTestForAnySuccess(self, description: "Description")
         
         self.waitForExpectationsWithTimeout(120.0, handler: nil)
         

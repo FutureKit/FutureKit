@@ -49,7 +49,7 @@ extension XCTestCase {
         line: UInt = #line,
         test : ((result:T) -> BooleanType)
         ) -> XCTestExpectation! {
-            
+        
             return self.expectationTestForFutureCompletion(description,future: f, file:file,line:line)  { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
                 switch value {
                 case let .Success(result):

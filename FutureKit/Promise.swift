@@ -29,6 +29,7 @@ public enum CancelRequestResponse<T> {
     case Complete(Completion<T>)  // ex: .Complete(.Cancelled)
 }
 
+
 public class Promise<T>  {
     
     public var future : Future<T>
@@ -36,13 +37,23 @@ public class Promise<T>  {
     public init() {
         self.future = Future<T>()
     }
-    
-    
-    public final func complete(completion : Completion<T>) {
-        self.future.completeWith(completion)
+    public required init(success:T) {
+        self.future = Future<T>(success: success)
     }
-    public final func complete(value : FutureResult<T>) {
-        self.future.completeWith(value.asCompletion())
+    public required init(fail:ErrorType) {
+        self.future = Future<T>(fail: fail)
+    }
+    public required init(cancelled:()) {
+        self.future = Future<T>(cancelled: cancelled)
+    }
+    public required init(completeUsing:Future<T>) {
+        self.future = Future<T>(completeUsing: completeUsing)
+    }
+    
+    // *  complete commands  */
+    
+    public final func complete<C:CompletionType where C.T == T>(completion : C) {
+        self.future.completeWith(completion.completion)
     }
     
     public final func completeWithSuccess(result : T) {
@@ -78,9 +89,14 @@ public class Promise<T>  {
         self.init()
         self.automaticallyFailAfter(delay,error:error)
     }
-    
+
+    public convenience init(automaticallyFailAfter delay: NSTimeInterval, errorMessage:String ) {
+        self.init()
+        self.automaticallyFailAfter(delay,error:FutureKitError(genericError: errorMessage))
+    }
+
     // untestable?
-    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : String = #file, line : Int32 = #line) {
+    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : StaticString = #file, line : Int32 = #line) {
         self.init()
     }
     
@@ -100,7 +116,7 @@ public class Promise<T>  {
     }
 
     
-    public final func automaticallyAssertOnFail(message:String, file : String = #file, line : Int32 = #line) {
+    public final func automaticallyAssertOnFail(message:String, file : StaticString = #file, line : Int32 = #line) {
         self.future.onFail { (error) -> Void in
             assertionFailure("\(message) on at:\(file):\(line)")
             return
@@ -150,7 +166,7 @@ public class Promise<T>  {
     
     - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
-    public final func completeWithBlock(completionBlock : () throws ->Completion<T>) {
+    public final func completeWithBlock<C:CompletionType where C.T == T>(completionBlock : () throws ->C) {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock,onCompletionError: nil)
     }
     
@@ -167,7 +183,7 @@ public class Promise<T>  {
 
     - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
-    public final func completeWithBlocks(completionBlock : () throws ->Completion<T>, onAlreadyCompleted : () -> Void)
+    public final func completeWithBlocks<C:CompletionType where C.T == T>(completionBlock : () throws ->C, onAlreadyCompleted : () -> Void)
     {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock, onCompletionError: onAlreadyCompleted)
     }
@@ -195,14 +211,15 @@ public class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func tryComplete(completion : Completion<T>) -> Bool {
+    public final func tryComplete<C:CompletionType where C.T == T>(completion : C) -> Bool {
         return self.future.completeWithSync(completion)
     }
     
     public typealias CompletionErrorHandler = (() -> Void)
     // execute a block if the completion "fails" because the future is already completed.
-    public final func complete(completion : Completion<T>,onCompletionError errorBlock: CompletionErrorHandler) {
-        self.future.completeWith(completion,onCompletionError:errorBlock)
+    
+    public final func complete<C:CompletionType where C.T == T>(completion : C,onCompletionError errorBlock: CompletionErrorHandler) {
+        self.future.completeWith(completion.completion,onCompletionError:errorBlock)
     }
     
 

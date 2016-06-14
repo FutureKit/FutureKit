@@ -35,7 +35,7 @@ extension Future {
         ) -> XCTestExpectation! {
             
             let e = testcase.expectationWithDescription(description)
-            
+        
             self.onComplete { (value) -> Void in
                 let test = assertion(value:value)
                 

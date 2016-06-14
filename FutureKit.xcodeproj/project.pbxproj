@@ -15,6 +15,8 @@
 		092794BD1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
 		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
+		0D5810D51C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
+		0D5810D61C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
@@ -31,12 +33,60 @@
 		0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
 		0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
 		0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
+		0D75B9CC1CEB8307002452F6 /* NSCache+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */; };
+		0D75B9CD1CEB8370002452F6 /* NSCache+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */; };
 		0D7CC61F1B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0D7CC6201B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
+		0DBB32F21D0F91640092BF7B /* FutureKit watchOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DBB32F11D0F91640092BF7B /* FutureKit watchOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0DBB32FF1D0F919C0092BF7B /* FutureKit tvOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DBB32FE1D0F919C0092BF7B /* FutureKit tvOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0DBB33061D0F919C0092BF7B /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DBB32FC1D0F919C0092BF7B /* FutureKit.framework */; };
+		0DBB330B1D0F919C0092BF7B /* FutureKit_tvOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DBB330A1D0F919C0092BF7B /* FutureKit_tvOSTests.swift */; };
+		0DBB33131D0F91DA0092BF7B /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCE1ADAFE5A00B58B0B /* Future.swift */; };
+		0DBB33141D0F91DA0092BF7B /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
+		0DBB33151D0F91DA0092BF7B /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
+		0DBB33161D0F91DA0092BF7B /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
+		0DBB33171D0F91DA0092BF7B /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
+		0DBB33181D0F91DA0092BF7B /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6D1ADCB55C000345AD /* Executor.swift */; };
+		0DBB33191D0F91DA0092BF7B /* FutureBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */; };
+		0DBB331A1D0F91DA0092BF7B /* SyncWaitHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */; };
+		0DBB331B1D0F91DA0092BF7B /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */; };
+		0DBB331C1D0F91DB0092BF7B /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FCE1ADAFE5A00B58B0B /* Future.swift */; };
+		0DBB331D1D0F91DB0092BF7B /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
+		0DBB331E1D0F91DB0092BF7B /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
+		0DBB331F1D0F91DB0092BF7B /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6F1ADCBBF8000345AD /* Promise.swift */; };
+		0DBB33201D0F91DB0092BF7B /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
+		0DBB33211D0F91DB0092BF7B /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD6D1ADCB55C000345AD /* Executor.swift */; };
+		0DBB33221D0F91DB0092BF7B /* FutureBatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */; };
+		0DBB33231D0F91DB0092BF7B /* SyncWaitHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */; };
+		0DBB33241D0F91DB0092BF7B /* Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */; };
+		0DBB33251D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
+		0DBB33261D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
+		0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
+		0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
+		0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
+		0DBB332A1D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
+		0DBB332B1D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
+		0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
+		0DBB332D1D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
+		0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
+		0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
+		0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
+		0DBB33311D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
+		0DBB33321D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
+		0DBB33331D0F91E40092BF7B /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
+		0DBB33341D0F91E40092BF7B /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
+		0DBB33351D0F91E40092BF7B /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
+		0DBB33361D0F91E40092BF7B /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
+		0DBB33371D0F91E40092BF7B /* NSCache+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */; };
+		0DBB333D1D0F91E50092BF7B /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
+		0DBB333E1D0F91E50092BF7B /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
+		0DBB333F1D0F91E50092BF7B /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
+		0DBB33401D0F91E50092BF7B /* FutureThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */; };
+		0DBB33411D0F91E50092BF7B /* NSCache+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */; };
 		0DDE32651B38BD28007C39D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE32641B38BD28007C39D9 /* AppDelegate.swift */; };
 		0DDE32671B38BD28007C39D9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE32661B38BD28007C39D9 /* ViewController.swift */; };
 		0DDE326A1B38BD28007C39D9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0DDE32681B38BD28007C39D9 /* Main.storyboard */; };
@@ -77,6 +127,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0DBB33071D0F919C0092BF7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DBB32FB1D0F919C0092BF7B;
+			remoteInfo = "FutureKit tvOS";
+		};
 		0DDE32751B38BD28007C39D9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
@@ -105,6 +162,7 @@
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0D5810D41C4784E600ED5972 /* ErrorTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorTypes.swift; sourceTree = "<group>"; };
 		0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = convertPerfToCsv.swift; path = FutureKitTests/convertPerfToCsv.swift; sourceTree = "<group>"; };
 		0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFIFO.swift; sourceTree = "<group>"; };
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -115,6 +173,7 @@
 		0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = OSAtomicInt.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSFileManager-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSData-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSCache+FutureKit.swift"; sourceTree = "<group>"; };
 		0D7CC61E1B390D2500006CBF /* OSFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSFeature.swift; sourceTree = "<group>"; };
 		0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit iOS Tests-Bridging-Header.h"; sourceTree = "<group>"; };
 		0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit OSX Tests-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -125,6 +184,15 @@
 		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSOperation+FutureKit.swift"; sourceTree = "<group>"; };
 		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0DBB32EF1D0F91640092BF7B /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DBB32F11D0F91640092BF7B /* FutureKit watchOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit watchOS.h"; sourceTree = "<group>"; };
+		0DBB32F31D0F91640092BF7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0DBB32FC1D0F919C0092BF7B /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DBB32FE1D0F919C0092BF7B /* FutureKit tvOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit tvOS.h"; sourceTree = "<group>"; };
+		0DBB33001D0F919C0092BF7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0DBB33051D0F919C0092BF7B /* FutureKit tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DBB330A1D0F919C0092BF7B /* FutureKit_tvOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureKit_tvOSTests.swift; sourceTree = "<group>"; };
+		0DBB330C1D0F919C0092BF7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FutureKit iOS Testing App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DDE32631B38BD28007C39D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DDE32641B38BD28007C39D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -156,6 +224,28 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0DBB32EB1D0F91640092BF7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB32F81D0F919C0092BF7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB33021D0F919C0092BF7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DBB33061D0F919C0092BF7B /* FutureKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DDE325D1B38BD27007C39D9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -210,6 +300,7 @@
 				0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */,
 				0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */,
 				0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */,
+				0D75B9CB1CEB8307002452F6 /* NSCache+FutureKit.swift */,
 			);
 			path = FoundationExtensions;
 			sourceTree = "<group>";
@@ -240,6 +331,9 @@
 				0DEA1C001AE313DD000E126F /* FutureKit OSX Tests */,
 				0DDE32611B38BD28007C39D9 /* FutureKit iOS Testing App */,
 				0DDE32771B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
+				0DBB32F01D0F91640092BF7B /* FutureKit watchOS */,
+				0DBB32FD1D0F919C0092BF7B /* FutureKit tvOS */,
+				0DBB33091D0F919C0092BF7B /* FutureKit tvOSTests */,
 				0DA41FAF1ADAFE3D00B58B0B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -253,6 +347,9 @@
 				0DEA1BFF1AE313DD000E126F /* FutureKit OSX Tests.xctest */,
 				0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */,
 				0DDE32741B38BD28007C39D9 /* FutureKit iOS Testing AppTests.xctest */,
+				0DBB32EF1D0F91640092BF7B /* FutureKit.framework */,
+				0DBB32FC1D0F919C0092BF7B /* FutureKit.framework */,
+				0DBB33051D0F919C0092BF7B /* FutureKit tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -264,6 +361,7 @@
 				092794BB1BB25DD300DFB56D /* Completion.swift */,
 				0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */,
 				0DE3AD6F1ADCBBF8000345AD /* Promise.swift */,
+				0D5810D41C4784E600ED5972 /* ErrorTypes.swift */,
 				0DE3AD6D1ADCB55C000345AD /* Executor.swift */,
 				0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */,
 				0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */,
@@ -298,6 +396,33 @@
 				0DEA1BA11AE30853000E126F /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0DBB32F01D0F91640092BF7B /* FutureKit watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				0DBB32F11D0F91640092BF7B /* FutureKit watchOS.h */,
+				0DBB32F31D0F91640092BF7B /* Info.plist */,
+			);
+			path = "FutureKit watchOS";
+			sourceTree = "<group>";
+		};
+		0DBB32FD1D0F919C0092BF7B /* FutureKit tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				0DBB32FE1D0F919C0092BF7B /* FutureKit tvOS.h */,
+				0DBB33001D0F919C0092BF7B /* Info.plist */,
+			);
+			path = "FutureKit tvOS";
+			sourceTree = "<group>";
+		};
+		0DBB33091D0F919C0092BF7B /* FutureKit tvOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				0DBB330A1D0F919C0092BF7B /* FutureKit_tvOSTests.swift */,
+				0DBB330C1D0F919C0092BF7B /* Info.plist */,
+			);
+			path = "FutureKit tvOSTests";
 			sourceTree = "<group>";
 		};
 		0DDE32611B38BD28007C39D9 /* FutureKit iOS Testing App */ = {
@@ -392,6 +517,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		0DBB32EC1D0F91640092BF7B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DBB32F21D0F91640092BF7B /* FutureKit watchOS.h in Headers */,
+				0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB32F91D0F919C0092BF7B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DBB32FF1D0F919C0092BF7B /* FutureKit tvOS.h in Headers */,
+				0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DEA1B8E1AE30853000E126F /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -413,6 +556,60 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0DBB32EE1D0F91640092BF7B /* FutureKit watchOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DBB32F61D0F91640092BF7B /* Build configuration list for PBXNativeTarget "FutureKit watchOS" */;
+			buildPhases = (
+				0DBB32EA1D0F91640092BF7B /* Sources */,
+				0DBB32EB1D0F91640092BF7B /* Frameworks */,
+				0DBB32EC1D0F91640092BF7B /* Headers */,
+				0DBB32ED1D0F91640092BF7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "FutureKit watchOS";
+			productName = "FutureKit watchOS";
+			productReference = 0DBB32EF1D0F91640092BF7B /* FutureKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DBB330D1D0F919C0092BF7B /* Build configuration list for PBXNativeTarget "FutureKit tvOS" */;
+			buildPhases = (
+				0DBB32F71D0F919C0092BF7B /* Sources */,
+				0DBB32F81D0F919C0092BF7B /* Frameworks */,
+				0DBB32F91D0F919C0092BF7B /* Headers */,
+				0DBB32FA1D0F919C0092BF7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "FutureKit tvOS";
+			productName = "FutureKit tvOS";
+			productReference = 0DBB32FC1D0F919C0092BF7B /* FutureKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		0DBB33041D0F919C0092BF7B /* FutureKit tvOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DBB33101D0F919C0092BF7B /* Build configuration list for PBXNativeTarget "FutureKit tvOSTests" */;
+			buildPhases = (
+				0DBB33011D0F919C0092BF7B /* Sources */,
+				0DBB33021D0F919C0092BF7B /* Frameworks */,
+				0DBB33031D0F919C0092BF7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0DBB33081D0F919C0092BF7B /* PBXTargetDependency */,
+			);
+			name = "FutureKit tvOSTests";
+			productName = "FutureKit tvOSTests";
+			productReference = 0DBB33051D0F919C0092BF7B /* FutureKit tvOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0DDE327C1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing App" */;
@@ -526,13 +723,21 @@
 		0DA41FA51ADAFE3D00B58B0B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0700;
+				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
+					0DBB32EE1D0F91640092BF7B = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					0DBB32FB1D0F919C0092BF7B = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					0DBB33041D0F919C0092BF7B = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 					0DDE325F1B38BD27007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
-						DevelopmentTeam = AUXUTTBC4T;
 					};
 					0DDE32731B38BD28007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -540,7 +745,6 @@
 					};
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
-						DevelopmentTeam = AUXUTTBC4T;
 					};
 					0DEA1BAE1AE30872000E126F = {
 						CreatedOnToolsVersion = 6.3;
@@ -568,15 +772,39 @@
 			targets = (
 				0DEA1B901AE30853000E126F /* FutureKit iOS */,
 				0DEA1BAE1AE30872000E126F /* FutureKit OSX */,
+				0DBB32EE1D0F91640092BF7B /* FutureKit watchOS */,
+				0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */,
 				0DEA1BE91AE3116A000E126F /* FutureKit iOS Tests */,
 				0DEA1BFE1AE313DD000E126F /* FutureKit OSX Tests */,
 				0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */,
 				0DDE32731B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
+				0DBB33041D0F919C0092BF7B /* FutureKit tvOSTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0DBB32ED1D0F91640092BF7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB32FA1D0F919C0092BF7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB33031D0F919C0092BF7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DDE325E1B38BD27007C39D9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -625,6 +853,68 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0DBB32EA1D0F91640092BF7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DBB33261D0F91DF0092BF7B /* ExtensionVars.swift in Sources */,
+				0DBB33341D0F91E40092BF7B /* NSFileManager-Ext.swift in Sources */,
+				0DBB332B1D0F91DF0092BF7B /* Tuples.swift in Sources */,
+				0DBB331A1D0F91DA0092BF7B /* SyncWaitHandler.swift in Sources */,
+				0DBB33351D0F91E40092BF7B /* NSData-Ext.swift in Sources */,
+				0DBB33191D0F91DA0092BF7B /* FutureBatch.swift in Sources */,
+				0DBB33131D0F91DA0092BF7B /* Future.swift in Sources */,
+				0DBB332A1D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */,
+				0DBB33361D0F91E40092BF7B /* FutureThread.swift in Sources */,
+				0DBB33331D0F91E40092BF7B /* NSOperation+FutureKit.swift in Sources */,
+				0DBB33151D0F91DA0092BF7B /* FutureFIFO.swift in Sources */,
+				0DBB33251D0F91DF0092BF7B /* OSFeature.swift in Sources */,
+				0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0DBB33171D0F91DA0092BF7B /* ErrorTypes.swift in Sources */,
+				0DBB33141D0F91DA0092BF7B /* Completion.swift in Sources */,
+				0DBB33181D0F91DA0092BF7B /* Executor.swift in Sources */,
+				0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
+				0DBB33371D0F91E40092BF7B /* NSCache+FutureKit.swift in Sources */,
+				0DBB33161D0F91DA0092BF7B /* Promise.swift in Sources */,
+				0DBB331B1D0F91DA0092BF7B /* Synchronization.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB32F71D0F919C0092BF7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DBB332D1D0F91DF0092BF7B /* ExtensionVars.swift in Sources */,
+				0DBB333E1D0F91E50092BF7B /* NSFileManager-Ext.swift in Sources */,
+				0DBB33321D0F91DF0092BF7B /* Tuples.swift in Sources */,
+				0DBB33231D0F91DB0092BF7B /* SyncWaitHandler.swift in Sources */,
+				0DBB333F1D0F91E50092BF7B /* NSData-Ext.swift in Sources */,
+				0DBB33221D0F91DB0092BF7B /* FutureBatch.swift in Sources */,
+				0DBB331C1D0F91DB0092BF7B /* Future.swift in Sources */,
+				0DBB33311D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */,
+				0DBB33401D0F91E50092BF7B /* FutureThread.swift in Sources */,
+				0DBB333D1D0F91E50092BF7B /* NSOperation+FutureKit.swift in Sources */,
+				0DBB331E1D0F91DB0092BF7B /* FutureFIFO.swift in Sources */,
+				0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */,
+				0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0DBB33201D0F91DB0092BF7B /* ErrorTypes.swift in Sources */,
+				0DBB331D1D0F91DB0092BF7B /* Completion.swift in Sources */,
+				0DBB33211D0F91DB0092BF7B /* Executor.swift in Sources */,
+				0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
+				0DBB33411D0F91E50092BF7B /* NSCache+FutureKit.swift in Sources */,
+				0DBB331F1D0F91DB0092BF7B /* Promise.swift in Sources */,
+				0DBB33241D0F91DB0092BF7B /* Synchronization.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DBB33011D0F919C0092BF7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DBB330B1D0F919C0092BF7B /* FutureKit_tvOSTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DDE325C1B38BD27007C39D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -656,6 +946,7 @@
 				0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BC81AE30885000E126F /* Future.swift in Sources */,
 				0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */,
+				0D5810D51C4784E600ED5972 /* ErrorTypes.swift in Sources */,
 				0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */,
 				0DEA1BCA1AE30885000E126F /* Executor.swift in Sources */,
@@ -667,6 +958,7 @@
 				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
+				0D75B9CC1CEB8307002452F6 /* NSCache+FutureKit.swift in Sources */,
 				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
 			);
@@ -681,6 +973,7 @@
 				0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BD51AE30886000E126F /* Future.swift in Sources */,
 				0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */,
+				0D5810D61C4784E600ED5972 /* ErrorTypes.swift in Sources */,
 				0D7502D11AE6B76D009C3F63 /* NSData-Ext.swift in Sources */,
 				0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */,
 				0DEA1BD71AE30886000E126F /* Executor.swift in Sources */,
@@ -692,6 +985,7 @@
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
+				0D75B9CD1CEB8370002452F6 /* NSCache+FutureKit.swift in Sources */,
 				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
 			);
@@ -728,6 +1022,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0DBB33081D0F919C0092BF7B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */;
+			targetProxy = 0DBB33071D0F919C0092BF7B /* PBXContainerItemProxy */;
+		};
 		0DDE32761B38BD28007C39D9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */;
@@ -853,6 +1152,117 @@
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		0DBB32F41D0F91640092BF7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "FutureKit watchOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-watchOS";
+				PRODUCT_NAME = FutureKit;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		0DBB32F51D0F91640092BF7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "FutureKit watchOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-watchOS";
+				PRODUCT_NAME = FutureKit;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		0DBB330E1D0F919C0092BF7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "FutureKit tvOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-tvOS";
+				PRODUCT_NAME = FutureKit;
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		0DBB330F1D0F919C0092BF7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "FutureKit tvOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-tvOS";
+				PRODUCT_NAME = FutureKit;
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
+		0DBB33111D0F919C0092BF7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				INFOPLIST_FILE = "FutureKit tvOSTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-tvOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+		0DBB33121D0F919C0092BF7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				INFOPLIST_FILE = "FutureKit tvOSTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-tvOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
 			name = Release;
 		};
@@ -1116,6 +1526,30 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		0DBB32F61D0F91640092BF7B /* Build configuration list for PBXNativeTarget "FutureKit watchOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DBB32F41D0F91640092BF7B /* Debug */,
+				0DBB32F51D0F91640092BF7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		0DBB330D1D0F919C0092BF7B /* Build configuration list for PBXNativeTarget "FutureKit tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DBB330E1D0F919C0092BF7B /* Debug */,
+				0DBB330F1D0F919C0092BF7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		0DBB33101D0F919C0092BF7B /* Build configuration list for PBXNativeTarget "FutureKit tvOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DBB33111D0F919C0092BF7B /* Debug */,
+				0DBB33121D0F919C0092BF7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		0DDE327C1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing App" */ = {
 			isa = XCConfigurationList;

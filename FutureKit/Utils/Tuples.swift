@@ -8,19 +8,6 @@
 
 import Foundation
 
-private protocol _OptionalType {
-    typealias Wrapped
-    
-    var _optional : Wrapped? { get }
-    
-}
-
-extension Optional : _OptionalType {
-    var _optional : Wrapped? {
-        return self
-    }
-}
-
 
 // This will extend 'indexable' collections, like Arrays to allow some conviences tuple implementations
 public extension SequenceType where Self:Indexable, Self.Index : IntegerLiteralConvertible {

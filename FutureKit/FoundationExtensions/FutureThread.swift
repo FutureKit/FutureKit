@@ -26,21 +26,21 @@ public class FutureThread {
         self.block = { () -> Completion<__Type> in
             return .Success(b())
         }
-        self.thread = NSThread(target: self, selector: "thread_func", object: nil)
+        self.thread = NSThread(target: self, selector: #selector(FutureThread.thread_func), object: nil)
     }
     public init(block b: () -> Completion<__Type>) {
         self.block = b
-        self.thread = NSThread(target: self, selector: "thread_func", object: nil)
+        self.thread = NSThread(target: self, selector: #selector(FutureThread.thread_func), object: nil)
     }
     
     public init(block b: () -> Future<__Type>) {
         self.block = { () -> Completion<__Type> in
             return .CompleteUsing(b())
         }
-        self.thread = NSThread(target: self, selector: "thread_func", object: nil)
+        self.thread = NSThread(target: self, selector: #selector(FutureThread.thread_func), object: nil)
     }
     
-    public func thread_func() {
+    @objc public func thread_func() {
         self.promise.complete(self.block())
     }
     

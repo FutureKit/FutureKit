@@ -77,7 +77,7 @@ public class FutureBatchOf<T> {
         takes a list of Futures.  Each future will be converted into a Future that returns T.
     
     */
-    public convenience init(_ futures : [FutureProtocol]) {
+    public convenience init(_ futures : [AnyFuture]) {
         let f : [Future<T>] = FutureBatch.convertArray(futures)
         self.init(futures:f)
     }
@@ -167,12 +167,14 @@ public class FutureBatchOf<T> {
             // We want to 'Cancel' this future if it is successful (so we don't call the block)
             self.batchFuture.onSuccess (.Immediate) { _ in
                 failOrCancelPromise.completeWithCancel()
+            }.onFail { _ in
+                    
             }
             
             // As soon as the first Future fails, call the block handler.
             failOrCancelPromise.future.onSuccess(executor) { (result,future,index)  in
                 block(result, future, index)
-            }
+            }.ignoreFailures()
         }
         
         // this future will be 'almost' like batchFuture, except it fails immediately without waiting for the other futures to complete.
@@ -236,7 +238,7 @@ public class FutureBatchOf<T> {
         - parameter array: array of Futures
         - returns: an array of Futures converted to return type <S>
     */
-    public class func convertArray<__Type>(array:[FutureProtocol]) -> [Future<__Type>] {
+    public class func convertArray<__Type>(array:[AnyFuture]) -> [Future<__Type>] {
         
         return array.map { $0.mapAs() }
         

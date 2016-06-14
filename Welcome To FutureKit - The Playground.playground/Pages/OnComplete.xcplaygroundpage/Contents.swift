@@ -86,7 +86,7 @@ let coolFuture = sampleFuture.onComplete { (result) -> Completion<Int> in
         }
         return .CompleteUsing(subFuture)
     default:
-        return result.asCompletion()
+        return result.completion
     }
 }
 coolFuture.onSuccess { (result) -> Void in

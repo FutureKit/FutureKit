@@ -25,76 +25,6 @@
 import Foundation
 
 
-// iOS 7 doesn't have built in queuePriority logic.  So we are baking our own.
-public enum FutureOperationQueuePriority : Int {
-    // these number mirror the NSOperationQueuePriority
-    case VeryLow    = -8
-    case Low        = -4
-    case Normal     = 0
-    case High       = 4
-    case VeryHigh   = 8
-    
-    
-    var operationQueuePriority : NSOperationQueuePriority {
-        switch self {
-        case .VeryHigh:
-            return .VeryHigh
-        case .High:
-            return .High
-        case .Normal:
-            return .Normal
-        case .Low:
-            return .Low
-        case .VeryLow:
-            return .VeryLow
-        }
-    }
-    
-    
-    init(opq :NSOperationQueuePriority) {
-        switch opq {
-        case .VeryHigh:
-            self = .VeryHigh
-        case .High:
-            self =  .High
-        case .Normal:
-            self =  .Normal
-        case .Low:
-            self =  .Low
-        case .VeryLow:
-            self = .VeryLow
-        }
-    }
-    
-}
-
-private var _futureOpPriorityVar = ExtensionVarHandlerFor<NSOperation>()
-
-// we are going to add an iOS_7 compatible version of NSOperationQueuePriority
-extension NSOperation {
-    
-    var futureOperationQueuePriority : FutureOperationQueuePriority {
-        get {
-            if OSFeature.NSOperationQueuePriority.is_supported {
-                return FutureOperationQueuePriority(opq: self.queuePriority)
-            }
-            else {
-                return _futureOpPriorityVar.getValueFrom(self, defaultvalue: .Normal)
-            }
-        }
-        set(newPriority) {
-            if OSFeature.NSOperationQueuePriority.is_supported {
-                self.queuePriority = newPriority.operationQueuePriority
-            }
-            else {
-                _futureOpPriorityVar.setValueOn(self, value: newPriority)
-            }
-            
-        }
-    }
-    
-}
-
 
 public class FutureOperation<T> : _FutureAnyOperation {
     
@@ -219,8 +149,6 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
 }
 
 
-public typealias FutureOperationQueue = NSOperationQueue
-
 public extension NSOperationQueue {
     
     /*: just add an Operation using a block that returns a Future.
@@ -230,11 +158,11 @@ public extension NSOperationQueue {
     */
     public func add<T>(executor: Executor = .Primary,
 
-                    priority : FutureOperationQueuePriority = .Normal,
+                    priority : NSOperationQueuePriority = .Normal,
                     block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
         
         let operation = FutureOperation.OperationWithBlock(executor,block: block)
-        operation.futureOperationQueuePriority = priority
+        operation.queuePriority = priority
         
         self.addOperation(operation)
         

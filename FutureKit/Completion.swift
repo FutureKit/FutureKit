@@ -31,7 +31,7 @@ import Foundation
 
 
 public protocol CompletionType : CustomStringConvertible, CustomDebugStringConvertible {
-    typealias T
+    associatedtype T
     
     var completion : Completion<T> { get }
     
@@ -135,6 +135,30 @@ extension FutureResult : CompletionType {
         }
     }
     
+}
+
+extension CompletionType {
+    
+    public static func SUCCESS(value:T) -> Completion<T>  {
+        return Completion<T>(success: value)
+    }
+
+    public static func FAIL(fail:ErrorType) -> Completion<T> {
+        return Completion<T>(fail: fail)
+    }
+
+    public static func FAIL(failWithErrorMessage:String) -> Completion<T> {
+        return Completion<T>(failWithErrorMessage:failWithErrorMessage)
+    }
+
+    public static func CANCELLED<T>(cancelled:()) -> Completion<T> {
+        return Completion<T>(cancelled: cancelled)
+    }
+    
+    public static func COMPLETE_USING<T>(completeUsing:Future<T>) -> Completion<T> {
+        return Completion<T>(completeUsing: completeUsing)
+    }
+
 }
 
 public func SUCCESS<T>(value:T) -> Completion<T>  {
@@ -474,8 +498,14 @@ public extension CompletionType {
     public func mapAs<__Type>() -> Completion<__Type> {
         switch self.completion {
         case let .Success(t):
-            let r = t as! __Type
-            return .Success(r)
+            assert(t is __Type, "you can't cast \(t.dynamicType) to \(__Type.self)")
+            if (t is __Type) {
+                let r = t as! __Type
+                return .Success(r)
+            }
+            else {
+                return Completion<__Type>(failWithErrorMessage:"can't cast  \(t.dynamicType) to \(__Type.self)");
+            }
         case let .Fail(f):
             return .Fail(f)
         case .Cancelled:
@@ -485,6 +515,24 @@ public extension CompletionType {
         }
     }
 
+
+    public func mapAs() -> Completion<T> {
+        return self.completion
+    }
+
+    
+    public func mapAs() -> Completion<Void> {
+        switch self.completion {
+        case .Success:
+            return .Success(())
+        case let .Fail(f):
+            return .Fail(f)
+        case .Cancelled:
+            return .Cancelled
+        case let .CompleteUsing(f):
+            return .CompleteUsing(f.mapAs())
+        }
+    }
 
     public func As() -> Completion<T> {
         return self.completion

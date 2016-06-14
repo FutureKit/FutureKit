@@ -362,6 +362,8 @@ public protocol AnyFuture {
 
     func mapAs<S>() -> Future<S>
 
+    func mapAs() -> Future<Void>
+
 }
 
 /**
@@ -369,7 +371,7 @@ public protocol AnyFuture {
 */
 public protocol FutureProtocol : AnyFuture {
     
-    typealias T
+    associatedtype T
     
     var result : FutureResult<T>? { get }
 
@@ -420,7 +422,10 @@ public protocol FutureProtocol : AnyFuture {
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     */
     func mapAsOptional<S>() -> Future<S?>
+ 
     
+    func mapAs() -> Future<Void>
+
     
     var description: String { get }
     
@@ -1017,7 +1022,15 @@ public class Future<T> : FutureProtocol {
             return result as! __Type
         }
     }
+
     
+    
+    public final func mapAs() -> Future<Void> {
+        return self.map(.Immediate) { (result) -> Void in
+            return ()
+        }
+    }
+
     /**
     convert `Future<T>` into another type `Future<__Type?>`.
     
@@ -1139,6 +1152,15 @@ public class Future<T> : FutureProtocol {
         return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
     }
     
+    
+    
+    
+    public final func delay(delay: NSTimeInterval) -> Future<T> {
+        let completion: Completion<T> = .CompleteUsing(self)
+        return Future(delay:delay, completeWith: completion)
+    }
+    
+    
 }
 
 extension FutureProtocol {
@@ -1259,7 +1281,7 @@ extension FutureProtocol {
             p.automaticallyCancelOnRequestCancel()
             self.onSuccess { (result) -> Void in
                 p.completeWithSuccess(try didSucceed(result))
-            }
+            }.ignoreFailures()
             
             executor.executeAfterDelay(timeout)  {
                 p.completeWithBlock { () -> C in
@@ -1304,6 +1326,7 @@ extension FutureProtocol {
     - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
     - returns: a new Future of type Future<__Type>
     */
+    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
     public final func onSuccess<C: CompletionType>(executor : Executor = .Primary,
         block:(T) throws -> C) -> Future<C.T> {
         return self.onComplete(executor)  { (result) -> Completion<C.T> in
@@ -1337,6 +1360,7 @@ extension FutureProtocol {
      
      - returns: a new Future of type Future<__Type>
      */
+    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
     public final func onSuccess<__Type>(executor : Executor = .Primary,
         block:(T) throws -> __Type) -> Future<__Type> {
             return self.onSuccess(executor) { (value : T) -> Completion<__Type> in
@@ -1505,6 +1529,32 @@ extension FutureProtocol {
             }
         }
     }
+    
+    /*:
+     
+     this is basically a noOp method, but it removes the unused result compiler warning to add an error handler to your future.
+     Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
+
+     */
+    public final func ignoreFailures() -> Self
+    {
+        return self
+    }
+
+    /*:
+     
+     this is basically a noOp method, but it removes the unused result compiler warning to add an error handler to your future.
+     Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
+     
+     */
+    public final func assertOnFail() -> Self
+    {
+        self.onFail { error in
+            
+            assertionFailure("Future failed unexpectantly")
+        }
+        return self
+    }
 
     
     
@@ -1569,7 +1619,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 public protocol OptionalProtocol {
-    typealias Wrapped
+    associatedtype Wrapped
     
     func isNil() -> Bool
     func unwrap() -> Wrapped
@@ -1707,12 +1757,12 @@ class classWithMethodsThatReturnFutures {
         
         self.iMayFailRandomly().onSuccess { (value) -> Completion<Int> in
             return .Success(5)
-        }
+        }.ignoreFailures()
             
         
         self.iMayFailRandomly().onSuccess { (value) -> Void in
             NSLog("")
-        }
+        }.ignoreFailures()
     
         
     }
@@ -1728,7 +1778,7 @@ class classWithMethodsThatReturnFutures {
             dispatch_async(dispatch_get_main_queue()) {
                 p.completeWithSuccess(())
             }
-        }
+        }.ignoreFailures()
         // let's do some async dispatching of things here:
         return p.future
     }

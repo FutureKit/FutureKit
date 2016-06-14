@@ -50,7 +50,7 @@ func iMayFailRandomly() -> Future<String>  {
 }
 
 typealias keepTryingResultType = (tries:Int,result:String)
-func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:String)> {
+func iWillKeepTryingTillItWorks(inout attemptNo: Int) -> Future<(tries:Int,result:String)> {
     
     attemptNo += 1
     return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
@@ -61,7 +61,7 @@ func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:
             let result = (tries:attemptNo,result:yay)
             return .Success(result)
         default: // we didn't succeed!
-            let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
+            let nextFuture = iWillKeepTryingTillItWorks(&attemptNo)
             return .CompleteUsing(nextFuture)
         }
     }
@@ -158,8 +158,8 @@ class FutureKitBasicTests: XCTestCase {
         
     }
     func testContinueWithRandomly() {
-        
-        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, description: "Description")
+        var i = 0
+        iWillKeepTryingTillItWorks(&i).expectationTestForAnySuccess(self, description: "Description")
         
         self.waitForExpectationsWithTimeout(120.0, handler: nil)
         

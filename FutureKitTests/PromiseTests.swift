@@ -110,7 +110,7 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
             future.onSuccess (futureExecuctor) { (value) -> Void in
                 XCTAssert(value == expectedValue, "unexpected result!")
                 onSuccessExpectation.fulfill()
-            }
+            }.ignoreFailures()
             future.onCancel(futureExecuctor) { () -> Void in
                 XCTFail("Did not expect onCancel")
             }
@@ -144,7 +144,7 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
             }
             future.onSuccess (futureExecuctor) { (value) -> Void in
                 XCTFail("Did not expect onSuccess \(value)")
-            }
+            }.ignoreFailures()
             future.onCancel(futureExecuctor) { () -> Void in
                 XCTFail("Did not expect onCancel")
             }
@@ -176,7 +176,7 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
             }
             future.onSuccess (futureExecutor) { (value) -> Void in
                 XCTFail("Did not expect onSuccess \(value)")
-            }
+            }.ignoreFailures()
             future.onCancel (futureExecutor) { (_) -> Void in
                 onCancelExpectation.fulfill()
             }
@@ -310,7 +310,7 @@ extension PromiseFunctionTest {
         let exception2 = NSException(name: "PromiseFunctionTest 2", reason: "Reason 2", userInfo: nil)
         
         let successFuture = Future<T>(success:result)
-        let failedFuture = Future<T>(failed:error)
+        let failedFuture = Future<T>(fail:error)
         let cancelledFuture = Future<T>(cancelled:())
         let promiseForUnfinishedFuture = Promise<T>()
         let unfinishedFuture = promiseForUnfinishedFuture.future
@@ -507,7 +507,7 @@ private enum PromiseFunctions<T : Equatable> {
     case completeWithFailErrorMessage(String)
     case completeWithException(NSException)
     case completeWithCancel
-    case completeUsingFuture(FutureProtocol)
+    case completeUsingFuture(AnyFuture)
     
     case completeWithBlock(()->Completion<T>)
     //  The block is executed.  The Bool should be TRUE is we expect that the completeWithBlocks will succeed.
@@ -856,7 +856,7 @@ class PromiseTests: FKTestCase {
             
             successExpectation.fulfill()
             
-        }
+        }.ignoreFailures()
         f.onFail(futureExecutor) { (error) -> Void in
             XCTFail("unexpectad onFail error \(error)")
             
@@ -897,7 +897,7 @@ class PromiseTests: FKTestCase {
             XCTAssert(result == success, "Didn't get expected success value \(success)")
             successExpectation.fulfill()
             
-        }
+        }.ignoreFailures()
         f.onFail(futureExecutor) { (error) -> Void in
             XCTFail("unexpectad onFail error \(error)")
             

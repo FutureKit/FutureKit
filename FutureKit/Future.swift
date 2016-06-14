@@ -34,6 +34,9 @@ public struct GLOBAL_PARMS {
     static let STACK_CHECKING_PROPERTY = "FutureKit.immediate.TaskDepth"
     static let CURRENT_EXECUTOR_PROPERTY = "FutureKit.Executor.Current"
     static let STACK_CHECKING_MAX_DEPTH = 20
+
+    static var CONVERT_COMMON_NSERROR_VALUES_TO_CANCELLATIONS = true
+
     
     public static var LOCKING_STRATEGY : SynchronizationType = .PThreadMutex
     
@@ -231,7 +234,7 @@ internal class CancellationTokenSource {
     private func _performCancel(options : CancellationOptions) {
         
         if self.canBeCancelled {
-            if (options.contains(.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting)) {
+            if (!options.contains(.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting)) {
                 self.tokens.removeAll()
             }
             // there are no active tokens remaining, so allow the cancellation
@@ -279,6 +282,10 @@ public struct CancellationOptions : OptionSetType{
     public let rawValue : Int
     public init(rawValue:Int){ self.rawValue = rawValue}
 
+    
+    @available(*, deprecated=1.1, message="depricated, cancellation forwards to all dependent futures by default use onSuccess",renamed="DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting")
+    public static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:0)
+
     /**
     When the request is forwarded to another future, that future should cancel itself - even if there are other futures waiting for a result.
     example:
@@ -292,13 +299,13 @@ public struct CancellationOptions : OptionSetType{
         let secondChildofFuture = future.onComplete { (result) in
             print("secondChildofFuture result = \(result)")
         }
-        firstChildCancelToken.cancel([.ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting])
+        firstChildCancelToken.cancel([.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting])
         
-    should result in `future` and `secondChildofFuture` being cancelled.
+    should result in `future` and `secondChildofFuture` not being cancelled.
     otherwise future may ignore the firstChildCancelToken request to cancel, because it is still trying to satisify secondChildofFuture
 
     */
-    public static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
+    public static let DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:1)
   
     /**
     If this future is dependent on the result of another future (via onComplete or .CompleteUsing(f))
@@ -314,6 +321,7 @@ public struct CancellationOptions : OptionSetType{
     
     */
     public static let ForceThisFutureToBeCancelledImmediately    = CancellationOptions(rawValue:4)
+    
 
     
 }
@@ -359,6 +367,8 @@ public protocol AnyFuture {
 
     func mapAs<S>() -> Future<S>
 
+    func mapAs() -> Future<Void>
+
 }
 
 /**
@@ -366,7 +376,7 @@ public protocol AnyFuture {
 */
 public protocol FutureProtocol : AnyFuture {
     
-    typealias T
+    associatedtype T
     
     var result : FutureResult<T>? { get }
 
@@ -417,9 +427,14 @@ public protocol FutureProtocol : AnyFuture {
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     */
     func mapAsOptional<S>() -> Future<S?>
+ 
     
+    func mapAs() -> Future<Void>
+
     
     var description: String { get }
+    
+    func getCancelToken() -> CancellationToken
     
 }
 
@@ -440,7 +455,7 @@ public extension FutureProtocol  {
 
 
 */
-public class Future<T> : FutureProtocol{
+public class Future<T> : FutureProtocol {
     
     public typealias ReturnType = T
     
@@ -578,9 +593,9 @@ public class Future<T> : FutureProtocol{
     /**
     creates a completed Future.
     */
-    public init(completed:FutureResult<T>) {  // returns an completed Task
-        self.__result = completed
-    }
+//    public init(result:FutureResult<T>) {  // returns an completed Task
+//        self.__result = result
+//    }
     /**
         creates a completed Future with a completion == .Success(success)
     */
@@ -646,8 +661,8 @@ public class Future<T> : FutureProtocol{
     
     can only be used to a create a Future that should always succeed.
     */
-    public init(_ executor : Executor = .Immediate, block: () throws -> T) {
-        let block = executor.callbackBlockFor { () -> Void in
+    public init(_ executor : Executor = .Immediate , block: () throws -> T) {
+        let wrappedBlock = executor.callbackBlockFor { () -> Void in
             do {
                 let r = try block()
                 self.completeWith(.Success(r))
@@ -657,7 +672,13 @@ public class Future<T> : FutureProtocol{
 
             }
         }
-        block()
+        wrappedBlock()
+    }
+    public init(_ executor : Executor = .Immediate, @autoclosure(escaping) block: () -> T) {
+        let wrappedBlock = executor.callbackBlockFor { () -> Void in
+            self.completeWith(.Success(block()))
+        }
+        wrappedBlock()
     }
     
     /**
@@ -667,15 +688,16 @@ public class Future<T> : FutureProtocol{
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init<C:CompletionType where C.T == T>(_ executor : Executor = .Immediate, block: () throws -> C) {
+    public init<C:CompletionType where C.T == T>(_ executor : Executor  = .Immediate, block: () throws -> C) {
         executor.execute { () -> Void in
-            do {
-                self.completeWith(try block())
-            }
-            catch {
-                self.completeWith(.Fail(error))
-                
-            }
+            self.completeWithBlocks(completionBlock: {
+                return try block()
+            })
+        }
+    }
+    public init<C:CompletionType where C.T == T>(_ executor : Executor  = .Immediate, @autoclosure(escaping)  block: () -> C) {
+        executor.execute { () -> Void in
+            self.completeWith(block())
         }
     }
 
@@ -946,25 +968,7 @@ public class Future<T> : FutureProtocol{
         })
     }
     
-    /**
-        if we try to convert a future from type T to type T, just ignore the request.
-    
-        the compile should automatically figure out which version of As() execute
-    */
-    public final func As() -> Future<T> {
-        return self
-    }
-
-    /**
-    if we try to convert a future from type T to type T, just ignore the request.
-    
-    the swift compiler can automatically figure out which version of mapAs() execute
-    */
-    public final func mapAs() -> Future<T> {
-        return self
-    }
-
-    /**
+   /**
     convert this future of type `Future<T>` into another future type `Future<__Type>`
     
     WARNING: if `T as! __Type` isn't legal, than your code may generate an exception.
@@ -1023,7 +1027,15 @@ public class Future<T> : FutureProtocol{
             return result as! __Type
         }
     }
+
     
+    
+    public final func mapAs() -> Future<Void> {
+        return self.map(.Immediate) { (result) -> Void in
+            return ()
+        }
+    }
+
     /**
     convert `Future<T>` into another type `Future<__Type?>`.
     
@@ -1146,15 +1158,42 @@ public class Future<T> : FutureProtocol{
     }
     
     
-    public final func withCancelToken() -> (Future<T>,CancellationToken) {
-        return (self,self.getCancelToken())
+    
+    
+    public final func delay(delay: NSTimeInterval) -> Future<T> {
+        let completion: Completion<T> = .CompleteUsing(self)
+        return Future(delay:delay, completeWith: completion)
     }
-
+    
     
 }
 
 extension FutureProtocol {
+    
+    
+    /**
+     if we try to convert a future from type T to type T, just ignore the request.
+     
+     the compile should automatically figure out which version of As() execute
+     */
+    public final func As() -> Self {
+        return self
+    }
+    
+    /**
+     if we try to convert a future from type T to type T, just ignore the request.
+     
+     the swift compiler can automatically figure out which version of mapAs() execute
+     */
+    public final func mapAs() -> Self {
+        return self
+    }
+    
+    
 
+    public final func withCancelToken() -> (Self,CancellationToken) {
+        return (self,self.getCancelToken())
+    }
     
     public final func onComplete<C: CompletionType>(block:(result:FutureResult<T>) throws -> C) -> Future<C.T> {
         return self.onComplete(.Primary,block:block)
@@ -1247,7 +1286,7 @@ extension FutureProtocol {
             p.automaticallyCancelOnRequestCancel()
             self.onSuccess { (result) -> Void in
                 p.completeWithSuccess(try didSucceed(result))
-            }
+            }.ignoreFailures()
             
             executor.executeAfterDelay(timeout)  {
                 p.completeWithBlock { () -> C in
@@ -1292,6 +1331,7 @@ extension FutureProtocol {
     - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
     - returns: a new Future of type Future<__Type>
     */
+    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
     public final func onSuccess<C: CompletionType>(executor : Executor = .Primary,
         block:(T) throws -> C) -> Future<C.T> {
         return self.onComplete(executor)  { (result) -> Completion<C.T> in
@@ -1325,6 +1365,7 @@ extension FutureProtocol {
      
      - returns: a new Future of type Future<__Type>
      */
+    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
     public final func onSuccess<__Type>(executor : Executor = .Primary,
         block:(T) throws -> __Type) -> Future<__Type> {
             return self.onSuccess(executor) { (value : T) -> Completion<__Type> in
@@ -1493,6 +1534,32 @@ extension FutureProtocol {
             }
         }
     }
+    
+    /*:
+     
+     this is basically a noOp method, but it removes the unused result compiler warning to add an error handler to your future.
+     Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
+
+     */
+    public final func ignoreFailures() -> Self
+    {
+        return self
+    }
+
+    /*:
+     
+     this is basically a noOp method, but it removes the unused result compiler warning to add an error handler to your future.
+     Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
+     
+     */
+    public final func assertOnFail() -> Self
+    {
+        self.onFail { error in
+            
+            assertionFailure("Future failed unexpectantly")
+        }
+        return self
+    }
 
     
     
@@ -1557,7 +1624,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 public protocol OptionalProtocol {
-    typealias Wrapped
+    associatedtype Wrapped
     
     func isNil() -> Bool
     func unwrap() -> Wrapped
@@ -1618,6 +1685,7 @@ private var futureWithNoResult = Future<Any>()
 class classWithMethodsThatReturnFutures {
     
     func iReturnAnInt() -> Future<Int> {
+        
         return Future (.Immediate) { () -> Int in
             return 5
         }
@@ -1694,12 +1762,12 @@ class classWithMethodsThatReturnFutures {
         
         self.iMayFailRandomly().onSuccess { (value) -> Completion<Int> in
             return .Success(5)
-        }
+        }.ignoreFailures()
             
         
         self.iMayFailRandomly().onSuccess { (value) -> Void in
             NSLog("")
-        }
+        }.ignoreFailures()
     
         
     }
@@ -1715,7 +1783,7 @@ class classWithMethodsThatReturnFutures {
             dispatch_async(dispatch_get_main_queue()) {
                 p.completeWithSuccess(())
             }
-        }
+        }.ignoreFailures()
         // let's do some async dispatching of things here:
         return p.future
     }

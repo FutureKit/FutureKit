@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Cancellation.MD">
+   </FileRef>
+   <FileRef
       location = "group:Welcome To FutureKit - The Playground.playground">
    </FileRef>
    <FileRef

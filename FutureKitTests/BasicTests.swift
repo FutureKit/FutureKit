@@ -50,18 +50,18 @@ func iMayFailRandomly() -> Future<String>  {
 }
 
 typealias keepTryingResultType = (tries:Int,result:String)
-func iWillKeepTryingTillItWorks(var attemptNo: Int) -> Future<(tries:Int,result:String)> {
+func iWillKeepTryingTillItWorks( attempt: Int) -> Future<(tries:Int,result:String)> {
     
-    attemptNo += 1
+    let attemptNumber = attempt + 1
     return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
         NSLog("completion = \(completion)")
         switch completion {
         case let .Success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
-            let result = (tries:attemptNo,result:yay)
+            let result = (tries:attemptNumber,result:yay)
             return .Success(result)
         default: // we didn't succeed!
-            let nextFuture = iWillKeepTryingTillItWorks(attemptNo)
+            let nextFuture = iWillKeepTryingTillItWorks(attemptNumber)
             return .CompleteUsing(nextFuture)
         }
     }
@@ -158,8 +158,8 @@ class FutureKitBasicTests: XCTestCase {
         
     }
     func testContinueWithRandomly() {
-        
-        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, description: "Description")
+        var i = 0
+        iWillKeepTryingTillItWorks(&i).expectationTestForAnySuccess(self, description: "Description")
         
         self.waitForExpectationsWithTimeout(120.0, handler: nil)
         

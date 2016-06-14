@@ -89,9 +89,14 @@ public class Promise<T>  {
         self.init()
         self.automaticallyFailAfter(delay,error:error)
     }
-    
+
+    public convenience init(automaticallyFailAfter delay: NSTimeInterval, errorMessage:String ) {
+        self.init()
+        self.automaticallyFailAfter(delay,error:FutureKitError(genericError: errorMessage))
+    }
+
     // untestable?
-    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : String = __FILE__, line : Int32 = __LINE__) {
+    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : StaticString = #file, line : Int32 = #line) {
         self.init()
     }
     
@@ -111,7 +116,7 @@ public class Promise<T>  {
     }
 
     
-    public final func automaticallyAssertOnFail(message:String, file : String = __FILE__, line : Int32 = __LINE__) {
+    public final func automaticallyAssertOnFail(message:String, file : StaticString = #file, line : Int32 = #line) {
         self.future.onFail { (error) -> Void in
             assertionFailure("\(message) on at:\(file):\(line)")
             return

@@ -229,17 +229,17 @@ public class Promise<T>  {
         return future
     }
     
-    public final func futureWithComplete(result : T) -> Future<T>{
+    public final func futureWithSuccess(result : T) -> Future<T>{
         self.completeWithSuccess(result)
         return future
     }
     
-    public final func futureWithError(error : ErrorType) -> Future<T>{
+    public final func futureWithFailure(error : ErrorType) -> Future<T>{
         self.completeWithFail(error)
         return future
     }
     
-    public final func futureWithError(errorMessage : String) -> Future<T>{
+    public final func futureWithFailure(errorMessage : String) -> Future<T>{
         self.completeWithFail(errorMessage)
         return future
     }

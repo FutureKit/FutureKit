@@ -12,10 +12,11 @@ extension BlockBasedTestCase {
     
     typealias BlockBasedTest = NSObject
  
-    class func addTest<T : BlockBasedTestCase>(name:String, closure:((_self:T) -> Void)) -> BlockBasedTest? {
-        return self._addTestWithName(name) { (test : BlockBasedTestCase!) -> Void in
-            let t = test as! T
-            closure(_self: t)
+    class func addTest<T : BlockBasedTestCase>(_ name:String, closure:@escaping ((T) -> Void)) -> BlockBasedTest? {
+        return self._addTest(withName: name) { (test : BlockBasedTestCase?) -> Void in
+            if let t = test as? T {
+                closure(t)
+            }
         }
     }
 

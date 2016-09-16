@@ -41,6 +41,9 @@
 		0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
+		0DB057301D8B6989003ABCB8 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
+		0DB057311D8B698A003ABCB8 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
+		0DB057321D8B6991003ABCB8 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
 		0DBB32F21D0F91640092BF7B /* FutureKit watchOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DBB32F11D0F91640092BF7B /* FutureKit watchOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DBB32FF1D0F919C0092BF7B /* FutureKit tvOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 0DBB32FE1D0F919C0092BF7B /* FutureKit tvOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0DBB33061D0F919C0092BF7B /* FutureKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DBB32FC1D0F919C0092BF7B /* FutureKit.framework */; };
@@ -184,7 +187,6 @@
 		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSOperation+FutureKit.swift"; sourceTree = "<group>"; };
 		0DB979A01AE2A21100158386 /* BasicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BasicTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0DBB33421D0F973A0092BF7B /* Cancellation.MD */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Cancellation.MD; sourceTree = "<group>"; };
 		0DBB32EF1D0F91640092BF7B /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DBB32F11D0F91640092BF7B /* FutureKit watchOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit watchOS.h"; sourceTree = "<group>"; };
 		0DBB32F31D0F91640092BF7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 		0DBB33051D0F919C0092BF7B /* FutureKit tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DBB330A1D0F919C0092BF7B /* FutureKit_tvOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureKit_tvOSTests.swift; sourceTree = "<group>"; };
 		0DBB330C1D0F919C0092BF7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0DBB33421D0F973A0092BF7B /* Cancellation.MD */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Cancellation.MD; sourceTree = "<group>"; };
 		0DDE32601B38BD27007C39D9 /* FutureKit iOS Testing App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FutureKit iOS Testing App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DDE32631B38BD28007C39D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DDE32641B38BD28007C39D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -737,25 +740,35 @@
 					};
 					0DBB33041D0F919C0092BF7B = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = AUXUTTBC4T;
 					};
 					0DDE325F1B38BD27007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
+						DevelopmentTeam = AUXUTTBC4T;
 					};
 					0DDE32731B38BD28007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
+						DevelopmentTeam = AUXUTTBC4T;
 						TestTargetID = 0DDE325F1B38BD27007C39D9;
 					};
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
+						LastSwiftMigration = 0800;
 					};
 					0DEA1BAE1AE30872000E126F = {
 						CreatedOnToolsVersion = 6.3;
+						LastSwiftMigration = 0800;
 					};
 					0DEA1BE91AE3116A000E126F = {
 						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = AUXUTTBC4T;
+						LastSwiftMigration = 0800;
 					};
 					0DEA1BFE1AE313DD000E126F = {
 						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = AUXUTTBC4T;
+						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -914,6 +927,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DBB330B1D0F919C0092BF7B /* FutureKit_tvOSTests.swift in Sources */,
+				0DB057321D8B6991003ABCB8 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1000,6 +1014,7 @@
 				09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */,
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
 				0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
+				0DB057311D8B698A003ABCB8 /* LockPerformanceTests.swift in Sources */,
 				09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */,
 				0DE35D9A1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
@@ -1014,6 +1029,7 @@
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
 				0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
 				0DE35D9B1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
+				0DB057301D8B6989003ABCB8 /* LockPerformanceTests.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
 				0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
 				DEBDAD401B3C5A78004310B9 /* PromiseTests.swift in Sources */,
@@ -1174,6 +1190,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -1195,6 +1212,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -1216,6 +1234,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};
@@ -1236,6 +1255,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};
@@ -1246,11 +1266,13 @@
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				INFOPLIST_FILE = "FutureKit tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
 			name = Debug;
@@ -1259,11 +1281,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				INFOPLIST_FILE = "FutureKit tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.FutureKit.FutureKit-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_VERSION = 3.0;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
 			name = Release;
@@ -1273,6 +1297,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -1286,6 +1311,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1294,6 +1320,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
@@ -1303,6 +1330,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1310,6 +1338,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1325,6 +1354,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FutureKit iOS Testing App.app/FutureKit iOS Testing App";
 			};
 			name = Debug;
@@ -1333,6 +1363,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1344,6 +1375,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FutureKit iOS Testing App.app/FutureKit iOS Testing App";
 			};
 			name = Release;
@@ -1368,6 +1400,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1388,6 +1421,7 @@
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1414,6 +1448,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1435,6 +1470,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1442,6 +1478,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1455,6 +1492,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1462,6 +1500,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1471,6 +1510,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1478,8 +1518,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
@@ -1495,6 +1537,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit OSX Tests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1502,7 +1545,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = AUXUTTBC4T;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
@@ -1514,6 +1559,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit OSX Tests-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1536,6 +1582,7 @@
 				0DBB32F51D0F91640092BF7B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DBB330D1D0F919C0092BF7B /* Build configuration list for PBXNativeTarget "FutureKit tvOS" */ = {
 			isa = XCConfigurationList;
@@ -1544,6 +1591,7 @@
 				0DBB330F1D0F919C0092BF7B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DBB33101D0F919C0092BF7B /* Build configuration list for PBXNativeTarget "FutureKit tvOSTests" */ = {
 			isa = XCConfigurationList;
@@ -1552,6 +1600,7 @@
 				0DBB33121D0F919C0092BF7B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0DDE327C1B38BD28007C39D9 /* Build configuration list for PBXNativeTarget "FutureKit iOS Testing App" */ = {
 			isa = XCConfigurationList;

@@ -19,22 +19,52 @@ public protocol HasCacheCost {
 class FutureCacheEntry<T> {
 
     var future : Future<T>
-    var expireTime: NSDate?
+    var expireTime: Date?
     
-    init(f: Future<T>,expireTime e: NSDate? = nil) {
+    init(_ f: Future<T>,expireTime e: Date? = nil) {
         self.future = f
         self.expireTime = e
     }
-    
+
+    init(value: T,expireTime e: Date? = nil) {
+        self.future = Future(success: value)
+        self.expireTime = e
+    }
+
 }
 
 
-
-public extension NSCache {
+open class FutureCache<KeyType : AnyObject, T> {
     
-    private func _findOrFetch<T>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> FutureCacheEntry<T> {
+    var cache = NSCache<KeyType,FutureCacheEntry<T>>()
+    
+    
+    open func object(forKey key: KeyType) -> T? {
+        return cache.object(forKey: key)?.future.value
+    }
+
+    open func setObject(_ obj: T, forKey key: KeyType) {
+        let entry = FutureCacheEntry(value:obj)
+        cache.setObject(entry, forKey: key)
+    }
+
+    open func setObject(_ obj: T, forKey key: KeyType, cost g: Int) {
+        let entry = FutureCacheEntry(value:obj)
+        cache.setObject(entry, forKey: key, cost: g)
+    }
+    
+    open func removeObject(forKey key: KeyType) {
+        cache.removeObject(forKey: key)
+    }
+    
+    open func removeAllObjects() {
+        cache.removeAllObjects()
+    }
+    
+
+    fileprivate func _findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> FutureCacheEntry<T> {
         
-        if let entry = self.objectForKey(key) as? FutureCacheEntry<T> {
+        if let entry = self.cache.object(forKey: key) {
             if let expireTime = entry.expireTime {
                 if expireTime.timeIntervalSinceNow > 0 {
                     return entry
@@ -45,11 +75,11 @@ public extension NSCache {
             }
         }
         let f = onFetch()
-        let entry = FutureCacheEntry(f: f,expireTime: expireTime)
+        let entry = FutureCacheEntry(f,expireTime: expireTime)
         // it's important to call setObject before adding the onFailorCancel handler, since some futures will fail immediatey!
-        self.setObject(entry, forKey: key)
+        self.cache.setObject(entry, forKey: key)
         f.onFailorCancel { (result) -> Void in
-            self.removeObjectForKey(key)
+            self.cache.removeObject(forKey: key)
         }
         return entry
     }
@@ -64,12 +94,14 @@ public extension NSCache {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    public func findOrFetch<T>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> Future<T> {
         
-        return _findOrFetch(key,expireTime: expireTime,onFetch: onFetch).future
+        return _findOrFetch(key: key, expireTime: expireTime,onFetch: onFetch).future
     }
-    
-    
+}
+
+extension FutureCache where T:HasCacheCost {
+
     /**
      Utlity method for storing "Futures" inside a NSCache
      
@@ -80,11 +112,11 @@ public extension NSCache {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    public func findOrFetch<T : HasCacheCost>(key : String, expireTime: NSDate? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> Future<T>  {
         
-        let entry =  _findOrFetch(key,expireTime: expireTime,onFetch: onFetch)
+        let entry =  _findOrFetch(key: key,expireTime: expireTime,onFetch: onFetch)
         return entry.future.onSuccess { value in
-            self.setObject(entry, forKey: key, cost: value.cacheCost)
+            self.cache.setObject(entry, forKey: key, cost: value.cacheCost)
             return value
         }
     }

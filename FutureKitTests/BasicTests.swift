@@ -40,7 +40,7 @@ func iMayFailRandomly() -> Future<String>  {
         switch (randomNumber % 2){
         case 0:
             NSLog("FAIL!")
-            p.completeWithFail(FutureKitError.GenericError("iMayFailRandomly failed"))
+            p.completeWithFail(FutureKitError.genericError("iMayFailRandomly failed"))
         default:
             NSLog("CANCEL!")
             p.completeWithCancel()
@@ -50,19 +50,19 @@ func iMayFailRandomly() -> Future<String>  {
 }
 
 typealias keepTryingResultType = (tries:Int,result:String)
-func iWillKeepTryingTillItWorks( attempt: Int) -> Future<(tries:Int,result:String)> {
+func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries:Int,result:String)> {
     
     let attemptNumber = attempt + 1
     return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
         NSLog("completion = \(completion)")
         switch completion {
-        case let .Success(yay):
+        case let .success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
             let result = (tries:attemptNumber,result:yay)
-            return .Success(result)
+            return .success(result)
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(attemptNumber)
-            return .CompleteUsing(nextFuture)
+            return .completeUsing(nextFuture)
         }
     }
 }
@@ -149,19 +149,19 @@ class FutureKitBasicTests: XCTestCase {
         let val = 5
         let f = Future<Int>(success: val)
         
-        self.expectationTestForFutureSuccess("AsyncMadness", future: f) { (result:Int) -> BooleanType in
+        self.expectationTestForFutureSuccess("AsyncMadness", future: f) { (result:Int) -> Bool in
             return (result == val)
         }
         
-        self.waitForExpectationsWithTimeout(30.0, handler: nil)
+        self.waitForExpectations(timeout: 30.0, handler: nil)
         
         
     }
     func testContinueWithRandomly() {
-        var i = 0
-        iWillKeepTryingTillItWorks(&i).expectationTestForAnySuccess(self, description: "Description")
+
+        iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, description: "Description")
         
-        self.waitForExpectationsWithTimeout(120.0, handler: nil)
+        self.waitForExpectations(timeout: 120.0, handler: nil)
         
     }
     

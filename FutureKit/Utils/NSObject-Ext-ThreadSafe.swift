@@ -35,7 +35,7 @@ extension NSObject {
             })
         }
     }
-    func SAFER_THREAD_SAFE_SYNC<T>(@noescape closure: ()->T) -> T
+    func SAFER_THREAD_SAFE_SYNC<T>(_ closure: ()->T) -> T
     {
         objc_sync_enter(self.lockObject)
         let retVal: T = closure()
@@ -43,7 +43,7 @@ extension NSObject {
         return retVal
     }
     
-    func EFFICIENT_THREAD_SAFE_SYNC<T>(@noescape closure: ()->T) -> T
+    func EFFICIENT_THREAD_SAFE_SYNC<T>(_ closure: ()->T) -> T
     {
         objc_sync_enter(self)
         let retVal: T = closure()
@@ -51,7 +51,7 @@ extension NSObject {
         return retVal
     }
     
-     func THREAD_SAFE_SYNC<T>(@noescape closure:  ()->T) -> T
+     func THREAD_SAFE_SYNC<T>(_ closure:  ()->T) -> T
     {
         //  Uncomment this version if you want 100% safe data locking.
         //  Introduces an extra NSObject
@@ -66,7 +66,7 @@ extension NSObject {
     
 }
 
-func SYNCHRONIZED<T>(lock: AnyObject, @noescape closure:  ()->T) -> T {
+func SYNCHRONIZED<T>(_ lock: AnyObject, closure:  ()->T) -> T {
     let lock_result = objc_sync_enter(lock)
     assert(Int(lock_result) == OBJC_SYNC_SUCCESS,"Failed to lock object!")
     let retVal: T = closure()

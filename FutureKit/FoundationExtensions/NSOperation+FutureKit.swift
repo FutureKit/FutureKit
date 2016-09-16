@@ -26,19 +26,19 @@ import Foundation
 
 
 
-public class FutureOperation<T> : _FutureAnyOperation {
+open class FutureOperation<T> : _FutureAnyOperation {
     
     public typealias FutureOperationBlockType = () throws -> (Future<T>)
 
-    public class func OperationWithBlock(executor:Executor = .Primary, block b: () throws -> Future<T>) -> FutureOperation<T> {
+    open class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
         return FutureOperation<T>(executor: executor,block:b)
     }
 
-    public var future : Future<T> {
+    open var future : Future<T> {
         return self.promise.future.mapAs()
     }
 
-    public init(executor:Executor = .Primary, block b: () throws -> Future<T>) {
+    public init(executor:Executor = .primary, block b: @escaping () throws -> Future<T>) {
         super.init(executor: executor,block: { () throws -> AnyFuture in
             return try b()
         })
@@ -47,51 +47,51 @@ public class FutureOperation<T> : _FutureAnyOperation {
 }
 
 
-public class _FutureAnyOperation : NSOperation, AnyFuture {
+open class _FutureAnyOperation : Operation, AnyFuture {
     
 //    private var getSubFuture : () -> FutureProtocol
     public typealias FutureAnyOperationBlockType = () throws -> AnyFuture
-    private var getSubFuture: FutureAnyOperationBlockType
+    fileprivate var getSubFuture: FutureAnyOperationBlockType
 
     
-    public var executor: Executor
+    open var executor: Executor
     
-    public var futureAny = Future<Any>(success: ())
+    open var futureAny = Future<Any>(success: ())
     
     var cancelToken : CancellationToken?
     
     var promise = Promise<Any>()
     
-    override public var asynchronous : Bool {
+    override open var isAsynchronous : Bool {
         return true
     }
     
-    private var _is_executing : Bool {
+    fileprivate var _is_executing : Bool {
         willSet {
-            self.willChangeValueForKey("isExecuting")
+            self.willChangeValue(forKey: "isExecuting")
         }
         didSet {
-            self.didChangeValueForKey("isExecuting")
+            self.didChangeValue(forKey: "isExecuting")
         }
     }
-    private var _is_finished : Bool {
+    fileprivate var _is_finished : Bool {
         willSet {
-            self.willChangeValueForKey("isFinished")
+            self.willChangeValue(forKey: "isFinished")
         }
         didSet {
-            self.didChangeValueForKey("isFinished")
+            self.didChangeValue(forKey: "isFinished")
         }
     }
     
-    override public var executing : Bool {
+    override open var isExecuting : Bool {
         return _is_executing
     }
     
-    override public var finished : Bool {
+    override open var isFinished : Bool {
         return _is_finished
     }
     
-    public init(executor:Executor, block : () throws -> AnyFuture) {
+    public init(executor:Executor, block : @escaping () throws -> AnyFuture) {
         self.executor = executor
         self.getSubFuture = block
         self._is_executing = false
@@ -100,9 +100,9 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
     }
     
     
-    override public func main() {
+    override open func main() {
         
-        if self.cancelled {
+        if self.isCancelled {
             self._is_executing = false
             self._is_finished = true
             self.promise.completeWithCancel()
@@ -122,44 +122,45 @@ public class _FutureAnyOperation : NSOperation, AnyFuture {
             self._is_finished = true
             self.promise.complete(value)
         }
+        .ignoreFailures()
         
     }
-    override public func cancel() {
+    override open func cancel() {
         super.cancel()
         self.cancelToken?.cancel()
     }
     
-    @available(*, deprecated=1.1, message="renamed to mapAs()")
-    public func As<S>() -> Future<S> {
+    @available(*, deprecated: 1.1, message: "renamed to mapAs()")
+    open func As<S>() -> Future<S> {
         return self.mapAs()
     }
-    public func mapAs<S>() -> Future<S> {
+    open func mapAs<S>() -> Future<S> {
         return self.promise.future.mapAs()
     }
     
-    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
-    public func convertOptional<S>() -> Future<S?> {
+    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
+    open func convertOptional<S>() -> Future<S?> {
         return self.mapAsOptional()
     }
 
-    public func mapAsOptional<S>() -> Future<S?> {
+    open func mapAsOptional<S>() -> Future<S?> {
         return self.promise.future.mapAsOptional()
     }
 
 }
 
 
-public extension NSOperationQueue {
+public extension OperationQueue {
     
     /*: just add an Operation using a block that returns a Future.
     
     returns a new Future<T> that can be used to compose when this operation runs and completes
     
     */
-    public func add<T>(executor: Executor = .Primary,
+    public func add<T>(_ executor: Executor = .primary,
 
-                    priority : NSOperationQueuePriority = .Normal,
-                    block: FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
+                    priority : Operation.QueuePriority = .normal,
+                    block: @escaping FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
         
         let operation = FutureOperation.OperationWithBlock(executor,block: block)
         operation.queuePriority = priority

@@ -12,7 +12,7 @@ import Foundation
 //
 // *  a protocol to extend ErrorTypes that might ACTUALLY be cancellations!
 // If you are returning
-public protocol ErrorTypeMightBeCancellation : ErrorType {
+public protocol ErrorTypeMightBeCancellation : Error {
     
     // should return true if the Error value is actually a cancellation
     var isCancellation : Bool { get }
@@ -24,20 +24,20 @@ extension ErrorTypeMightBeCancellation {
     // don't use this, use ErrorType.toResult<T>()!
     internal func toFutureResult<T>() -> FutureResult<T> {
         if self.isCancellation {
-            return .Cancelled
+            return .cancelled
         }
         else {
-            return .Fail(self)
+            return .fail(self)
         }
     }
     // don't use this, use ErrorType.toCompletion!
     
     internal func toFutureCompletion<T>() -> Completion<T> {
         if self.isCancellation {
-            return .Cancelled
+            return .cancelled
         }
         else {
-            return .Fail(self)
+            return .fail(self)
         }
     }
 }
@@ -46,7 +46,7 @@ extension ErrorTypeMightBeCancellation {
 // This is a protocol that helps you figure out if an ErrorType REALLY IS an NSError
 // since error as NSError always works in swift, we will use a protocol test.
 public protocol NSErrorType : ErrorTypeMightBeCancellation {
-    var userInfo: [NSObject : AnyObject] { get }
+    var userInfo: [AnyHashable: Any] { get }
     var domain: String { get }
     var code: Int { get }
     
@@ -73,7 +73,7 @@ public extension NSErrorType {
 }
 
 
-public extension ErrorType {
+public extension Error {
     var isNSError : Bool {
         return ((self as? NSErrorType) != nil)
     }
@@ -84,17 +84,17 @@ public extension ErrorType {
 
     
     func toResult<T>() -> FutureResult<T> {
-        return (self as? ErrorTypeMightBeCancellation)?.toFutureResult() ?? .Fail(self)
+        return (self as? ErrorTypeMightBeCancellation)?.toFutureResult() ?? .fail(self)
     }
     func toCompletion<T>() -> Completion<T> {
-        return (self as? ErrorTypeMightBeCancellation)?.toFutureCompletion() ?? .Fail(self)
+        return (self as? ErrorTypeMightBeCancellation)?.toFutureCompletion() ?? .fail(self)
     }
 
 }
 
 
 extension NSError : NSErrorType {
-    convenience init(error : ErrorType) {
+    convenience init(error : Error) {
         let e = error as NSError
         self.init(domain: e.domain, code: e.code, userInfo:e.userInfo)
     }

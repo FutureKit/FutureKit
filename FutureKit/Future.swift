@@ -38,34 +38,34 @@ public struct GLOBAL_PARMS {
     static var CONVERT_COMMON_NSERROR_VALUES_TO_CANCELLATIONS = true
 
     
-    public static var LOCKING_STRATEGY : SynchronizationType = .PThreadMutex
+    public static var LOCKING_STRATEGY : SynchronizationType = .pThreadMutex
     
 }
 
-public enum FutureKitError : ErrorType, Equatable {
-    case GenericError(String)
-    case ResultConversionError(String)
-    case CompletionConversionError(String)
-    case ContinueWithConversionError(String)
-    case ErrorForMultipleErrors(String,[ErrorType])
-    case ExceptionCaught(NSException,[NSObject:AnyObject]?)
+public enum FutureKitError : Error, Equatable {
+    case genericError(String)
+    case resultConversionError(String)
+    case completionConversionError(String)
+    case continueWithConversionError(String)
+    case errorForMultipleErrors(String,[Error])
+    case exceptionCaught(NSException,[AnyHashable: Any]?)
 
     public init(genericError : String) {
-        self = .GenericError(genericError)
+        self = .genericError(genericError)
     }
 
     public init(exception: NSException) {
-        var userInfo : [NSObject : AnyObject]
+        var userInfo : [AnyHashable: Any]
         if (exception.userInfo != nil) {
             userInfo = exception.userInfo!
         }
         else {
-            userInfo = [NSObject : AnyObject]()
+            userInfo = [AnyHashable: Any]()
         }
         userInfo["exception"] = NSException(name: exception.name, reason: exception.reason, userInfo: nil)
         userInfo["callStackReturnAddresses"] = exception.callStackReturnAddresses
         userInfo["callStackSymbols"] = exception.callStackSymbols
-        self = .ExceptionCaught(exception,userInfo)
+        self = .exceptionCaught(exception,userInfo)
     }
     
 }
@@ -73,44 +73,44 @@ public enum FutureKitError : ErrorType, Equatable {
 public func == (l: FutureKitError, r: FutureKitError) -> Bool {
     
     switch l {
-    case let .GenericError(lhs):
+    case let .genericError(lhs):
         switch r {
-        case let .GenericError(rhs):
+        case let .genericError(rhs):
             return (lhs == rhs)
         default:
             return false
         }
-    case let .ResultConversionError(lhs):
+    case let .resultConversionError(lhs):
         switch r {
-        case let .ResultConversionError(rhs):
+        case let .resultConversionError(rhs):
             return (lhs == rhs)
         default:
             return false
         }
-    case let .CompletionConversionError(lhs):
+    case let .completionConversionError(lhs):
         switch r {
-        case let .CompletionConversionError(rhs):
+        case let .completionConversionError(rhs):
             return (lhs == rhs)
         default:
             return false
         }
-    case let .ContinueWithConversionError(lhs):
+    case let .continueWithConversionError(lhs):
         switch r {
-        case let .ContinueWithConversionError(rhs):
+        case let .continueWithConversionError(rhs):
             return (lhs == rhs)
         default:
             return false
         }
-    case let .ErrorForMultipleErrors(lhs,_):
+    case let .errorForMultipleErrors(lhs,_):
         switch r {
-        case let .ErrorForMultipleErrors(rhs,_):
+        case let .errorForMultipleErrors(rhs,_):
             return (lhs == rhs)
         default:
             return false
         }
-    case let .ExceptionCaught(lhs,_):
+    case let .exceptionCaught(lhs,_):
         switch r {
-        case let .ExceptionCaught(rhs,_):
+        case let .exceptionCaught(rhs,_):
             return (lhs.isEqual(rhs))
         default:
             return false
@@ -127,37 +127,37 @@ internal class CancellationTokenSource {
     // as long as there
     internal typealias CancellationTokenPtr = Weak<CancellationToken>
     
-    private var tokens : [CancellationTokenPtr] = []
+    fileprivate var tokens : [CancellationTokenPtr] = []
     
     // once we have triggered cancellation, we can't do it again
-    private var canBeCancelled = true
+    fileprivate var canBeCancelled = true
     
     // this is to flag that someone has made a non-forced cancel request, but we are ignoring it due to other valid tokens
     // if those tokens disappear, we will honor the cancel request then.
-    private var pendingCancelRequestActive = false
+    fileprivate var pendingCancelRequestActive = false
     
     
-    private var handler : CancellationHandler?
-    private var forcedCancellationHandler : CancellationHandler
+    fileprivate var handler : CancellationHandler?
+    fileprivate var forcedCancellationHandler : CancellationHandler
     
-    init(forcedCancellationHandler h: CancellationHandler) {
+    init(forcedCancellationHandler h: @escaping CancellationHandler) {
         self.forcedCancellationHandler = h
     }
 
-    private var cancellationIsSupported : Bool {
+    fileprivate var cancellationIsSupported : Bool {
         return (self.handler != nil)
     }
     
     // add blocks that will be called as soon as we initiate cancelation
-    internal func addHandler(h : CancellationHandler) {
+    internal func addHandler(_ h : @escaping CancellationHandler) {
         if !self.canBeCancelled {
             return
         }
         if let oldhandler = self.handler
         {
             self.handler = { (options) in
-                oldhandler(options: options)
-                h(options: options)
+                oldhandler(options)
+                h(options)
             }
         }
         else {
@@ -171,7 +171,7 @@ internal class CancellationTokenSource {
         self.tokens.removeAll()
     }
 
-    internal func getNewToken(synchObject : SynchronizationProtocol, lockWhenAddingToken : Bool) -> CancellationToken {
+    internal func getNewToken(_ synchObject : SynchronizationProtocol, lockWhenAddingToken : Bool) -> CancellationToken {
         
         if !self.canBeCancelled {
             return self._createUntrackedToken()
@@ -193,7 +193,7 @@ internal class CancellationTokenSource {
     }
 
     
-    private func _createUntrackedToken() -> CancellationToken {
+    fileprivate func _createUntrackedToken() -> CancellationToken {
         
         return CancellationToken(
             
@@ -204,7 +204,7 @@ internal class CancellationTokenSource {
             onDeinit:nil)
        
     }
-    private func _createTrackedToken(synchObject : SynchronizationProtocol) -> CancellationToken {
+    fileprivate func _createTrackedToken(_ synchObject : SynchronizationProtocol) -> CancellationToken {
         
         return CancellationToken(
             
@@ -218,7 +218,7 @@ internal class CancellationTokenSource {
         
     }
     
-    private func _removeToken(cancelingToken:CancellationToken) {
+    fileprivate func _removeToken(_ cancelingToken:CancellationToken) {
         // so remove tokens that no longer exist and the requested token
         self.tokens = self.tokens.filter { (tokenPtr) -> Bool in
             if let token = tokenPtr.value {
@@ -231,7 +231,7 @@ internal class CancellationTokenSource {
     }
     
 
-    private func _performCancel(options : CancellationOptions) {
+    fileprivate func _performCancel(_ options : CancellationOptions) {
         
         if self.canBeCancelled {
             if (!options.contains(.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting)) {
@@ -239,7 +239,7 @@ internal class CancellationTokenSource {
             }
             // there are no active tokens remaining, so allow the cancellation
             if (self.tokens.count == 0) {
-                self.handler?(options: options)
+                self.handler?(options)
                 self.canBeCancelled = false
                 self.handler = nil
             }
@@ -248,12 +248,12 @@ internal class CancellationTokenSource {
             }
         }
         if options.contains(.ForceThisFutureToBeCancelledImmediately) {
-            self.forcedCancellationHandler(options: options)
+            self.forcedCancellationHandler(options)
         }
         
     }
     
-    private func _cancelRequested(cancelingToken:CancellationToken, _ options : CancellationOptions,_ synchObject : SynchronizationProtocol) {
+    fileprivate func _cancelRequested(_ cancelingToken:CancellationToken, _ options : CancellationOptions,_ synchObject : SynchronizationProtocol) {
         
         synchObject.lockAndModify { () -> Void in
             self._removeToken(cancelingToken)
@@ -262,14 +262,14 @@ internal class CancellationTokenSource {
        
     }
     
-    private func _clearInitializedToken(token:CancellationToken,_ synchObject : SynchronizationProtocol) {
+    fileprivate func _clearInitializedToken(_ token:CancellationToken,_ synchObject : SynchronizationProtocol) {
         
         synchObject.lockAndModifySync { () -> Void in
             self._removeToken(token)
             
             if (self.pendingCancelRequestActive && self.tokens.count == 0) {
                 self.canBeCancelled = false
-                self.handler?(options: [])
+                self.handler?([])
             }
         }
     }
@@ -278,12 +278,12 @@ internal class CancellationTokenSource {
 
 
 
-public struct CancellationOptions : OptionSetType{
+public struct CancellationOptions : OptionSet{
     public let rawValue : Int
     public init(rawValue:Int){ self.rawValue = rawValue}
 
     
-    @available(*, deprecated=1.1, message="depricated, cancellation forwards to all dependent futures by default use onSuccess",renamed="DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting")
+    @available(*, deprecated: 1.1, message: "depricated, cancellation forwards to all dependent futures by default use onSuccess",renamed: "DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting")
     public static let ForwardCancelRequestEvenIfThereAreOtherFuturesWaiting        = CancellationOptions(rawValue:0)
 
     /**
@@ -326,32 +326,32 @@ public struct CancellationOptions : OptionSetType{
     
 }
 
-internal typealias CancellationHandler = ((options:CancellationOptions) -> Void)
+internal typealias CancellationHandler = ((_ options:CancellationOptions) -> Void)
 
-public class CancellationToken {
+open class CancellationToken {
 
-    final public func cancel(options : CancellationOptions = []) {
-        self.onCancel?(options:options,token:self)
+    final public func cancel(_ options : CancellationOptions = []) {
+        self.onCancel?(options,self)
         self.onCancel = nil
     }
 
-    public var cancelCanBeRequested : Bool {
+    open var cancelCanBeRequested : Bool {
         return (self.onCancel != nil)
     }
 
     
 // private implementation details
     deinit {
-        self.onDeinit?(token: self)
+        self.onDeinit?(self)
         self.onDeinit = nil
     }
     
 
-    internal typealias OnCancelHandler = ((options : CancellationOptions,token:CancellationToken) -> Void)
-    internal typealias OnDenitHandler = ((token:CancellationToken) -> Void)
+    internal typealias OnCancelHandler = ((_ options : CancellationOptions,_ token:CancellationToken) -> Void)
+    internal typealias OnDenitHandler = ((_ token:CancellationToken) -> Void)
 
-    private var onCancel : OnCancelHandler?
-    private var onDeinit : OnDenitHandler?
+    fileprivate var onCancel : OnCancelHandler?
+    fileprivate var onDeinit : OnDenitHandler?
     
     internal init(onCancel c:OnCancelHandler?, onDeinit d: OnDenitHandler?) {
         self.onCancel = c
@@ -383,9 +383,7 @@ public protocol FutureProtocol : AnyFuture {
     var value : T? { get }
     
     
-    
-    
-    func onComplete<C: CompletionType>(executor : Executor,block:(result:FutureResult<T>) throws -> C) -> Future<C.T>
+    func onComplete<C: CompletionType>(_ executor : Executor,block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
     
     /**
     convert this future of type `Future<T>` into another future type `Future<S>`
@@ -455,7 +453,7 @@ public extension FutureProtocol  {
 
 
 */
-public class Future<T> : FutureProtocol {
+open class Future<T> : FutureProtocol {
     
     public typealias ReturnType = T
     
@@ -464,13 +462,13 @@ public class Future<T> : FutureProtocol {
     internal typealias cancellation_handler_type = (()-> Void)
     
     
-    private final var __callbacks : [completion_block_type]?
+    fileprivate final var __callbacks : [completion_block_type]?
 
     /**
         this is used as the internal storage for `var completion`
         it is not thread-safe to read this directly. use `var synchObject`
     */
-    private final var __result : FutureResult<T>?
+    fileprivate final var __result : FutureResult<T>?
     
 //    private final let lock = NSObject()
     
@@ -490,7 +488,7 @@ public class Future<T> : FutureProtocol {
     */
 
     
-    internal func addRequestHandler(h : CancellationHandler) {
+    internal func addRequestHandler(_ h : @escaping CancellationHandler) {
         
         self.synchObject.lockAndModify { () -> Void in
             self.cancellationSource.addHandler(h)
@@ -501,7 +499,7 @@ public class Future<T> : FutureProtocol {
         return CancellationTokenSource(forcedCancellationHandler: { [weak self] (options) -> Void in
             
             assert(options.contains(.ForceThisFutureToBeCancelledImmediately), "the forced cancellation handler is only supposed to run when the .ForceThisFutureToBeCancelledImmediately option is on")
-            self?.completeWith(.Cancelled)
+            self?.completeWith(.cancelled)
         })
     }()
 
@@ -529,7 +527,7 @@ public class Future<T> : FutureProtocol {
     
     accessing this variable directly requires thread synchronization.
     */
-    public var value : T? {
+    open var value : T? {
         get {
             return self.result?.value
         }
@@ -539,7 +537,7 @@ public class Future<T> : FutureProtocol {
     
     accessing this variable directly requires thread synchronization.
     */
-    public var error : ErrorType? {
+    open var error : Error? {
         get {
             return self.result?.error
         }
@@ -552,7 +550,7 @@ public class Future<T> : FutureProtocol {
     
     It only informs the user that this type of future can be cancelled.
     */
-    public var cancellationIsSupported : Bool {
+    open var cancellationIsSupported : Bool {
         return self.synchObject.lockAndReadSync { () -> Bool in
             return (self.cancellationSource.cancellationIsSupported)
         }
@@ -563,7 +561,7 @@ public class Future<T> : FutureProtocol {
     
     is NOT threadsafe
     */
-    private final var __isCompleted : Bool {
+    fileprivate final var __isCompleted : Bool {
         return (self.__result != nil)
     }
 
@@ -600,13 +598,13 @@ public class Future<T> : FutureProtocol {
         creates a completed Future with a completion == .Success(success)
     */
     public required init(success:T) {  // returns an completed Task  with result T
-        self.__result = .Success(success)
+        self.__result = .success(success)
     }
     /**
     creates a completed Future with a completion == .Error(failed)
     */
-    public required init(fail:ErrorType) {  // returns an completed Task that has Failed with this error
-        self.__result = .Fail(fail)
+    public required init(fail:Error) {  // returns an completed Task that has Failed with this error
+        self.__result = .fail(fail)
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(failWithErrorMessage))
@@ -624,18 +622,18 @@ public class Future<T> : FutureProtocol {
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
     public init(cancelled:()) {  // returns an completed Task that has Failed with this error
-        self.__result = .Cancelled
+        self.__result = .cancelled
     }
 
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
     public init(completeUsing f:Future<T>) {  // returns an completed Task that has Failed with this error
-        self.completeWith(.CompleteUsing(f))
+        self.completeWith(.completeUsing(f))
     }
 
-    public convenience init<C:CompletionType where C.T == T>(delay:NSTimeInterval, completeWith: C) {
-        let executor: Executor = .Primary
+    public convenience init<C:CompletionType>(delay:TimeInterval, completeWith: C) where C.T == T {
+        let executor: Executor = .primary
         
         let p = Promise<T>()
         p.automaticallyCancelOnRequestCancel()
@@ -645,8 +643,8 @@ public class Future<T> : FutureProtocol {
         self.init(completeUsing:p.future)
     }
     
-    public convenience init(afterDelay:NSTimeInterval, success:T) {    // emits a .Success after delay
-        let executor: Executor = .Primary
+    public convenience init(afterDelay:TimeInterval, success:T) {    // emits a .Success after delay
+        let executor: Executor = .primary
 
         let p = Promise<T>()
         p.automaticallyCancelOnRequestCancel()
@@ -661,25 +659,25 @@ public class Future<T> : FutureProtocol {
     
     can only be used to a create a Future that should always succeed.
     */
-    public init(_ executor : Executor = .Immediate , block: () throws -> T) {
+    public init(_ executor : Executor = .immediate , block: @escaping () throws -> T) {
         let wrappedBlock = executor.callbackBlockFor { () -> Void in
             do {
                 let r = try block()
-                self.completeWith(.Success(r))
+                self.completeWith(.success(r))
             }
             catch {
-                self.completeWith(.Fail(error))
+                self.completeWith(.fail(error))
 
             }
         }
         wrappedBlock()
     }
-    public init(_ executor : Executor = .Immediate, @autoclosure(escaping) block: () -> T) {
+/*    public init(_ executor : Executor = .immediate, block: @autoclosure @escaping () -> T) {
         let wrappedBlock = executor.callbackBlockFor { () -> Void in
-            self.completeWith(.Success(block()))
+            self.completeWith(.success(block()))
         }
         wrappedBlock()
-    }
+    } */
     
     /**
     Creates a future by executes block inside of an Executor, and when it's complete, sets the completion = block()
@@ -688,18 +686,18 @@ public class Future<T> : FutureProtocol {
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init<C:CompletionType where C.T == T>(_ executor : Executor  = .Immediate, block: () throws -> C) {
+    public init<C:CompletionType>(_ executor : Executor  = .immediate, block: @escaping () throws -> C) where C.T == T {
         executor.execute { () -> Void in
             self.completeWithBlocks(completionBlock: {
                 return try block()
             })
         }
     }
-    public init<C:CompletionType where C.T == T>(_ executor : Executor  = .Immediate, @autoclosure(escaping)  block: () -> C) {
+/*    public init<C:CompletionType>(_ executor : Executor  = .immediate, block: @autoclosure @escaping () -> C) where C.T == T {
         executor.execute { () -> Void in
             self.completeWith(block())
         }
-    }
+    } */
 
     /**
         will complete the future and cause any registered callback blocks to be executed.
@@ -711,12 +709,12 @@ public class Future<T> : FutureProtocol {
         - parameter completion: the value to complete the Future with
     
     */
-    internal final func completeAndNotify<C:CompletionType where C.T == T>(completion : C) {
+    internal final func completeAndNotify<C:CompletionType>(_ completion : C) where C.T == T {
         
         return self.completeWithBlocks(waitUntilDone: false,
             completionBlock: { () -> C in
                 completion
-            }, onCompletionError: nil)
+            })
     }
 
     /**
@@ -734,7 +732,7 @@ public class Future<T> : FutureProtocol {
 
     */
 
-    internal final func completeAndNotify<C:CompletionType where C.T == T>(completion : C, onCompletionError : CompletionErrorHandler) {
+    internal final func completeAndNotify<C:CompletionType>(_ completion : C, onCompletionError : @escaping CompletionErrorHandler) where C.T == T {
         
         
         self.completeWithBlocks(waitUntilDone: false, completionBlock: { () -> C in
@@ -756,7 +754,7 @@ public class Future<T> : FutureProtocol {
     - returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
 
     */
-    internal final func completeAndNotifySync<C:CompletionType where C.T == T>(completion : C) -> Bool {
+    internal final func completeAndNotifySync<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
         
         var ret = true
         self.completeWithBlocks(waitUntilDone: true, completionBlock: { () -> C in
@@ -768,11 +766,11 @@ public class Future<T> : FutureProtocol {
         return ret
    }
     
-    internal final func completeWithBlocks<C:CompletionType where C.T == T>(
+    internal final func completeWithBlocks<C:CompletionType>(
             waitUntilDone wait:Bool = false,
-            completionBlock : () throws -> C,
-            onCompletionError : (() -> Void)? = nil) {
-        
+            completionBlock : @escaping () throws -> C,
+            onCompletionError : @escaping () -> Void = { _ in return } ) where C.T == T {
+    
         typealias ModifyBlockReturnType = (callbacks:[completion_block_type]?,
                                             result:FutureResult<T>?,
                                             continueUsing:Future?)
@@ -788,7 +786,7 @@ public class Future<T> : FutureProtocol {
                 c = try completionBlock().completion
             }
             catch {
-                c = .Fail(error)
+                c = .fail(error)
             }
             if (c.isCompleteUsing) {
                 return ModifyBlockReturnType(callbacks:nil,result:nil,continueUsing:c.completeUsingFuture)
@@ -807,9 +805,10 @@ public class Future<T> : FutureProtocol {
                 }
             }
             if let f = modifyBlockReturned.continueUsing {
-                f.onComplete(.Immediate)  { (nextComp) -> Void in
+                f.onComplete(.immediate)  { (nextComp) -> Void in
                     self.completeWith(nextComp.completion)
                 }
+                .ignoreFailures()
                 let token = f.getCancelToken()
                 if token.cancelCanBeRequested {
                     self.addRequestHandler { (options : CancellationOptions) in
@@ -820,7 +819,7 @@ public class Future<T> : FutureProtocol {
                 }
             }
             else if (modifyBlockReturned.result == nil) {
-                onCompletionError?()
+                onCompletionError()
             }
         })
         
@@ -839,11 +838,11 @@ public class Future<T> : FutureProtocol {
     - parameter completion: the value to complete the Future with
 
     */
-    internal func completeWith(completion : Completion<T>) {
+    internal func completeWith(_ completion : Completion<T>) {
         return self.completeAndNotify(completion)
     }
     
-    internal func completeWith<C:CompletionType where C.T == T>(completion : C) {
+    internal func completeWith<C:CompletionType>(_ completion : C) where C.T == T {
         return self.completeAndNotify(completion)
     }
 
@@ -859,12 +858,12 @@ public class Future<T> : FutureProtocol {
     
     - returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
     */
-    internal func completeWithSync<C:CompletionType where C.T == T>(completion : C) -> Bool {
+    internal func completeWithSync<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
         
         return self.completeAndNotifySync(completion)
     }
 
-    internal func completeWithSync(completion : Completion<T>) -> Bool {
+    internal func completeWithSync(_ completion : Completion<T>) -> Bool {
         
         return self.completeAndNotifySync(completion)
     }
@@ -884,7 +883,7 @@ public class Future<T> : FutureProtocol {
     - parameter onCompletionError: a block to execute if the Future has already been completed.
     */
     
-    internal func completeWith<C:CompletionType where C.T == T>(completion : C, onCompletionError errorBlock: CompletionErrorHandler) {
+    internal func completeWith<C:CompletionType>(_ completion : C, onCompletionError errorBlock: @escaping CompletionErrorHandler) where C.T == T {
         return self.completeAndNotify(completion,onCompletionError: errorBlock)
     }
     
@@ -899,7 +898,7 @@ public class Future<T> : FutureProtocol {
     - returns: a tuple (promise,callbackblock) a new promise and a completion block that can be added to __callbacks
     
     */
-    internal final func createPromiseAndCallback<C:CompletionType>(forBlock: ((FutureResult<T>) throws -> C)) -> (promise : Promise<C.T> , completionCallback :completion_block_type) {
+    internal final func createPromiseAndCallback<C:CompletionType>(_ forBlock: @escaping ((FutureResult<T>) throws -> C)) -> (promise : Promise<C.T> , completionCallback :completion_block_type) {
         
         let promise = Promise<C.T>()
 
@@ -929,11 +928,11 @@ public class Future<T> : FutureProtocol {
    
     - parameter callback: a callback block to be run if and when the future is complete
    */
-    private final func runThisCompletionBlockNowOrLater<S>(callback : completion_block_type,promise: Promise<S>) {
+    fileprivate final func runThisCompletionBlockNowOrLater<S>(_ callback : @escaping completion_block_type,promise: Promise<S>) {
         
         // lock my object, and either return the current completion value (if it's set)
         // or add the block to the __callbacks if not.
-        self.synchObject.lockAndModifyAsync({ () -> FutureResult<T>? in
+        self.synchObject.lockAndModifyAsync(modifyBlock: { () -> FutureResult<T>? in
             
             // we are done!  return the current completion value.
             if let c = self.__result {
@@ -944,19 +943,19 @@ public class Future<T> : FutureProtocol {
                 // we only allocate an array after getting the first __callbacks.
                 // cause we are hyper sensitive about not allocating extra stuff for temporary transient Futures.
                 switch self.__callbacks {
-                case let .Some(cb):
+                case let .some(cb):
                     var newcb = cb
                     newcb.append(callback)
                     self.__callbacks = newcb
-                case .None:
+                case .none:
                     self.__callbacks = [callback]
                 }
                 let t = self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken: false)
-                promise.onRequestCancel(.Immediate) { (options) -> CancelRequestResponse<S> in
+                promise.onRequestCancel(.immediate) { (options) -> CancelRequestResponse<S> in
                     if !options.contains(.DoNotForwardRequest) {
                         t.cancel(options)
                     }
-                    return .Continue
+                    return .continue
                 }
                 return nil
             }
@@ -993,7 +992,7 @@ public class Future<T> : FutureProtocol {
     
     - returns: a new Future of with the result type of __Type
     */
-    @available(*, deprecated=1.1, message="renamed to mapAs()")
+    @available(*, deprecated: 1.1, message: "renamed to mapAs()")
     public final func As<__Type>() -> Future<__Type> {
         return self.mapAs()
     }
@@ -1023,7 +1022,7 @@ public class Future<T> : FutureProtocol {
     - returns: a new Future of with the result type of __Type
     */
     public final func mapAs<__Type>() -> Future<__Type> {
-        return self.map(.Immediate) { (result) -> __Type in
+        return self.map(.immediate) { (result) -> __Type in
             return result as! __Type
         }
     }
@@ -1031,7 +1030,7 @@ public class Future<T> : FutureProtocol {
     
     
     public final func mapAs() -> Future<Void> {
-        return self.map(.Immediate) { (result) -> Void in
+        return self.map(.immediate) { (result) -> Void in
             return ()
         }
     }
@@ -1052,7 +1051,7 @@ public class Future<T> : FutureProtocol {
     - returns: a new Future of with the result type of __Type?
 
     */
-    @available(*, deprecated=1.1, message="renamed to mapAsOptional()")
+    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
     public final func convertOptional<__Type>() -> Future<__Type?> {
         return mapAsOptional()
     }
@@ -1074,7 +1073,7 @@ public class Future<T> : FutureProtocol {
     
     */
     public final func mapAsOptional<__Type>() -> Future<__Type?> {
-        return self.map(.Immediate) { (result) -> __Type? in
+        return self.map(.immediate) { (result) -> __Type? in
             return result as? __Type
         }
     }
@@ -1089,7 +1088,7 @@ public class Future<T> : FutureProtocol {
      
      - returns: the value returned from the block if the block executed, or nil if the block didn't execute
      */
-    public final func IfNotCompleted<__Type>(block:() -> __Type) -> __Type? {
+    public final func IfNotCompleted<__Type>(_ block:@escaping () -> __Type) -> __Type? {
         return self.synchObject.lockAndReadSync { () -> __Type? in
             if !self.__isCompleted {
                 return block()
@@ -1111,7 +1110,7 @@ public class Future<T> : FutureProtocol {
      
      - returns: the value returned from the block if the block executed
      */
-    public final func checkResult<__Type>(block:(FutureResult<T>?) -> __Type) -> __Type {
+    public final func checkResult<__Type>(_ block:@escaping (FutureResult<T>?) -> __Type) -> __Type {
         return self.synchObject.lockAndReadSync { () -> __Type in
             return block(self.__result)
         }
@@ -1141,7 +1140,7 @@ public class Future<T> : FutureProtocol {
     - returns: a new Future that returns results of type __Type  (Future<__Type>)
     
     */
-    public final func onComplete<C: CompletionType>(executor : Executor,block:(result:FutureResult<T>) throws -> C) -> Future<C.T> {
+    public final func onComplete<C: CompletionType>(_ executor : Executor,block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
         
         let (promise, completionCallback) = self.createPromiseAndCallback(block)
         let block = executor.callbackBlockFor(completionCallback)
@@ -1160,8 +1159,8 @@ public class Future<T> : FutureProtocol {
     
     
     
-    public final func delay(delay: NSTimeInterval) -> Future<T> {
-        let completion: Completion<T> = .CompleteUsing(self)
+    public final func delay(_ delay: TimeInterval) -> Future<T> {
+        let completion: Completion<T> = .completeUsing(self)
         return Future(delay:delay, completeWith: completion)
     }
     
@@ -1195,8 +1194,8 @@ extension FutureProtocol {
         return (self,self.getCancelToken())
     }
     
-    public final func onComplete<C: CompletionType>(block:(result:FutureResult<T>) throws -> C) -> Future<C.T> {
-        return self.onComplete(.Primary,block:block)
+    public final func onComplete<C: CompletionType>(_ block: @escaping (FutureResult<T>) throws -> C) -> Future<C.T> {
+        return self.onComplete(.primary,block:block)
     }
 
     
@@ -1210,13 +1209,10 @@ extension FutureProtocol {
     - parameter block: a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
     - returns: a new Future that returns results of type __Type
     */
-    public final func onComplete<__Type>(executor: Executor, block:(result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
+    public final func onComplete<__Type>(_ executor: Executor = .primary, _ block:@escaping (_ result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
         return self.onComplete(executor) { (result) -> Completion<__Type> in
-            return .Success(try block(result:result))
+            return .success(try block(result))
         }
-    }
-    public final func onComplete<__Type>(block:(result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
-        return self.onComplete(.Primary,block:block)
     }
     
       
@@ -1237,10 +1233,10 @@ extension FutureProtocol {
     - returns: a `Future<Void>` that completes after this block has executed.
     
     */
-    public func waitForComplete<C:CompletionType>(timeout: NSTimeInterval,
+    public func waitForComplete<C:CompletionType>(_ timeout: TimeInterval,
         executor : Executor,
-        didComplete:(FutureResult<T>) throws -> C,
-        timedOut:() throws -> C
+        didComplete:@escaping (FutureResult<T>) throws -> C,
+        timedOut:@escaping () throws -> C
         ) -> Future<C.T> {
             
             let p = Promise<C.T>()
@@ -1250,6 +1246,7 @@ extension FutureProtocol {
                     return try didComplete(c)
                 })
             }
+            .ignoreFailures()
             
             executor.executeAfterDelay(timeout)  {
                 p.completeWithBlock { () -> C in
@@ -1260,26 +1257,26 @@ extension FutureProtocol {
             return p.future
     }
     
-    public func waitForComplete<__Type>(timeout: NSTimeInterval,
+    public func waitForComplete<__Type>(_ timeout: TimeInterval,
         executor : Executor,
-        didComplete:(FutureResult<T>) throws -> __Type,
-        timedOut:() throws -> __Type
+        didComplete:@escaping (FutureResult<T>) throws -> __Type,
+        timedOut:@escaping () throws -> __Type
         ) -> Future<__Type> {
             
             return self.waitForComplete(timeout,
                 executor: executor,
                 didComplete: {
-                    return Completion<__Type>.Success(try didComplete($0))
+                    return Completion<__Type>.success(try didComplete($0))
                 },
                 timedOut: {
-                    .Success(try timedOut())
+                    .success(try timedOut())
             })
     }
 
-    public func waitForSuccess<C:CompletionType>(timeout: NSTimeInterval,
+    public func waitForSuccess<C:CompletionType>(_ timeout: TimeInterval,
         executor : Executor,
-        didSucceed:(T) throws -> C.T,
-        timedOut:() throws -> C
+        didSucceed:@escaping (T) throws -> C.T,
+        timedOut:@escaping () throws -> C
         ) -> Future<C.T> {
             
             let p = Promise<C.T>()
@@ -1296,7 +1293,7 @@ extension FutureProtocol {
             
             return p.future
     }
-    public func waitForSuccess<__Type>(timeout: NSTimeInterval,
+    public func waitForSuccess<__Type>(_ timeout: TimeInterval,
         executor : Executor,
         didSucceed:(T) throws -> __Type,
         timedOut:() throws -> __Type
@@ -1331,17 +1328,17 @@ extension FutureProtocol {
     - parameter block: a block takes the .Success result of the target Future and returns the completion value of the returned Future.
     - returns: a new Future of type Future<__Type>
     */
-    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
-    public final func onSuccess<C: CompletionType>(executor : Executor = .Primary,
-        block:(T) throws -> C) -> Future<C.T> {
+    
+    public final func onSuccess<C: CompletionType>(_ executor : Executor = .primary,
+        block:@escaping (T) throws -> C) -> Future<C.T> {
         return self.onComplete(executor)  { (result) -> Completion<C.T> in
             switch result {
-            case let .Success(value):
+            case let .success(value):
                 return try block(value).completion
-            case let .Fail(error):
-                return .Fail(error)
-            case .Cancelled:
-                return .Cancelled
+            case let .fail(error):
+                return .fail(error)
+            case .cancelled:
+                return .cancelled
             }
         }
     }
@@ -1365,11 +1362,11 @@ extension FutureProtocol {
      
      - returns: a new Future of type Future<__Type>
      */
-    @warn_unused_result(message="Did you forget to add an error Handler? `onFail/onComplete` on this future?")
-    public final func onSuccess<__Type>(executor : Executor = .Primary,
-        block:(T) throws -> __Type) -> Future<__Type> {
+    
+    public final func onSuccess<__Type>(_ executor : Executor = .primary,
+        block:@escaping (T) throws -> __Type) -> Future<__Type> {
             return self.onSuccess(executor) { (value : T) -> Completion<__Type> in
-                return .Success(try block(value))
+                return .success(try block(value))
             }
     }
 
@@ -1385,12 +1382,12 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.
     */
-    public final func onFail(executor : Executor = .Primary,
-        block:(error:ErrorType)-> Void) -> Future<T>
+    @discardableResult public final func onFail(_ executor : Executor = .primary,
+        block:@escaping (_ error:Error)-> Void) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isFail) {
-                block(error: result.error)
+                block(result.error)
             }
             return result.completion
         }
@@ -1406,12 +1403,12 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block can process the error of a future.
      */
-    public final func onFail<C:CompletionType where C.T == T>(executor : Executor = .Primary,
-        block:(error:ErrorType)-> C) -> Future<T>
+    @discardableResult public final func onFail<C:CompletionType>(_ executor : Executor = .primary,
+        block:@escaping (_ error:Error)-> C) -> Future<T> where C.T == T
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isFail) {
-                return block(error: result.error).completion
+                return block(result.error).completion
             }
             return result.completion
         }
@@ -1427,7 +1424,7 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    public final func onCancel(executor : Executor = .Primary, block:()-> Void) -> Future<T>
+    @discardableResult public final func onCancel(_ executor : Executor = .primary, block:@escaping ()-> Void) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> FutureResult<T> in
             if (result.isCancelled) {
@@ -1447,7 +1444,7 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
      */
-    public final func onCancel<C:CompletionType where C.T == T>(executor : Executor = .Primary, block:()-> C) -> Future<T>
+    @discardableResult public final func onCancel<C:CompletionType>(_ executor : Executor = .primary, block:@escaping ()-> C) -> Future<T> where C.T == T
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isCancelled) {
@@ -1469,15 +1466,15 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    public final func onFailorCancel(executor : Executor = .Primary,
-        block:(FutureResult<T>)-> Void) -> Future<T>
+    @discardableResult public final func onFailorCancel(_ executor : Executor = .primary,
+        block:@escaping (FutureResult<T>)-> Void) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> FutureResult<T> in
         
             switch result {
-            case .Fail, .Cancelled:
+            case .fail, .cancelled:
                 block(result)
-            case .Success(_):
+            case .success(_):
                 break
             }
             return result
@@ -1497,15 +1494,15 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    public final func onFailorCancel<C:CompletionType where C.T == T>(executor : Executor = .Primary,
-        block:(FutureResult<T>)-> C) -> Future<T>
+    @discardableResult public final func onFailorCancel<C:CompletionType>(_ executor : Executor = .primary,
+        block:@escaping (FutureResult<T>)-> C) -> Future<T> where C.T == T
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             switch result {
-                case .Fail, .Cancelled:
+                case .fail, .cancelled:
                     return block(result).completion
-                case let .Success(value):
-                    return .Success(value)
+                case let .success(value):
+                    return .success(value)
             }
         }
     }
@@ -1522,15 +1519,15 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    public final func onFailorCancel(executor : Executor = .Primary,
-        block:(FutureResult<T>)-> Future<T>) -> Future<T>
+    public final func onFailorCancel(_ executor : Executor = .primary,
+        block:@escaping (FutureResult<T>)-> Future<T>) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             switch result {
-            case .Fail, .Cancelled:
-                return .CompleteUsing(block(result))
-            case let .Success(value):
-                return .Success(value)
+            case .fail, .cancelled:
+                return .completeUsing(block(result))
+            case let .success(value):
+                return .success(value)
             }
         }
     }
@@ -1541,7 +1538,7 @@ extension FutureProtocol {
      Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
 
      */
-    public final func ignoreFailures() -> Self
+    @discardableResult public final func ignoreFailures() -> Self
     {
         return self
     }
@@ -1552,27 +1549,27 @@ extension FutureProtocol {
      Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
      
      */
-    public final func assertOnFail() -> Self
+    @discardableResult public final func assertOnFail() -> Self
     {
         self.onFail { error in
-            
             assertionFailure("Future failed unexpectantly")
         }
+        .ignoreFailures()
         return self
     }
 
     
     
     // rather use map?  Sure!
-    public final func map<__Type>(executor : Executor = .Primary, block:(T) throws -> __Type) -> Future<__Type> {
+    public final func map<__Type>(_ executor : Executor = .primary, block:@escaping (T) throws -> __Type) -> Future<__Type> {
         return self.onSuccess(executor,block:block)
     }
 
     
-    public final func mapError(executor : Executor = .Primary, block:(ErrorType) throws -> ErrorType) -> Future<T> {
+    public final func mapError(_ executor : Executor = .primary, block:@escaping (Error) throws -> Error) -> Future<T> {
         return self.onComplete(executor)  { (result) -> FutureResult<T> in
-            if case let .Fail(error) = result {
-                return .Fail(try block(error))
+            if case let .fail(error) = result {
+                return .fail(try block(error))
             }
             else {
                 return result
@@ -1600,10 +1597,10 @@ extension FutureProtocol {
 
 extension Future {
   
-    final func then<C:CompletionType>(executor : Executor = .Primary, block:(T) -> C) -> Future<C.T> {
+    final func then<C:CompletionType>(_ executor : Executor = .primary, block:@escaping (T) -> C) -> Future<C.T> {
         return self.onSuccess(executor,block: block)
     }
-    final func then<__Type>(executor : Executor = .Primary,block:(T) -> __Type) -> Future<__Type> {
+    final func then<__Type>(_ executor : Executor = .primary,block:@escaping (T) -> __Type) -> Future<__Type> {
         return self.onSuccess(executor,block: block)
     }
 }
@@ -1615,10 +1612,10 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     }
     public var debugDescription: String {
         let des = self.result?.description ?? "nil"
-        return "Future<\(String(T.self))>{\(des)}"
+        return "Future<\(String(describing: T.self))>{\(des)}"
     }
     public func debugQuickLookObject() -> AnyObject? {
-        return self.debugDescription
+        return self.debugDescription as AnyObject?
     }
     
 }
@@ -1629,12 +1626,11 @@ public protocol OptionalProtocol {
     func isNil() -> Bool
     func unwrap() -> Wrapped
     
-    func map<U>(@noescape f: (Wrapped) throws -> U) rethrows -> U?
+    func map<U>(_ f: (Wrapped) throws -> U) rethrows -> U?
     
-    func flatMap<U>(@noescape f: (Wrapped) throws -> U?) rethrows -> U?
+    func flatMap<U>(_ f: (Wrapped) throws -> U?) rethrows -> U?
 
 
-    init()
     init(_ some: Wrapped)
 }
 
@@ -1643,9 +1639,9 @@ extension Optional : OptionalProtocol {
     
     public func isNil() -> Bool {
         switch self {
-        case .None:
+        case .none:
             return true
-        case .Some:
+        case .some:
             return false
         }
     }
@@ -1686,7 +1682,7 @@ class classWithMethodsThatReturnFutures {
     
     func iReturnAnInt() -> Future<Int> {
         
-        return Future (.Immediate) { () -> Int in
+        return Future (.immediate) { () -> Int in
             return 5
         }
     }
@@ -1696,7 +1692,7 @@ class classWithMethodsThatReturnFutures {
     }
     func iReturnFromBackgroundQueueUsingBlock() -> Future<Int> {
         //
-        return Future(.Default) {
+        return Future(.default) {
             self.iReturnFive()
         }
     }
@@ -1705,7 +1701,7 @@ class classWithMethodsThatReturnFutures {
         let p : Promise<Int> = Promise()
         
         // let's do some async dispatching of things here:
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             p.completeWithSuccess(5)
         }
         
@@ -1716,11 +1712,11 @@ class classWithMethodsThatReturnFutures {
     func iMayFailRandomly() -> Future<[String:Int]>  {
         let p = Promise<[String:Int]>()
         
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             let s = arc4random_uniform(3)
             switch s {
             case 0:
-                p.completeWithFail(FutureKitError.GenericError("failed randomly"))
+                p.completeWithFail(FutureKitError.genericError("failed randomly"))
             case 1:
                 p.completeWithCancel()
             default:
@@ -1731,15 +1727,15 @@ class classWithMethodsThatReturnFutures {
     }
 
     func iMayFailRandomlyAlso() -> Future<[String:Int]>  {
-        return Future(.Main) { () -> Completion<[String:Int]> in
+        return Future(.main) { () -> Completion<[String:Int]> in
             let s = arc4random_uniform(3)
             switch s {
             case 0:
-                return .Fail(FutureKitError.GenericError("Failed Also"))
+                return .fail(FutureKitError.genericError("Failed Also"))
             case 1:
-                return .Cancelled
+                return .cancelled
             default:
-                return .Success(["Hi" : 5])
+                return .success(["Hi" : 5])
             }
         }
     }
@@ -1750,18 +1746,19 @@ class classWithMethodsThatReturnFutures {
         
         self.iMayFailRandomly().onComplete { (result) -> Completion<Void> in
             switch result {
-            case let .Success(value):
+            case let .success(value):
                 NSLog("\(value)")
-                return .Success(())
-            case let .Fail(e):
-                return .Fail(e)
-            case .Cancelled:
-                return .Cancelled
+                return .success(())
+            case let .fail(e):
+                return .fail(e)
+            case .cancelled:
+                return .cancelled
             }
         }
+        .ignoreFailures()
         
         self.iMayFailRandomly().onSuccess { (value) -> Completion<Int> in
-            return .Success(5)
+            return .success(5)
         }.ignoreFailures()
             
         
@@ -1773,14 +1770,14 @@ class classWithMethodsThatReturnFutures {
     }
     
     func iDontReturnValues() -> Future<()> {
-        let f = Future(.Primary) { () -> Int in
+        let f = Future(.primary) { () -> Int in
             return 5
         }
         
         let p = Promise<()>()
         
         f.onSuccess { (value) -> Void in
-            dispatch_async(dispatch_get_main_queue()) {
+            DispatchQueue.main.async {
                 p.completeWithSuccess(())
             }
         }.ignoreFailures()
@@ -1795,7 +1792,7 @@ class classWithMethodsThatReturnFutures {
             NSLog("do stuff")
         }.onSuccess { _ -> Int in
             return 5
-        }.onSuccess(.Primary) { fffive in
+        }.onSuccess(.primary) { fffive in
             Float(fffive + 10)
         }
         return x.onSuccess {

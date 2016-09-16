@@ -28,56 +28,64 @@ import FutureKit
 
 extension Future {
     
-    func expectationTestForCompletion(testcase: XCTestCase, description : String,
-        assertion : ((value : FutureResult<T>) -> (assert:BooleanType,message:String)),
-        file: StaticString = #file,
-        line: UInt = #line
+    @discardableResult
+    func expectationTestForCompletion(_ testcase: XCTestCase,
+                                      description : String,
+                                      file: StaticString = #file,
+                                      line: UInt = #line,
+        assertion : @escaping ((FutureResult<T>) -> (Bool,String))
         ) -> XCTestExpectation! {
-            
-            let e = testcase.expectationWithDescription(description)
+        
+            let e = testcase.expectation(description: description)
         
             self.onComplete { (value) -> Void in
-                let test = assertion(value:value)
+                let test = assertion(value)
                 
-                XCTAssert(test.assert,test.message,file:file,line:line)
+                XCTAssert(test.0,test.1,file:file,line:line)
                 e.fulfill()
             }
+            .ignoreFailures()
             return e
     }
     
     
-    func expectationTestForSuccess(testcase: XCTestCase, description : String,
-        test : ((result:T) -> BooleanType),
+    @discardableResult
+    func expectationTestForSuccess(_ testcase: XCTestCase, description : String,
         file: StaticString = #file,
-        line: UInt = #line) -> XCTestExpectation! {
-            
-            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
-                switch value {
-                case let .Success(result):
-                    return (test(result: result),"test result failure for Future with result \(result)" )
-                case let .Fail(e):
-                    return (false,"Future Failed with \(e)" )
-                case .Cancelled:
-                    return (false,"Future Cancelled" )
-                }
-                },file:file,line:line)
+        line: UInt = #line,
+        test : @escaping ((T) -> Bool)
+        ) -> XCTestExpectation! {
+        
+        
+        return self.expectationTestForCompletion(testcase, description: description, file:file, line:line,
+                                                 assertion: { result -> (Bool, String) in
+                                                    switch result {
+                                                    case let .success(result):
+                                                        return (test(result),"test result failure for Future with result \(result)" )
+                                                    case let .fail(e):
+                                                        return (false,"Future Failed with \(e)" )
+                                                    case .cancelled:
+                                                        return (false,"Future Cancelled" )
+                                                    }
+        })
     }
     
-    func expectationTestForAnySuccess(testcase: XCTestCase, description : String,
+    @discardableResult
+    func expectationTestForAnySuccess(_ testcase: XCTestCase, description : String,
         file: StaticString = #file,
         line: UInt = #line
         ) -> XCTestExpectation! {
             
-            return self.expectationTestForCompletion(testcase, description: description, assertion: { (value : FutureResult<T>) -> (assert: BooleanType, message: String) in
-                switch value {
-                case .Success:
+        return self.expectationTestForCompletion(testcase, description: description, file:file, line:line) { result -> (Bool, String) in
+                switch result {
+                case .success:
                     return (true, "")
-                case let .Fail(e):
+                case let .fail(e):
                     return (false,"Future Failed with \(e)" )
-                case .Cancelled:
+                case .cancelled:
                     return (false,"Future Cancelled" )
                 }
-                }, file:file, line:line)
+            }
     }
     
     

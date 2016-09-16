@@ -26,7 +26,7 @@ import Foundation
 
 // this class really SHOULD work, but it sometimes crashes the compiler
 // so we mostly use WeakAnyObject and feel angry about it
-class Weak<T: AnyObject> : NilLiteralConvertible {
+class Weak<T: AnyObject> : ExpressibleByNilLiteral {
     weak var value : T?
     init (_ value: T?) {
         self.value = value
@@ -36,7 +36,7 @@ class Weak<T: AnyObject> : NilLiteralConvertible {
     }
 }
 
-class WeakAnyObject : NilLiteralConvertible {
+class WeakAnyObject : ExpressibleByNilLiteral {
     weak var value : AnyObject?
     init (_ value: AnyObject?) {
         self.value = value
@@ -48,7 +48,7 @@ class WeakAnyObject : NilLiteralConvertible {
 
 // We use this to convert a Any value into an AnyObject
 // so it can be saved via objc_setAssociatedObject
-class Strong<T:Any> : NilLiteralConvertible {
+class Strong<T:Any> : ExpressibleByNilLiteral {
     var value : T?
     init (_ value: T?) {
         self.value = value
@@ -68,22 +68,22 @@ class UnSafeMutableContainer<T> {
     
     var memory : T {
         get {
-            return unsafe_pointer.memory
+            return unsafe_pointer.pointee
         }
         set(newValue) {
-            unsafe_pointer.destroy()
-            unsafe_pointer.initialize(newValue)
+            unsafe_pointer.deinitialize()
+            unsafe_pointer.initialize(to: newValue)
         }
     }
     init() {
-        unsafe_pointer = UnsafeMutablePointer<T>.alloc(1)
+        unsafe_pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
     }
     init(_ initialValue: T) {
-        unsafe_pointer = UnsafeMutablePointer<T>.alloc(1)
-        unsafe_pointer.initialize(initialValue)
+        unsafe_pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
+        unsafe_pointer.initialize(to: initialValue)
     }
     deinit {
-        unsafe_pointer.dealloc(1)
+        unsafe_pointer.deallocate(capacity: 1)
     }
 }
 
@@ -93,8 +93,8 @@ class UnSafeMutableContainer<T> {
 // to a class
 public struct ExtensionVarHandlerFor<A : AnyObject> {
     
-    private var keyValue = UnSafeMutableContainer<Int8>(0)
-    private var key : UnsafeMutablePointer<Int8>  { get { return keyValue.unsafe_pointer } }
+    fileprivate var keyValue = UnSafeMutableContainer<Int8>(0)
+    fileprivate var key : UnsafeMutablePointer<Int8>  { get { return keyValue.unsafe_pointer } }
     
     
     public init() {
@@ -105,7 +105,7 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
     // AnyObject will match NSObject compatible values
     // Any will match any class, using the Strong<T> to wrap the object in a class so it can be set correctly
     // This is the "default set".
-    public func setStrongValueOn<T : Any>(object:A, value : T?)
+    public func setStrongValueOn<T : Any>(_ object:A, value : T?)
     {
         // so we can't 'test' for AnyObject but we can seem to test for NSObject
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
@@ -117,14 +117,14 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
             objc_setAssociatedObject(object, key, nil, policy)
         }
     }
-    public func setStrongValueOn<T : AnyObject>(object:A, value : T?)
+    public func setStrongValueOn<T : AnyObject>(_ object:A, value : T?)
     {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         objc_setAssociatedObject(object, key, value, policy)
     }
     
     // Any values cannot be captured weakly.  so we don't supply a Weak setter for Any
-    public func setWeakValueOn<T : AnyObject>(object:A, value : T?)
+    public func setWeakValueOn<T : AnyObject>(_ object:A, value : T?)
     {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         if let v = value {
@@ -136,26 +136,26 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    public func setCopyValueOn<T : AnyObject>(object:A, value : T?)
+    public func setCopyValueOn<T : AnyObject>(_ object:A, value : T?)
     {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_COPY
         objc_setAssociatedObject(object, key, value, policy)
     }
     
     // convience - Set is always Strong by default
-    public func setValueOn<T : Any>(object:A, value : T?)
+    public func setValueOn<T : Any>(_ object:A, value : T?)
     {
         self.setStrongValueOn(object, value: value)
     }
     
-    public func setValueOn<T : AnyObject>(object:A, value : T?)
+    public func setValueOn<T : AnyObject>(_ object:A, value : T?)
     {
         self.setStrongValueOn(object, value: value)
     }
     
-    public func getValueFrom<T : Any>(object:A) -> T?
+    public func getValueFrom<T : Any>(_ object:A) -> T?
     {
-        let v: AnyObject? = objc_getAssociatedObject(object,key)
+        let v: AnyObject? = objc_getAssociatedObject(object,key) as AnyObject?
         switch v {
         case nil:
             return nil
@@ -171,7 +171,7 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    public func getValueFrom<T : Any>(object:A, defaultvalue : T) -> T
+    public func getValueFrom<T : Any>(_ object:A, defaultvalue : T) -> T
     {
         let value: T? = getValueFrom(object)
         if let v = value {
@@ -183,7 +183,7 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    public func getValueFrom<T : Any>(object:A, defaultvalueblock : () -> T) -> T
+    public func getValueFrom<T : Any>(_ object:A, defaultvalueblock : () -> T) -> T
     {
         let value: T? = getValueFrom(object)
         if let v = value {
@@ -196,7 +196,7 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
         }
     }
     
-    public func clear(object:A)
+    public func clear(_ object:A)
     {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         objc_setAssociatedObject(object, key, nil, policy)

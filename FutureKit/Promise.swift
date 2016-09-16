@@ -222,6 +222,27 @@ public class Promise<T>  {
         self.future.completeWith(completion.completion,onCompletionError:errorBlock)
     }
     
+    
+    // public convenience methods
+    public final func futureWithCancel() -> Future<T>{
+        self.completeWithCancel()
+        return future
+    }
+    
+    public final func futureWithSuccess(result : T) -> Future<T>{
+        self.completeWithSuccess(result)
+        return future
+    }
+    
+    public final func futureWithFailure(error : ErrorType) -> Future<T>{
+        self.completeWithFail(error)
+        return future
+    }
+    
+    public final func futureWithFailure(errorMessage : String) -> Future<T>{
+        self.completeWithFail(errorMessage)
+        return future
+    }
 
 }
 

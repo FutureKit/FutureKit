@@ -16,17 +16,17 @@ public protocol HasCacheCost {
 }
 
 
-class FutureCacheEntry<T> {
+open class FutureCacheEntry<T> {
 
     var future : Future<T>
     var expireTime: Date?
     
-    init(_ f: Future<T>,expireTime e: Date? = nil) {
+    public init(_ f: Future<T>,expireTime e: Date? = nil) {
         self.future = f
         self.expireTime = e
     }
 
-    init(value: T,expireTime e: Date? = nil) {
+    public init(value: T,expireTime e: Date? = nil) {
         self.future = Future(success: value)
         self.expireTime = e
     }
@@ -36,6 +36,10 @@ class FutureCacheEntry<T> {
 
 open class FutureCache<KeyType : AnyObject, T> {
     
+    
+    public init () {
+        
+    }
     var cache = NSCache<KeyType,FutureCacheEntry<T>>()
     
     
@@ -100,7 +104,7 @@ open class FutureCache<KeyType : AnyObject, T> {
     }
 }
 
-extension FutureCache where T:HasCacheCost {
+public  extension FutureCache where T:HasCacheCost {
 
     /**
      Utlity method for storing "Futures" inside a NSCache

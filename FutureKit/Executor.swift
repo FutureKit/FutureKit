@@ -437,12 +437,73 @@ public enum Executor {
             return .Success(try block())
         }
     }
+    
+    private func wallTimeWithDate(date: NSDate) -> dispatch_time_t {
+        
+        let (seconds, frac) = modf(date.timeIntervalSince1970)
+        
+        let nsec: Double = frac * Double(NSEC_PER_SEC)
+        var walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
+        
+        return dispatch_walltime(&walltime, 0)
+    }
+
+    /**
+     repeatExecution
+     
+     - parameter date:           time to start repeating
+     - parameter repeatingEvery: interval to repeat
+     - parameter action:         action to execute
+     
+     - returns: CancellationToken
+     */
+    public func repeatExecution(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> Void) -> CancellationToken {
+        return self.repeatExecution(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
+    }
+
+
+    /**
+     schedule to repeat execution inside this executor
+     
+     - parameter date:           time to start repeatin
+     - parameter repeatingEvery: interval to repeat
+     - parameter leeway:         the 'leeway' execution is allowed. default is 10% of repeatingEvery
+     - parameter action:         action to execute
+     
+     - returns: CancellationToken that can be used to stop the execution
+     */
+    public func repeatExecution(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> Void) -> CancellationToken {
+        precondition(repeatingEvery >= 0)
+        precondition(leeway >= 0)
+        
+        let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
+        let nsecLeeway = leeway * Double(NSEC_PER_SEC)
+        
+        let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.relatedQueue)
+        dispatch_source_set_timer(timer, wallTimeWithDate(date), UInt64(nsecInterval), UInt64(nsecLeeway))
+        
+        dispatch_source_set_event_handler(timer) { () -> Void in
+            self.execute(action)
+        }
+        dispatch_resume(timer)
+        
+        let p = Promise<Void>()
+        
+        p.onRequestCancel { (options) -> CancelRequestResponse<Void> in
+            dispatch_source_cancel(timer)
+            return .Complete(.Cancelled)
+        }
+        
+        return p.future.getCancelToken()
+        
+    }
+
 
     // This returns the underlyingQueue (if there is one).
     // Not all executors have an underlyingQueue.
     // .Custom will always return nil, even if the implementation may include one.
     //
-    public var underlyingQueue: dispatch_queue_t? {
+    var underlyingQueue: dispatch_queue_t? {
         get {
             switch self {
             case .Primary:
@@ -478,6 +539,10 @@ public enum Executor {
         }
     }
     
+    public var relatedQueue: dispatch_queue_t {
+        return self.underlyingQueue ?? Executor.defaultQ
+    }
+
     static var SmartCurrent : Executor {  // should always return a 'real` executor, never a virtual one, like Main, Current, Immediate
         get {
             if let current = getCurrentExecutor() {

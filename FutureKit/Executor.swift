@@ -442,7 +442,7 @@ public enum Executor {
     // Not all executors have an underlyingQueue.
     // .Custom will always return nil, even if the implementation may include one.
     //
-    var underlyingQueue: dispatch_queue_t? {
+    public var underlyingQueue: dispatch_queue_t? {
         get {
             switch self {
             case .Primary:

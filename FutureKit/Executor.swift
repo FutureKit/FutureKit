@@ -413,11 +413,35 @@ public enum Executor {
         }
         return p.future
     }
-
     
-    internal func _executeAfterDelay<C:CompletionType>(nanosecs n: Int64, block: () throws -> C) -> Future<C.T> {
+    
+    private func wallTime(date: NSDate, offset_nanosecs: Int64 = 0) -> dispatch_time_t {
+        
+        let (seconds, frac) = modf(date.timeIntervalSince1970)
+        let nsec: Double = frac * Double(NSEC_PER_SEC)
+        var walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
+        
+        return dispatch_walltime(&walltime, offset_nanosecs)
+    }
+    
+    
+    internal func _executeAt<C:CompletionType>(date:NSDate, block: () throws -> C) -> Future<C.T> {
         let p = Promise<C.T>()
-        let popTime = dispatch_time(DISPATCH_TIME_NOW, n)
+        let popTime = wallTime(date)
+        let q = self.underlyingQueue ?? Executor.defaultQ
+        dispatch_after(popTime, q, {
+            p.completeWithBlock {
+                return try block()
+            }
+        })
+        return p.future
+    }
+    
+    internal func _executeAfterDelay<C:CompletionType>(secs : NSTimeInterval, block: () throws -> C) -> Future<C.T> {
+        let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
+        let nanosecs = Int64(nanosecsDouble)
+        let p = Promise<C.T>()
+        let popTime = dispatch_time(DISPATCH_TIME_NOW, nanosecs)
         let q = self.underlyingQueue ?? Executor.defaultQ
         dispatch_after(popTime, q, {
             p.completeWithBlock {
@@ -427,9 +451,7 @@ public enum Executor {
         return p.future
     }
     public func executeAfterDelay<C:CompletionType>(secs : NSTimeInterval,  block: () throws -> C) -> Future<C.T> {
-        let nanosecsDouble = secs * NSTimeInterval(NSEC_PER_SEC)
-        let nanosecs = Int64(nanosecsDouble)
-        return self._executeAfterDelay(nanosecs: nanosecs,block:block)
+        return self._executeAfterDelay(secs,block:block)
     }
     
     public func executeAfterDelay<__Type>(secs : NSTimeInterval,  block: () throws -> __Type) -> Future<__Type> {
@@ -438,16 +460,17 @@ public enum Executor {
         }
     }
     
-    private func wallTimeWithDate(date: NSDate) -> dispatch_time_t {
-        
-        let (seconds, frac) = modf(date.timeIntervalSince1970)
-        
-        let nsec: Double = frac * Double(NSEC_PER_SEC)
-        var walltime = timespec(tv_sec: Int(seconds), tv_nsec: Int(nsec))
-        
-        return dispatch_walltime(&walltime, 0)
+
+    public func executeAt<C:CompletionType>(date : NSDate,  block: () throws -> C) -> Future<C.T> {
+        return self._executeAt(date,block:block)
     }
 
+    public func executeAt<__Type>(date : NSDate,  block: () throws -> __Type) -> Future<__Type> {
+        return self.executeAt(date) { () -> Completion<__Type> in
+            return .Success(try block())
+        }
+    }
+    
     /**
      repeatExecution
      
@@ -480,7 +503,7 @@ public enum Executor {
         let nsecLeeway = leeway * Double(NSEC_PER_SEC)
         
         let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.relatedQueue)
-        dispatch_source_set_timer(timer, wallTimeWithDate(date), UInt64(nsecInterval), UInt64(nsecLeeway))
+        dispatch_source_set_timer(timer, wallTime(date), UInt64(nsecInterval), UInt64(nsecLeeway))
         
         dispatch_source_set_event_handler(timer) { () -> Void in
             self.execute(action)

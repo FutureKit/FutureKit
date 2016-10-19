@@ -253,7 +253,7 @@ public enum Executor {
         }
     }
     
-    public typealias CustomCallBackBlock = ((block:() -> Void) -> Void)
+    public typealias CustomCallBackBlock = ((() -> Void) -> Void)
 
     public static var PrimaryExecutor = Executor.Current {
         willSet(newValue) {

@@ -16,7 +16,7 @@ http://en.wikipedia.org/wiki/Futures_and_promises
 
 FutureKit uses Swift generic classes, to allow you to easily deal with asynchronous/multi-threaded issues when coding for iOS or OSX.
 
-- is 100% Swift.  It ONLY currently supports Swift 2.0 and Xcode 7+.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting swift 2.0+ compatble SDKs (iOS 8.0+, OSX 10.x.)
+- is 100% Swift.  It ONLY currently supports Swift 2.0 and Xcode 7+.  Swift 1.2 branch wont be supported anymore. (Too many issues with generics made swift 1.2 less than perfect)  We are also only supporting swift 2.0+ compatible SDKs (iOS 8.0+, OSX 10.x.)
 
 - is type safe.  It uses Swift Generics classes that can automatically infer the type you wish to return from asynchronous logic.  And supports both value and reference Swift types (Both 'Any' types, and 'AnyObject/NSObject' types.)
 

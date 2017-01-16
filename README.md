@@ -1,5 +1,6 @@
 # FutureKit for Swift
 
+[![Build Status](https://travis-ci.org/FutureKit/FutureKit.svg)](https://travis-ci.org/FutureKit/FutureKit)
 [![CocoaPods Compatible](https://img.shields.io/cocoapods/v/FutureKit.svg)](https://img.shields.io/cocoapods/v/FutureKit.svg)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License](https://img.shields.io/cocoapods/l/FutureKit.svg?style=flat&color=gray)](http://cocoadocs.org/docsets/FutureKit)

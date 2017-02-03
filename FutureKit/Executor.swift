@@ -374,7 +374,6 @@ public enum Executor {
         }
         return p.future
     }
-
     
     internal func _executeAfterDelay<C:CompletionType>(nanosecs n: Int64, block: @escaping () throws -> C) -> Future<C.T> {
         let p = Promise<C.T>()
@@ -390,7 +389,18 @@ public enum Executor {
     @discardableResult public func executeAfterDelay<C:CompletionType>(_ secs : TimeInterval,  block: @escaping () throws -> C) -> Future<C.T> {
         let nanosecsDouble = secs * TimeInterval(NSEC_PER_SEC)
         let nanosecs = Int64(nanosecsDouble)
-        return self._executeAfterDelay(nanosecs: nanosecs,block:block)
+        let p = Promise<C.T>()
+        let popTime = dispatch_time(DISPATCH_TIME_NOW, nanosecs)
+        let q = self.underlyingQueue ?? Executor.defaultQ
+        dispatch_after(popTime, q, {
+            p.completeWithBlock {
+                return try block()
+            }
+        })
+        return p.future
+    }
+    public func executeAfterDelay<C:CompletionType>(secs : NSTimeInterval,  block: () throws -> C) -> Future<C.T> {
+        return self._executeAfterDelay(secs,block:block)
     }
     
     @discardableResult public func executeAfterDelay<__Type>(_ secs : TimeInterval,  block: @escaping () throws -> __Type) -> Future<__Type> {
@@ -398,6 +408,68 @@ public enum Executor {
             return .success(try block())
         }
     }
+    
+
+    public func executeAt<C:CompletionType>(date : NSDate,  block: () throws -> C) -> Future<C.T> {
+        return self._executeAt(date,block:block)
+    }
+
+    public func executeAt<__Type>(date : NSDate,  block: () throws -> __Type) -> Future<__Type> {
+        return self.executeAt(date) { () -> Completion<__Type> in
+            return .Success(try block())
+        }
+    }
+    
+    /**
+     repeatExecution
+     
+     - parameter date:           time to start repeating
+     - parameter repeatingEvery: interval to repeat
+     - parameter action:         action to execute
+     
+     - returns: CancellationToken
+     */
+    public func repeatExecution(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> Void) -> CancellationToken {
+        return self.repeatExecution(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
+    }
+
+
+    /**
+     schedule to repeat execution inside this executor
+     
+     - parameter date:           time to start repeatin
+     - parameter repeatingEvery: interval to repeat
+     - parameter leeway:         the 'leeway' execution is allowed. default is 10% of repeatingEvery
+     - parameter action:         action to execute
+     
+     - returns: CancellationToken that can be used to stop the execution
+     */
+    public func repeatExecution(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> Void) -> CancellationToken {
+        precondition(repeatingEvery >= 0)
+        precondition(leeway >= 0)
+        
+        let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
+        let nsecLeeway = leeway * Double(NSEC_PER_SEC)
+        
+        let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.relatedQueue)
+        dispatch_source_set_timer(timer, wallTime(date), UInt64(nsecInterval), UInt64(nsecLeeway))
+        
+        dispatch_source_set_event_handler(timer) { () -> Void in
+            self.execute(action)
+        }
+        dispatch_resume(timer)
+        
+        let p = Promise<Void>()
+        
+        p.onRequestCancel { (options) -> CancelRequestResponse<Void> in
+            dispatch_source_cancel(timer)
+            return .Complete(.Cancelled)
+        }
+        
+        return p.future.getCancelToken()
+        
+    }
+
 
     // This returns the underlyingQueue (if there is one).
     // Not all executors have an underlyingQueue.
@@ -439,6 +511,10 @@ public enum Executor {
         }
     }
     
+    public var relatedQueue: dispatch_queue_t {
+        return self.underlyingQueue ?? Executor.defaultQ
+    }
+
     static var SmartCurrent : Executor {  // should always return a 'real` executor, never a virtual one, like Main, Current, Immediate
         get {
             if let current = getCurrentExecutor() {

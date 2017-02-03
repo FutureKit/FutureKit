@@ -26,7 +26,7 @@ import Foundation
 
 // this class really SHOULD work, but it sometimes crashes the compiler
 // so we mostly use WeakAnyObject and feel angry about it
-class Weak<T: AnyObject> : ExpressibleByNilLiteral {
+internal class Weak<T: AnyObject> : ExpressibleByNilLiteral {
     weak var value : T?
     init (_ value: T?) {
         self.value = value
@@ -36,7 +36,7 @@ class Weak<T: AnyObject> : ExpressibleByNilLiteral {
     }
 }
 
-class WeakAnyObject : ExpressibleByNilLiteral {
+internal class WeakAnyObject : ExpressibleByNilLiteral {
     weak var value : AnyObject?
     init (_ value: AnyObject?) {
         self.value = value
@@ -48,7 +48,7 @@ class WeakAnyObject : ExpressibleByNilLiteral {
 
 // We use this to convert a Any value into an AnyObject
 // so it can be saved via objc_setAssociatedObject
-class Strong<T:Any> : ExpressibleByNilLiteral {
+internal class Strong<T:Any> : ExpressibleByNilLiteral {
     var value : T?
     init (_ value: T?) {
         self.value = value
@@ -63,7 +63,7 @@ class Strong<T:Any> : ExpressibleByNilLiteral {
 // how to allocate and deallocate etc..
 // let's make a utility class that allocates, initializes, and deallocates
 
-class UnSafeMutableContainer<T> {
+internal class UnSafeMutableContainer<T> {
     var unsafe_pointer : UnsafeMutablePointer<T>
     
     var memory : T {

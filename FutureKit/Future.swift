@@ -24,6 +24,43 @@
 
 import Foundation
 
+#if FUTURE_STACK_TRACING
+    public struct FileLineInfo {
+        let file: StaticString
+        let line: Int
+        let column: Int
+        let function: StaticString
+
+
+        public init(file f: StaticString = #file, line l: Int = #line, column c: Int = #column, function fun:StaticString = #function) {
+            file = f
+            line = l
+            column = c
+            function = fun
+        }
+    }
+
+
+    public struct StackTraceInfo {
+        let info : FileLineInfo
+        let previous: StackTraceInfo?
+
+        public init(info i: FileLineInfo, previous p:StackTraceInfo) {
+            trace = [i]
+        }
+
+        public func add(info:FileLineInfo) -> StackTraceInfo {
+            let newTrace = trace.append(info)
+            return StackTraceInfo(trace:newTrace)
+        }
+    }
+
+#else
+    public typealias FileLineInfo = Void
+    
+#endif
+
+
 public struct GLOBAL_PARMS {
     // WOULD LOVE TO TURN THESE INTO COMPILE TIME PROPERTIES
     // MAYBE VIA an Objective C Header file?
@@ -383,7 +420,7 @@ public protocol FutureProtocol : AnyFuture {
     var value : T? { get }
     
     
-    func onComplete<C: CompletionType>(_ executor : Executor,block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
+    func onComplete<C: CompletionType>(fi: FileLineInfo, _ executor : Executor,block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
     
     /**
     convert this future of type `Future<T>` into another future type `Future<S>`
@@ -454,15 +491,37 @@ public extension FutureProtocol  {
 
 */
 open class Future<T> : FutureProtocol {
+    public func onComplete<C : CompletionType>(_ executor: Executor, block: @escaping (FutureResult<T>) throws -> C) -> Future<T> {
+        <#code#>
+    }
+
     
     public typealias ReturnType = T
     
     internal typealias CompletionErrorHandler = Promise<T>.CompletionErrorHandler
     internal typealias completion_block_type = ((FutureResult<T>) -> Void)
     internal typealias cancellation_handler_type = (()-> Void)
-    
-    
+
+    public internal(set) final weak var owner: Promise<T>?
+
+
     fileprivate final var __callbacks : [completion_block_type]?
+
+
+    fileprivate final var __promises_waiting_for_me : [Weak<BasePromise>]?
+
+    #if FUTURE_STACK_TRACING
+        public let fileLineInfo: FileLineInfo
+    #else
+        public var fileLineInfo: FileLineInfo {
+            get {
+                return FileLineInfo()
+            }
+            set(newValue) {  // doesn't do anything!
+
+            }
+        }
+    #endif
 
     /**
         this is used as the internal storage for `var completion`
@@ -943,12 +1002,16 @@ open class Future<T> : FutureProtocol {
                 // we only allocate an array after getting the first __callbacks.
                 // cause we are hyper sensitive about not allocating extra stuff for temporary transient Futures.
                 switch self.__callbacks {
-                case let .some(cb):
-                    var newcb = cb
-                    newcb.append(callback)
-                    self.__callbacks = newcb
+                case var .some(cb):
+                    cb.append(callback)
                 case .none:
                     self.__callbacks = [callback]
+                }
+                switch self.__promises_waiting_for_me {
+                case var .some(promises):
+                    promises.append(Weak(promise))
+                case .none:
+                    self.__promises_waiting_for_me = [Weak(promise)]
                 }
                 let t = self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken: false)
                 promise.onRequestCancel(.immediate) { (options) -> CancelRequestResponse<S> in
@@ -1140,7 +1203,7 @@ open class Future<T> : FutureProtocol {
     - returns: a new Future that returns results of type __Type  (Future<__Type>)
     
     */
-    public final func onComplete<C: CompletionType>(_ executor : Executor,block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
+    public final func onComplete<C: CompletionType>(fl: FileLineInfo = FileLineInfo(), _ executor : Executor,block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
         
         let (promise, completionCallback) = self.createPromiseAndCallback(block)
         let block = executor.callbackBlockFor(completionCallback)

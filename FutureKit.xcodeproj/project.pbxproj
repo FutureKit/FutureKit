@@ -6,6 +6,23 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		0D295AF11E0202D0008A396E /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 0D295AF21E0202D0008A396E /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				0D295AF61E0202E8008A396E /* PBXTargetDependency */,
+				0D295AF81E0202E8008A396E /* PBXTargetDependency */,
+				0D295AFA1E0202E8008A396E /* PBXTargetDependency */,
+				0D295AFC1E0202E8008A396E /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		090112C11BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		090112C21BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
@@ -130,6 +147,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0D295AF51E0202E8008A396E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DEA1B901AE30853000E126F;
+			remoteInfo = "FutureKit iOS";
+		};
+		0D295AF71E0202E8008A396E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DEA1BAE1AE30872000E126F;
+			remoteInfo = "FutureKit OSX";
+		};
+		0D295AF91E0202E8008A396E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DBB32EE1D0F91640092BF7B;
+			remoteInfo = "FutureKit watchOS";
+		};
+		0D295AFB1E0202E8008A396E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DBB32FB1D0F919C0092BF7B;
+			remoteInfo = "FutureKit tvOS";
+		};
 		0DBB33071D0F919C0092BF7B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
@@ -728,10 +773,18 @@
 		0DA41FA51ADAFE3D00B58B0B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					New,
+				);
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
+					0D295AF11E0202D0008A396E = {
+						CreatedOnToolsVersion = 8.2;
+						DevelopmentTeam = A6GQ5E3LKE;
+						ProvisioningStyle = Automatic;
+					};
 					0DBB32EE1D0F91640092BF7B = {
 						CreatedOnToolsVersion = 7.3.1;
 					};
@@ -794,6 +847,7 @@
 				0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */,
 				0DDE32731B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
 				0DBB33041D0F919C0092BF7B /* FutureKit tvOSTests */,
+				0D295AF11E0202D0008A396E /* All */,
 			);
 		};
 /* End PBXProject section */
@@ -1040,6 +1094,26 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0D295AF61E0202E8008A396E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DEA1B901AE30853000E126F /* FutureKit iOS */;
+			targetProxy = 0D295AF51E0202E8008A396E /* PBXContainerItemProxy */;
+		};
+		0D295AF81E0202E8008A396E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DEA1BAE1AE30872000E126F /* FutureKit OSX */;
+			targetProxy = 0D295AF71E0202E8008A396E /* PBXContainerItemProxy */;
+		};
+		0D295AFA1E0202E8008A396E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DBB32EE1D0F91640092BF7B /* FutureKit watchOS */;
+			targetProxy = 0D295AF91E0202E8008A396E /* PBXContainerItemProxy */;
+		};
+		0D295AFC1E0202E8008A396E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */;
+			targetProxy = 0D295AFB1E0202E8008A396E /* PBXContainerItemProxy */;
+		};
 		0DBB33081D0F919C0092BF7B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */;
@@ -1082,6 +1156,22 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0D295AF31E0202D0008A396E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = A6GQ5E3LKE;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0D295AF41E0202D0008A396E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = A6GQ5E3LKE;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		0DA41FC21ADAFE3D00B58B0B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1095,8 +1185,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1144,8 +1236,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1165,7 +1259,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1178,6 +1272,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1190,6 +1285,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = FUTURE_STACK_TRACING;
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
@@ -1201,6 +1297,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1222,6 +1319,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -1234,6 +1332,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = FUTURE_STACK_TRACING;
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
@@ -1244,6 +1343,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1385,6 +1485,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1400,6 +1501,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = FUTURE_STACK_TRACING;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -1409,6 +1511,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1448,6 +1551,7 @@
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = FUTURE_STACK_TRACING;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -1566,6 +1670,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0D295AF21E0202D0008A396E /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D295AF31E0202D0008A396E /* Debug */,
+				0D295AF41E0202D0008A396E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		0DA41FA81ADAFE3D00B58B0B /* Build configuration list for PBXProject "FutureKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

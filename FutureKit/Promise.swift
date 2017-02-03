@@ -24,32 +24,53 @@
 
 import Foundation
 
+
 public enum CancelRequestResponse<T> {
     case `continue`            // the promise will not be completed
     case complete(Completion<T>)  // ex: .Complete(.Cancelled)
 }
 
+public protocol BasePromiseProtocol: class {
 
-open class Promise<T>  {
+}
+
+public class BasePromise : BasePromiseProtocol {
+
+    public init() {
+    }
+
+}
+
+public class Promise<T> : BasePromise  {
     
     open var future : Future<T>
 
-    public init() {
+    public override init() {
         self.future = Future<T>()
+        super.init()
+        self.future.owner = self
     }
     public required init(success:T) {
         self.future = Future<T>(success: success)
+        super.init()
+        self.future.owner = self
     }
     public required init(fail:Error) {
         self.future = Future<T>(fail: fail)
+        super.init()
+        self.future.owner = self
     }
     public required init(cancelled:()) {
         self.future = Future<T>(cancelled: cancelled)
+        super.init()
+        self.future.owner = self
     }
     public required init(completeUsing:Future<T>) {
         self.future = Future<T>(completeUsing: completeUsing)
+        super.init()
+        self.future.owner = self
     }
-    
+
     // *  complete commands  */
     
     public final func complete<C:CompletionType>(_ completion : C) where C.T == T {

@@ -10,9 +10,9 @@ import Foundation
 
 
 // This will extend 'indexable' collections, like Arrays to allow some conviences tuple implementations
-public extension SequenceType where Self:Indexable, Self.Index : IntegerLiteralConvertible {
+public extension Sequence where Self:Collection, Self.Index : ExpressibleByIntegerLiteral {
     
-    private func _get_element<T>(index : Index) -> T {
+    fileprivate func _get_element<T>(_ index : Index) -> T {
         let x = self[index]
         let t = x as? T
         assert(t != nil, "did not find type \(T.self) at index \(index) of \(Self.self)")
@@ -130,9 +130,9 @@ public extension SequenceType where Self:Indexable, Self.Index : IntegerLiteralC
 }
 
 
-public extension SequenceType  { // Some sequences don't have integer indexes, so we will use generators.
+public extension Sequence  { // Some sequences don't have integer indexes, so we will use generators.
     
-    private func _get_element<T>(inout generator : Generator) -> T {
+    fileprivate func _get_element<T>(_ generator : inout Iterator) -> T {
         let x = generator.next()
         assert(x != nil, "toTuple() did not find enough values inside \(Self.self)")
         let t = x! as? T
@@ -141,14 +141,14 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
 
     public func toTuple<A,B>() -> (A,B) {
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         return (a,b)
     }
     public func toTuple<A, B, C>() -> (A, B, C) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -156,7 +156,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D>() -> (A, B, C, D) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -165,7 +165,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E>() -> (A, B, C, D, E) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -175,7 +175,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F>() -> (A, B, C, D, E, F) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -186,7 +186,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F, G>() -> (A, B, C, D, E, F, G) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -198,7 +198,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F, G, H>() -> (A, B, C, D, E, F, G, H) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -211,7 +211,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F, G, H, I>() -> (A, B, C, D, E, F, G, H, I) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -225,7 +225,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F, G, H, I, J>() -> (A, B, C, D, E, F, G, H, I, J) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -240,7 +240,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F, G, H, I, J, K>() -> (A, B, C, D, E, F, G, H, I, J, K) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -256,7 +256,7 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
     }
     public func toTuple<A, B, C, D, E, F, G, H, I, J, K, L>() -> (A, B, C, D, E, F, G, H, I, J, K, L) {
         
-        var generator = self.generate()
+        var generator = self.makeIterator()
         let a: A = self._get_element(&generator)
         let b: B = self._get_element(&generator)
         let c: C = self._get_element(&generator)
@@ -274,30 +274,30 @@ public extension SequenceType  { // Some sequences don't have integer indexes, s
 }
 
 
-public func tupleToArray<T : ArrayLiteralConvertible, A>(tuple:(A)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral, A>(_ tuple:(A)) -> T {
     return [tuple as! T.Element]
 }
 
-public func tupleToArray<T : ArrayLiteralConvertible,A,B>(tuple:(A,B)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A,B>(_ tuple:(A,B)) -> T {
     return [tuple.0 as! T.Element,
            tuple.1 as! T.Element]
 }
 
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C>(tuple:(A, B, C)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C>(_ tuple:(A, B, C)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
             tuple.2 as! T.Element]
 }
 
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D>(tuple:(A, B, C, D)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D>(_ tuple:(A, B, C, D)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
             tuple.2 as! T.Element,
             tuple.3 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E>(tuple:(A, B, C, D, E)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E>(_ tuple:(A, B, C, D, E)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -305,7 +305,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E>(tuple:(A, B,
             tuple.3 as! T.Element,
             tuple.4 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F>(tuple:(A, B, C, D, E, F)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F>(_ tuple:(A, B, C, D, E, F)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -314,7 +314,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F>(tuple:(A,
             tuple.4 as! T.Element,
             tuple.5 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G>(tuple:(A, B, C, D, E, F, G)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G>(_ tuple:(A, B, C, D, E, F, G)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -324,7 +324,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G>(tuple:
             tuple.5 as! T.Element,
             tuple.6 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H>(tuple:(A, B, C, D, E, F, G, H)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H>(_ tuple:(A, B, C, D, E, F, G, H)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -335,7 +335,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H>(tup
             tuple.6 as! T.Element,
             tuple.7 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I>(tuple:(A, B, C, D, E, F, G, H, I)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I>(_ tuple:(A, B, C, D, E, F, G, H, I)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -347,7 +347,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I>(
             tuple.7 as! T.Element,
             tuple.8 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I, J>(tuple:(A, B, C, D, E, F, G, H, I, J)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I, J>(_ tuple:(A, B, C, D, E, F, G, H, I, J)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -360,7 +360,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I, 
             tuple.8 as! T.Element,
             tuple.9 as! T.Element]
 }
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I, J, K>(tuple:(A, B, C, D, E, F, G, H, I, J, K)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I, J, K>(_ tuple:(A, B, C, D, E, F, G, H, I, J, K)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,
@@ -375,7 +375,7 @@ public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I, 
             tuple.10 as! T.Element]
 }
 
-public func tupleToArray<T : ArrayLiteralConvertible,A, B, C, D, E, F, G, H, I, J, K, L>(tuple:(A, B, C, D, E, F, G, H, I, J, K, L)) -> T {
+public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I, J, K, L>(_ tuple:(A, B, C, D, E, F, G, H, I, J, K, L)) -> T {
     return
         [tuple.0 as! T.Element,
             tuple.1 as! T.Element,

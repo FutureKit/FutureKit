@@ -29,7 +29,7 @@ import Foundation
 FutureKit extension for NSData.  Including class functions replacements for the thread-blocking NSData(contentsOfFile::) and NSData(contentsOfURL::)
 
 */
-extension NSData {
+extension Data {
     
     /**
     FutureKit extension for NSData.
@@ -40,10 +40,10 @@ extension NSData {
     
     - returns: an Future<NSData>
     */
-    class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
+    static func data(_ executor : Executor, contentsOfFile path: String, options readOptionsMask: NSData.ReadingOptions) -> Future<Data> {
         
-        return executor.execute { () -> NSData in
-            return try NSData(contentsOfFile: path, options: readOptionsMask)
+        return executor.execute { () -> Data in
+            return try Data(contentsOf: URL(fileURLWithPath: path), options: readOptionsMask)
         }
     }
     /**
@@ -55,8 +55,8 @@ extension NSData {
     
     - returns: an Future<NSData>
     */
-    class func data(contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
-        return self.data(.Async, contentsOfFile: path, options: readOptionsMask)
+    static func data(contentsOfFile path: String, options readOptionsMask: NSData.ReadingOptions) -> Future<Data> {
+        return self.data(.async, contentsOfFile: path, options: readOptionsMask)
     }
 
     
@@ -75,11 +75,11 @@ extension NSData {
     
     - returns: an Future<NSData>
     */
-    class func data(executor : Executor, contentsOfURL url: NSURL, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
+    static func data(_ executor : Executor, contentsOfURL url: URL, options readOptionsMask: NSData.ReadingOptions) -> Future<Data> {
     
         
-        return executor.execute { () -> NSData in
-            let data = try NSData(contentsOfURL: url, options: readOptionsMask)
+        return executor.execute { () -> Data in
+            let data = try Data(contentsOf: url, options: readOptionsMask)
             return data
         }
 
@@ -92,8 +92,8 @@ extension NSData {
     alternative use `class func data(executor : Executor, contentsOfFile path: String, options readOptionsMask: NSDataReadingOptions)`
     - returns: an Future<NSData>
     */
-    class func data(contentsOfURL url: NSURL, options readOptionsMask: NSDataReadingOptions) -> Future<NSData> {
-        return self.data(.Async, contentsOfURL: url, options: readOptionsMask)
+    static func data(contentsOfURL url: URL, options readOptionsMask: NSData.ReadingOptions) -> Future<Data> {
+        return self.data(.async, contentsOfURL: url, options: readOptionsMask)
     }
 
     /**
@@ -105,12 +105,12 @@ extension NSData {
     
     - returns: an Future<NSData>
     */
-    class func data(executor : Executor, contentsOfURL url: NSURL) -> Future<NSData> {
+    static func data(_ executor : Executor, contentsOfURL url: URL) -> Future<Data> {
         
-        let promise = Promise<NSData>()
+        let promise = Promise<Data>()
         executor.execute { () -> Void in
             
-            let data = NSData(contentsOfURL: url)
+            let data = try? Data(contentsOf: url)
             if let d = data {
                 promise.completeWithSuccess(d)
             }
@@ -127,8 +127,8 @@ extension NSData {
     
     - returns: an Future<NSData>.  Fails of NSData(contentsOfUrl:url) returns a nil.
     */
-    class func data(contentsOfURL url: NSURL) -> Future<NSData> {
-        return self.data(.Async, contentsOfURL: url)
+    static func data(contentsOfURL url: URL) -> Future<Data> {
+        return self.data(.async, contentsOfURL: url)
     }
 
 

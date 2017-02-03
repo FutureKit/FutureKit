@@ -1,8 +1,8 @@
 //: # Welcome to FutureKit!
 //: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.  If import FutureKit is failing, make sure you build the OSX Framework in the workspace!
 import FutureKit
-import XCPlayground
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+import PlaygroundSupport
+PlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # Let's get started!
 
 //: This is a Future:
@@ -21,7 +21,7 @@ let e = futureFail.error
 let cancelledFuture = Future<Int>(cancelled: ())
 let cancelledResult = cancelledFuture.result
 //: These aren't very interesting Futures. Let's make something a bit more interesting:
-let asyncFuture5 = Future(.Background) { () -> Int in
+let asyncFuture5 = Future<Int>(.background) { () -> Int in
     return 5
 }
 //: This is also a Future<Int>. The swift compiler figured it out, because I added a block that returns an Int.
@@ -31,13 +31,13 @@ let firstAttempt = asyncFuture5.result
 //: **WTF!?**  why is the result nil?  should it be? Sometimes when you run the playground, you will get a 5.  Sometimes a nil.
 //: That's because the block that returns the 5 may not have finished running yet.
 //: Let's wait and then try again looking at the result AGAIN:
-NSThread.sleepForTimeInterval(0.1)
+Thread.sleep(forTimeInterval: 0.1)
 let secondAttempt = asyncFuture5.result
 //: that's because we created a Future and told it to "run" inside the .Default Executor. Which is a shortcut way of saying "dispatch this block to the built in iOS queue "QOS_CLASS_DEFAULT" and then return the results back to the Future".
 //: We will talk more about Executors and how they can encapulate dispatch_queue, NSOperationQueue, and some other interesting execution issues, in a different playground.
 //: But how are we supposed to get a result?
 
-let f = asyncFuture5.onSuccess(.Main) { (value) -> Int in
+let f = asyncFuture5.onSuccess(.main) { (value) -> Int in
     let five = value
     return five
 }
@@ -69,11 +69,11 @@ cancelledFuture.onCancel { () -> Void in
 
 asyncFuture5.onComplete { (result : FutureResult<Int>) -> Void in
     switch result {
-    case let .Success(value):
+    case let .success(value):
         let five = value
-    case let .Fail(error):
+    case let .fail(error):
         let e = error
-    case .Cancelled:
+    case .cancelled:
         break
     }
 }
@@ -82,5 +82,9 @@ asyncFuture5.onComplete { (result : FutureResult<Int>) -> Void in
 let completionOfAsyncFuture5 = asyncFuture5.result!
 // ".Success(5)"
 
+
+FutureBatch([asyncFuture5,cancelledFuture,futureFail]).resultsFuture.onComplete(.mainAsync) { _ in
+    PlaygroundPage.currentPage.finishExecution()
+}
 //: Seems easy?  Let's make them more fun.. 
 //: [Next](@next)

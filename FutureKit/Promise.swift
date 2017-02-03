@@ -25,14 +25,14 @@
 import Foundation
 
 public enum CancelRequestResponse<T> {
-    case Continue            // the promise will not be completed
-    case Complete(Completion<T>)  // ex: .Complete(.Cancelled)
+    case `continue`            // the promise will not be completed
+    case complete(Completion<T>)  // ex: .Complete(.Cancelled)
 }
 
 
-public class Promise<T>  {
+open class Promise<T>  {
     
-    public var future : Future<T>
+    open var future : Future<T>
 
     public init() {
         self.future = Future<T>()
@@ -40,7 +40,7 @@ public class Promise<T>  {
     public required init(success:T) {
         self.future = Future<T>(success: success)
     }
-    public required init(fail:ErrorType) {
+    public required init(fail:Error) {
         self.future = Future<T>(fail: fail)
     }
     public required init(cancelled:()) {
@@ -52,71 +52,71 @@ public class Promise<T>  {
     
     // *  complete commands  */
     
-    public final func complete<C:CompletionType where C.T == T>(completion : C) {
+    public final func complete<C:CompletionType>(_ completion : C) where C.T == T {
         self.future.completeWith(completion.completion)
     }
     
-    public final func completeWithSuccess(result : T) {
-        self.future.completeWith(.Success(result))
+    public final func completeWithSuccess(_ result : T) {
+        self.future.completeWith(.success(result))
     }
-    public final func completeWithFail(error : ErrorType) {
-        self.future.completeWith(.Fail(error))
+    public final func completeWithFail(_ error : Error) {
+        self.future.completeWith(.fail(error))
     }
-    public final func completeWithFail(errorMessage : String) {
+    public final func completeWithFail(_ errorMessage : String) {
         self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
     }
-    public final func completeWithErrorMessage(errorMessage : String) {
+    public final func completeWithErrorMessage(_ errorMessage : String) {
         self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
     }
     
-    public final func completeWithException(e : NSException) {
+    public final func completeWithException(_ e : NSException) {
         self.future.completeWith(Completion<T>(exception: e))
     }
     public final func completeWithCancel() {
-        self.future.completeWith(.Cancelled)
+        self.future.completeWith(.cancelled)
     }
-    public final func completeUsingFuture(f : Future<T>) {
-        self.future.completeWith(.CompleteUsing(f))
+    public final func completeUsingFuture(_ f : Future<T>) {
+        self.future.completeWith(.completeUsing(f))
     }
 
 
-    public convenience init(automaticallyCancelAfter delay: NSTimeInterval) {
+    public convenience init(automaticallyCancelAfter delay: TimeInterval) {
         self.init()
         self.automaticallyCancelAfter(delay)
     }
 
-    public convenience init(automaticallyFailAfter delay: NSTimeInterval, error:ErrorType ) {
+    public convenience init(automaticallyFailAfter delay: TimeInterval, error:Error ) {
         self.init()
         self.automaticallyFailAfter(delay,error:error)
     }
 
-    public convenience init(automaticallyFailAfter delay: NSTimeInterval, errorMessage:String ) {
+    public convenience init(automaticallyFailAfter delay: TimeInterval, errorMessage:String ) {
         self.init()
         self.automaticallyFailAfter(delay,error:FutureKitError(genericError: errorMessage))
     }
 
     // untestable?
-    public convenience init(automaticallyAssertAfter delay: NSTimeInterval, file : StaticString = #file, line : Int32 = #line) {
+    public convenience init(automaticallyAssertAfter delay: TimeInterval, file : StaticString = #file, line : Int32 = #line) {
         self.init()
     }
     
     
-    public final func automaticallyCancelAfter(delay: NSTimeInterval) {
+    public final func automaticallyCancelAfter(_ delay: TimeInterval) {
         self.automaticallyCancelOnRequestCancel()
-        Executor.Default.executeAfterDelay(delay) { () -> Void in
+        Executor.default.executeAfterDelay(delay) { () -> Void in
             self.completeWithCancel()
         }
     }
 
-    public final func automaticallyFailAfter(delay: NSTimeInterval, error:ErrorType) {
+    public final func automaticallyFailAfter(_ delay: TimeInterval, error:Error) {
         self.automaticallyCancelOnRequestCancel()
-        Executor.Default.executeAfterDelay(delay) { () -> Void in
+        Executor.default.executeAfterDelay(delay) { () -> Void in
             self.failIfNotCompleted(error)
         }
     }
 
     
-    public final func automaticallyAssertOnFail(message:String, file : StaticString = #file, line : Int32 = #line) {
+    public final func automaticallyAssertOnFail(_ message:String, file : StaticString = #file, line : Int32 = #line) {
         self.future.onFail { (error) -> Void in
             assertionFailure("\(message) on at:\(file):\(line)")
             return
@@ -124,23 +124,23 @@ public class Promise<T>  {
     }
 
     
-    public final func onRequestCancel(executor:Executor = .Primary, handler: (options:CancellationOptions) -> CancelRequestResponse<T>) {
+    public final func onRequestCancel(_ executor:Executor = .primary, handler: @escaping (_ options:CancellationOptions) -> CancelRequestResponse<T>) {
         let newHandler : (CancellationOptions) -> Void  = { [weak self] (options) -> Void in
-            switch handler(options: options) {
-            case .Complete(let completion):
+            switch handler(options) {
+            case .complete(let completion):
                 self?.complete(completion)
             default:
                 break
             }
             
         }
-        let wrappedNewHandler = Executor.Primary.callbackBlockFor(newHandler)
+        let wrappedNewHandler = Executor.primary.callbackBlockFor(newHandler)
         self.future.addRequestHandler(wrappedNewHandler)
         
     }
     public final func automaticallyCancelOnRequestCancel() {
         self.onRequestCancel { (force) -> CancelRequestResponse<T> in
-            return .Complete(.Cancelled)
+            return .complete(.cancelled)
         }
     }
     
@@ -166,8 +166,8 @@ public class Promise<T>  {
     
     - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
-    public final func completeWithBlock<C:CompletionType where C.T == T>(completionBlock : () throws ->C) {
-        self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock,onCompletionError: nil)
+    public final func completeWithBlock<C:CompletionType>(_ completionBlock : @escaping () throws ->C) where C.T == T {
+        self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock)
     }
     
     /**
@@ -183,26 +183,29 @@ public class Promise<T>  {
 
     - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
-    public final func completeWithBlocks<C:CompletionType where C.T == T>(completionBlock : () throws ->C, onAlreadyCompleted : () -> Void)
+    public final func completeWithBlocks<C:CompletionType>(_ completionBlock : @escaping () throws ->C, onAlreadyCompleted : @escaping () -> Void) where C.T == T
     {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock, onCompletionError: onAlreadyCompleted)
     }
 
 
-    public final func failIfNotCompleted(e : ErrorType) -> Bool {
+    @discardableResult
+    public final func failIfNotCompleted(_ e : Error) -> Bool {
         if (!self.isCompleted) {
-            return self.future.completeWithSync(.Fail(e))
+            return self.future.completeWithSync(.fail(e))
         }
         return false
     }
-    public final func failIfNotCompleted(errorMessage : String) -> Bool {
+
+    @discardableResult
+    public final func failIfNotCompleted(_ errorMessage : String) -> Bool {
         if (!self.isCompleted) {
             return self.future.completeWithSync(Completion<T>(failWithErrorMessage: errorMessage))
         }
         return false
     }
 
-    public var isCompleted : Bool {
+    open var isCompleted : Bool {
         get {
             return self.future.isCompleted
         }
@@ -211,14 +214,14 @@ public class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func tryComplete<C:CompletionType where C.T == T>(completion : C) -> Bool {
+    public final func tryComplete<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
         return self.future.completeWithSync(completion)
     }
     
     public typealias CompletionErrorHandler = (() -> Void)
     // execute a block if the completion "fails" because the future is already completed.
     
-    public final func complete<C:CompletionType where C.T == T>(completion : C,onCompletionError errorBlock: CompletionErrorHandler) {
+    public final func complete<C:CompletionType>(_ completion : C,onCompletionError errorBlock: @escaping () -> Void) where C.T == T {
         self.future.completeWith(completion.completion,onCompletionError:errorBlock)
     }
     

@@ -95,7 +95,7 @@ class LockPerformanceTests: BlockBasedTestCase {
 
     typealias TestBlockType = ((LockPerformanceTests) -> Void)
     
-    override class func myBlockBasedTests() -> [AnyObject] {
+    override class func myBlockBasedTests() -> [Any] {
         
         var tests = [AnyObject]()
         
@@ -133,7 +133,7 @@ class LockPerformanceTests: BlockBasedTestCase {
                             
                             
                             if let test = self.addTest(attributes.testName, closure: { (_self : LockPerformanceTests) -> Void in
-                                _self.measureTest(attributes)
+                                _self.measureTest(attributes: attributes)
                             }) {
                             
                                 tests.append(test)
@@ -169,13 +169,13 @@ class LockPerformanceTests: BlockBasedTestCase {
 
         let block = attributes.blockForTest()
 
-        let queue = NSOperationQueue()
+        let queue = OperationQueue()
 
         queue.maxConcurrentOperationCount = attributes.threads
         
         for thread_number in 0..<attributes.threads {
-            queue.addOperationWithBlock({ () -> Void in
-                block(runningThreadNum: thread_number)
+            queue.addOperation({ () -> Void in
+                block(thread_number)
             })
         }
 
@@ -191,7 +191,7 @@ class LockPerformanceTests: BlockBasedTestCase {
         
         for thread_number in 0..<attributes.threads {
             let t = ThreadType(block: { () -> Any in
-                block(runningThreadNum: thread_number)
+                block(thread_number)
             })
             threads.append(t)
         }
@@ -203,7 +203,7 @@ class LockPerformanceTests: BlockBasedTestCase {
         }
         
         self.expectationTestForFutureSuccess("threads", future: FutureBatchOf(futures:futures).future)
-        self.waitForExpectationsWithTimeout(600, handler: nil)
+        self.waitForExpectations(timeout: 600, handler: nil)
     }
     
     
@@ -212,15 +212,15 @@ class LockPerformanceTests: BlockBasedTestCase {
         
         switch attributes.with {
         case .Queues:
-            self.iterateTestWithQueues(attributes)
+            self.iterateTestWithQueues(attributes: attributes)
         case .Threads:
-            self.iterateTestWithThreads(attributes)
+            self.iterateTestWithThreads(attributes: attributes)
         }
     }
 
     func measureTest(attributes:AttributesForTest) {
-        self.measureBlock { () -> Void in
-            self.iterateLocks(attributes)
+        self.measure { () -> Void in
+            self.iterateLocks(attributes: attributes)
         }
     }
 }
@@ -243,7 +243,7 @@ extension AttributesForTest {
             ((reads > 0) && (arc4random_uniform(numops) < reads))
     }
     
-    func blockForTest() -> ((runningThreadNum:Int) -> Void) {
+    func blockForTest() -> ((_ runningThreadNum:Int) -> Void) {
         
         assert(number_of_locks >= 1, "need at least 1 lock")
         
@@ -315,7 +315,7 @@ extension AttributesForTest {
                     }
                     switch self.sOrA {
                     case .Async:
-                        lock.lockAndModify(modifyBlock)
+                        lock.lockAndModify(modifyBlock: modifyBlock)
                     case .Sync:
                         lock.lockAndModifySync(modifyBlock)
                     }

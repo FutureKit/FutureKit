@@ -12,9 +12,9 @@ import Foundation
 
 import UIKit
 
-func IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(version: NSString) -> Bool {
-    return UIDevice.currentDevice().systemVersion.compare(version as String,
-        options: NSStringCompareOptions.NumericSearch) != NSComparisonResult.OrderedAscending
+func IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(_ version: NSString) -> Bool {
+    return UIDevice.current.systemVersion.compare(version as String,
+        options: NSString.CompareOptions.numeric) != ComparisonResult.orderedAscending
 }
         
 let is_ios_8_or_above = IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO("8.0")
@@ -26,15 +26,15 @@ let is_ios_8_or_above = IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO("8.0")
 
 enum OSFeature {
     
-    case NSOperationQueuePriority
-    case DispatchQueuesWithQos
+    case nsOperationQueuePriority
+    case dispatchQueuesWithQos
     
     var is_supported : Bool {
 #if os(iOS)
     switch self {
-        case .NSOperationQueuePriority:
+        case .nsOperationQueuePriority:
             return is_ios_8_or_above
-        case .DispatchQueuesWithQos:
+        case .dispatchQueuesWithQos:
             return is_ios_8_or_above
     }
 #else

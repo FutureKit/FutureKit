@@ -25,12 +25,12 @@
 import Foundation
 
 
-private var executorVarHandler = ExtensionVarHandlerFor<NSFileManager>()
+private var executorVarHandler = ExtensionVarHandlerFor<FileManager>()
 
 /** adds an Extension that automatically routes requests to Executor.Default (or some other configured Executor)
 
 */
-extension NSFileManager {
+extension FileManager {
 
     // is this a good idea?  
     // Should I make two versions of the all the APIs? One with and one without?
@@ -44,34 +44,34 @@ extension NSFileManager {
         }
     } */
 
-    func copyItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    func copyItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
     {
         return executor.execute { () -> Bool in
-            try self.copyItemAtURL(srcURL, toURL: dstURL)
+            try self.copyItem(at: srcURL, to: dstURL)
             return true
         }
     }
     
-    func moveItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    func moveItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
     {
         return executor.execute { () -> Bool in
-            try self.moveItemAtURL(srcURL, toURL: dstURL)
+            try self.moveItem(at: srcURL, to: dstURL)
             return true
         }
 
     }
-    func linkItemAtURL(executor : Executor, srcURL: NSURL, toURL dstURL: NSURL) -> Future<Bool>
+    func linkItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
     {
         return executor.execute { () -> Bool in
-            try self.linkItemAtURL(srcURL, toURL: dstURL)
+            try self.linkItem(at: srcURL, to: dstURL)
             return true
         }
     }
     
-    func removeItemAtURL(executor : Executor,URL: NSURL) -> Future<Bool>
+    func removeItemAtURL(_ executor : Executor,URL: Foundation.URL) -> Future<Bool>
     {
         return executor.execute { () -> Bool in
-            try self.removeItemAtURL(URL)
+            try self.removeItem(at: URL)
             return true
         }
     }

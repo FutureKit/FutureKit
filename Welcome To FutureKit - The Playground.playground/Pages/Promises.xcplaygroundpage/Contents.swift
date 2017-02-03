@@ -7,8 +7,10 @@ import FutureKit
     import Cocoa
     typealias UIImage = NSImage
 #endif
-import XCPlayground
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
+import XCPlaygroundPage
+XCPlaygroundPage.current.needsIndefiniteExecution = true
+
+// XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 //: # Promises.
 //: Promises are used to create your own Futures.
 //: When you want to write a function or method that returns a Future, you will most likely want to create a Promise.
@@ -21,16 +23,17 @@ let namesPromise = Promise<[String]>()
 let namesFuture :Future<[String]> = namesPromise.future
 
 var timeCounter = 0
-namesFuture.onSuccess(.Main) { (names : [String]) -> Void in
+namesFuture.onSuccess(.main) { (names : [String]) -> Void in
     for name in names {
-        let timeCount = timeCounter += 1
+        timeCounter += 1
+        let timeCount = timeCounter
         let greeting = "Happy Future Day \(name)!"
         print(greeting)
     }
 }
 //: so we have a nice routine that wants to greet all the names, but someone has to actually SUPPLY the  names.  Where are they?
 let names = ["Skyer","David","Jess"]
-let t = timeCounter += 1
+// let t = timeCounter += 1
 namesPromise.completeWithSuccess(names)
 //: Notice how the timeCounter shows us that the logic inside onSuccess() is executing after we execute completeWithSuccess().
 
@@ -82,7 +85,7 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
 
 let catUrlIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
 
-let imageFuture = getCoolCatPic(catUrlIFoundOnTumblr)
+let imageFuture = getCoolCatPic(url:catUrlIFoundOnTumblr)
     
 imageFuture.onComplete { (result) -> Void in
     switch result {

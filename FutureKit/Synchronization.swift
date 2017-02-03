@@ -73,6 +73,7 @@ public extension SynchronizationProtocol {
     
     // modify your container and retrieve a result/element to the same calling thread
     // current thread will block until the modifyBlock is done running.
+    @discardableResult
     public final func lockAndModifySync<T>(_ modifyBlock:@escaping () -> T) -> T {
         
         var retVal : T?
@@ -102,6 +103,7 @@ public extension SynchronizationProtocol {
     // perform a readonly query of your shared object and return some value/element T
     // current thread may block until the read block is done running.
     // do NOT modify your object inside this block
+    @discardableResult
     public final func lockAndReadSync<T>(_ readBlock:@escaping () -> T) -> T {
         
         var retVal : T?

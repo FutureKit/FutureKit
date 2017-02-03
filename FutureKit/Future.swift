@@ -696,18 +696,18 @@ open class Future<T> : FutureProtocol {
         
         let p = Promise<T>()
         p.automaticallyCancelOnRequestCancel()
-        executor.executeAfterDelay(delay) { () -> Void in
+        executor.execute(afterDelay:delay) { () -> Void in
             p.complete(completeWith)
         }
         self.init(completeUsing:p.future)
     }
     
-    public convenience init(afterDelay:TimeInterval, success:T) {    // emits a .Success after delay
+    public convenience init(afterDelay delay:TimeInterval, success:T) {    // emits a .Success after delay
         let executor: Executor = .primary
 
         let p = Promise<T>()
         p.automaticallyCancelOnRequestCancel()
-        executor.executeAfterDelay(afterDelay) {
+        executor.execute(afterDelay:delay) {
             p.completeWithSuccess(success)
         }
         self.init(completeUsing:p.future)
@@ -1311,7 +1311,7 @@ extension FutureProtocol {
             }
             .ignoreFailures()
             
-            executor.executeAfterDelay(timeout)  {
+            executor.execute(afterDelay:timeout)  {
                 p.completeWithBlock { () -> C in
                     return try timedOut()
                 }
@@ -1348,7 +1348,7 @@ extension FutureProtocol {
                 p.completeWithSuccess(try didSucceed(result))
             }.ignoreFailures()
             
-            executor.executeAfterDelay(timeout)  {
+            executor.execute(afterDelay:timeout)  {
                 p.completeWithBlock { () -> C in
                     return try timedOut()
                 }

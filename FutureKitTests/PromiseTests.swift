@@ -327,7 +327,7 @@ extension PromiseFunctionTest {
         
         let blockThatMakesDelayedFuture = { (delay : TimeInterval, completion:Completion<T>) -> Future<T> in
             let p = Promise<T>()
-            promiseExecutor.executeAfterDelay(delay) {
+            promiseExecutor.execute(afterDelay:delay) {
                 p.complete(completion)
             }
             return p.future
@@ -560,10 +560,10 @@ private enum PromiseFunctions<T : Equatable> {
         switch self {
             
         case let .automaticallyCancelAfter(delay):
-            promise.automaticallyCancelAfter(delay)
+            promise.automaticallyCancel(afterDelay:delay)
 
         case let .automaticallyFailAfter(delay,error):
-            promise.automaticallyFailAfter(delay,error:error)
+            promise.automaticallyFail(afterDelay:delay,with:error)
 
 /*        case let .onRequestCancelExecutor(handler):
             promise.onRequestCancel(test.promiseExecutor, handler: handler)
@@ -854,6 +854,7 @@ class PromiseTests: FKTestCase {
             }
             completeExpectation.fulfill()
         }
+        .ignoreFailures()
         
         // TODO: Can we get this to compile?
         

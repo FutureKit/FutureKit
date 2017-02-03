@@ -38,6 +38,11 @@
                BlueprintName = "FutureKit iOS Tests"
                ReferencedContainer = "container:FutureKit.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "LockPerformanceTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

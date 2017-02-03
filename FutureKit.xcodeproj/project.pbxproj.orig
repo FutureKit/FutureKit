@@ -777,7 +777,11 @@
 					New,
 				);
 				LastSwiftUpdateCheck = 0730;
+<<<<<<< HEAD
+				LastUpgradeCheck = 0820;
+=======
 				LastUpgradeCheck = 0800;
+>>>>>>> master
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
 					0D295AF11E0202D0008A396E = {

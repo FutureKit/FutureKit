@@ -177,7 +177,7 @@ FutureKit documentation is being written as Xcode Playgrounds.  The best way to 
 The Xcode Playgrounds probably require Xcode 6.3 (in order to see the Markup correctly)
 
 If you are impatient, or not near your copy of Xcode, you can try to read the first intro "raw" playground here:
-https://github.com/FutureKit/FutureKit/blob/master/FutureKit-Future.playground/Contents.swift
+https://github.com/FutureKit/FutureKit/blob/master/Scratch.playground/Contents.swift
 
  Help out!  
 

@@ -135,6 +135,41 @@ public enum SerialOrConcurrent: Int {
     
 }
 
+internal extension Date {
+    internal static var now: Date {
+        return Date()
+    }
+}
+
+internal extension DispatchWallTime {
+    internal init(_ date: Date) {
+        let secsSinceEpoch = date.timeIntervalSince1970
+        let spec = timespec(
+            tv_sec: __darwin_time_t(secsSinceEpoch),
+            tv_nsec: Int((secsSinceEpoch - floor(secsSinceEpoch)) * Double(NSEC_PER_SEC))
+        )
+        self.init(timespec: spec)
+    }
+}
+
+internal extension DispatchTimeInterval {
+    internal init(_ interval: TimeInterval) {
+        let nanoSecs = Int(interval * Double(NSEC_PER_SEC))
+        self = .nanoseconds(nanoSecs)
+    }
+}
+
+internal extension DispatchQueue {
+    internal func async(afterDelay interval: TimeInterval, execute block: @escaping @convention(block) () -> Void) {
+        self.asyncAfter(deadline: DispatchTime.now() + interval, execute: block)
+    }
+
+    internal func async(after date: Date, execute block: @escaping @convention(block) () -> Void) {
+        self.asyncAfter(wallDeadline: DispatchWallTime(date), execute: block)
+    }
+}
+
+
 // remove in Swift 2.0
 
 extension qos_class_t {
@@ -347,6 +382,15 @@ public enum Executor {
         executionBlock()
     }
 
+    @available(*, deprecated: 1.1, message: "renamed to execute(afterDelay:)")
+    @discardableResult public func executeAfterDelay<__Type>(_ delay: TimeInterval, _ block: @escaping () throws -> __Type) -> Future<__Type> {
+        return self.execute(afterDelay: delay, block: block)
+    }
+    @available(*, deprecated: 1.1, message: "renamed to execute(after:)")
+    @discardableResult public func executeAt<__Type>(_ date: Date, _ block: @escaping () throws -> __Type) -> Future<__Type> {
+        return self.execute(after: date, block: block)
+    }
+
     @discardableResult public func execute<__Type>(_ block: @escaping () throws -> __Type) -> Future<__Type> {
         let p = Promise<__Type>()
         self.executeBlock { () -> Void in
@@ -375,95 +419,80 @@ public enum Executor {
         return p.future
     }
     
-    internal func _executeAfterDelay<C:CompletionType>(nanosecs n: Int64, block: @escaping () throws -> C) -> Future<C.T> {
+    @discardableResult public func execute<C:CompletionType>(afterDelay delay: TimeInterval,  block: @escaping () throws -> C) -> Future<C.T> {
         let p = Promise<C.T>()
-        let popTime = DispatchTime.now() + Double(n) / Double(NSEC_PER_SEC)
         let q = self.underlyingQueue ?? Executor.defaultQ
-        q.asyncAfter(deadline: popTime, execute: {
+        q.async(afterDelay: delay) {
             p.completeWithBlock {
                 return try block()
             }
-        })
+        }
         return p.future
     }
-    @discardableResult public func executeAfterDelay<C:CompletionType>(_ secs : TimeInterval,  block: @escaping () throws -> C) -> Future<C.T> {
-        let nanosecsDouble = secs * TimeInterval(NSEC_PER_SEC)
-        let nanosecs = Int64(nanosecsDouble)
-        let p = Promise<C.T>()
-        let popTime = dispatch_time(DISPATCH_TIME_NOW, nanosecs)
-        let q = self.underlyingQueue ?? Executor.defaultQ
-        dispatch_after(popTime, q, {
-            p.completeWithBlock {
-                return try block()
-            }
-        })
-        return p.future
-    }
-    public func executeAfterDelay<C:CompletionType>(secs : NSTimeInterval,  block: () throws -> C) -> Future<C.T> {
-        return self._executeAfterDelay(secs,block:block)
-    }
-    
-    @discardableResult public func executeAfterDelay<__Type>(_ secs : TimeInterval,  block: @escaping () throws -> __Type) -> Future<__Type> {
-        return self.executeAfterDelay(secs) { () -> Completion<__Type> in
+
+    @discardableResult public func execute<__Type>(afterDelay secs : TimeInterval,  block: @escaping () throws -> __Type) -> Future<__Type> {
+        return self.execute(afterDelay: secs) { () -> Completion<__Type> in
             return .success(try block())
         }
     }
-    
 
-    public func executeAt<C:CompletionType>(date : NSDate,  block: () throws -> C) -> Future<C.T> {
-        return self._executeAt(date,block:block)
+    public func execute<C:CompletionType>(after date : Date,  block: @escaping () throws -> C) -> Future<C.T> {
+       let p = Promise<C.T>()
+       let q = self.underlyingQueue ?? Executor.defaultQ
+        q.async(after: date) {
+            p.completeWithBlock {
+                return try block()
+            }
+        }
+        return p.future
     }
 
-    public func executeAt<__Type>(date : NSDate,  block: () throws -> __Type) -> Future<__Type> {
-        return self.executeAt(date) { () -> Completion<__Type> in
-            return .Success(try block())
+    public func execute<__Type>(after date : Date,  block: @escaping () throws -> __Type) -> Future<__Type> {
+        return self.execute(after: date) { () -> Completion<__Type> in
+            return .success(try block())
         }
     }
     
     /**
      repeatExecution
      
-     - parameter date:           time to start repeating
+     - parameter startingAt:     date to start repeating
      - parameter repeatingEvery: interval to repeat
      - parameter action:         action to execute
      
      - returns: CancellationToken
      */
-    public func repeatExecution(date: NSDate, repeatingEvery: NSTimeInterval, action: () -> Void) -> CancellationToken {
-        return self.repeatExecution(date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
+    public func repeatExecution(startingAt date: Date = .now, repeatingEvery: TimeInterval, action: @escaping () -> Void) -> CancellationToken {
+        return self.repeatExecution(startingAt:date, repeatingEvery: repeatingEvery, withLeeway: repeatingEvery * 0.1, action: action)
     }
 
 
     /**
      schedule to repeat execution inside this executor
      
-     - parameter date:           time to start repeatin
+     - parameter startingAt:     date to start repeatin
      - parameter repeatingEvery: interval to repeat
      - parameter leeway:         the 'leeway' execution is allowed. default is 10% of repeatingEvery
      - parameter action:         action to execute
      
      - returns: CancellationToken that can be used to stop the execution
      */
-    public func repeatExecution(date: NSDate, repeatingEvery: NSTimeInterval, withLeeway leeway: NSTimeInterval, action: () -> Void) -> CancellationToken {
+    public func repeatExecution(startingAt date: Date = Date.now, repeatingEvery: TimeInterval, withLeeway leeway: TimeInterval, action: @escaping () -> Void) -> CancellationToken {
         precondition(repeatingEvery >= 0)
         precondition(leeway >= 0)
         
-        let nsecInterval = repeatingEvery * Double(NSEC_PER_SEC)
-        let nsecLeeway = leeway * Double(NSEC_PER_SEC)
-        
-        let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.relatedQueue)
-        dispatch_source_set_timer(timer, wallTime(date), UInt64(nsecInterval), UInt64(nsecLeeway))
-        
-        dispatch_source_set_event_handler(timer) { () -> Void in
+        let timerSource = DispatchSource.makeTimerSource()
+        timerSource.scheduleRepeating(wallDeadline: DispatchWallTime(date), interval: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+
+        timerSource.setEventHandler { 
             self.execute(action)
         }
-        dispatch_resume(timer)
-        
+
         let p = Promise<Void>()
         
         p.onRequestCancel { (options) -> CancelRequestResponse<Void> in
-            dispatch_source_cancel(timer)
-            return .Complete(.Cancelled)
+            timerSource.cancel()
+            return .complete(.cancelled)
         }
         
         return p.future.getCancelToken()
@@ -511,7 +540,7 @@ public enum Executor {
         }
     }
     
-    public var relatedQueue: dispatch_queue_t {
+    public var relatedQueue: DispatchQueue {
         return self.underlyingQueue ?? Executor.defaultQ
     }
 
@@ -824,7 +853,7 @@ let example_Of_A_Custom_Executor_That_has_unneeded_dispatches = Executor.custom 
 
 let example_Of_A_Custom_Executor_Where_everthing_takes_5_seconds = Executor.custom { (callback) -> Void in
     
-    Executor.primary.executeAfterDelay(5.0) { () -> Void in
+    Executor.primary.execute(afterDelay:5.0) { () -> Void in
         callback()
     }
     

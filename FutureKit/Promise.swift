@@ -82,17 +82,17 @@ open class Promise<T>  {
 
     public convenience init(automaticallyCancelAfter delay: TimeInterval) {
         self.init()
-        self.automaticallyCancelAfter(delay)
+        self.automaticallyCancel(afterDelay:delay)
     }
 
     public convenience init(automaticallyFailAfter delay: TimeInterval, error:Error ) {
         self.init()
-        self.automaticallyFailAfter(delay,error:error)
+        self.automaticallyFail(afterDelay:delay,with:error)
     }
 
     public convenience init(automaticallyFailAfter delay: TimeInterval, errorMessage:String ) {
         self.init()
-        self.automaticallyFailAfter(delay,error:FutureKitError(genericError: errorMessage))
+        self.automaticallyFail(afterDelay:delay,with:FutureKitError(genericError: errorMessage))
     }
 
     // untestable?
@@ -101,17 +101,33 @@ open class Promise<T>  {
     }
     
     
+    @available(*, deprecated: 1.1, message: "renamed to automaticallyCancel(afterDelay:)")
     public final func automaticallyCancelAfter(_ delay: TimeInterval) {
         self.automaticallyCancelOnRequestCancel()
-        Executor.default.executeAfterDelay(delay) { () -> Void in
+        Executor.default.execute(afterDelay:delay) { () -> Void in
             self.completeWithCancel()
         }
     }
 
+    public final func automaticallyCancel(afterDelay delay: TimeInterval) {
+        self.automaticallyCancelOnRequestCancel()
+        Executor.default.execute(afterDelay:delay) { () -> Void in
+            self.completeWithCancel()
+        }
+    }
+
+    @available(*, deprecated: 1.1, message: "renamed to automaticallyFail(afterDelay:with:)")
     public final func automaticallyFailAfter(_ delay: TimeInterval, error:Error) {
         self.automaticallyCancelOnRequestCancel()
-        Executor.default.executeAfterDelay(delay) { () -> Void in
+        Executor.default.execute(afterDelay:delay) { () -> Void in
             self.failIfNotCompleted(error)
+        }
+    }
+
+    public final func automaticallyFail(afterDelay delay: TimeInterval, with:Error) {
+        self.automaticallyCancelOnRequestCancel()
+        Executor.default.execute(afterDelay:delay) { () -> Void in
+            self.failIfNotCompleted(with)
         }
     }
 
@@ -237,7 +253,7 @@ open class Promise<T>  {
         return future
     }
     
-    public final func futureWithFailure(error : ErrorType) -> Future<T>{
+    public final func futureWithFailure(error : Error) -> Future<T>{
         self.completeWithFail(error)
         return future
     }

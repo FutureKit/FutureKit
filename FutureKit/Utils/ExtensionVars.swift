@@ -166,7 +166,7 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
         case let w as WeakAnyObject:
             return w.value as? T
         default:
-            assertionFailure("found unknown value \(v) in getExtensionVar")
+            assertionFailure("found unknown value \(String(describing: v)) in getExtensionVar")
             return nil
         }
     }

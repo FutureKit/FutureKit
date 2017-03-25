@@ -382,7 +382,7 @@ public protocol FutureProtocol : AnyFuture {
 
     var value : T? { get }
     
-    
+    @discardableResult
     func onComplete<C: CompletionType>(_ executor : Executor,block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
     
     /**
@@ -1140,6 +1140,7 @@ open class Future<T> : FutureProtocol {
     - returns: a new Future that returns results of type __Type  (Future<__Type>)
     
     */
+    @discardableResult
     public final func onComplete<C: CompletionType>(_ executor : Executor,block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
         
         let (promise, completionCallback) = self.createPromiseAndCallback(block)
@@ -1193,7 +1194,8 @@ extension FutureProtocol {
     public final func withCancelToken() -> (Self,CancellationToken) {
         return (self,self.getCancelToken())
     }
-    
+
+    @discardableResult
     public final func onComplete<C: CompletionType>(_ block: @escaping (FutureResult<T>) throws -> C) -> Future<C.T> {
         return self.onComplete(.primary,block:block)
     }
@@ -1209,6 +1211,7 @@ extension FutureProtocol {
     - parameter block: a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
     - returns: a new Future that returns results of type __Type
     */
+    @discardableResult
     public final func onComplete<__Type>(_ executor: Executor = .primary, _ block:@escaping (_ result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
         return self.onComplete(executor) { (result) -> Completion<__Type> in
             return .success(try block(result))
@@ -1382,7 +1385,8 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.
     */
-    @discardableResult public final func onFail(_ executor : Executor = .primary,
+    @discardableResult
+    public final func onFail(_ executor : Executor = .primary,
         block:@escaping (_ error:Error)-> Void) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
@@ -1403,7 +1407,8 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block can process the error of a future.
      */
-    @discardableResult public final func onFail<C:CompletionType>(_ executor : Executor = .primary,
+    @discardableResult
+    public final func onFail<C:CompletionType>(_ executor : Executor = .primary,
         block:@escaping (_ error:Error)-> C) -> Future<T> where C.T == T
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
@@ -1424,7 +1429,8 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    @discardableResult public final func onCancel(_ executor : Executor = .primary, block:@escaping ()-> Void) -> Future<T>
+    @discardableResult
+    public final func onCancel(_ executor : Executor = .primary, block:@escaping ()-> Void) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> FutureResult<T> in
             if (result.isCancelled) {
@@ -1444,7 +1450,8 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
      */
-    @discardableResult public final func onCancel<C:CompletionType>(_ executor : Executor = .primary, block:@escaping ()-> C) -> Future<T> where C.T == T
+    @discardableResult
+    public final func onCancel<C:CompletionType>(_ executor : Executor = .primary, block:@escaping ()-> C) -> Future<T> where C.T == T
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
             if (result.isCancelled) {
@@ -1466,7 +1473,8 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    @discardableResult public final func onFailorCancel(_ executor : Executor = .primary,
+    @discardableResult
+    public final func onFailorCancel(_ executor : Executor = .primary,
         block:@escaping (FutureResult<T>)-> Void) -> Future<T>
     {
         return self.onComplete(executor) { (result) -> FutureResult<T> in
@@ -1494,7 +1502,8 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    @discardableResult public final func onFailorCancel<C:CompletionType>(_ executor : Executor = .primary,
+    @discardableResult
+    public final func onFailorCancel<C:CompletionType>(_ executor : Executor = .primary,
         block:@escaping (FutureResult<T>)-> C) -> Future<T> where C.T == T
     {
         return self.onComplete(executor) { (result) -> Completion<T> in
@@ -1519,6 +1528,7 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
+    @discardableResult
     public final func onFailorCancel(_ executor : Executor = .primary,
         block:@escaping (FutureResult<T>)-> Future<T>) -> Future<T>
     {
@@ -1538,7 +1548,8 @@ extension FutureProtocol {
      Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
 
      */
-    @discardableResult public final func ignoreFailures() -> Self
+    @discardableResult
+    public final func ignoreFailures() -> Self
     {
         return self
     }
@@ -1549,7 +1560,8 @@ extension FutureProtocol {
      Typically this method will be totally removed by the optimizer, and is really there so that developers will clearly document that they are ignoring errors returned from a Future
      
      */
-    @discardableResult public final func assertOnFail() -> Self
+    @discardableResult
+    public final func assertOnFail() -> Self
     {
         self.onFail { error in
             assertionFailure("Future failed unexpectantly")

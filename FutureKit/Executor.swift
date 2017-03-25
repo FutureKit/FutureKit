@@ -808,7 +808,7 @@ public enum Executor {
                     b(t)
                 }
                 else {
-                    let newDepth = NSNumber(value: currentDepth.intValue+1 as Int32)
+                    let newDepth = NSNumber(value: (currentDepth.int32Value + Int32(1)))
                     threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = newDepth
                     block(t)
                     threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = currentDepth

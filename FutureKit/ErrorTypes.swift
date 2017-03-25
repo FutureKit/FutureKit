@@ -45,7 +45,7 @@ extension ErrorTypeMightBeCancellation {
 
 // This is a protocol that helps you figure out if an ErrorType REALLY IS an NSError
 // since error as NSError always works in swift, we will use a protocol test.
-public protocol NSErrorType : ErrorTypeMightBeCancellation {
+public protocol NSErrorProtocol : ErrorTypeMightBeCancellation {
     var userInfo: [AnyHashable: Any] { get }
     var domain: String { get }
     var code: Int { get }
@@ -53,7 +53,7 @@ public protocol NSErrorType : ErrorTypeMightBeCancellation {
 }
 
 
-public extension NSErrorType {
+public extension NSErrorProtocol {
     public var isCancellation : Bool {
         
         if GLOBAL_PARMS.CONVERT_COMMON_NSERROR_VALUES_TO_CANCELLATIONS {
@@ -75,27 +75,22 @@ public extension NSErrorType {
 
 public extension Error {
     var isNSError : Bool {
-        return ((self as? NSErrorType) != nil)
+        return (self is NSErrorProtocol)
     }
     
     public var testForCancellation : Bool {
-        return (self as? ErrorTypeMightBeCancellation)?.isCancellation ?? false
+        return (self as ErrorTypeMightBeCancellation).isCancellation 
     }
 
-    
+
     func toResult<T>() -> FutureResult<T> {
-        return (self as? ErrorTypeMightBeCancellation)?.toFutureResult() ?? .fail(self)
+        return (self as ErrorTypeMightBeCancellation).toFutureResult()
     }
     func toCompletion<T>() -> Completion<T> {
-        return (self as? ErrorTypeMightBeCancellation)?.toFutureCompletion() ?? .fail(self)
+        return (self as ErrorTypeMightBeCancellation).toFutureCompletion() 
     }
 
 }
 
 
-extension NSError : NSErrorType {
-    convenience init(error : Error) {
-        let e = error as NSError
-        self.init(domain: e.domain, code: e.code, userInfo:e.userInfo)
-    }
-}
+extension NSError : NSErrorProtocol {}

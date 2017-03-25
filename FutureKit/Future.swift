@@ -1632,7 +1632,7 @@ extension Future : CustomStringConvertible, CustomDebugStringConvertible {
     
 }
 
-public protocol OptionalProtocol {
+public protocol OptionalTypeProtocol {
     associatedtype Wrapped
     
     func isNil() -> Bool
@@ -1647,7 +1647,7 @@ public protocol OptionalProtocol {
 }
 
 
-extension Optional : OptionalProtocol {
+extension Optional : OptionalTypeProtocol {
     
     public func isNil() -> Bool {
         switch self {
@@ -1663,9 +1663,9 @@ extension Optional : OptionalProtocol {
 
 }
 
-extension FutureProtocol where T : OptionalProtocol {
+extension FutureProtocol where T : OptionalTypeProtocol {
 
-    func As<OptionalS: OptionalProtocol>() -> Future<OptionalS.Wrapped?> {
+    func As<OptionalS: OptionalTypeProtocol>() -> Future<OptionalS.Wrapped?> {
         return self.map { (value) -> OptionalS.Wrapped? in
             
             if (value.isNil()) {
@@ -1679,7 +1679,7 @@ extension FutureProtocol where T : OptionalProtocol {
 
 extension FutureProtocol  {
     
-    func AsOptional<OptionalS: OptionalProtocol>() -> Future<OptionalS.Wrapped?> {
+    func AsOptional<OptionalS: OptionalTypeProtocol>() -> Future<OptionalS.Wrapped?> {
         return self.map { (value) -> OptionalS.Wrapped? in
             return value as? OptionalS.Wrapped
         }

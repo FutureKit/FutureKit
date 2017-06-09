@@ -137,15 +137,6 @@ open class _FutureAnyOperation : Operation, AnyFuture {
     open func mapAs<S>() -> Future<S> {
         return self.promise.future.mapAs()
     }
-    
-    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
-    open func convertOptional<S>() -> Future<S?> {
-        return self.mapAsOptional()
-    }
-
-    open func mapAsOptional<S>() -> Future<S?> {
-        return self.promise.future.mapAsOptional()
-    }
 
 }
 

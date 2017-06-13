@@ -755,6 +755,7 @@
 					0DDE325F1B38BD27007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
 						DevelopmentTeam = AUXUTTBC4T;
+						LastSwiftMigration = 0900;
 					};
 					0DDE32731B38BD28007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -764,7 +765,7 @@
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
 						DevelopmentTeam = AUXUTTBC4T;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 					0DEA1BAE1AE30872000E126F = {
@@ -774,7 +775,7 @@
 					0DEA1BE91AE3116A000E126F = {
 						CreatedOnToolsVersion = 6.3;
 						DevelopmentTeam = AUXUTTBC4T;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0900;
 						TestTargetID = 0DDE325F1B38BD27007C39D9;
 					};
 					0DEA1BFE1AE313DD000E126F = {
@@ -1351,7 +1352,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -1370,7 +1372,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -1444,7 +1447,8 @@
 				PRODUCT_NAME = FutureKit;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -1469,7 +1473,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -1540,7 +1545,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FutureKit iOS Testing App.app/FutureKit iOS Testing App";
 			};
 			name = Debug;
@@ -1559,7 +1565,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit iOS Tests-Bridging-Header.h";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FutureKit iOS Testing App.app/FutureKit iOS Testing App";
 			};
 			name = Release;

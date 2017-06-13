@@ -175,7 +175,9 @@ open class FutureBatchOf<T> {
             }
             
             // As soon as the first Future fails, call the block handler.
-            failOrCancelPromise.future.onSuccess(executor) { (result,future,index)  in
+            failOrCancelPromise.future.onSuccess(executor) { (arg) -> Void in
+                
+                let (result, future, index) = arg
                 block(result, future, index)
             }.ignoreFailures()
         }

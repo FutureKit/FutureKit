@@ -769,7 +769,7 @@ open class Future<T> : FutureProtocol {
     internal final func completeWithBlocks<C:CompletionType>(
             waitUntilDone wait:Bool = false,
             completionBlock : @escaping () throws -> C,
-            onCompletionError : @escaping () -> Void = { _ in return } ) where C.T == T {
+            onCompletionError : @escaping () -> Void = {} ) where C.T == T {
     
         typealias ModifyBlockReturnType = (callbacks:[completion_block_type]?,
                                             result:FutureResult<T>?,

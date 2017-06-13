@@ -182,7 +182,7 @@ private enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebug
             future.onSuccess (futureExecutor) { (value) -> Void in
                 XCTFail("Did not expect onSuccess \(value)")
             }.ignoreFailures()
-            future.onCancel (futureExecutor) { (_) -> Void in
+            future.onCancel (futureExecutor) { () -> Void in
                 onCancelExpectation.fulfill()
             }
             future.onFail (futureExecutor) { (error) -> Void in

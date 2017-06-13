@@ -56,7 +56,7 @@ public extension SynchronizationProtocol {
     // -- The rest of these are convience methods.
     
     // modify your object.  The block() code may run asynchronously, but doesn't return any result
-    public final func lockAndModify(modifyBlock: @escaping () -> Void) {
+    public func lockAndModify(modifyBlock: @escaping () -> Void) {
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: modifyBlock) { (_) in
             return
@@ -67,14 +67,14 @@ public extension SynchronizationProtocol {
     // the "done" block could execute inside ANY thread/queue so care should be taken.
     // will try NOT to block the current thread (for Barrier/Queue strategies)
     // Lock strategies may still end up blocking the calling thread.
-    public final func lockAndModifyAsync<T>(modifyBlock:@escaping () -> T, then : @escaping (T) -> Void) {
+    public func lockAndModifyAsync<T>(modifyBlock:@escaping () -> T, then : @escaping (T) -> Void) {
         self.lockAndModify(waitUntilDone: false, modifyBlock: modifyBlock, then: then)
     }
     
     // modify your container and retrieve a result/element to the same calling thread
     // current thread will block until the modifyBlock is done running.
     @discardableResult
-    public final func lockAndModifySync<T>(_ modifyBlock:@escaping () -> T) -> T {
+    public func lockAndModifySync<T>(_ modifyBlock:@escaping () -> T) -> T {
         
         var retVal : T?
         self.lockAndModify(waitUntilDone: true, modifyBlock: modifyBlock) { (modifyBlockReturned) -> Void in
@@ -85,7 +85,7 @@ public extension SynchronizationProtocol {
     
     // read your object.  The block() code may run asynchronously, but doesn't return any result
     // if you need to read the block and return a result, use readAsync/readSync
-    public final func lockAndRead(readBlock: @escaping () -> Void) {
+    public func lockAndRead(readBlock: @escaping () -> Void) {
         self.lockAndRead(waitUntilDone: false, readBlock: readBlock) { (_) in
             return
         }
@@ -96,7 +96,7 @@ public extension SynchronizationProtocol {
     // the done block is NOT protected by the synchronization - do not modify your shared data inside the "done:" block
     // the done block could execute inside ANY thread/queue so care should be taken
     // do NOT modify your object inside this block
-    public final func lockAndReadAsync<T>(readBlock:@escaping () -> T, then : @escaping (T) -> Void) {
+    public func lockAndReadAsync<T>(readBlock:@escaping () -> T, then : @escaping (T) -> Void) {
         self.lockAndRead(waitUntilDone: false, readBlock: readBlock, then: then)
     }
     
@@ -104,7 +104,7 @@ public extension SynchronizationProtocol {
     // current thread may block until the read block is done running.
     // do NOT modify your object inside this block
     @discardableResult
-    public final func lockAndReadSync<T>(_ readBlock:@escaping () -> T) -> T {
+    public func lockAndReadSync<T>(_ readBlock:@escaping () -> T) -> T {
         
         var retVal : T?
         self.lockAndRead(waitUntilDone: true, readBlock: readBlock) { (readBlockReturned) -> Void in
@@ -113,7 +113,7 @@ public extension SynchronizationProtocol {
         return retVal!
     }
     
-    public final func readFuture<T>(executor : Executor = .primary, block:@escaping () -> T) -> Future<T> {
+    public func readFuture<T>(executor : Executor = .primary, block:@escaping () -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndRead(waitUntilDone: false, readBlock: block) { (readBlockReturned) -> Void in
@@ -122,7 +122,7 @@ public extension SynchronizationProtocol {
         
         return p.future
     }
-    public final func modifyFuture<T>(executor : Executor = .primary, block:@escaping () -> T) -> Future<T> {
+    public func modifyFuture<T>(executor : Executor = .primary, block:@escaping () -> T) -> Future<T> {
         let p = Promise<T>()
         
         self.lockAndModify(waitUntilDone: false, modifyBlock: block) { (modifyBlockReturned) -> Void in

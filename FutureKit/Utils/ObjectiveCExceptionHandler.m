@@ -30,7 +30,7 @@
 @implementation ObjectiveCExceptionHandler
 
 
-+ (void)Try:(void(^)())tryBlock catchException:(void(^)(NSException *exception))exceptionBlock finally:(void(^)())finallyBlock
++ (void)Try:(void(^)(void))tryBlock catchException:(void(^)(NSException *exception))exceptionBlock finally:(void(^)(void))finallyBlock
 {
     @try {
         tryBlock();
@@ -44,7 +44,7 @@
 }
 
 
-+ (void)Try:(void(^)())tryBlock catchException:(void(^)(NSException *exception))exceptionBlock
++ (void)Try:(void(^)(void))tryBlock catchException:(void(^)(NSException *exception))exceptionBlock
 {
     @try {
         tryBlock();
@@ -54,7 +54,7 @@
     }
 }
 
-+ (void)Try:(void(^)())tryBlock finally:(void(^)())finallyBlock
++ (void)Try:(void(^)(void))tryBlock finally:(void(^)(void))finallyBlock
 {
     @try {
         tryBlock();

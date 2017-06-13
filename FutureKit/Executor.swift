@@ -795,20 +795,14 @@ public enum Executor {
             return block
         case .stackCheckingImmediate:
             let b  = { (t:T) -> Void in
-                var currentDepth : NSNumber
                 let threadDict = Thread.current.threadDictionary
-                if let c = threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] as? NSNumber {
-                    currentDepth = c
-                }
-                else {
-                    currentDepth = 0
-                }
-                if (currentDepth.intValue > GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
+                let currentDepth = (threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] as? Int32) ??  0;
+                if (currentDepth > GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
                     let b = Executor.AsyncExecutor.callbackBlockFor(block)
                     b(t)
                 }
                 else {
-                    let newDepth = NSNumber(value: currentDepth.intValue+1 as Int32)
+                    let newDepth = currentDepth + 1;
                     threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = newDepth
                     block(t)
                     threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = currentDepth

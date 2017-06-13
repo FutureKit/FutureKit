@@ -12,7 +12,7 @@ import Foundation
 //
 // *  a protocol to extend ErrorTypes that might ACTUALLY be cancellations!
 // If you are returning
-public protocol ErrorTypeMightBeCancellation : Error {
+public protocol ErrorTypeMightBeCancellation: Error {
     
     // should return true if the Error value is actually a cancellation
     var isCancellation : Bool { get }
@@ -75,19 +75,30 @@ public extension NSErrorType {
 
 public extension Error {
     var isNSError : Bool {
-        return ((self as? NSErrorType) != nil)
+        return (Self.self is NSErrorType.Type)
     }
     
     public var testForCancellation : Bool {
-        return (self as? ErrorTypeMightBeCancellation)?.isCancellation ?? false
+        if Self.self is ErrorTypeMightBeCancellation.Type {
+            return (self as ErrorTypeMightBeCancellation).isCancellation
+        }
+        return false;
     }
 
-    
     func toResult<T>() -> FutureResult<T> {
-        return (self as? ErrorTypeMightBeCancellation)?.toFutureResult() ?? .fail(self)
+        if Self.self is ErrorTypeMightBeCancellation.Type {
+            let errorType = self as ErrorTypeMightBeCancellation & Error
+            return errorType.toFutureResult()
+        }
+        return .fail(self)
     }
+
     func toCompletion<T>() -> Completion<T> {
-        return (self as? ErrorTypeMightBeCancellation)?.toFutureCompletion() ?? .fail(self)
+        if Self.self is ErrorTypeMightBeCancellation.Type {
+            let errorType = self as ErrorTypeMightBeCancellation & Error
+            return errorType.toFutureCompletion()
+        }
+        return .fail(self)
     }
 
 }

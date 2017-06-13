@@ -29,9 +29,9 @@
 // BUT - UIKit throws em.  and sometimes we need to catcth them.
 // written in ObjectiveC but it's expecto that we use it in Swift
 
-+ (void)Try:(void(^)())tryBlock catchException:(void(^)(NSException *exception))exceptionBlock finally:(void(^)())finallyBlock;
-+ (void)Try:(void(^)())tryBlock catchException:(void(^)(NSException *exception))exceptionBlock;
-+ (void)Try:(void(^)())tryBlock finally:(void(^)())finallyBlock;
++ (void)Try:(void(^)(void))tryBlock catchException:(void(^)(NSException *exception))exceptionBlock finally:(void(^)(void))finallyBlock;
++ (void)Try:(void(^)(void))tryBlock catchException:(void(^)(NSException *exception))exceptionBlock;
++ (void)Try:(void(^)(void))tryBlock finally:(void(^)(void))finallyBlock;
 
 
 @end

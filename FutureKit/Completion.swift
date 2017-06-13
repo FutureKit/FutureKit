@@ -465,7 +465,7 @@ public extension CompletionType {
      - returns: a new result of type Completion<S?>
      
      */
-    public func mapAsOptional<O : OptionalProtocol>() -> Completion<O.Wrapped?> {
+    public func mapAsOptional<O : OptionalProtocol>(type:O.Type) -> Completion<O.Wrapped?> {
 
         return self.map { v -> O.Wrapped? in
             return v as? O.Wrapped

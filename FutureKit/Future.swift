@@ -384,47 +384,6 @@ public protocol FutureProtocol : AnyFuture {
     
     
     func onComplete<C: CompletionType>(_ executor : Executor,block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
-    
-    /**
-    convert this future of type `Future<T>` into another future type `Future<S>`
-    
-    may fail to compile if T is not convertable into S using "`as!`"
-    
-    works iff the following code works:
-        
-        let t : T
-        let s = t as! S
-    
-    
-    example:
-    
-        let f = Future<Int>(success:5)
-        let f2 : Future<Int32> = f.As()
-        assert(f2.result! == Int32(5))
-    
-    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
-    
-    the following conversions should always work for any future
-    
-        let fofany : Future<Any> = f.As()
-        let fofvoid: Future<Void> = f.As()
-    
-    */
-    func mapAs<S>() -> Future<S>
-
-    /**
-    convert Future<T> into another type Future<S?>.
-    
-    WARNING: if 'T as! S' isn't legal, than all Success values may be converted to nil
-    
-    example:
-        let f = Future<String>(success:"5")
-        let f2 : Future<[Int]?> = f.convertOptional()
-        assert(f2.result! == nil)
-    
-    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
-    */
-    func mapAsOptional<S>() -> Future<S?>
  
     
     func mapAs() -> Future<Void>
@@ -1042,27 +1001,6 @@ open class Future<T> : FutureProtocol {
     
     example:
     
-        let f = Future<String>(success:"5")
-        let f2 : Future<[Int]?> = f.convertOptional()
-        assert(f2.result! == nil)
-    
-    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
-    
-    - returns: a new Future of with the result type of __Type?
-
-    */
-    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
-    public final func convertOptional<__Type>() -> Future<__Type?> {
-        return mapAsOptional()
-    }
-
-    /**
-    convert `Future<T>` into another type `Future<__Type?>`.
-    
-    WARNING: if `T as! __Type` isn't legal, than all Success values may be converted to nil
-    
-    example:
-    
     let f = Future<String>(success:"5")
     let f2 : Future<[Int]?> = f.convertOptional()
     assert(f2.result! == nil)
@@ -1649,30 +1587,6 @@ extension Optional : OptionalProtocol {
         return self!
     }
 
-}
-
-extension FutureProtocol where T : OptionalProtocol {
-
-    func As<OptionalS: OptionalProtocol>() -> Future<OptionalS.Wrapped?> {
-        return self.map { (value) -> OptionalS.Wrapped? in
-            
-            if (value.isNil()) {
-                return nil
-            }
-            return value.unwrap() as? OptionalS.Wrapped
-        }
-    }
-
-}
-
-extension FutureProtocol  {
-    
-    func AsOptional<OptionalS: OptionalProtocol>() -> Future<OptionalS.Wrapped?> {
-        return self.map { (value) -> OptionalS.Wrapped? in
-            return value as? OptionalS.Wrapped
-        }
-    }
-    
 }
 
 

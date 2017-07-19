@@ -451,29 +451,6 @@ public extension CompletionType {
     }
     
     /**
-     convert this completion of type `Completion<T>` into another type `Completion<S?>`.
-     
-     WARNING: if `T as! S` isn't legal, than all Success values may be converted to nil
-     - example:
-     
-     let c : Complete<String> = .Success("5")
-     let c2 : Complete<[Int]?> =  c.convertOptional()
-     assert(c2.result == nil)
-     
-     you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
-     
-     - returns: a new result of type Completion<S?>
-     
-     */
-    public func mapAsOptional<O : OptionalProtocol>() -> Completion<O.Wrapped?> {
-
-        return self.map { v -> O.Wrapped? in
-            return v as? O.Wrapped
-        }
-
-    }
-    
-    /**
      convert this completion of type Completion<T> into another type Completion<S>.
      
      may fail to compile if T is not convertable into S using "`as!`"

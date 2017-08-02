@@ -635,8 +635,8 @@ extension CompletionType  {
             return "\(Self.self).CompletionType.Success<\(T.self)>(\(t))"
         case let .fail(f):
             return "\(Self.self).CompletionType.Fail<\(T.self)>(\(f))"
-        case let .cancelled(reason):
-            return "\(Self.self).CompletionType.Cancelled<\(T.self)>(\(reason))"
+        case .cancelled:
+            return "\(Self.self).CompletionType.Cancelled<\(T.self)>)"
         case let .completeUsing(f):
             return "\(Self.self).CompletionType.CompleteUsing<\(T.self)>(\(f.description))"
         }

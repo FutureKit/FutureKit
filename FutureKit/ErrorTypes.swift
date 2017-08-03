@@ -77,6 +77,10 @@ public extension Error {
     var isNSError : Bool {
         return (Self.self is NSErrorType.Type)
     }
+
+    var userInfo: [AnyHashable: Any] {
+        return [:]
+    }
     
     public var testForCancellation : Bool {
         if Self.self is ErrorTypeMightBeCancellation.Type {

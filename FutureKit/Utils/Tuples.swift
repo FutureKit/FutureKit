@@ -273,7 +273,7 @@ public extension Sequence  { // Some sequences don't have integer indexes, so we
 }
 
 
-#if !swift(>=4.0)
+#if !swift(>=3.2)
     extension ExpressibleByArrayLiteral {
         typealias ArrayLiteralElement = Element
     }

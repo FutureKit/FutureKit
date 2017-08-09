@@ -1,4 +1,3 @@
-//: [Previous](@previous)
 
 import FutureKit
 #if os(iOS)
@@ -6,16 +5,41 @@ import FutureKit
     #else
     import Cocoa
     typealias UIImage = NSImage
+    typealias UIImageView = NSImageView
 #endif
-import XCPlaygroundPage
-XCPlaygroundPage.current.needsIndefiniteExecution = true
+import PlaygroundSupport
+PlaygroundPage.current.needsIndefiniteExecution = true
 
-// XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
-//: # Promises.
-//: Promises are used to create your own Futures.
-//: When you want to write a function or method that returns a Future, you will most likely want to create a Promise.
 
-//:This is a **promise**.   It helps you return Futures when you need to.  When you create a Promise object, you are also creating a "promise" to complete a Future.   It's contract.  Don't break your promises, or you will have code that hangs.
+class ImageViewController : UIViewController {
+
+    var imageView: UIImageView!
+    override func loadView() {
+
+        // UI
+
+        let view = UIView()
+        view.backgroundColor = .white
+
+//        let image = UIImage(named: "Apple.jpg")
+        self.imageView = UIImageView()
+
+        view.addSubview(imageView)
+
+        // Layout
+
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
+            ])
+
+        self.view = view
+    }
+
+}
+
+PlaygroundPage.current.liveView = ImageViewController()
 
 let namesPromise = Promise<[String]>()
 
@@ -40,13 +64,13 @@ namesPromise.completeWithSuccess(names)
 //: A more typical case if you need to perform something inside a background queue.
 //: I need a cat Picture.  I want to see my cats!  So go get me some!
 //: Let's write a function that returns an Image.  But since I might have to go to the internet to retrieve it, we will define a function that returns Future instead
-func getCoolCatPic(url: NSURL) -> Future<UIImage> {
+func getCoolCatPic(url: URL) -> Future<UIImage> {
     
     // We will use a promise, so we can return a Future<Image>
     let catPicturePromise = Promise<UIImage>()
     
     // go get data from this URL.
-    let task = NSURLSession.sharedSession().dataTaskWithURL(url, completionHandler: { (data, response, error) -> Void in
+    let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
         if let e = error {
             // if this is failing, make sure you aren't running this as an iOS Playground. It works when running as an OSX Playground.
             catPicturePromise.completeWithFail(e)
@@ -65,12 +89,12 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
         // make sure to keep your promises!
         // promises are promises!
         assert(catPicturePromise.isCompleted)
-    })
+    }
     
     // add a cancellation Request handler.  If someone wants to cancel the Future, what should we do?
     catPicturePromise.onRequestCancel { (options) -> CancelRequestResponse<UIImage> in
         task.cancel()
-        return .Complete(.Cancelled)
+        return .complete(.cancelled)
     }
     
     // start downloading.
@@ -83,20 +107,28 @@ func getCoolCatPic(url: NSURL) -> Future<UIImage> {
 
 
 
-let catUrlIFoundOnTumblr = NSURL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
+let catUrlIFoundOnTumblr = URL(string: "http://25.media.tumblr.com/tumblr_m7zll2bkVC1rcyf04o1_500.gif")!
 
 let imageFuture = getCoolCatPic(url:catUrlIFoundOnTumblr)
     
-imageFuture.onComplete { (result) -> Void in
+imageFuture.onComplete(.mainAsync) { (result) -> Void in
     switch result {
-    case let .Success(value):
+    case let .success(value):
         let i = value
-    case let .Fail(error):
-        let e = error
-    case .Cancelled:
+        print(i)
+        imageView.image = value
+    case let .fail(error):
+        print("error \(error.localizedDescription)")
+    case .cancelled:
+        print("cancelled")
         break
     }
 }
 
 
+
+FutureBatch([imageFuture,namesFuture]).resultsFuture.onComplete(.mainAsync) { _ in
+    print("done")
+    PlaygroundPage.current.finishExecution()
+}
 //: [Next](@next)

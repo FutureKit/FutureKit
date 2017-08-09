@@ -482,7 +482,11 @@ public enum Executor {
         precondition(leeway >= 0)
         
         let timerSource = DispatchSource.makeTimerSource()
-        timerSource.scheduleRepeating(wallDeadline: DispatchWallTime(date), interval: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+        #if swift(>=4.0)
+            timerSource.schedule(wallDeadline: DispatchWallTime(date), repeating: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+        #else
+            timerSource.scheduleRepeating(wallDeadline: DispatchWallTime(date), interval: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+        #endif
 
         timerSource.setEventHandler { 
             self.execute(action)

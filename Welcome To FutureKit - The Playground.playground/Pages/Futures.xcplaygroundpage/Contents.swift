@@ -2,7 +2,7 @@
 //: Make sure you opened this inside the FutureKit workspace.  Opening the playground file directly, usually means it can't import FutureKit module correctly.  If import FutureKit is failing, make sure you build the OSX Framework in the workspace!
 import FutureKit
 import PlaygroundSupport
-PlaygroundPage.currentPage.needsIndefiniteExecution = true
+PlaygroundPage.current.needsIndefiniteExecution = true
 //: # Let's get started!
 
 //: This is a Future:
@@ -17,7 +17,6 @@ let resultOfFuture5 = future5Int.result!
 let futureFail = Future<Int>(failWithErrorMessage:"I have no 5's for you today.")
 let failed5result = futureFail.result
 let e = futureFail.error
-//: Sometimes your request is cancelled. It's not usually because of a failure, and usually means we just wanted to halt an async process before it was done.  Optionally you can send a reason, but it's not required.  In FutureKit a Fail means that something went wrong, and you should cope with that.  a Cancel is usually considered "legal", like canceling active API requests when a window is closed.
 let cancelledFuture = Future<Int>(cancelled: ())
 let cancelledResult = cancelledFuture.result
 //: These aren't very interesting Futures. Let's make something a bit more interesting:
@@ -62,7 +61,7 @@ futureFail.onFail { (error) -> Void in
 
 cancelledFuture.onCancel { () -> Void in
     let e = "cancelled!"
-    print("cancelled")
+    print(e)
 }
 
 //: But if you don't want to add 3 handlers, it's more common to just add a single onComplete handler
@@ -71,8 +70,10 @@ asyncFuture5.onComplete { (result : FutureResult<Int>) -> Void in
     switch result {
     case let .success(value):
         let five = value
+        print("success(\(five))")
     case let .fail(error):
         let e = error
+        print("error(\(e.localizedDescription))")
     case .cancelled:
         break
     }
@@ -84,7 +85,7 @@ let completionOfAsyncFuture5 = asyncFuture5.result!
 
 
 FutureBatch([asyncFuture5,cancelledFuture,futureFail]).resultsFuture.onComplete(.mainAsync) { _ in
-    PlaygroundPage.currentPage.finishExecution()
+    PlaygroundPage.current.finishExecution()
 }
 //: Seems easy?  Let's make them more fun.. 
 //: [Next](@next)

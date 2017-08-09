@@ -39,7 +39,8 @@ class ImageViewController : UIViewController {
 
 }
 
-PlaygroundPage.current.liveView = ImageViewController()
+let imageViewController = ImageViewController()
+PlaygroundPage.current.liveView = imageViewController
 
 let namesPromise = Promise<[String]>()
 
@@ -116,7 +117,7 @@ imageFuture.onComplete(.mainAsync) { (result) -> Void in
     case let .success(value):
         let i = value
         print(i)
-        imageView.image = value
+//        imageViewController.imageView.image = value
     case let .fail(error):
         print("error \(error.localizedDescription)")
     case .cancelled:

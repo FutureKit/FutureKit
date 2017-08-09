@@ -33,7 +33,7 @@ public struct GLOBAL_PARMS {
     
     static let STACK_CHECKING_PROPERTY = "FutureKit.immediate.TaskDepth"
     static let CURRENT_EXECUTOR_PROPERTY = "FutureKit.Executor.Current"
-    static let STACK_CHECKING_MAX_DEPTH = 20
+    static let STACK_CHECKING_MAX_DEPTH:Int32 = 20
 
     static var CONVERT_COMMON_NSERROR_VALUES_TO_CANCELLATIONS = true
 

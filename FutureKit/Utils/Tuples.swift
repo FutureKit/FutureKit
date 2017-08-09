@@ -129,7 +129,6 @@ public extension Sequence where Self:Collection, Self.Index : ExpressibleByInteg
     }
 }
 
-
 public extension Sequence  { // Some sequences don't have integer indexes, so we will use generators.
     
     fileprivate func _get_element<T>(_ generator : inout Iterator) -> T {
@@ -273,6 +272,12 @@ public extension Sequence  { // Some sequences don't have integer indexes, so we
     }
 }
 
+
+#if !swift(>=4.0)
+    extension ExpressibleByArrayLiteral {
+        typealias ArrayLiteralElement = Element
+    }
+#endif
 
 public func tupleToArray<T : ExpressibleByArrayLiteral, A>(_ tuple:(A)) -> T {
     return [tuple as! T.ArrayLiteralElement]

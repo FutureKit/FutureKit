@@ -6,10 +6,9 @@
 //  Copyright © 2015 Michael Gray. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
 @import ObjectiveC;
 
-#include "BlockBasedTestCase.h"
+#import "BlockBasedTestCase.h"
 
 @implementation BlockBasedTestCase
 

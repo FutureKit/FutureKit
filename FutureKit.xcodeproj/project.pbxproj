@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00035CE31F50CFFD0009B4E8 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */; };
+		00035CE41F50CFFD0009B4E8 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */; };
+		00035CE51F50CFFE0009B4E8 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */; };
+		00035CE61F50CFFF0009B4E8 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */; };
 		090112C11BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		090112C21BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
@@ -33,8 +37,6 @@
 		0D75B9CD1CEB8370002452F6 /* FutureCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* FutureCache.swift */; };
 		0D7CC61F1B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0D7CC6201B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
-		0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
-		0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DB057301D8B6989003ABCB8 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
@@ -89,7 +91,6 @@
 		0DDE326F1B38BD28007C39D9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDE326D1B38BD28007C39D9 /* LaunchScreen.xib */; };
 		0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */; };
 		0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE35D981B389E480098930D /* BlockBasedTestCase.swift */; };
-		0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
@@ -160,6 +161,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		00035CDB1F50CEBB0009B4E8 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockBasedTestCase.m; sourceTree = "<group>"; };
+		00035CE01F50CFF80009B4E8 /* BlockBasedTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockBasedTestCase.h; sourceTree = "<group>"; };
 		090112C01BD851CB002EB82D /* Tuples.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuples.swift; sourceTree = "<group>"; };
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -175,10 +179,6 @@
 		0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSData-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D75B9CB1CEB8307002452F6 /* FutureCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureCache.swift; sourceTree = "<group>"; };
 		0D7CC61E1B390D2500006CBF /* OSFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSFeature.swift; sourceTree = "<group>"; };
-		0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit iOS Tests-Bridging-Header.h"; sourceTree = "<group>"; };
-		0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit OSX Tests-Bridging-Header.h"; sourceTree = "<group>"; };
-		0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockBasedTestCase.m; sourceTree = "<group>"; };
-		0D8D9A481B3643B0003FBADD /* BlockBasedTestCase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockBasedTestCase.h; sourceTree = "<group>"; };
 		0DA41FCE1ADAFE5A00B58B0B /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Future.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; };
 		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -211,7 +211,6 @@
 		0DEA1B911AE30853000E126F /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1B941AE30853000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1B951AE30853000E126F /* FutureKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = FutureKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		0DEA1BA11AE30853000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1BAF1AE30872000E126F /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1BEA1AE3116A000E126F /* FutureKit iOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit iOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1BED1AE3116A000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -221,6 +220,9 @@
 		0DEA1C021AE313DD000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureKit_OSX_Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureThread.swift; sourceTree = "<group>"; };
+		79AA225C1F510AE3004E1275 /* FutureKit iOS Tests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FutureKit iOS Tests-Bridging-Header.h"; sourceTree = "<group>"; };
+		79AA225D1F510AE3004E1275 /* FutureKit OSX Tests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FutureKit OSX Tests-Bridging-Header.h"; sourceTree = "<group>"; };
+		79AA22601F510AEA004E1275 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = FutureKitTests/Info.plist; sourceTree = SOURCE_ROOT; };
 		DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromiseTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -294,6 +296,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		00035CDD1F50CF950009B4E8 /* BlockBasedTestCase */ = {
+			isa = PBXGroup;
+			children = (
+				00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */,
+				00035CDF1F50CFF80009B4E8 /* include */,
+			);
+			name = BlockBasedTestCase;
+			path = Source/BlockBasedTestCase;
+			sourceTree = "<group>";
+		};
+		00035CDF1F50CFF80009B4E8 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				00035CE01F50CFF80009B4E8 /* BlockBasedTestCase.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		00035CE71F50D0360009B4E8 /* FutureKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				79AA225C1F510AE3004E1275 /* FutureKit iOS Tests-Bridging-Header.h */,
+				79AA225D1F510AE3004E1275 /* FutureKit OSX Tests-Bridging-Header.h */,
+				0DB9799E1AE2A21100158386 /* Supporting Files */,
+			);
+			path = FutureKitTests;
+			sourceTree = "<group>";
+		};
 		0D7502B61AE6B114009C3F63 /* FoundationExtensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -321,12 +351,15 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
+				00035CDB1F50CEBB0009B4E8 /* Package.swift */,
 				0DBB33421D0F973A0092BF7B /* Cancellation.MD */,
 				09059C431BB23E3C00555E26 /* FutureKit.podspec */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,
+				00035CDD1F50CF950009B4E8 /* BlockBasedTestCase */,
 				0DB9799D1AE2A21100158386 /* FutureKitTests */,
 				0DEA1B921AE30853000E126F /* FutureKit */,
+				00035CE71F50D0360009B4E8 /* FutureKitTests */,
 				0DEA1BEB1AE3116A000E126F /* FutureKit iOS Tests */,
 				0DEA1C001AE313DD000E126F /* FutureKit OSX Tests */,
 				0DDE32611B38BD28007C39D9 /* FutureKit iOS Testing App */,
@@ -376,27 +409,24 @@
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				0D8D9A481B3643B0003FBADD /* BlockBasedTestCase.h */,
 				0DE35D981B389E480098930D /* BlockBasedTestCase.swift */,
-				0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */,
 				0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */,
 				0DB979A01AE2A21100158386 /* BasicTests.swift */,
 				0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */,
 				0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */,
-				0DB9799E1AE2A21100158386 /* Supporting Files */,
-				0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */,
-				0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */,
 				DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */,
 			);
-			path = FutureKitTests;
+			name = FutureKitTests;
+			path = Tests/FutureKitTests;
 			sourceTree = "<group>";
 		};
 		0DB9799E1AE2A21100158386 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				0DEA1BA11AE30853000E126F /* Info.plist */,
+				79AA22601F510AEA004E1275 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			path = Tests/FutureKitTests;
 			sourceTree = "<group>";
 		};
 		0DBB32F01D0F91640092BF7B /* FutureKit watchOS */ = {
@@ -750,9 +780,7 @@
 					};
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
-						DevelopmentTeam = AUXUTTBC4T;
-						LastSwiftMigration = 0900;
-						ProvisioningStyle = Automatic;
+						LastSwiftMigration = 0830;
 					};
 					0DEA1BAE1AE30872000E126F = {
 						CreatedOnToolsVersion = 6.3;
@@ -925,6 +953,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DBB330B1D0F919C0092BF7B /* FutureKit_tvOSTests.swift in Sources */,
+				00035CE61F50CFFF0009B4E8 /* BlockBasedTestCase.m in Sources */,
 				0DB057321D8B6991003ABCB8 /* LockPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -943,9 +972,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */,
+				00035CE51F50CFFE0009B4E8 /* BlockBasedTestCase.m in Sources */,
 				0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */,
 				0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */,
-				0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */,
 				0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */,
 				0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */,
 			);
@@ -1009,10 +1038,10 @@
 			files = (
 				09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */,
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
-				0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
 				0DB057311D8B698A003ABCB8 /* LockPerformanceTests.swift in Sources */,
 				09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */,
 				0DE35D9A1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
+				00035CE31F50CFFD0009B4E8 /* BlockBasedTestCase.m in Sources */,
 				0DEA1BEF1AE3116A000E126F /* FutureKit_iOS_Tests.swift in Sources */,
 				0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
 			);
@@ -1023,11 +1052,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
-				0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
 				0DE35D9B1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
 				0DB057301D8B6989003ABCB8 /* LockPerformanceTests.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
 				0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */,
+				00035CE41F50CFFD0009B4E8 /* BlockBasedTestCase.m in Sources */,
 				DEBDAD401B3C5A78004310B9 /* PromiseTests.swift in Sources */,
 				0DEA1C0B1AE313EF000E126F /* BasicTests.swift in Sources */,
 			);
@@ -1409,6 +1438,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1429,7 +1459,8 @@
 				PRODUCT_NAME = FutureKit;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1437,6 +1468,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;

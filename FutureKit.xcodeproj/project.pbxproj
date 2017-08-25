@@ -23,10 +23,6 @@
 		0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
 		0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
-		0D7502C61AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
-		0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
@@ -69,15 +65,11 @@
 		0DBB33251D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0DBB33261D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
-		0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0DBB332A1D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0DBB332B1D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0DBB332D1D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
-		0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0DBB33311D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0DBB33321D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		0DBB33331D0F91E40092BF7B /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
@@ -178,8 +170,6 @@
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ExtensionVars.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionHandler.h; sourceTree = "<group>"; };
-		0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionHandler.m; sourceTree = "<group>"; };
 		0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = OSAtomicInt.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSFileManager-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSData-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -322,8 +312,6 @@
 				0D7CC61E1B390D2500006CBF /* OSFeature.swift */,
 				0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */,
 				0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */,
-				0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */,
-				0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */,
 				0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */,
 				090112C01BD851CB002EB82D /* Tuples.swift */,
 			);
@@ -381,7 +369,8 @@
 				0D7502B91AE6B182009C3F63 /* Utils */,
 				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
 			);
-			path = FutureKit;
+			name = FutureKit;
+			path = Source/FutureKit;
 			sourceTree = "<group>";
 		};
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
@@ -481,7 +470,8 @@
 				0DEA1B951AE30853000E126F /* FutureKit.h */,
 				0DEA1B931AE30853000E126F /* Supporting Files */,
 			);
-			path = FutureKit;
+			name = FutureKit;
+			path = Source/FutureKit;
 			sourceTree = "<group>";
 		};
 		0DEA1B931AE30853000E126F /* Supporting Files */ = {
@@ -534,7 +524,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DBB32F21D0F91640092BF7B /* FutureKit watchOS.h in Headers */,
-				0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -543,7 +532,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DBB32FF1D0F919C0092BF7B /* FutureKit tvOS.h in Headers */,
-				0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,7 +540,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1B961AE30853000E126F /* FutureKit.h in Headers */,
-				0D7502C61AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -561,7 +548,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1BE51AE30B65000E126F /* FutureKit.h in Headers */,
-				0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -902,7 +888,6 @@
 				0DBB33171D0F91DA0092BF7B /* ErrorTypes.swift in Sources */,
 				0DBB33141D0F91DA0092BF7B /* Completion.swift in Sources */,
 				0DBB33181D0F91DA0092BF7B /* Executor.swift in Sources */,
-				0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
 				0DBB33371D0F91E40092BF7B /* FutureCache.swift in Sources */,
 				0DBB33161D0F91DA0092BF7B /* Promise.swift in Sources */,
 				0DBB331B1D0F91DA0092BF7B /* Synchronization.swift in Sources */,
@@ -929,7 +914,6 @@
 				0DBB33201D0F91DB0092BF7B /* ErrorTypes.swift in Sources */,
 				0DBB331D1D0F91DB0092BF7B /* Completion.swift in Sources */,
 				0DBB33211D0F91DB0092BF7B /* Executor.swift in Sources */,
-				0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
 				0DBB33411D0F91E50092BF7B /* FutureCache.swift in Sources */,
 				0DBB331F1D0F91DB0092BF7B /* Promise.swift in Sources */,
 				0DBB33241D0F91DB0092BF7B /* Synchronization.swift in Sources */,
@@ -987,7 +971,6 @@
 				0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
 				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
-				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0D75B9CC1CEB8307002452F6 /* FutureCache.swift in Sources */,
 				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
@@ -1014,7 +997,6 @@
 				0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
-				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0D75B9CD1CEB8370002452F6 /* FutureCache.swift in Sources */,
 				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
@@ -1439,7 +1421,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1463,7 +1445,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1491,7 +1473,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -1513,7 +1495,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;

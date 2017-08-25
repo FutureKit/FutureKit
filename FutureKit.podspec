@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = '2.0'
   s.osx.deployment_target = '10.10'
 
-  s.source_files = "FutureKit/*.swift", "FutureKit/**/*.swift"
+  s.source_files = "Source/FutureKit/*.swift", "Source/FutureKit/**/*.swift"
   s.requires_arc = true
 end

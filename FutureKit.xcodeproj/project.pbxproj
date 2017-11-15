@@ -183,9 +183,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		00035CDB1F50CEBB0009B4E8 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockBasedTestCase.m; sourceTree = "<group>"; };
 		00035CE01F50CFF80009B4E8 /* BlockBasedTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockBasedTestCase.h; sourceTree = "<group>"; };
+		0025F9ED1FBBF29300C0E88E /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		00C779671F9FFC730080E85B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockBasedTestCase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		090112C01BD851CB002EB82D /* Tuples.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuples.swift; sourceTree = "<group>"; };
@@ -393,7 +393,7 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
-				00035CDB1F50CEBB0009B4E8 /* Package.swift */,
+				0025F9ED1FBBF29300C0E88E /* Package.swift */,
 				0DBB33421D0F973A0092BF7B /* Cancellation.MD */,
 				09059C431BB23E3C00555E26 /* FutureKit.podspec */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,

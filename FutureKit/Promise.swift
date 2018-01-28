@@ -24,13 +24,36 @@
 
 import Foundation
 
-public enum CancelRequestResponse<T> {
-    case `continue`            // the promise will not be completed
-    case complete(Completion<T>)  // ex: .Complete(.Cancelled)
+extension Future {
+    public enum CancelResponse {
+        case `continue`            // the promise will not be completed
+        case complete(Future<T>.Completion)  // ex: .Complete(.Cancelled)
+    }
+}
+
+public typealias CancelRequestResponse<T> = Future<T>.CancelResponse
+
+extension Future.CancelResponse {
+    
+    public static var completeWithCancel: Future<T>.CancelResponse {
+        return .complete(.cancelled)
+    }
+    public static func completeWithFail(_ error: Error) -> Future<T>.CancelResponse {
+        return .complete(.fail(error))
+    }
+    public static func completeWithSuccess(_ value: T) -> Future<T>.CancelResponse {
+        return .complete(.success(value))
+    }
+    public static func completeUsingFuture(_ future : Future<T>) -> Future<T>.CancelResponse {
+        return .complete(.completeUsing(future))
+    }
+
 }
 
 
 open class Promise<T>  {
+    public typealias CancelResponse = Future<T>.CancelResponse
+    
     
     open var future : Future<T>
 
@@ -52,7 +75,7 @@ open class Promise<T>  {
     
     // *  complete commands  */
     
-    public final func complete<C:CompletionType>(_ completion : C) where C.T == T {
+    public final func complete<C:CompletionConvertable>(_ completion : C) where C.T == T {
         self.future.completeWith(completion.completion)
     }
     
@@ -140,7 +163,8 @@ open class Promise<T>  {
     }
 
     
-    public final func onRequestCancel(_ executor:Executor = .primary, handler: @escaping (_ options:CancellationOptions) -> CancelRequestResponse<T>) {
+    public final func onRequestCancel(_ executor:Executor = .primary, 
+                                      handler: @escaping (_ options: CancellationOptions) -> CancelResponse) {
         let newHandler : (CancellationOptions) -> Void  = { [weak self] (options) -> Void in
             switch handler(options) {
             case .complete(let completion):
@@ -150,7 +174,8 @@ open class Promise<T>  {
             }
             
         }
-        let wrappedNewHandler = Executor.primary.callbackBlockFor(newHandler)
+        let wrappedNewHandler = Executor.primary.callbackBlock(for: CancellationOptions.self,
+                                                               newHandler)
         self.future.addRequestHandler(wrappedNewHandler)
         
     }
@@ -182,7 +207,7 @@ open class Promise<T>  {
     
     - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
-    public final func completeWithBlock<C:CompletionType>(_ completionBlock : @escaping () throws ->C) where C.T == T {
+    public final func completeWithBlock<C:CompletionConvertable>(_ completionBlock : @escaping () throws ->C) where C.T == T {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock)
     }
     
@@ -199,7 +224,7 @@ open class Promise<T>  {
 
     - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
-    public final func completeWithBlocks<C:CompletionType>(_ completionBlock : @escaping () throws ->C, onAlreadyCompleted : @escaping () -> Void) where C.T == T
+    public final func completeWithBlocks<C:CompletionConvertable>(_ completionBlock : @escaping () throws ->C, onAlreadyCompleted : @escaping () -> Void) where C.T == T
     {
         self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock, onCompletionError: onAlreadyCompleted)
     }
@@ -230,14 +255,14 @@ open class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func tryComplete<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
+    public final func tryComplete<C:CompletionConvertable>(_ completion : C) -> Bool where C.T == T {
         return self.future.completeWithSync(completion)
     }
     
     public typealias CompletionErrorHandler = (() -> Void)
     // execute a block if the completion "fails" because the future is already completed.
     
-    public final func complete<C:CompletionType>(_ completion : C,onCompletionError errorBlock: @escaping () -> Void) where C.T == T {
+    public final func complete<C:CompletionConvertable>(_ completion : C,onCompletionError errorBlock: @escaping () -> Void) where C.T == T {
         self.future.completeWith(completion.completion,onCompletionError:errorBlock)
     }
     

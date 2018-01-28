@@ -32,10 +32,10 @@ class SyncWaitHandler<T>  {
     
     fileprivate var condition : NSCondition = NSCondition()
     
-    fileprivate var value : FutureResult<T>?
+    fileprivate var value : Future<T>.Result?
     
-    init<F:FutureProtocol>(waitingOnFuture f: F) where F.T == T {
-        f.onComplete { (v) -> Void in
+    init<F:FutureConvertable>(waitingOnFuture f: F) where F.T == T {
+        f.future.onComplete { (v) -> Void in
             self.condition.lock()
             self.value = v
             self.condition.broadcast()
@@ -44,7 +44,7 @@ class SyncWaitHandler<T>  {
         .ignoreFailures()
     }
     
-    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> FutureResult<T> {
+    final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> Future<T>.Result {
         self.condition.lock()
         if (warn && Thread.isMainThread) {
             if (self.value == nil) {

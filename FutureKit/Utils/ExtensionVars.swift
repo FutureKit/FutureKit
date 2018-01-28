@@ -71,7 +71,7 @@ class UnSafeMutableContainer<T> {
             return unsafe_pointer.pointee
         }
         set(newValue) {
-            unsafe_pointer.deinitialize()
+            unsafe_pointer.deinitialize(count: 1)
             unsafe_pointer.initialize(to: newValue)
         }
     }
@@ -83,7 +83,8 @@ class UnSafeMutableContainer<T> {
         unsafe_pointer.initialize(to: initialValue)
     }
     deinit {
-        unsafe_pointer.deallocate(capacity: 1)
+        unsafe_pointer.deinitialize(count: 1)
+        unsafe_pointer.deallocate()
     }
 }
 

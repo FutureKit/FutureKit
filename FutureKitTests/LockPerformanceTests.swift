@@ -185,14 +185,14 @@ class LockPerformanceTests: BlockBasedTestCase {
     func iterateTestWithThreads(attributes:AttributesForTest) {
         
         let block = attributes.blockForTest()
-        typealias ThreadType = FutureThread
+        typealias ThreadType = FutureThread<Any>
         
         var threads = [ThreadType]()
         
         for thread_number in 0..<attributes.threads {
-            let t = ThreadType(block: { () -> Any in
+            let t = ThreadType { () -> Any in
                 block(thread_number)
-            })
+            }
             threads.append(t)
         }
         

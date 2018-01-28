@@ -30,53 +30,65 @@ private var executorVarHandler = ExtensionVarHandlerFor<FileManager>()
 /** adds an Extension that automatically routes requests to Executor.Default (or some other configured Executor)
 
 */
-extension FileManager {
+extension Async where Base: FileManager {
+    
+    public var executor: Executor {
+        return .default
+    }
 
-    // is this a good idea?  
-    // Should I make two versions of the all the APIs? One with and one without?
+    public func mountedVolumeURLs(includingResourceValuesForKeys propertyKeys: [URLResourceKey]?, options: FileManager.VolumeEnumerationOptions = []) -> Future<[URL]?> {
 
-/*    private var executor : Executor {
-        get {
-            return executorVarHandler.getValueFrom(self,defaultvalue: Executor.Default)
+        return self.executor.execute { () -> [URL]? in
+            return self.base.mountedVolumeURLs(includingResourceValuesForKeys: propertyKeys,
+                                               options: options)
         }
-        set(newValue) {
-            executorVarHandler.setValueOn(self, value: newValue)
-        }
-    } */
+    }
 
-    func copyItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
+    public func contentsOfDirectory(at url: URL, 
+                                    includingPropertiesForKeys keys: [URLResourceKey]?, 
+                                    options mask: FileManager.DirectoryEnumerationOptions = []) -> Future<[URL]> {
+        
+        return self.executor.execute { () -> [URL] in
+            return try self.base.contentsOfDirectory(at: url,
+                                                 includingPropertiesForKeys: keys,
+                                                 options: mask)
+        }
+    }
+
+  
+    public func copyItem(at srcURL: URL, to dstURL: URL) -> Future<Bool>
     {
-        return executor.execute { () -> Bool in
-            try self.copyItem(at: srcURL, to: dstURL)
+        return self.executor.execute { () -> Bool in
+            try self.base.copyItem(at: srcURL, to: dstURL)
             return true
         }
     }
     
-    func moveItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
+    public func moveItem(at srcURL: URL, to dstURL: URL) -> Future<Bool>
     {
-        return executor.execute { () -> Bool in
-            try self.moveItem(at: srcURL, to: dstURL)
+        return self.executor.execute { () -> Bool in
+            try self.base.moveItem(at: srcURL, to: dstURL)
             return true
         }
 
     }
-    func linkItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
+    
+    public func linkItem(at srcURL: URL, to dstURL: URL) -> Future<Bool>
     {
-        return executor.execute { () -> Bool in
-            try self.linkItem(at: srcURL, to: dstURL)
+        return self.executor.execute { () -> Bool in
+            try self.base.linkItem(at: srcURL, to: dstURL)
             return true
         }
     }
     
-    func removeItemAtURL(_ executor : Executor,URL: Foundation.URL) -> Future<Bool>
+    public func removeItem(at URL: Foundation.URL) -> Future<Bool>
     {
-        return executor.execute { () -> Bool in
-            try self.removeItem(at: URL)
+        return self.executor.execute { () -> Bool in
+            try self.base.removeItem(at: URL)
             return true
         }
     }
 
     // Needs more love!  If you are reading this and you wanted to see your favorite function added - consider forking and adding it!  We love pull requests.
     
-
 }

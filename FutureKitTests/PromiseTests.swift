@@ -512,7 +512,7 @@ private enum PromiseFunctions<T : Equatable> {
     case completeWithFailErrorMessage(String)
     case completeWithException(NSException)
     case completeWithCancel
-    case completeUsingFuture(AnyFuture)
+    case completeUsingFuture(Future<T>)
     
     case completeWithBlock(()->Completion<T>)
     //  The block is executed.  The Bool should be TRUE is we expect that the completeWithBlocks will succeed.

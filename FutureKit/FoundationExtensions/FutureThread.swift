@@ -8,44 +8,62 @@
 
 import Foundation
 
-open class FutureThread {
+extension Async where Base: Thread {
+    @available(iOS 10.0, *)
+    static func futureThread<T>(_ block: @escaping () throws -> T) -> Future<T> {
+        let p = Promise<T>()
+        Thread.detachNewThread { 
+            p.completeWithBlock { () -> Completion<T> in
+                return .success(try block())
+            }
+        }
+        return p.future
+    }
+    @available(iOS 10.0, *)
+    static func futureThread<C: CompletionConvertable>(_ block: @escaping () throws -> C) -> Future<C.T> {
+        let p = Promise<C.T>()
+        Thread.detachNewThread { 
+            p.completeWithBlock { () -> Completion<C.T> in
+                return try block().completion
+            }
+        }
+        return p.future
+    }
     
-    public typealias __Type = Any
+}
+
+public class FutureThread<T>: Foundation.Thread {
     
-    var block: () -> Completion<__Type>
+    private var promise = Promise<T>()
     
-    fileprivate var promise = Promise<__Type>()
-    
-    open var future: Future<__Type> {
+    public var future: Future<T> {
         return promise.future
     }
+    private var block: () throws -> Completion<T>
     
-    fileprivate var thread : Thread!
-    
-    public init(block b: @escaping () -> __Type) {
-        self.block = { () -> Completion<__Type> in
-            return .success(b())
+    public init<C: CompletionConvertable>(_ transform: @escaping () throws -> C) where C.T == T {
+        
+        self.block = { 
+            return try transform().completion
         }
-        self.thread = Thread(target: self, selector: #selector(FutureThread.thread_func), object: nil)
+        super.init()
     }
-    public init(block b: @escaping () -> Completion<__Type>) {
-        self.block = b
-        self.thread = Thread(target: self, selector: #selector(FutureThread.thread_func), object: nil)
-    }
-    
-    public init(block b: @escaping () -> Future<__Type>) {
-        self.block = { () -> Completion<__Type> in
-            return .completeUsing(b())
+
+    public init(_ transform: @escaping () throws -> T) {
+        
+        self.block = { 
+            return .success(try transform())
         }
-        self.thread = Thread(target: self, selector: #selector(FutureThread.thread_func), object: nil)
+        super.init()
+    }
+    override public func main() {
+        self.run()
     }
     
-    @objc open func thread_func() {
-        self.promise.complete(self.block())
+    private func run() {
+        self.promise.completeWithBlock { () throws -> Completion<T> in
+            try self.block()
+        }        
     }
     
-    open func start() {
-        self.thread.start()
-    }
-   
 }

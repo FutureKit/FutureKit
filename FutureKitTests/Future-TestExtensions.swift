@@ -33,7 +33,7 @@ extension Future {
                                       description : String,
                                       file: StaticString = #file,
                                       line: UInt = #line,
-        assertion : @escaping ((FutureResult<T>) -> (Bool,String))
+        assertion : @escaping ((Future<T>.Result) -> (Bool,String))
         ) -> XCTestExpectation! {
         
             let e = testcase.expectation(description: description)

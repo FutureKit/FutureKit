@@ -31,7 +31,7 @@ extension XCTestCase {
     func expectationTestForFutureCompletion<T>(_ description : String, future f: Future<T>,
         file: StaticString = #file,
         line: UInt = #line,
-        assertion : @escaping ((FutureResult<T>) -> (Bool,String))
+        assertion : @escaping ((Future<T>.Result) -> (Bool,String))
         ) -> XCTestExpectation {
             
             let e = self.expectation(description: description)

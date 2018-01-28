@@ -22,7 +22,7 @@ public protocol ErrorTypeMightBeCancellation: Error {
 extension ErrorTypeMightBeCancellation {
     
     // don't use this, use ErrorType.toResult<T>()!
-    internal func toFutureResult<T>() -> FutureResult<T> {
+    internal func toFutureResult<T>() -> Future<T>.Result {
         if self.isCancellation {
             return .cancelled
         }
@@ -89,7 +89,7 @@ public extension Error {
         return false;
     }
 
-    func toResult<T>() -> FutureResult<T> {
+    func toResult<T>() -> Future<T>.Result {
         if Self.self is ErrorTypeMightBeCancellation.Type {
             let errorType = self as ErrorTypeMightBeCancellation & Error
             return errorType.toFutureResult()

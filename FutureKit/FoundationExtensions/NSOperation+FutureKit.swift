@@ -26,47 +26,31 @@ import Foundation
 
 
 
-open class FutureOperation<T> : _FutureAnyOperation {
+open class FutureOperation<T> : Operation, FutureConvertable {
     
-    public typealias FutureOperationBlockType = () throws -> (Future<T>)
+    public typealias FutureOperationBlockType = () throws -> (Future<T>.Completion)
+    
+    private var getSubFuture: FutureOperationBlockType
 
-    open class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
-        return FutureOperation<T>(executor: executor,block:b)
-    }
+
+//    open class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
+//        return FutureOperation<T>(executor: executor,block:b)
+//    }
 
     open var future : Future<T> {
-        return self.promise.future.mapAs()
+        return self.promise.future
     }
 
-    public init(executor:Executor = .primary, block b: @escaping () throws -> Future<T>) {
-        super.init(executor: executor,block: { () throws -> AnyFuture in
-            return try b()
-        })
-    }
-
-}
-
-
-open class _FutureAnyOperation : Operation, AnyFuture {
-    
-//    private var getSubFuture : () -> FutureProtocol
-    public typealias FutureAnyOperationBlockType = () throws -> AnyFuture
-    fileprivate var getSubFuture: FutureAnyOperationBlockType
-
-    
     open var executor: Executor
-    
-    open var futureAny = Future<Any>(success: ())
-    
-    var cancelToken : CancellationToken?
-    
-    var promise = Promise<Any>()
+ 
+    var cancelToken : CancellationToken?    
+    var promise = Promise<T>()
     
     override open var isAsynchronous : Bool {
         return true
     }
     
-    fileprivate var _is_executing : Bool {
+    private var isExecutingKvo : Bool {
         willSet {
             self.willChangeValue(forKey: "isExecuting")
         }
@@ -74,7 +58,7 @@ open class _FutureAnyOperation : Operation, AnyFuture {
             self.didChangeValue(forKey: "isExecuting")
         }
     }
-    fileprivate var _is_finished : Bool {
+    private var isFinishedKvo : Bool {
         willSet {
             self.willChangeValue(forKey: "isFinished")
         }
@@ -84,67 +68,56 @@ open class _FutureAnyOperation : Operation, AnyFuture {
     }
     
     override open var isExecuting : Bool {
-        return _is_executing
+        return isExecutingKvo
     }
     
     override open var isFinished : Bool {
-        return _is_finished
+        return isFinishedKvo
     }
     
-    public init(executor:Executor, block : @escaping () throws -> AnyFuture) {
+    public init<C: CompletionConvertable>(executor:Executor, block : @escaping () throws -> C) where C.T == T {
         self.executor = executor
-        self.getSubFuture = block
-        self._is_executing = false
-        self._is_finished = false
+        self.getSubFuture = { () throws -> Future<T>.Completion in 
+            return try block().completion
+        }
+        self.isExecutingKvo = false
+        self.isFinishedKvo = false
         super.init()
+        
+        self.promise.onRequestCancel { [weak self] _ -> Future<T>.CancelResponse in
+            self?.cancel()
+            return .continue
+        }
+
     }
     
     
     override open func main() {
         
         if self.isCancelled {
-            self._is_executing = false
-            self._is_finished = true
+            self.isExecutingKvo = false
+            self.isFinishedKvo = true
             self.promise.completeWithCancel()
             return
         }
         
-        self._is_executing = true
+        self.isExecutingKvo = true
 
-        
-        let f: Future<Any> = self.executor.execute { () -> Future<Any> in
-            return try self.getSubFuture().futureAny
-        }
-        self.futureAny = f
-        self.cancelToken = f.getCancelToken()
-        f.onComplete(executor) { (value) -> Void in
-            self._is_executing = false
-            self._is_finished = true
-            self.promise.complete(value)
-        }
-        .ignoreFailures()
+        self.cancelToken = self.executor
+            .execute { () -> Completion<T> in
+                return try self.getSubFuture()
+            }
+            .onComplete(executor) { (value) -> Void in
+                self.isExecutingKvo = false
+                self.isFinishedKvo = true
+                self.promise.complete(value)
+            }        
+            .getCancelToken()
         
     }
     override open func cancel() {
         super.cancel()
         self.cancelToken?.cancel()
-    }
-    
-    @available(*, deprecated: 1.1, message: "renamed to mapAs()")
-    open func As<S>() -> Future<S> {
-        return self.mapAs()
-    }
-    open func mapAs<S>() -> Future<S> {
-        return self.promise.future.mapAs()
-    }
-    
-    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
-    open func convertOptional<S>() -> Future<S?> {
-        return self.mapAsOptional()
-    }
-
-    open func mapAsOptional<S>() -> Future<S?> {
-        return self.promise.future.mapAsOptional()
     }
 
 }
@@ -157,12 +130,13 @@ public extension OperationQueue {
     returns a new Future<T> that can be used to compose when this operation runs and completes
     
     */
-    public func add<T>(_ executor: Executor = .primary,
-
-                    priority : Operation.QueuePriority = .normal,
-                    block: @escaping FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
+     
+    public func add<C: CompletionType>(_ executor: Executor = .primary,
+                       
+                       priority : Operation.QueuePriority = .normal,
+                       block: @escaping () throws -> (C)) -> Future<C.T> {
         
-        let operation = FutureOperation.OperationWithBlock(executor,block: block)
+        let operation = FutureOperation<C.T>(executor: executor, block: block)
         operation.queuePriority = priority
         
         self.addOperation(operation)
@@ -170,6 +144,7 @@ public extension OperationQueue {
         return operation.future
         
     }
+
     
     
 }

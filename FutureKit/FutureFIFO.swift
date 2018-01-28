@@ -39,7 +39,7 @@ open class FutureFIFO {
     
     // A Failed or Canceled task doesn't stop execution of the queue
     // If you care about the Result of specific committed block, you can add a dependency to the Task returned from this function
-    open func add<C:CompletionType>(_ executor: Executor = .primary, operation: @escaping () throws -> C) -> Future<C.T> {
+    open func add<C:CompletionConvertable>(_ executor: Executor = .primary, operation: @escaping () throws -> C) -> Future<C.T> {
     
         let t = self.lastFuture.onComplete(executor) { _ in
             return try operation()

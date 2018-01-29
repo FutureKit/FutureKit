@@ -83,8 +83,11 @@ class UnSafeMutableContainer<T> {
         unsafe_pointer.initialize(to: initialValue)
     }
     deinit {
-        unsafe_pointer.deinitialize(count: 1)
-        unsafe_pointer.deallocate()
+        #if swift(>=4.1)
+            unsafe_pointer.deallocate()
+        #else
+            unsafe_pointer.deallocate(capacity: 1)
+        #endif
     }
 }
 

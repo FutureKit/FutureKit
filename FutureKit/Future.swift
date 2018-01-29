@@ -340,7 +340,7 @@ public protocol BaseFutureProtocol {
 
 public class Future<T> : BaseFutureProtocol, FutureConvertable {
     
-    public indirect enum Result: ResultConvertable  {
+    public indirect enum Result: ResultConvertable {
         
         case success(T)
         case fail(Error)
@@ -413,7 +413,7 @@ public class Future<T> : BaseFutureProtocol, FutureConvertable {
         type of synchronization used can be configured via GLOBAL_PARMS.LOCKING_STRATEGY
     
     */
-    public private(set) final var result : Future<T>.Result? {
+    public private(set) final var result: Future<T>.Result? {
         get {
             return self.synchObject.lockAndReadSync { () -> Future<T>.Result? in
                 return self.__result
@@ -463,7 +463,7 @@ public class Future<T> : BaseFutureProtocol, FutureConvertable {
 //        self.cancellationSource = s
 //    }
 
-    public init(result: Future<T>.Result) { 
+    public init(result: Future<T>.Result) {
         self.result = result
     }
 
@@ -665,14 +665,15 @@ extension Future {
         return ret
    }
 
+    private typealias ModifyBlockReturnType = (callbacks: [CompletionBlockType]?,
+        result: Future<T>.Result?,
+        continueUsing: Future?)
+    
     internal final func completeWithBlocks<C: CompletionConvertable>(
             waitUntilDone wait: Bool = false,
             completionBlock : @escaping () throws -> C,
             onCompletionError : @escaping () -> Void = {}) where C.T == T {
 
-        typealias ModifyBlockReturnType = (callbacks: [CompletionBlockType]?,
-                                            result: Future<T>.Result?,
-                                            continueUsing: Future?)
 
         self.synchObject.lockAndModify(waitUntilDone: wait, modifyBlock: { () -> ModifyBlockReturnType in
             if self.__result != nil {
@@ -925,8 +926,8 @@ extension Future {
      
      - returns: the value returned from the block if the block executed, or nil if the block didn't execute
      */
-    public final func IfNotCompleted<__Type>(_ block:@escaping () -> __Type) -> __Type? {
-        return self.synchObject.lockAndReadSync { () -> __Type? in
+    public final func IfNotCompleted<S>(_ block:@escaping () -> S) -> S? {
+        return self.synchObject.lockAndReadSync { () -> S? in
             if self.__result == nil {
                 return block()
             }

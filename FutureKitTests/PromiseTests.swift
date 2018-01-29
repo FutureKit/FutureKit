@@ -29,7 +29,7 @@ class FKTestCase: BlockBasedTestCase {
 }
 
 
-private indirect enum PromiseState<T : Equatable> :  CustomStringConvertible, CustomDebugStringConvertible {
+private indirect enum PromiseState<T: Equatable> :  CustomStringConvertible, CustomDebugStringConvertible {
     case notCompleted
     case success(T)
     case fail(FutureKitError)
@@ -512,8 +512,7 @@ extension PromiseFunctionTest {
 }
 
 
-
-private indirect enum PromiseFunctions<T : Equatable> {
+private indirect enum PromiseFunctions<T: Equatable> {
     
     
     case automaticallyCancelAfter(TimeInterval)

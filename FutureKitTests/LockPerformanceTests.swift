@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 //
 
-// swiftlint:disable function_body_length
-
 import XCTest
 import FutureKit
 
@@ -93,15 +91,15 @@ struct AttributesForTest {
 class LockPerformanceTests: BlockBasedTestCase {
 
     typealias TestBlockType = ((LockPerformanceTests) -> Void)
+    typealias ReadWriteRatios = (read: UInt32, write: UInt32)
+    typealias LocksAndThreads = (locks: UInt32, threads: Int, shared: Bool, description: String)
 
     override class func myBlockBasedTests() -> [Any] {
 
         var tests = [AnyObject]()
 
-        typealias ReadWriteRatios = (read: UInt32, write: UInt32)
         let readWriteCases: [ReadWriteRatios]  = [(0, 1), (1, 3), (1, 1), (3, 1), (1, 0)]
 
-        typealias LocksAndThreads = (locks: UInt32, threads: Int, shared: Bool, description: String)
         let lockAndThreadCases: [LocksAndThreads]  =
             [ (1, 2, true, "1 shared lock - 2 threads - 100% contention"),
               (2, 2, false, "one thread each with one unshared lock - 0% contention"),
@@ -182,12 +180,11 @@ class LockPerformanceTests: BlockBasedTestCase {
     func iterateTestWithThreads(attributes: AttributesForTest) {
 
         let block = attributes.blockForTest()
-        typealias ThreadType = FutureThread<Any>
 
-        var threads = [ThreadType]()
+        var threads = [FutureThread<Any>]()
 
         for thread_number in 0..<attributes.threads {
-            let t = ThreadType { () -> Any in
+            let t = FutureThread<Any> { () -> Any in
                 block(thread_number)
             }
             threads.append(t)
@@ -237,20 +234,20 @@ extension AttributesForTest {
             ((reads > 0) && (arc4random_uniform(numops) < reads))
     }
 
+    private typealias Key = Int
+    private typealias Value = Int
+    private typealias DictType = [Key: Value]
+    private typealias DataPair = (dict: DictType, lock: SynchronizationProtocol)
+
     func blockForTest() -> ((_ runningThreadNum: Int) -> Void) {
 
         assert(number_of_locks >= 1, "need at least 1 lock")
-
-        typealias Key = Int
-        typealias Value = Int
-        typealias DictType = [Key: Value]
 
         let keys: [Key] = [0, 1, 2]
         let keysCount = UInt32(keys.count)
 
         // these will be the dictionaries the locks will control access for
 
-        typealias DataPair = (dict: DictType, lock: SynchronizationProtocol)
 
         var data: [DataPair] = []
 

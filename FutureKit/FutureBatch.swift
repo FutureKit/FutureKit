@@ -295,24 +295,22 @@ extension Async where Base: Sequence, Base.Element: CompletionConvertable {
         _ executor: Executor = .primary,
         _ transform: @escaping ((Int, Result) -> (C, Bool))) -> Future<[Future<C.T>.Result]> {
 
-        typealias MappedResult = Future<C.T>.Result
-
         let futures = self.base.map { $0.future }
         guard futures.count > 0 else {
-            return Future<[MappedResult]>(success: [])
+            return Future<[Future<C.T>.Result]>(success: [])
         }
 
-        let promise = Promise<[MappedResult]>()
+        let promise = Promise<[Future<C.T>.Result]>()
         var total = futures.count
         var tokens = futures.map { Optional($0.getCancelToken()) }
-        promise.onRequestCancel { _ -> CancelRequestResponse<[MappedResult]> in
+        promise.onRequestCancel { _ -> CancelRequestResponse<[Future<C.T>.Result]> in
             for token in tokens {
                 token?.cancel()
             }
             return .completeWithCancel
         }
 
-        var resultsArray = [MappedResult](repeating: .cancelled, count: futures.count)
+        var resultsArray = [Future<C.T>.Result](repeating: .cancelled, count: futures.count)
         for (index, future) in futures.enumerated() {
             future.onComplete(executor) { result -> Void in
                 guard !promise.isCompleted else {

@@ -377,7 +377,7 @@ public enum Executor {
     //          // insert code to run in the QOS_CLASS_BACKGROUND queue!
     //     }
     //
-    public func executeBlock(block b: @escaping (())->()) {
+    public func executeBlock(block b: @escaping ()->()) {
         let executionBlock = self.callbackBlockFor(b)
         executionBlock()
     }

@@ -121,7 +121,7 @@ imageFuture.onComplete(.mainAsync) { (result) -> Void in
         print("error \(error.localizedDescription)")
     case .cancelled:
         print("cancelled")
-        break
+        
     }
 }
 

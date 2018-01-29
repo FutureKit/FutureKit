@@ -280,7 +280,9 @@ internal class CancellationTokenSource {
 
 public struct CancellationOptions : OptionSet{
     public let rawValue : Int
-    public init(rawValue:Int){ self.rawValue = rawValue}
+    public init(rawValue:Int) {
+        self.rawValue = rawValue
+    }
 
     
     @available(*, deprecated: 1.1, message: "depricated, cancellation forwards to all dependent futures by default use onSuccess",renamed: "DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting")
@@ -389,7 +391,7 @@ public protocol BaseFutureProtocol {
 
 public class Future<T> : BaseFutureProtocol, FutureConvertable {
     
-    public enum Result: ResultConvertable  {
+    public indirect enum Result: ResultConvertable  {
         
         case success(T)
         case fail(Error)
@@ -397,7 +399,7 @@ public class Future<T> : BaseFutureProtocol, FutureConvertable {
         
     }
     
-    public enum Completion: CompletionConvertable {
+    public indirect enum Completion: CompletionConvertable {
         
         case success(T)
         case fail(Error)
@@ -466,11 +468,17 @@ public class Future<T> : BaseFutureProtocol, FutureConvertable {
         type of synchronization used can be configured via GLOBAL_PARMS.LOCKING_STRATEGY
     
     */
-    public final var result : Result? {
+    public private(set) final var result : Future<T>.Result? {
         get {
             return self.synchObject.lockAndReadSync { () -> Future<T>.Result? in
                 return self.__result
             }
+        }
+        set(newValue) {
+            return self.synchObject.lockAndModifySync {
+                self.__result = newValue
+            }
+
         }
     }
     
@@ -491,20 +499,11 @@ public class Future<T> : BaseFutureProtocol, FutureConvertable {
     /**
     returns: true if the Future has completed with any completion value.
     
-    is NOT threadsafe
-    */
-    internal final var __isCompleted : Bool {
-        return (self.__result != nil)
-    }
-
-    /**
-    returns: true if the Future has completed with any completion value.
-    
     accessing this variable directly requires thread synchronization.
     */
     public final var isCompleted : Bool {
         return self.synchObject.lockAndReadSync { () -> Bool in
-            return self.__isCompleted
+            return self.__result != nil
         }
     
     }
@@ -521,7 +520,7 @@ public class Future<T> : BaseFutureProtocol, FutureConvertable {
 //    }
 
     public init(result: Future<T>.Result) { 
-        self.__result = result
+        self.result = result
     }
     
     /**
@@ -1006,7 +1005,7 @@ extension Future {
      */
     public final func IfNotCompleted<__Type>(_ block:@escaping () -> __Type) -> __Type? {
         return self.synchObject.lockAndReadSync { () -> __Type? in
-            if !self.__isCompleted {
+            if self.__result == nil {
                 return block()
             }
             return nil

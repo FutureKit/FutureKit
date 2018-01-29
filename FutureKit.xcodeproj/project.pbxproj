@@ -667,6 +667,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0DEA1BA81AE30853000E126F /* Build configuration list for PBXNativeTarget "FutureKit iOS" */;
 			buildPhases = (
+                0D40FA7C201F898300D714C0 /* Run Swiftlint */,
 				0DEA1B8C1AE30853000E126F /* Sources */,
 				0DEA1B8D1AE30853000E126F /* Frameworks */,
 				0DEA1B8E1AE30853000E126F /* Headers */,
@@ -886,6 +887,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+        0D40FA7C201F898300D714C0 /* Run Swiftlint */ = {
+            isa = PBXShellScriptBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+            );
+            inputPaths = (
+            );
+            name = "Run Swiftlint";
+            outputPaths = (
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+            shellPath = /bin/sh;
+            shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\necho \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi";
+        };
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0DBB32EA1D0F91640092BF7B /* Sources */ = {
@@ -1438,7 +1456,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+                "CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = AUXUTTBC4T;
@@ -1466,7 +1484,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+                "CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = AUXUTTBC4T;

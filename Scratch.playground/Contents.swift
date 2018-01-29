@@ -40,7 +40,7 @@ let twoType = what.1.valueType
 func typestring(x : Any) -> String
 {
     if let obj = x as? NSObject {
-        return NSStringFromClass((x as! NSObject).dynamicType)
+        return NSStringFromClass(type(of: (obj)))
     }
     
     // Native Swift

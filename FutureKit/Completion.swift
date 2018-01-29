@@ -22,51 +22,50 @@
 // THE SOFTWARE.
 //
 
+// swiftlint:disable file_length
+
 import Foundation
 
-
-// the onSuccess and onComplete handlers will return either a generic type __Type, or any object confirming to the CompletionConvertable.
+// the onSuccess and onComplete handlers will return either a generic type S, or any object confirming to the CompletionConvertable.
 
 //    CompletionConvertable include Completion<T>, Future<T>.Result, Future<T>, Promise<T>...
 
-
 public protocol AnyFutureConvertable: CustomStringConvertible, CustomDebugStringConvertible {
-    
-    var futureAny : Future<Any> { get }
-    
+
+    var futureAny: Future<Any> { get }
+
 }
 
 public protocol FutureConvertable: AnyFutureConvertable {
-    associatedtype T   
-    
-    var future : Future<T> { get }
-    
+    associatedtype T
+
+    var future: Future<T> { get }
+
 }
 extension FutureConvertable {
-    public var futureAny : Future<Any> {
+    public var futureAny: Future<Any> {
         return self.future.as(Any.self)
     }
-    
+
     public func `as`<S>(_ type: S.Type) -> Future<S> {
         return self.future.onComplete(.immediate) { result -> Future<S>.Completion in
             switch result {
             case let .success(t):
                 if let r = t as? S {
                     return .success(r)
-                }
-                else {
+                } else {
                     assertionFailure("you can't cast \(t) to \(S.self)")
-                    return Completion(failWithErrorMessage:"can't cast \(t) to \(S.self)");
+                    return Completion(failWithErrorMessage: "can't cast \(t) to \(S.self)")
                 }
             case let .fail(error):
                 return .fail(error)
             case .cancelled:
                 return .cancelled
             }
-            
-        }        
+
+        }
     }
-  
+
     public func `as`<S>(_ type: S.Type) -> Future<S.Wrapped?> where S: OptionalProtocol {
         return self.future.onComplete(.immediate) { result -> Future<S.Wrapped?>.Completion in
             switch result {
@@ -77,46 +76,42 @@ extension FutureConvertable {
             case .cancelled:
                 return .cancelled
             }
-            
-        }        
+
+        }
     }
 
-
-    
 }
 
 public protocol AnyCompletionConvertable: CustomStringConvertible, CustomDebugStringConvertible {
-    
-    var completionAny : Future<Any>.Completion { get }
-    
+
+    var completionAny: Future<Any>.Completion { get }
+
 }
 
-public protocol CompletionConvertable : AnyCompletionConvertable {
+public protocol CompletionConvertable: AnyCompletionConvertable {
     associatedtype T
-    
-    var completion : Future<T>.Completion { get }
+
+    var completion: Future<T>.Completion { get }
     var future: Future<T> { get }
-    
+
 }
 
 public typealias CompletionType = CompletionConvertable
 
-
 extension CompletionConvertable {
- 
+
     public var asVoid: Future<Void>.Completion {
         return self.as(Void.self)
     }
-    
+
     public func `as`<S>(_ type: S.Type) -> Future<S>.Completion {
         switch self.completion {
         case let .success(t):
             if let r = t as? S {
                 return .success(r)
-            }
-            else {
+            } else {
                 assertionFailure("you can't cast \(t) to \(S.self)")
-                return Completion(failWithErrorMessage:"can't cast \(t) to \(S.self)");
+                return Completion(failWithErrorMessage: "can't cast \(t) to \(S.self)")
             }
         case let .fail(error):
             return .fail(error)
@@ -126,14 +121,13 @@ extension CompletionConvertable {
             return .completeUsing(future.as(S.self))
         }
     }
-    
+
     public func `as`<S>(_ type: S.Type) -> Future<S.Wrapped?>.Completion where S: OptionalProtocol {
         switch self.completion {
         case let .success(t):
             if let r = t as? S.Wrapped {
                 return .success(r)
-            }
-            else {
+            } else {
                 return .success(nil)
             }
         case let .fail(error):
@@ -145,18 +139,16 @@ extension CompletionConvertable {
         }
     }
 
-    
-    public var completionAny : Future<Any>.Completion { 
+    public var completionAny: Future<Any>.Completion {
         return self.completion.as(Any.self)
     }
 
 }
 
-
 public protocol ResultConvertable {
     associatedtype T
-    
-    var result : Future<T>.Result { get }
+
+    var result: Future<T>.Result { get }
 }
 
 /**
@@ -186,10 +178,10 @@ Defines a an enumeration that can be used to complete a Promise/Future.
 
 - .fail(ErrorType): The Future should complete with a `FutureResult.fail(ErrorType)`
 
-- ,cancelled:  
+- ,cancelled:
     The Future should complete with with `FutureResult.cancelled`.
 
-- .completeUsing(Future<T>):  
+- .completeUsing(Future<T>):
     The Future should be completed with the result of a another dependent Future, when the dependent Future completes.
     
     If The Future receives a cancelation request, than the cancellation request will be forwarded to the depedent future.
@@ -197,16 +189,15 @@ Defines a an enumeration that can be used to complete a Promise/Future.
 extension Future {
 }
 
-
 extension Future {
-    public enum AnyResult  {
-    
+    public enum AnyResult {
+
         case success(Any)
         case fail(Error)
         case cancelled
     }
-    public enum AnyCompletion  {
-        
+    public enum AnyCompletion {
+
         case success(Any)
         case fail(Error)
         case cancelled
@@ -214,31 +205,30 @@ extension Future {
     }
 }
 
-
 extension CompletionConvertable where Self: Error {
-    public var completion : Future<T>.Completion {
+    public var completion: Future<T>.Completion {
         return .fail(self)
     }
-    
+
     public var future: Future<T> {
         return Future(fail: self)
     }
-   
+
 }
 extension NSError: CompletionConvertable {
     public typealias T = Void
 }
 
-extension Future : CompletionConvertable {
-    
-    public var completion : Future<T>.Completion {
+extension Future: CompletionConvertable {
+
+    public var completion: Future<T>.Completion {
         return .completeUsing(self)
     }
 
-    public var future : Future<T> {
+    public var future: Future<T> {
         return self
     }
-    
+
     public static func success(_ value: T) -> Future<T> {
         return Future<T>(success: value)
     }
@@ -257,32 +247,32 @@ extension FutureConvertable {
     public static func success(_ value: T) -> Future<T> {
         return Future<T>(success: value)
     }
-    
+
     public static func fail(_ error: Error) -> Future<T> {
         return Future<T>(fail: error)
     }
     public static var cancelled: Future<T> {
         return Future<T>(cancelled: ())
     }
-    public static func completeUsing<F:FutureConvertable>(_ future: F) -> Future<T> where F.T == T {
+    public static func completeUsing<F: FutureConvertable>(_ future: F) -> Future<T> where F.T == T {
         return future.future
-    }   
+    }
     public static func completeUsing(_ future: Future<T>) -> Future<T> {
         return future
-    }   
+    }
 }
 
-extension Promise : CompletionConvertable {
-    
-    public var completion : Completion<T> {
+extension Promise: CompletionConvertable {
+
+    public var completion: Completion<T> {
         return .completeUsing(self.future)
     }
-    
+
 }
 
 extension Completion { // properties
-    
-    public var completion : Completion<T> {
+
+    public var completion: Completion<T> {
         return self
     }
     public var future: Future<T> {
@@ -300,10 +290,9 @@ extension Completion { // properties
 
 }
 
+extension Future.Result: CompletionConvertable {
 
-extension Future.Result : CompletionConvertable {
-    
-    public var completion : Completion<T> {
+    public var completion: Completion<T> {
         switch self {
         case let .success(result):
             return .success(result)
@@ -313,7 +302,7 @@ extension Future.Result : CompletionConvertable {
             return .cancelled
         }
     }
-    
+
     public var future: Future<T> {
         switch self {
         case let .success(result):
@@ -325,38 +314,37 @@ extension Future.Result : CompletionConvertable {
         }
     }
 
-    
 }
 
 extension CompletionConvertable {
-    
-    public static func SUCCESS(_ value:T) -> Completion<T>  {
+
+    public static func SUCCESS(_ value: T) -> Completion<T> {
         return Completion<T>(success: value)
     }
 
-    public static func FAIL(_ fail:Error) -> Completion<T> {
+    public static func FAIL(_ fail: Error) -> Completion<T> {
         return Completion<T>(fail: fail)
     }
 
-    public static func FAIL(_ failWithErrorMessage:String) -> Completion<T> {
-        return Completion<T>(failWithErrorMessage:failWithErrorMessage)
+    public static func FAIL(_ failWithErrorMessage: String) -> Completion<T> {
+        return Completion<T>(failWithErrorMessage: failWithErrorMessage)
     }
 
     public static func CANCELLED<T>(_ cancelled:()) -> Completion<T> {
         return Completion<T>(cancelled: cancelled)
     }
-    
-    public static func COMPLETE_USING<T>(_ completeUsing:Future<T>) -> Completion<T> {
+
+    public static func COMPLETE_USING<T>(_ completeUsing: Future<T>) -> Completion<T> {
         return Completion<T>(completeUsing: completeUsing)
     }
 
 }
 
-public func SUCCESS<T>(_ value:T) -> Completion<T>  {
+public func SUCCESS<T>(_ value: T) -> Completion<T> {
     return Completion<T>(success: value)
 }
 
-public func FAIL<T>(_ fail:Error) -> Completion<T> {
+public func FAIL<T>(_ fail: Error) -> Completion<T> {
     return Completion<T>(fail: fail)
 }
 
@@ -364,32 +352,30 @@ public func CANCELLED<T>(_ cancelled:()) -> Completion<T> {
     return Completion<T>(cancelled: cancelled)
 }
 
-public func COMPLETE_USING<T>(_ completeUsing:Future<T>) -> Completion<T> {
+public func COMPLETE_USING<T>(_ completeUsing: Future<T>) -> Completion<T> {
     return Completion<T>(completeUsing: completeUsing)
 }
 
-
-
 public extension Future.Result { // initializers
-    
+
     /**
     returns a .Fail(FutureNSError) with a simple error string message.
     */
-    public init(failWithErrorMessage : String) {
+    public init(failWithErrorMessage: String) {
         self = .fail(FutureKitError(genericError: failWithErrorMessage))
     }
     /**
     converts an NSException into an NSError.
     useful for generic Objective-C excecptions into a Future
     */
-    public init(exception ex:NSException) {
+    public init(exception ex: NSException) {
         self = .fail(FutureKitError(exception: ex))
     }
-    
-    public init(success:T) {
+
+    public init(success: T) {
         self = .success(success)
     }
-    
+
     public init(fail: Error) {
         self = .fail(fail)
     }
@@ -403,112 +389,93 @@ public extension CompletionConvertable {
     /**
     make sure this enum is a .Success before calling `result`. Do a check 'completion.state {}` or .isFail() first.
     */
-    public var value : T! {
-        get {
-            switch self.completion {
-            case let .success(t):
-                return t
-            case let .completeUsing(f):
-                if let v = f.value {
-                    return v
-                }
-                else {
-                    return nil
-                }
-            default:
+    public var value: T! {
+        switch self.completion {
+        case let .success(t):
+            return t
+        case let .completeUsing(f):
+            if let v = f.value {
+                return v
+            } else {
                 return nil
             }
+        default:
+            return nil
         }
     }
     /**
     make sure this enum is a .Fail before calling `result`. Use a switch or check .isError() first.
     */
-    public var error : Error! {
-        get {
-            switch self.completion {
-            case let .fail(e):
-                return e.testForCancellation ? nil : e
-            default:
-                return nil
-            }
-        }
-    }
-    
-    public var isSuccess : Bool {
-        get {
-            switch self.completion {
-            case .success:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-    public var isFail : Bool {
-        get {
-            switch self.completion {
-            case let .fail(e):
-                return !e.testForCancellation
-            default:
-                return false
-            }
-        }
-    }
-    public var isCancelled : Bool {
-        get {
-            switch self.completion {
-            case .cancelled:
-                return true
-            case let .fail(e):
-                return e.testForCancellation
-            default:
-                return false
-            }
-        }
-    }
-    
-    public var isCompleteUsing : Bool {
-        get {
-            switch self.completion {
-            case .completeUsing:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-    
-    internal var completeUsingFuture:Future<T>! {
-        get {
-            switch self.completion {
-            case let .completeUsing(f):
-                return f
-            default:
-                return nil
-            }
-        }
-    }
-
-
-    
-    var result : Future<T>.Result!  {
-        
+    public var error: Error! {
         switch self.completion {
-            case .completeUsing:
-                return nil
-            case let .success(value):
-                return .success(value)
-            case let .fail(error):
-                return error.toResult() // check for possible cancellation errors
-            case .cancelled:
-                return .cancelled
+        case let .fail(e):
+            return e.testForCancellation ? nil : e
+        default:
+            return nil
         }
-        
     }
-    
 
-    
-    /** 
+    public var isSuccess: Bool {
+        switch self.completion {
+        case .success:
+            return true
+        default:
+            return false
+        }
+    }
+    public var isFail: Bool {
+        switch self.completion {
+        case let .fail(e):
+            return !e.testForCancellation
+        default:
+            return false
+        }
+    }
+    public var isCancelled: Bool {
+        switch self.completion {
+        case .cancelled:
+            return true
+        case let .fail(e):
+            return e.testForCancellation
+        default:
+            return false
+        }
+    }
+
+    public var isCompleteUsing: Bool {
+        switch self.completion {
+        case .completeUsing:
+            return true
+        default:
+            return false
+        }
+    }
+
+    internal var completeUsingFuture: Future<T>! {
+        switch self.completion {
+        case let .completeUsing(f):
+            return f
+        default:
+            return nil
+        }
+    }
+
+    var result: Future<T>.Result! {
+
+        switch self.completion {
+        case .completeUsing:
+            return nil
+        case let .success(value):
+            return .success(value)
+        case let .fail(error):
+            return error.toResult() // check for possible cancellation errors
+        case .cancelled:
+            return .cancelled
+        }
+
+    }
+
+    /**
     can be used inside a do/try/catch block to 'try' and get the result of a Future.
     
     Useful if you want to use a swift 2.0 error handling block to resolve errors
@@ -539,7 +506,7 @@ public extension CompletionConvertable {
             throw FutureKitError(genericError: "Future was not completed.")
         }
     }
-    
+
     /**
     can be used inside a do/try/catch block to 'try' and get the result of a Future.
     
@@ -561,7 +528,7 @@ public extension CompletionConvertable {
     func throwIfFail() throws {
         switch self.completion {
         case let .fail(error):
-            if (!error.testForCancellation) {
+            if !error.testForCancellation {
                 throw error
             }
         default:
@@ -595,8 +562,7 @@ public extension CompletionConvertable {
             break
         }
     }
-    
-    
+
     /**
      convert this completion of type Completion<T> into another type Completion<S>.
      
@@ -620,14 +586,13 @@ public extension CompletionConvertable {
      you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
      */
 
-    public func map<__Type>(_ block: @escaping (T) throws -> __Type) -> Completion<__Type> {
-        
+    public func map<S>(_ block: @escaping (T) throws -> S) -> Completion<S> {
+
         switch self.completion {
         case let .success(t):
             do {
                 return .success(try block(t))
-            }
-            catch {
+            } catch {
                 return .fail(error)
             }
         case let .fail(f):
@@ -635,12 +600,12 @@ public extension CompletionConvertable {
         case .cancelled:
             return .cancelled
         case let .completeUsing(f):
-            
-            let mapf :Future<__Type> = f.map(.primary,block: block)
+
+            let mapf: Future<S> = f.map(.primary, block: block)
             return .completeUsing(mapf)
         }
     }
-    
+
     /**
      convert this completion of type `Completion<T>` into another type `Completion<S?>`.
      
@@ -656,14 +621,14 @@ public extension CompletionConvertable {
      - returns: a new result of type Completion<S?>
      
      */
-    public func mapAsOptional<O : OptionalProtocol>(type:O.Type) -> Completion<O.Wrapped?> {
+    public func mapAsOptional<O: OptionalProtocol>(type: O.Type) -> Completion<O.Wrapped?> {
 
         return self.map { v -> O.Wrapped? in
             return v as? O.Wrapped
         }
 
     }
-    
+
     /**
      convert this completion of type Completion<T> into another type Completion<S>.
      
@@ -686,16 +651,15 @@ public extension CompletionConvertable {
      
      you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
      */
-    public func mapAs<__Type>() -> Completion<__Type> {
+    public func mapAs<S>() -> Completion<S> {
         switch self.completion {
         case let .success(t):
-            assert(t is __Type, "you can't cast \(type(of: t)) to \(__Type.self)")
-            if (t is __Type) {
-                let r = t as! __Type
+            assert(t is S, "you can't cast \(type(of: t)) to \(S.self)")
+            if t is S {
+                let r = t as! S // swiftlint:disable:this force_cast
                 return .success(r)
-            }
-            else {
-                return Completion<__Type>(failWithErrorMessage:"can't cast  \(type(of: t)) to \(__Type.self)");
+            } else {
+                return Completion<S>(failWithErrorMessage: "can't cast  \(type(of: t)) to \(S.self)")
             }
         case let .fail(f):
             return .fail(f)
@@ -706,12 +670,10 @@ public extension CompletionConvertable {
         }
     }
 
-
     public func mapAs() -> Completion<T> {
         return self.completion
     }
 
-    
     public func mapAs() -> Completion<Void> {
         switch self.completion {
         case .success:
@@ -728,17 +690,16 @@ public extension CompletionConvertable {
     public func As() -> Completion<T> {
         return self.completion
     }
-    
+
     @available(*, deprecated: 1.1, message: "renamed to mapAs()")
-    public func As<__Type>() -> Completion<__Type> {
+    public func As<S>() -> Completion<S> {
         return self.mapAs()
     }
-    
+
 }
 
+extension Future.Result: CustomStringConvertible, CustomDebugStringConvertible {
 
-extension Future.Result : CustomStringConvertible, CustomDebugStringConvertible {
-    
     public var description: String {
         switch self {
         case let .success(result):
@@ -752,7 +713,7 @@ extension Future.Result : CustomStringConvertible, CustomDebugStringConvertible 
     public var debugDescription: String {
         return self.description
     }
-    
+
     /**
     This doesn't seem to work yet in the XCode Debugger or Playgrounds.
     it seems that only NSObjectProtocol objects can use this method.
@@ -764,28 +725,23 @@ extension Future.Result : CustomStringConvertible, CustomDebugStringConvertible 
     }
 }
 
-
-
-
-
-
 public extension Completion { // initializers
-    
+
     /**
     returns a .Fail(FutureNSError) with a simple error string message.
     */
-    public init(failWithErrorMessage : String) {
+    public init(failWithErrorMessage: String) {
         self = .fail(FutureKitError(genericError: failWithErrorMessage))
     }
     /**
     converts an NSException into an NSError.
     useful for generic Objective-C excecptions into a Future
     */
-    public init(exception ex:NSException) {
+    public init(exception ex: NSException) {
         self = .fail(FutureKitError(exception: ex))
     }
-    
-    public init(success:T) {
+
+    public init(success: T) {
         self = .success(success)
     }
 
@@ -795,28 +751,28 @@ public extension Completion { // initializers
     public init(cancelled: ()) {
         self = .cancelled
     }
-    public init(completeUsing:Future<T>){
+    public init(completeUsing: Future<T>) {
         self = .completeUsing(completeUsing)
     }
 
 }
 
 extension CompletionConvertable {
-    
-    @available(*, deprecated: 1.1, message: "depricated use completion",renamed: "completion")
+
+    @available(*, deprecated: 1.1, message: "depricated use completion", renamed: "completion")
     func asCompletion() -> Completion<T> {
         return self.completion
     }
-    
-    @available(*, deprecated: 1.1, message: "depricated use result",renamed: "result")
+
+    @available(*, deprecated: 1.1, message: "depricated use result", renamed: "result")
     func asResult() -> Future<T>.Result {
         return self.result
     }
-    
+
 }
 
 extension CompletionConvertable {
-    
+
     public var future: Future<T> {
         switch self.completion {
         case let .success(result):
@@ -829,7 +785,7 @@ extension CompletionConvertable {
             return future
         }
     }
-    
+
     public var description: String {
         switch self.completion {
         case let .success(t):
@@ -845,7 +801,7 @@ extension CompletionConvertable {
     public var debugDescription: String {
         return self.description
     }
-    
+
     /**
     This doesn't seem to work yet in the XCode Debugger or Playgrounds.
     it seems that only NSObjectProtocol objects can use this method.
@@ -856,5 +812,3 @@ extension CompletionConvertable {
         return self.debugDescription as AnyObject?
     }
 }
-
- 

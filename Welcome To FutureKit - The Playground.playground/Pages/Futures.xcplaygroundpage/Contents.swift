@@ -6,7 +6,7 @@ PlaygroundPage.current.needsIndefiniteExecution = true
 //: # Let's get started!
 
 //: This is a Future:
-let future5Int : Future<Int>
+let future5Int: Future<Int>
 //: It's not a regular Int.  It's a "Future" Int.
 //: At some point in the future, this object will "generate" an Int. Or maybe it will fail.
 //: I called the variable "future5Int" because it will eventualy at some point in the future it will return a Int value of 5.  Very useful if you need a 5 at somepoint in the future.
@@ -14,7 +14,7 @@ future5Int = Future(success: 5)
 //: Ok.  I told a small lie. Cause now the value 5 is already there.  This was a Future that was created in a "completed" state.  It has a result.  The Future was successful, and it has a result of 5.  Very good.
 let resultOfFuture5 = future5Int.result!
 //: Sometimes a Future will fail. Maybe the database is all out if 5's.  So instead of 5, we are gonna return a failure.  No number 5 for you.
-let futureFail = Future<Int>(failWithErrorMessage:"I have no 5's for you today.")
+let futureFail = Future<Int>(failWithErrorMessage: "I have no 5's for you today.")
 let failed5result = futureFail.result
 let e = futureFail.error
 let cancelledFuture = Future<Int>(cancelled: ())
@@ -47,11 +47,9 @@ let f = asyncFuture5.onSuccess(.main) { (value) -> Int in
 //: Future's are type safe.  You can't add an onSuccess handler block that wants a String to a Future<Int>.
 //: if you uncomment the next line, watch how compile complains (check the Console Output on the Timeline if you don't see an error in the editor)
 
-
 // asyncFuture5.onSuccess { (value: String) -> Void in  }
 
 //: changing `(result:String)` to `(result:Int)` fixes the bug.  (Or just remove the type definition and let Swift infer the type needed)
-
 
 //: We can also add handlers for Fail and Cancel:
 
@@ -66,7 +64,7 @@ cancelledFuture.onCancel { () -> Void in
 
 //: But if you don't want to add 3 handlers, it's more common to just add a single onComplete handler
 
-asyncFuture5.onComplete { (result : FutureResult<Int>) -> Void in
+asyncFuture5.onComplete { (result: FutureResult<Int>) -> Void in
     switch result {
     case let .success(value):
         let five = value
@@ -83,9 +81,8 @@ asyncFuture5.onComplete { (result : FutureResult<Int>) -> Void in
 let completionOfAsyncFuture5 = asyncFuture5.result!
 // ".Success(5)"
 
-
-FutureBatch([asyncFuture5,cancelledFuture,futureFail]).resultsFuture.onComplete(.mainAsync) { _ in
+FutureBatch([asyncFuture5, cancelledFuture, futureFail]).resultsFuture.onComplete(.mainAsync) { _ in
     PlaygroundPage.current.finishExecution()
 }
-//: Seems easy?  Let's make them more fun.. 
+//: Seems easy?  Let's make them more fun..
 //: [Next](@next)

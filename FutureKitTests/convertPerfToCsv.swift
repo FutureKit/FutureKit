@@ -10,25 +10,23 @@ import Foundation
 
 let fname = Process.arguments[1] as String
 
-
-
 // let bundle = NSBundle.mainBundle()
 
 // let myFileUrl = bundle.URLForResource(fname2, withExtension: "plist")
 
 // print(myFileUrl)
 
-func readfile(fname : String)  {
-    
-    let url = NSURL(fileURLWithPath: fname)
+func readfile(fname: String) {
 
+    let url = NSURL(fileURLWithPath: fname)
 
     if let data = NSData(contentsOfURL: url) {
 
         let options = NSPropertyListReadOptions(rawValue: 0)
 
-
-        let fileData = try! NSPropertyListSerialization.propertyListWithData(data, options: options, format: nil) as! [NSObject:[NSObject:[NSObject:[NSObject:[NSObject:AnyObject]]]]]
+        let fileData = try! NSPropertyListSerialization // swiftlint:disable:this force_try
+            .propertyListWithData(data, options: options, format: nil) as! // swiftlint:disable:this force_cast
+                [NSObject: [NSObject: [NSObject: [NSObject: [NSObject: AnyObject]]]]]
 
         let testReports = fileData["classNames"]!["LockPerformanceTests"]!
 
@@ -38,8 +36,10 @@ func readfile(fname : String)  {
 
         for testFunctionName in allTests.array {
 
+            // swiftlint:disable:next force_cast
             let test_attributes = (testFunctionName as! NSString).componentsSeparatedByCharactersInSet(charset)
 
+            // swiftlint:disable:next force_cast line_length
             let avg = testReports[testFunctionName]!["com.apple.XCTPerformanceMetric_WallClockTime"]!["baselineAverage"]! as! Float
 
             let type = test_attributes[1]
@@ -50,18 +50,14 @@ func readfile(fname : String)  {
             let locks = test_attributes[9]
             let contention = Float(test_attributes[11])!
 
-
+            // swiftlint:disable:next line_length
             print("Type,\(type),thread_count,\(thread_count),threadOrQueue,\(threadOrQueue),asyncOrSyncWrite,\(asyncOrSyncWrite),writePercentage,\(writePercentage),locks,\(locks),contention,\(contention),avg,\(avg)")
 //        print("\(test_attributes) : \(avg)")
         }
-    }
-    else {
+    } else {
         print("can't read file from \(url)")
     }
 
 }
 
-
 readfile(fname)
-
-

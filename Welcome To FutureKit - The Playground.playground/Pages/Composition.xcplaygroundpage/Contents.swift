@@ -9,28 +9,27 @@ XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 
 let stringFuture = Future<String>(success: "5")
 
-let intOptFuture : Future<Int?>
+let intOptFuture: Future<Int?>
 intOptFuture  = stringFuture.onSuccess { (stringResult) -> Int? in
     let i = Int(stringResult)
     return i
 }
 
-intOptFuture.onSuccess { (intResult : Int?) -> Void in
+intOptFuture.onSuccess { (intResult: Int?) -> Void in
     let i = intResult
 }
 
 //: Knowing this we can "chain" futures together to make a complex set of dependencies...
 
-
-stringFuture.onSuccess { (stringResult:String) -> Int in
+stringFuture.onSuccess { (stringResult: String) -> Int in
     let i = Int(stringResult)!
     return i
     }
-    .onSuccess { (intResult:Int) -> [Int] in
+    .onSuccess { (intResult: Int) -> [Int] in
         let array = [intResult]
         return array
     }
-    .onSuccess { (arrayResult : [Int]) -> Void in
+    .onSuccess { (arrayResult: [Int]) -> Void in
         let a = arrayResult.first!
 }
 
@@ -42,7 +41,6 @@ let futureInt = stringFuture.map { (stringResult) -> Int in
     Int(stringResult)!
 }
 
-
 //: `futureInt` is automatically be inferred as Future<Int>.
 //:  when "chaining" futures together via onSuccess (or map), Failures and Cancellations will automatically be 'forwarded' to any dependent tasks.   So if the first future returns Fail, than all of the dependent futures will automatically fail.
 //: this can make error handling for a list of actions very easy.
@@ -51,16 +49,15 @@ let gonnaTryHardAndNotFail = Promise<String>()
 let futureThatHopefullyWontFail = gonnaTryHardAndNotFail.future
 
 futureThatHopefullyWontFail
-    .onSuccess { (s:String) -> Int in
+    .onSuccess { (s: String) -> Int in
         return Int(s)!
     }
-    .map { (intResult:Int) -> [Int] in     // 'map' is same as 'onSuccess'.
+    .map { (intResult: Int) -> [Int] in     // 'map' is same as 'onSuccess'.
         //  Use whichever you like.
         let i = intResult
         return [i]
     }
-    .map {
-        (arrayResult : [Int]) -> Void in
+    .map { (arrayResult: [Int]) -> Void in
         let a = arrayResult.first
     }
     .onFail { (error) -> Void in
@@ -69,8 +66,6 @@ futureThatHopefullyWontFail
 
 gonnaTryHardAndNotFail.completeWithFail("Sorry. Maybe Next time.")
 //: None of the blocks inside of onSuccess/map methods executed. since the first Future failed.  A good way to think about it is, that the "last" future failed because the future it depended upon for an input value, also failed.
-
-
 
 //: # Completion
 //: Sometimes you want to create a dependent Future but conditionally decide inside the block whether the dependent block should Succeed or Fail, etc.   For this we have use a handler block with a different generic signature:
@@ -94,35 +89,34 @@ default:
 
 //: But completion has a fourth enumeration case `.CompleteUsing(Future<T>)`.   This is very useful when you have a handler that wants to use some other Future to complete itself.   This completion value is only used as a return value from a handler method.
 //: First let's create an unreliable Future, that fails most of the time (80%)
-func iMayFailRandomly() -> Future<String>  {
+func iMayFailRandomly() -> Future<String> {
     let p = Promise<String>()
-    
+
     Executor.Default.execute { () -> Void in
-        
+
         // This is a random number from 0..4.
         // So we only have a 20% of success!
         let randomNumber = arc4random_uniform(5)
-        if (randomNumber == 0) {
+        if randomNumber == 0 {
             p.completeWithSuccess("Yay")
-        }
-        else {
+        } else {
             p.completeWithFail("Not lucky Enough this time")
         }
     }
     return p.future
 }
 //: Here is a function that will call itself recurisvely until it finally succeeds.
-typealias keepTryingPayload = (tries:Int,result:String)
+typealias KeepTryingPayload = (tries: Int, result: String)
 func iWillKeepTryingTillItWorks(attemptNo: Int) -> Future<Int> {
-    
+
     let numberOfAttempts = attemptNo + 1
     return iMayFailRandomly().onComplete { (result) -> Completion<Int> in
         switch result {
-            
+
         case let .Success(value):
             _ = value
             return .Success(numberOfAttempts)
-            
+
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(numberOfAttempts)
             return .CompleteUsing(nextFuture)
@@ -139,13 +133,13 @@ keepTrying.onSuccess { (tries) -> Void in
 //: since onComplete will get a Completion<Int>, the natural idea would be to use switch (completion)
 futureInt.onComplete { (result) -> Void in
     switch result {
-        
+
     case let .Success(value):
         let five = value
-        
+
     case let .Fail(error):
         let e = error
-        
+
     case .Cancelled:
         break
 
@@ -153,11 +147,10 @@ futureInt.onComplete { (result) -> Void in
 }
 
 //: If all you care about is success or fail, you can use the isSuccess var
-futureInt.onComplete { (result : FutureResult<Int>) -> Void in
+futureInt.onComplete { (result: FutureResult<Int>) -> Void in
     if result.isSuccess {
         let five = result.asResult()
-    }
-    else {
+    } else {
         // must have failed or was cancelled
     }
 }
@@ -177,22 +170,22 @@ let sampleFuture = Future(success: 5)
 //: Here we will convert a .Fail into a .Success, but we still want to know if the Future was Cancelled:
 sampleFuture.onComplete { (result) -> Completion<String> in
     switch result {
-        
-    case let .Success(value):
-        return .Success(String(value))
-        
-    case .Fail(_):
-        return .Success("Some Default String we send when things Fail")
-        
-    case .Cancelled:
-        return .Cancelled
+
+    case let .success(value):
+        return .success(String(value))
+
+    case .fail:
+        return .success("Some Default String we send when things Fail")
+
+    case .cancelled:
+        return .cancelled
     }
 }
 //: 'func onComplete(block:(FutureResult<T>) -> Void)'
 
 //: We been using this one without me even mentioning it.  This block always returns a type of Future<Void> that always returns success.  So it can be composed and chained if needed.
 let f = sampleFuture.onComplete { (result) -> Void in
-    if (result.isSuccess) {
+    if result.isSuccess {
         // store this great result in a database or something.
     }
 }
@@ -211,18 +204,17 @@ let futureString  = sampleFuture.onComplete { (result) -> String in
 }
 let string = futureString.result!
 
-
 //: 'func onComplete(block:(ResultValue<T>) -> Future<__Type>)'
 
 //: This version is equivilant to returning a Completion<__Type>.ContinueUsing(f) (using the first varient on onComplete).  It just looks cleaner:
-func coolFunctionThatAddsOneInBackground(num : Int) -> Future<Int> {
+func coolFunctionThatAddsOneInBackground(num: Int) -> Future<Int> {
     // let's dispatch this to the low priority background queue
     return Future(.Background) { () -> Int in
         let ret = num + 1
         return ret
     }
 }
-func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
+func coolFunctionThatAddsOneAtHighPriority(num: Int) -> Future<Int> {
     // let's dispatch this to the high priority UserInteractive queue
     return Future(.UserInteractive) { () -> Int in
         // so much work here to get a 2.
@@ -231,7 +223,7 @@ func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
     }
 }
 let coolFuture = sampleFuture.onComplete { (c1) -> Future<Int> in
-    
+
     let beforeAdd = c1.asResult()
     return coolFunctionThatAddsOneInBackground(c1.value)
         .onComplete { (c2) -> Future<Int> in
@@ -241,9 +233,8 @@ let coolFuture = sampleFuture.onComplete { (c1) -> Future<Int> in
 }
 coolFuture.onSuccess { (value) -> Void in
     let x = value
-    
-}
 
+}
 
 //: # Documentation TODO:
 //:     (..Before we ship 1.0 pretty please..)
@@ -265,7 +256,5 @@ coolFuture.onSuccess { (value) -> Void in
 //: - how to tune synchronization.  (NSLock vs dispatch barrier queues).
 //: - add a real var to a swift extension in a few lines.
 //: - write code that can switch at runtime between Locks/Barriers and any other snychronization strategy you can bake up.
-
-
 
 //: [Next](@next)

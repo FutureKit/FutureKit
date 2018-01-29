@@ -26,18 +26,16 @@
 import XCTest
 import FutureKit
 
-
-func iMayFailRandomly() -> Future<String>  {
+func iMayFailRandomly() -> Future<String> {
     let p = Promise<String>()
-    
+
     // This is a random number from 0..2:
     let randomNumber = arc4random_uniform(20)
-    if (randomNumber == 0) {
+    if randomNumber == 0 {
         NSLog("yay!!")
         p.completeWithSuccess("Yay")
-    }
-    else {
-        switch (randomNumber % 2){
+    } else {
+        switch randomNumber % 2 {
         case 0:
             NSLog("FAIL!")
             p.completeWithFail(FutureKitError.genericError("iMayFailRandomly failed"))
@@ -49,16 +47,16 @@ func iMayFailRandomly() -> Future<String>  {
     return p.future
 }
 
-typealias keepTryingResultType = (tries:Int,result:String)
-func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries:Int,result:String)> {
-    
+typealias KeepTryingResultType = (tries: Int, result: String)
+func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries: Int, result: String)> {
+
     let attemptNumber = attempt + 1
-    return iMayFailRandomly().onComplete { (completion) -> Completion<(tries:Int,result:String)> in
+    return iMayFailRandomly().onComplete { (completion) -> Completion<(tries: Int, result: String)> in
         NSLog("completion = \(completion)")
         switch completion {
         case let .success(yay):
             // Success uses Any as a payload type, so we have to convert it here.
-            let result = (tries:attemptNumber,result:yay)
+            let result = (tries:attemptNumber, result:yay)
             return .success(result)
         default: // we didn't succeed!
             let nextFuture = iWillKeepTryingTillItWorks(attemptNumber)
@@ -66,7 +64,6 @@ func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries:Int,result:Str
         }
     }
 }
-
 
 /* extension XCTestCase {
     
@@ -81,7 +78,7 @@ func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries:Int,result:Str
             f.onComplete { (completion) -> Void in
                 let test = assertion(completion:completion)
                 
-                XCTAssert(test.assert,test.message,file:file,line:line)
+                XCTAssert(test.assert,test.message,file: file,line: line)
                 e.fulfill()
             }
             return e
@@ -93,7 +90,7 @@ func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries:Int,result:Str
         test : ((result:T) -> BooleanType)
         ) -> XCTestExpectation! {
             
-            return self.expectationTestForFutureCompletion(description,future: f, file:file,line:line)  { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
+            return self.expectationTestForFutureCompletion(description,future: f, file: file,line: line)  { (completion : Completion<T>) -> (assert: BooleanType, message: String) in
                 switch completion.state {
                 case .Success:
                     let result = completion.result
@@ -120,49 +117,48 @@ func iWillKeepTryingTillItWorks( _ attempt: Int) -> Future<(tries:Int,result:Str
 } */
 
 class FutureKitBasicTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
-        
+
         // serialQueueDispatchPool.flushQueue(keepCapacity: false)
         // concurrentQueueDispatchPool.flushQueue(keepCapacity: false)
     }
-    
+
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
+
     func testExample() {
         // This is an example of a functional test case.
         XCTAssert(true, "Pass")
     }
-    
+
     func testFuture() {
         let x = Future<Int>(success: 5)
-        
+
         XCTAssert(x.result!.value == 5, "it works")
     }
-    
+
     func testADoneFutureExpectation() {
         let val = 5
         let f = Future<Int>(success: val)
-        
-        self.expectationTestForFutureSuccess("AsyncMadness", future: f) { (result:Int) -> Bool in
+
+        self.expectationTestForFutureSuccess("AsyncMadness", future: f) { (result: Int) -> Bool in
             return (result == val)
         }
-        
+
         self.waitForExpectations(timeout: 30.0, handler: nil)
-        
-        
+
     }
     func testContinueWithRandomly() {
 
         iWillKeepTryingTillItWorks(0).expectationTestForAnySuccess(self, description: "Description")
-        
+
         self.waitForExpectations(timeout: 120.0, handler: nil)
-        
+
     }
-    
+
 }

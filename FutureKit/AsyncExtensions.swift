@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 public protocol AsyncExtensionsProvider {}
 
 extension NSObject: AsyncExtensionsProvider {}
@@ -48,5 +47,3 @@ extension Async {
         return .primary
     }
 }
-
-

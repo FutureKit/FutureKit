@@ -25,16 +25,17 @@
 import Foundation
 
 public func warnOperationOnMainThread() {
+    // swiftlint:disable:next line_length
     NSLog("Warning: A long-running Future wait operation is being executed on the main thread. \n Break on FutureKit.warnOperationOnMainThread() to debug.")
 }
 
-class SyncWaitHandler<T>  {
-    
-    fileprivate var condition : NSCondition = NSCondition()
-    
-    fileprivate var value : Future<T>.Result?
-    
-    init<F:FutureConvertable>(waitingOnFuture f: F) where F.T == T {
+class SyncWaitHandler<T> {
+
+    fileprivate var condition: NSCondition = NSCondition()
+
+    fileprivate var value: Future<T>.Result?
+
+    init<F: FutureConvertable>(waitingOnFuture f: F) where F.T == T {
         f.future.onComplete { (v) -> Void in
             self.condition.lock()
             self.value = v
@@ -43,22 +44,22 @@ class SyncWaitHandler<T>  {
         }
         .ignoreFailures()
     }
-    
+
     final func waitUntilCompleted(doMainQWarning warn: Bool = true) -> Future<T>.Result {
         self.condition.lock()
-        if (warn && Thread.isMainThread) {
-            if (self.value == nil) {
+        if warn && Thread.isMainThread {
+            if self.value == nil {
                 warnOperationOnMainThread()
             }
         }
-        while (self.value == nil) {
+        while self.value == nil {
             self.condition.wait()
         }
         self.condition.unlock()
-        
+
         return self.value!
     }
-    
+
 }
 
 /* extension Future {
@@ -72,4 +73,3 @@ class SyncWaitHandler<T>  {
         return self.waitUntilCompleted().result
     }
 } */
-

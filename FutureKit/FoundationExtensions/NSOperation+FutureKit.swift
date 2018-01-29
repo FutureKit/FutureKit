@@ -24,33 +24,30 @@
 
 import Foundation
 
+public class FutureOperation<T> : Operation, FutureConvertable {
 
-
-open class FutureOperation<T> : Operation, FutureConvertable {
-    
     public typealias FutureOperationBlockType = () throws -> (Future<T>.Completion)
-    
+
     private var getSubFuture: FutureOperationBlockType
 
-
-//    open class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
+//    public class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
 //        return FutureOperation<T>(executor: executor,block:b)
 //    }
 
-    open var future : Future<T> {
+    public var future: Future<T> {
         return self.promise.future
     }
 
-    open var executor: Executor
- 
-    var cancelToken : CancellationToken?    
+    public var executor: Executor
+
+    var cancelToken: CancellationToken?
     var promise = Promise<T>()
-    
-    override open var isAsynchronous : Bool {
+
+    override public var isAsynchronous: Bool {
         return true
     }
-    
-    private var isExecutingKvo : Bool {
+
+    private var isExecutingKvo: Bool {
         willSet {
             self.willChangeValue(forKey: "isExecuting")
         }
@@ -58,7 +55,7 @@ open class FutureOperation<T> : Operation, FutureConvertable {
             self.didChangeValue(forKey: "isExecuting")
         }
     }
-    private var isFinishedKvo : Bool {
+    private var isFinishedKvo: Bool {
         willSet {
             self.willChangeValue(forKey: "isFinished")
         }
@@ -66,41 +63,40 @@ open class FutureOperation<T> : Operation, FutureConvertable {
             self.didChangeValue(forKey: "isFinished")
         }
     }
-    
-    override open var isExecuting : Bool {
+
+    override public var isExecuting: Bool {
         return isExecutingKvo
     }
-    
-    override open var isFinished : Bool {
+
+    override public var isFinished: Bool {
         return isFinishedKvo
     }
-    
-    public init<C: CompletionConvertable>(executor:Executor, block : @escaping () throws -> C) where C.T == T {
+
+    public init<C: CompletionConvertable>(executor: Executor, block : @escaping () throws -> C) where C.T == T {
         self.executor = executor
-        self.getSubFuture = { () throws -> Future<T>.Completion in 
+        self.getSubFuture = { () throws -> Future<T>.Completion in
             return try block().completion
         }
         self.isExecutingKvo = false
         self.isFinishedKvo = false
         super.init()
-        
+
         self.promise.onRequestCancel { [weak self] _ -> Future<T>.CancelResponse in
             self?.cancel()
             return .continue
         }
 
     }
-    
-    
-    override open func main() {
-        
+
+    override public func main() {
+
         if self.isCancelled {
             self.isExecutingKvo = false
             self.isFinishedKvo = true
             self.promise.completeWithCancel()
             return
         }
-        
+
         self.isExecutingKvo = true
 
         self.cancelToken = self.executor
@@ -111,45 +107,36 @@ open class FutureOperation<T> : Operation, FutureConvertable {
                 self.isExecutingKvo = false
                 self.isFinishedKvo = true
                 self.promise.complete(value)
-            }        
+            }
             .getCancelToken()
-        
+
     }
-    override open func cancel() {
+    override public func cancel() {
         super.cancel()
         self.cancelToken?.cancel()
     }
 
 }
 
-
 public extension OperationQueue {
-    
+
     /*: just add an Operation using a block that returns a Future.
     
     returns a new Future<T> that can be used to compose when this operation runs and completes
     
     */
-     
+
     public func add<C: CompletionType>(_ executor: Executor = .primary,
-                       
-                       priority : Operation.QueuePriority = .normal,
-                       block: @escaping () throws -> (C)) -> Future<C.T> {
-        
+                                       priority: Operation.QueuePriority = .normal,
+                                       block: @escaping () throws -> (C)) -> Future<C.T> {
+
         let operation = FutureOperation<C.T>(executor: executor, block: block)
         operation.queuePriority = priority
-        
+
         self.addOperation(operation)
-        
+
         return operation.future
-        
+
     }
 
-    
-    
 }
-
-
-
-
-

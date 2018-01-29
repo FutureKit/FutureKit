@@ -25,69 +25,74 @@
 import XCTest
 import FutureKit
 
-
 extension Future {
-    
+
     @discardableResult
     func expectationTestForCompletion(_ testcase: XCTestCase,
-                                      description : String,
+                                      description: String,
                                       file: StaticString = #file,
                                       line: UInt = #line,
-        assertion : @escaping ((Future<T>.Result) -> (Bool,String))
+                                      assertion : @escaping ((Future<T>.Result) -> (Bool, String))
         ) -> XCTestExpectation! {
         
-            let e = testcase.expectation(description: description)
+        let e = testcase.expectation(description: description)
         
-            self.onComplete { (value) -> Void in
-                let test = assertion(value)
-                
-                XCTAssert(test.0,test.1,file:file,line:line)
-                e.fulfill()
+        self.onComplete { (value) -> Void in
+            let test = assertion(value)
+            
+            XCTAssert(test.0, test.1, file: file, line: line)
+            e.fulfill()
             }
             .ignoreFailures()
-            return e
+        return e
     }
-    
-    
+
     @discardableResult
-    func expectationTestForSuccess(_ testcase: XCTestCase, description : String,
-        file: StaticString = #file,
-        line: UInt = #line,
-        test : @escaping ((T) -> Bool)
+    func expectationTestForSuccess(_ testcase: XCTestCase,
+                                   description: String,
+                                   file: StaticString = #file,
+                                   line: UInt = #line,
+                                   test : @escaping ((T) -> Bool)
         ) -> XCTestExpectation! {
         
-        
-        return self.expectationTestForCompletion(testcase, description: description, file:file, line:line,
-                                                 assertion: { result -> (Bool, String) in
-                                                    switch result {
-                                                    case let .success(result):
-                                                        return (test(result),"test result failure for Future with result \(result)" )
-                                                    case let .fail(e):
-                                                        return (false,"Future Failed with \(e)" )
-                                                    case .cancelled:
-                                                        return (false,"Future Cancelled" )
-                                                    }
+        return self.expectationTestForCompletion(
+            testcase,
+            description: description,
+            file: file,
+            line: line,
+            assertion: { result -> (Bool, String) in
+                switch result {
+                case let .success(result):
+                    return (test(result), "test result failure for Future with result \(result)" )
+                case let .fail(e):
+                    return (false, "Future Failed with \(e)" )
+                case .cancelled:
+                    return (false, "Future Cancelled" )
+                }
         })
     }
-    
+
     @discardableResult
-    func expectationTestForAnySuccess(_ testcase: XCTestCase, description : String,
-        file: StaticString = #file,
-        line: UInt = #line
+    func expectationTestForAnySuccess(_ testcase: XCTestCase,
+                                      description: String,
+                                      file: StaticString = #file,
+                                      line: UInt = #line
         ) -> XCTestExpectation! {
-            
-        return self.expectationTestForCompletion(testcase, description: description, file:file, line:line) { result -> (Bool, String) in
+        
+        return self.expectationTestForCompletion(
+            testcase,
+            description: description,
+            file: file,
+            line: line) { result -> (Bool, String) in
                 switch result {
                 case .success:
                     return (true, "")
                 case let .fail(e):
-                    return (false,"Future Failed with \(e)" )
+                    return (false, "Future Failed with \(e)" )
                 case .cancelled:
-                    return (false,"Future Cancelled" )
+                    return (false, "Future Cancelled" )
                 }
-            }
+        }
     }
-    
-    
-    
+
 }

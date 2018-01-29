@@ -1,48 +1,39 @@
 //: Playground - noun: a place where people can play
 
-
 import Foundation
 
 var str = "Hello, playground"
 
-
 enum TestEnum {
-    case HasPayload(Any)
-    case Doesnt
+    case hasPayload(Any)
+    case doesnt
 }
 
-
-let t: TestEnum = .HasPayload("hi")
-let optionalI = Optional<Int>(5)
+let t: TestEnum = .hasPayload("hi")
+let optionalI: Int? = 5
 let optionalIType = Optional<Int>.self
-
 
 let x = reflect(t)
 let oreflect = reflect(optionalI)
 let www = oreflect.valueType
-
-
 
 let isOptional = (oreflect.disposition == .Optional)
 
 let c = oreflect.count
 let optionalType = oreflect[0].1.valueType
 
-
 let what = oreflect[0]
 
 let one = what.0
-let two : MirrorType = what.1
+let two: MirrorType = what.1
 
 let twoType = what.1.valueType
 
-
-func typestring(x : Any) -> String
-{
+func typestring(x: Any) -> String {
     if let obj = x as? NSObject {
         return NSStringFromClass(type(of: (obj)))
     }
-    
+
     // Native Swift
     switch x {
     case let test as Double: return "Double"
@@ -51,7 +42,7 @@ func typestring(x : Any) -> String
     case let test as String: return "String"
     default: break
     }
-    
+
     switch x {
     case let test as [Double]: return "[Double]"
     case let test as [Int]: return "[Int]"
@@ -59,12 +50,11 @@ func typestring(x : Any) -> String
     case let test as [String]: return "[String]"
     default: break
     }
-    
+
     return "<Unknown>"
 }
 
-func dispositionString(disposition : MirrorDisposition) -> String
-{
+func dispositionString(disposition: MirrorDisposition) -> String {
     switch disposition {
     case .Aggregate: return "Aggregate"
     case .Class: return "Class"
@@ -80,24 +70,22 @@ func dispositionString(disposition : MirrorDisposition) -> String
     }
 }
 
-func tupleDisposition(mirror : MirrorType) -> String
-{
-    if (mirror.disposition != .Tuple) {return ""}
+func tupleDisposition(mirror: MirrorType) -> String {
+    if mirror.disposition != .Tuple {return ""}
     var array = [String]()
     for reference in 0..<mirror.count {
         let (name, referenceMirror) = mirror[reference]
         array += [typestring(referenceMirror.value)]
     }
-    return array.reduce(""){"\($0),\($1)"}
+    return array.reduce("") {"\($0),\($1)"}
 }
 
-func explore(mirror : MirrorType, _ indent:Int = 0)
-{
+func explore(mirror: MirrorType, _ indent: Int = 0) {
     // dump(mirror.value) // useful
-    
+
     let indentString = String(count: indent, repeatedValue: " " as Character)
     var ts = typestring(mirror.value)
-    if (mirror.disposition == .Tuple) {
+    if mirror.disposition == .Tuple {
         ts = tupleDisposition(mirror)
     }
     println("\(indentString)Disposition: \(dispositionString(mirror.disposition)) [\(ts)]")
@@ -105,7 +93,7 @@ func explore(mirror : MirrorType, _ indent:Int = 0)
     println("\(indentString)ValueType: \(mirror.valueType)")
     println("\(indentString)Value: \(mirror.value)")
     println("\(indentString)Summary: \(mirror.summary)")
-    
+
     for reference in 0..<mirror.count {
         let (name, subreference) = mirror[reference]
         println("\(indentString)Element Name: \(name)")
@@ -113,7 +101,7 @@ func explore(mirror : MirrorType, _ indent:Int = 0)
     }
 }
 
-func generic<T : Reflectable>(value : T) {
+func generic<T: Reflectable>(value: T) {
     let o = reflect(T.self)
     explore(o, 4)
 
@@ -123,16 +111,12 @@ func generic<T : Reflectable>(value : T) {
 
     let ot = reflect(value)
     explore(ot, 6)
-    
+
 //    let isOpt = o is Optional<Int>.self
-    
-    
 
 }
 
-let xxx : Int = 5
+let xxx: Int = 5
 //generic(xxx)
 
 generic(optionalI)
-
-

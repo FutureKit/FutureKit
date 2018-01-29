@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0800"
+   LastUpgradeVersion = "0900"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -43,6 +43,16 @@
                   Identifier = "LockPerformanceTests">
                </Test>
             </SkippedTests>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0DDE32731B38BD28007C39D9"
+               BuildableName = "FutureKit iOS Testing AppTests.xctest"
+               BlueprintName = "FutureKit iOS Testing AppTests"
+               ReferencedContainer = "container:FutureKit.xcodeproj">
+            </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>

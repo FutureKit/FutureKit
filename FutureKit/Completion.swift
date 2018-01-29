@@ -465,7 +465,7 @@ public extension CompletionType {
      - returns: a new result of type Completion<S?>
      
      */
-    public func mapAsOptional<O : OptionalProtocol>() -> Completion<O.Wrapped?> {
+    public func mapAsOptional<O : OptionalProtocol>(type:O.Type) -> Completion<O.Wrapped?> {
 
         return self.map { v -> O.Wrapped? in
             return v as? O.Wrapped
@@ -635,8 +635,8 @@ extension CompletionType  {
             return "\(Self.self).CompletionType.Success<\(T.self)>(\(t))"
         case let .fail(f):
             return "\(Self.self).CompletionType.Fail<\(T.self)>(\(f))"
-        case let .cancelled(reason):
-            return "\(Self.self).CompletionType.Cancelled<\(T.self)>(\(reason))"
+        case .cancelled:
+            return "\(Self.self).CompletionType.Cancelled<\(T.self)>)"
         case let .completeUsing(f):
             return "\(Self.self).CompletionType.CompleteUsing<\(T.self)>(\(f.description))"
         }

@@ -129,7 +129,6 @@ public extension Sequence where Self:Collection, Self.Index : ExpressibleByInteg
     }
 }
 
-
 public extension Sequence  { // Some sequences don't have integer indexes, so we will use generators.
     
     fileprivate func _get_element<T>(_ generator : inout Iterator) -> T {
@@ -274,120 +273,126 @@ public extension Sequence  { // Some sequences don't have integer indexes, so we
 }
 
 
+#if !swift(>=3.2)
+    extension ExpressibleByArrayLiteral {
+        typealias ArrayLiteralElement = Element
+    }
+#endif
+
 public func tupleToArray<T : ExpressibleByArrayLiteral, A>(_ tuple:(A)) -> T {
-    return [tuple as! T.Element]
+    return [tuple as! T.ArrayLiteralElement]
 }
 
 public func tupleToArray<T : ExpressibleByArrayLiteral,A,B>(_ tuple:(A,B)) -> T {
-    return [tuple.0 as! T.Element,
-           tuple.1 as! T.Element]
+    return [tuple.0 as! T.ArrayLiteralElement,
+           tuple.1 as! T.ArrayLiteralElement]
 }
 
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C>(_ tuple:(A, B, C)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement]
 }
 
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D>(_ tuple:(A, B, C, D)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E>(_ tuple:(A, B, C, D, E)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F>(_ tuple:(A, B, C, D, E, F)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G>(_ tuple:(A, B, C, D, E, F, G)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element,
-            tuple.6 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement,
+            tuple.6 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H>(_ tuple:(A, B, C, D, E, F, G, H)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element,
-            tuple.6 as! T.Element,
-            tuple.7 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement,
+            tuple.6 as! T.ArrayLiteralElement,
+            tuple.7 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I>(_ tuple:(A, B, C, D, E, F, G, H, I)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element,
-            tuple.6 as! T.Element,
-            tuple.7 as! T.Element,
-            tuple.8 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement,
+            tuple.6 as! T.ArrayLiteralElement,
+            tuple.7 as! T.ArrayLiteralElement,
+            tuple.8 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I, J>(_ tuple:(A, B, C, D, E, F, G, H, I, J)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element,
-            tuple.6 as! T.Element,
-            tuple.7 as! T.Element,
-            tuple.8 as! T.Element,
-            tuple.9 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement,
+            tuple.6 as! T.ArrayLiteralElement,
+            tuple.7 as! T.ArrayLiteralElement,
+            tuple.8 as! T.ArrayLiteralElement,
+            tuple.9 as! T.ArrayLiteralElement]
 }
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I, J, K>(_ tuple:(A, B, C, D, E, F, G, H, I, J, K)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element,
-            tuple.6 as! T.Element,
-            tuple.7 as! T.Element,
-            tuple.8 as! T.Element,
-            tuple.9 as! T.Element,
-            tuple.10 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement,
+            tuple.6 as! T.ArrayLiteralElement,
+            tuple.7 as! T.ArrayLiteralElement,
+            tuple.8 as! T.ArrayLiteralElement,
+            tuple.9 as! T.ArrayLiteralElement,
+            tuple.10 as! T.ArrayLiteralElement]
 }
 
 public func tupleToArray<T : ExpressibleByArrayLiteral,A, B, C, D, E, F, G, H, I, J, K, L>(_ tuple:(A, B, C, D, E, F, G, H, I, J, K, L)) -> T {
     return
-        [tuple.0 as! T.Element,
-            tuple.1 as! T.Element,
-            tuple.2 as! T.Element,
-            tuple.3 as! T.Element,
-            tuple.4 as! T.Element,
-            tuple.5 as! T.Element,
-            tuple.6 as! T.Element,
-            tuple.7 as! T.Element,
-            tuple.8 as! T.Element,
-            tuple.9 as! T.Element,
-            tuple.10 as! T.Element,
-            tuple.11 as! T.Element]
+        [tuple.0 as! T.ArrayLiteralElement,
+            tuple.1 as! T.ArrayLiteralElement,
+            tuple.2 as! T.ArrayLiteralElement,
+            tuple.3 as! T.ArrayLiteralElement,
+            tuple.4 as! T.ArrayLiteralElement,
+            tuple.5 as! T.ArrayLiteralElement,
+            tuple.6 as! T.ArrayLiteralElement,
+            tuple.7 as! T.ArrayLiteralElement,
+            tuple.8 as! T.ArrayLiteralElement,
+            tuple.9 as! T.ArrayLiteralElement,
+            tuple.10 as! T.ArrayLiteralElement,
+            tuple.11 as! T.ArrayLiteralElement]
 }
 

@@ -100,21 +100,21 @@ final public class Box<T> {
     
 } */
 
-private func make_dispatch_block<T>(_ q: DispatchQueue, _ block: @escaping (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block(_ q: DispatchQueue, _ block: @escaping () -> Void) -> (() -> Void) {
     
-    let newblock = { (t:T) -> Void in
+    let newblock = { () -> Void in
         q.async {
-            block(t)
+            block()
         }
     }
     return newblock
 }
 
-private func make_dispatch_block<T>(_ q: OperationQueue, _ block: @escaping (T) -> Void) -> ((T) -> Void) {
+private func make_dispatch_block(_ q: OperationQueue, _ block: @escaping () -> Void) -> (() -> Void) {
     
-    let newblock = { (t:T) -> Void in
+    let newblock = { () -> Void in
         q.addOperation({ () -> Void in
-            block(t)
+            block()
         })
     }
     return newblock
@@ -135,8 +135,8 @@ public enum SerialOrConcurrent: Int {
     
 }
 
-internal extension Date {
-    internal static var now: Date {
+public extension Date {
+    public static var now: Date {
         return Date()
     }
 }
@@ -482,7 +482,11 @@ public enum Executor {
         precondition(leeway >= 0)
         
         let timerSource = DispatchSource.makeTimerSource()
-        timerSource.scheduleRepeating(wallDeadline: DispatchWallTime(date), interval: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+        #if swift(>=4.0)
+            timerSource.schedule(wallDeadline: DispatchWallTime(date), repeating: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+        #else
+            timerSource.scheduleRepeating(wallDeadline: DispatchWallTime(date), interval: DispatchTimeInterval(repeatingEvery), leeway: DispatchTimeInterval(leeway))
+        #endif
 
         timerSource.setEventHandler { 
             self.execute(action)
@@ -654,21 +658,31 @@ public enum Executor {
     }
 
     public func callbackBlockFor<T>(_ block: @escaping (T) -> Void) -> ((T) -> Void) {
-        
+
+        return { (t:T) -> Void in
+            self.callbackBlockFor { () -> Void in
+                block(t)
+            }()
+        }
+    }
+
+    public func callbackBlockFor(_ block: @escaping () -> Void) -> (() -> Void) {
+
         let currentExecutor = self.real_executor
-        
+
         switch currentExecutor {
         case .immediate,.stackCheckingImmediate:
             return currentExecutor.getblock_for_callbackBlockFor(block)
         default:
-            let wrappedBlock = { (t:T) -> Void in
+            let wrappedBlock = { () -> Void in
                 let previous = Executor.setCurrentExecutor(currentExecutor)
-                block(t)
+                block()
                 Executor.setCurrentExecutor(previous)
             }
             return currentExecutor.getblock_for_callbackBlockFor(wrappedBlock)
         }
     }
+
 
     
     /*  
@@ -729,7 +743,7 @@ public enum Executor {
         }
     }
     
-    fileprivate func getblock_for_callbackBlockFor<T>(_ block: @escaping (T) -> Void) -> ((T) -> Void) {
+    fileprivate func getblock_for_callbackBlockFor(_ block: @escaping () -> Void) -> (() -> Void) {
         
         switch self {
         case .primary:
@@ -746,13 +760,13 @@ public enum Executor {
             return Executor.SmartCurrent.asyncExecutor.getblock_for_callbackBlockFor(block)
 
         case .mainImmediate:
-            let newblock = { (t:T) -> Void in
+            let newblock = { () -> Void in
                 if (Thread.isMainThread) {
-                    block(t)
+                    block()
                 }
                 else {
                     Executor.mainQ.async {
-                        block(t)
+                        block()
                     }
                 }
             }
@@ -782,9 +796,9 @@ public enum Executor {
                 return Executor.MainExecutor.getblock_for_callbackBlockFor(block)
             }
             else {
-                let newblock = { (t:T) -> Void in
+                let newblock = { () -> Void in
                     context.perform {
-                        block(t)
+                        block()
                     }
                 }
                 return newblock
@@ -794,23 +808,17 @@ public enum Executor {
         case .immediate:
             return block
         case .stackCheckingImmediate:
-            let b  = { (t:T) -> Void in
-                var currentDepth : NSNumber
+            let b  = { () -> Void in
                 let threadDict = Thread.current.threadDictionary
-                if let c = threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] as? NSNumber {
-                    currentDepth = c
-                }
-                else {
-                    currentDepth = 0
-                }
-                if (currentDepth.intValue > GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
+                let currentDepth = (threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] as? Int32) ??  0;
+                if (currentDepth > GLOBAL_PARMS.STACK_CHECKING_MAX_DEPTH) {
                     let b = Executor.AsyncExecutor.callbackBlockFor(block)
-                    b(t)
+                    b()
                 }
                 else {
-                    let newDepth = NSNumber(value: currentDepth.intValue+1 as Int32)
+                    let newDepth = currentDepth + 1;
                     threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = newDepth
-                    block(t)
+                    block()
                     threadDict[GLOBAL_PARMS.STACK_CHECKING_PROPERTY] = currentDepth
                 }
             }
@@ -818,9 +826,9 @@ public enum Executor {
             
         case let .custom(customCallBack):
             
-            let b = { (t:T) -> Void in
+            let b = { () -> Void in
                 customCallBack { () -> Void in
-                    block(t)
+                    block()
                 }
             }
             

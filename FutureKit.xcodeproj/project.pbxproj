@@ -15,6 +15,9 @@
 		092794BD1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
 		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
+		0D40FA74201F816200D714C0 /* AsyncExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9B49B5201C261000425088 /* AsyncExtensions.swift */; };
+		0D40FA75201F816200D714C0 /* AsyncExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9B49B5201C261000425088 /* AsyncExtensions.swift */; };
+		0D40FA76201F816300D714C0 /* AsyncExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9B49B5201C261000425088 /* AsyncExtensions.swift */; };
 		0D5810D51C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
 		0D5810D61C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
@@ -902,6 +905,7 @@
 				0DBB33151D0F91DA0092BF7B /* FutureFIFO.swift in Sources */,
 				0DBB33251D0F91DF0092BF7B /* OSFeature.swift in Sources */,
 				0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0D40FA75201F816200D714C0 /* AsyncExtensions.swift in Sources */,
 				0DBB33171D0F91DA0092BF7B /* ErrorTypes.swift in Sources */,
 				0DBB33141D0F91DA0092BF7B /* Completion.swift in Sources */,
 				0DBB33181D0F91DA0092BF7B /* Executor.swift in Sources */,
@@ -929,6 +933,7 @@
 				0DBB331E1D0F91DB0092BF7B /* FutureFIFO.swift in Sources */,
 				0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */,
 				0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */,
+				0D40FA76201F816300D714C0 /* AsyncExtensions.swift in Sources */,
 				0DBB33201D0F91DB0092BF7B /* ErrorTypes.swift in Sources */,
 				0DBB331D1D0F91DB0092BF7B /* Completion.swift in Sources */,
 				0DBB33211D0F91DB0092BF7B /* Executor.swift in Sources */,
@@ -1015,6 +1020,7 @@
 				0DEA1BDA1AE30886000E126F /* Synchronization.swift in Sources */,
 				0DEA1BDE1AE30886000E126F /* SyncWaitHandler.swift in Sources */,
 				0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */,
+				0D40FA74201F816200D714C0 /* AsyncExtensions.swift in Sources */,
 				0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,

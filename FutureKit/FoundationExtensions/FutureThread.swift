@@ -9,7 +9,7 @@
 import Foundation
 
 extension Async where Base: Thread {
-    @available(iOS 10.0, *)
+    @available(iOS 10.0, OSX 10.12, tvOS 10.0, watchOS 3.0, *)
     static func futureThread<T>(_ block: @escaping () throws -> T) -> Future<T> {
         let p = Promise<T>()
         Thread.detachNewThread { 
@@ -19,7 +19,7 @@ extension Async where Base: Thread {
         }
         return p.future
     }
-    @available(iOS 10.0, *)
+    @available(iOS 10.0, OSX 10.12, tvOS 10.0, watchOS 3.0, *)
     static func futureThread<C: CompletionConvertable>(_ block: @escaping () throws -> C) -> Future<C.T> {
         let p = Promise<C.T>()
         Thread.detachNewThread { 

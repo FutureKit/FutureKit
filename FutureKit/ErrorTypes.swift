@@ -8,62 +8,57 @@
 
 import Foundation
 
-
 //
 // *  a protocol to extend ErrorTypes that might ACTUALLY be cancellations!
 // If you are returning
 public protocol ErrorTypeMightBeCancellation: Error {
-    
+
     // should return true if the Error value is actually a cancellation
-    var isCancellation : Bool { get }
-    
+    var isCancellation: Bool { get }
+
 }
 
 extension ErrorTypeMightBeCancellation {
-    
+
     // don't use this, use ErrorType.toResult<T>()!
-    internal func toFutureResult<T>() -> FutureResult<T> {
+    internal func toFutureResult<T>() -> Future<T>.Result {
         if self.isCancellation {
             return .cancelled
-        }
-        else {
+        } else {
             return .fail(self)
         }
     }
     // don't use this, use ErrorType.toCompletion!
-    
+
     internal func toFutureCompletion<T>() -> Completion<T> {
         if self.isCancellation {
             return .cancelled
-        }
-        else {
+        } else {
             return .fail(self)
         }
     }
 }
 
-
 // This is a protocol that helps you figure out if an ErrorType REALLY IS an NSError
 // since error as NSError always works in swift, we will use a protocol test.
-public protocol NSErrorType : ErrorTypeMightBeCancellation {
+public protocol NSErrorType: ErrorTypeMightBeCancellation {
     var userInfo: [AnyHashable: Any] { get }
     var domain: String { get }
     var code: Int { get }
-    
+
 }
 
-
 public extension NSErrorType {
-    public var isCancellation : Bool {
-        
+    public var isCancellation: Bool {
+
         if GLOBAL_PARMS.CONVERT_COMMON_NSERROR_VALUES_TO_CANCELLATIONS {
             // some common NSErrors!
             if self.domain == NSURLErrorDomain {
-                if ((self.code == NSURLErrorCancelled) || (self.code == NSURLErrorUserCancelledAuthentication)) {
+                if (self.code == NSURLErrorCancelled) || (self.code == NSURLErrorUserCancelledAuthentication) {
                     return true
                 }
             }
-                
+
             if (self.domain == NSCocoaErrorDomain) && (self.code == NSUserCancelledError) {
                 return true
             }
@@ -72,24 +67,23 @@ public extension NSErrorType {
     }
 }
 
-
 public extension Error {
-    var isNSError : Bool {
+    var isNSError: Bool {
         return (Self.self is NSErrorType.Type)
     }
 
     var userInfo: [AnyHashable: Any] {
         return [:]
     }
-    
-    public var testForCancellation : Bool {
+
+    public var testForCancellation: Bool {
         if Self.self is ErrorTypeMightBeCancellation.Type {
             return (self as ErrorTypeMightBeCancellation).isCancellation
         }
-        return false;
+        return false
     }
 
-    func toResult<T>() -> FutureResult<T> {
+    func toResult<T>() -> Future<T>.Result {
         if Self.self is ErrorTypeMightBeCancellation.Type {
             let errorType = self as ErrorTypeMightBeCancellation & Error
             return errorType.toFutureResult()
@@ -107,10 +101,9 @@ public extension Error {
 
 }
 
-
-extension NSError : NSErrorType {
-    convenience init(error : Error) {
+extension NSError: NSErrorType {
+    convenience init(error: Error) {
         let e = error as NSError
-        self.init(domain: e.domain, code: e.code, userInfo:e.userInfo)
+        self.init(domain: e.domain, code: e.code, userInfo: e.userInfo)
     }
 }

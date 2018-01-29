@@ -24,16 +24,14 @@ let futureTwo = Future (.Default) { () -> Int in
 let futureThree = Future (.Default) { () -> Int in
     return 3
 }
-let arrayOfFutures = [futureOne,futureTwo,futureThree]
+let arrayOfFutures = [futureOne, futureTwo, futureThree]
 
 //: in FutureKit,you use a class called FutureBatch.
 
-
 let batch = FutureBatchOf<Int>(futures: <#T##[Future<Int>]#>): arrayOfFutures)
-
 
 let f = batch.future.onSuccess { (results: [Int]) -> Void in
     let x = results
-    
+
 }
 //: [Next](@next)

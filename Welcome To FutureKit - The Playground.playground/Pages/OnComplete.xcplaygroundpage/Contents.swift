@@ -20,24 +20,23 @@ let sampleFuture = Future(success: 5)
 //: Here we will convert a .Fail into a .Success, but we still want to know if the Future was Cancelled:
 let newFuture = sampleFuture.onComplete { (result) -> Completion<String> in
     switch result {
-        
-    case let .Success(value):
-        return .Success(String(value))
-        
-    case .Fail(_):
-        return .Success("Some Default String we send when things Fail")
-        
-    case .Cancelled:
-        return .Cancelled
+
+    case let .success(value):
+        return .success(String(value))
+
+    case .fail:
+        return .success("Some Default String we send when things Fail")
+
+    case .cancelled:
+        return .cancelled
     }
 }
-
 
 //: 'func onComplete(block:(Completion<T>) -> Void)'
 
 //: We been using this one without me even mentioning it.  This block always returns a type of Future<Void> that always returns success.  So it can be composed and chained if needed.
 sampleFuture.onComplete { (c) -> Void in
-    if (c.isSuccess) {
+    if c.isSuccess {
         // store this great result in a database or something.
     }
 }
@@ -55,19 +54,18 @@ let futureString  = sampleFuture.onComplete { (result) -> String in
 }
 let string = futureString.result!
 
-
 //: 'func onComplete(block:(Completion<T>) -> Future<__Type>)'
 
 //: This version is equivilant to returning a COMPLETE_USING(f).
 //: It just looks cleaner:
-func coolFunctionThatAddsOneInBackground(num : Int) -> Future<Int> {
+func coolFunctionThatAddsOneInBackground(num: Int) -> Future<Int> {
     // let's dispatch this to the low priority background queue
     return Future(.Background) { () -> Int in
         let ret = num + 1
         return ret
     }
 }
-func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
+func coolFunctionThatAddsOneAtHighPriority(num: Int) -> Future<Int> {
     // let's dispatch this to the high priority UserInteractive queue
     return Future(.UserInteractive) { () -> Int in
         // so much work here to get a 2.
@@ -76,7 +74,7 @@ func coolFunctionThatAddsOneAtHighPriority(num : Int) -> Future<Int> {
     }
 }
 let coolFuture = sampleFuture.onComplete { (result) -> Completion<Int> in
-    
+
     switch result {
     case let .Success(value):
         let beforeAdd = value
@@ -91,8 +89,7 @@ let coolFuture = sampleFuture.onComplete { (result) -> Completion<Int> in
 }
 coolFuture.onSuccess { (result) -> Void in
     let x = result
-    
-}
 
+}
 
 //: [Next](@next)

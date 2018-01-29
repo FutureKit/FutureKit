@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0DBB32FB1D0F919C0092BF7B"
-               BuildableName = "FutureKit.framework"
-               BlueprintName = "FutureKit tvOS"
+               BlueprintIdentifier = "0DDE325F1B38BD27007C39D9"
+               BuildableName = "FutureKit iOS Testing App.app"
+               BlueprintName = "FutureKit iOS Testing App"
                ReferencedContainer = "container:FutureKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,23 +29,13 @@
       language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0DBB33041D0F919C0092BF7B"
-               BuildableName = "FutureKit tvOSTests.xctest"
-               BlueprintName = "FutureKit tvOSTests"
-               ReferencedContainer = "container:FutureKit.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0DBB32FB1D0F919C0092BF7B"
-            BuildableName = "FutureKit.framework"
-            BlueprintName = "FutureKit tvOS"
+            BlueprintIdentifier = "0DDE325F1B38BD27007C39D9"
+            BuildableName = "FutureKit iOS Testing App.app"
+            BlueprintName = "FutureKit iOS Testing App"
             ReferencedContainer = "container:FutureKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,15 +53,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0DBB32FB1D0F919C0092BF7B"
-            BuildableName = "FutureKit.framework"
-            BlueprintName = "FutureKit tvOS"
+            BlueprintIdentifier = "0DDE325F1B38BD27007C39D9"
+            BuildableName = "FutureKit iOS Testing App.app"
+            BlueprintName = "FutureKit iOS Testing App"
             ReferencedContainer = "container:FutureKit.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -81,15 +72,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "0DBB32FB1D0F919C0092BF7B"
-            BuildableName = "FutureKit.framework"
-            BlueprintName = "FutureKit tvOS"
+            BlueprintIdentifier = "0DDE325F1B38BD27007C39D9"
+            BuildableName = "FutureKit iOS Testing App.app"
+            BlueprintName = "FutureKit iOS Testing App"
             ReferencedContainer = "container:FutureKit.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

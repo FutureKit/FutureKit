@@ -24,59 +24,104 @@
 
 import Foundation
 
-
 private var executorVarHandler = ExtensionVarHandlerFor<FileManager>()
 
 /** adds an Extension that automatically routes requests to Executor.Default (or some other configured Executor)
 
 */
-extension FileManager {
 
-    // is this a good idea?  
-    // Should I make two versions of the all the APIs? One with and one without?
+internal var defaultExecutorForFileManager: Executor = .default
 
-/*    private var executor : Executor {
+extension Async where Base: FileManager {
+
+    public static var executor: Executor {
         get {
-            return executorVarHandler.getValueFrom(self,defaultvalue: Executor.Default)
+            return defaultExecutorForFileManager
         }
         set(newValue) {
-            executorVarHandler.setValueOn(self, value: newValue)
+            defaultExecutorForFileManager = newValue
         }
-    } */
+    }
 
-    func copyItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
-    {
+    public func mountedVolumeURLs(_ executor: Executor = FileManager.async.executor,
+                                  includingResourceValuesForKeys propertyKeys: [URLResourceKey]?,
+                                  options: FileManager.VolumeEnumerationOptions = []) -> Future<[URL]?> {
+
+        return executor.execute { () -> [URL]? in
+            return self.base.mountedVolumeURLs(includingResourceValuesForKeys: propertyKeys,
+                                               options: options)
+        }
+    }
+
+    public func contentsOfDirectory(_ executor: Executor = FileManager.async.executor,
+                                    at url: URL,
+                                    includingPropertiesForKeys keys: [URLResourceKey]?,
+                                    options mask: FileManager.DirectoryEnumerationOptions = []) -> Future<[URL]> {
+
+        return executor.execute { () -> [URL] in
+            return try self.base.contentsOfDirectory(at: url,
+                                                 includingPropertiesForKeys: keys,
+                                                 options: mask)
+        }
+    }
+
+    public func urls(_ executor: Executor = FileManager.async.executor,
+                     for directory: FileManager.SearchPathDirectory,
+                     in domainMask: FileManager.SearchPathDomainMask) -> Future<[URL]> {
+        return executor.execute { () -> [URL] in
+            return self.base.urls(for: directory, in: domainMask)
+        }
+    }
+
+    public func url(for directory: FileManager.SearchPathDirectory,
+                    in domain: FileManager.SearchPathDomainMask,
+                    appropriateFor url: URL?,
+                    create shouldCreate: Bool) -> Future<URL> {
+        return executor.execute { () -> URL in
+            return try self.base.url(for: directory,
+                                 in: domain,
+                                 appropriateFor: url,
+                                 create: shouldCreate)
+        }
+
+    }
+
+    public func copyItem(_ executor: Executor = FileManager.async.executor,
+                         at srcURL: URL,
+                         to dstURL: URL) -> Future<Bool> {
         return executor.execute { () -> Bool in
-            try self.copyItem(at: srcURL, to: dstURL)
+            try self.base.copyItem(at: srcURL, to: dstURL)
             return true
         }
     }
-    
-    func moveItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
-    {
+
+    public func moveItem(_ executor: Executor = FileManager.async.executor,
+                         at srcURL: URL,
+                         to dstURL: URL) -> Future<Bool> {
         return executor.execute { () -> Bool in
-            try self.moveItem(at: srcURL, to: dstURL)
+            try self.base.moveItem(at: srcURL, to: dstURL)
             return true
         }
 
     }
-    func linkItemAtURL(_ executor : Executor, srcURL: URL, toURL dstURL: URL) -> Future<Bool>
-    {
+
+    public func linkItem(_ executor: Executor = FileManager.async.executor,
+                         at srcURL: URL,
+                         to dstURL: URL) -> Future<Bool> {
         return executor.execute { () -> Bool in
-            try self.linkItem(at: srcURL, to: dstURL)
+            try self.base.linkItem(at: srcURL, to: dstURL)
             return true
         }
     }
-    
-    func removeItemAtURL(_ executor : Executor,URL: Foundation.URL) -> Future<Bool>
-    {
+
+    public func removeItem(_ executor: Executor = FileManager.async.executor,
+                           at URL: Foundation.URL) -> Future<Bool> {
         return executor.execute { () -> Bool in
-            try self.removeItem(at: URL)
+            try self.base.removeItem(at: URL)
             return true
         }
     }
 
     // Needs more love!  If you are reading this and you wanted to see your favorite function added - consider forking and adding it!  We love pull requests.
-    
 
 }

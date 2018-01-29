@@ -27,7 +27,7 @@ import Foundation
 // this class really SHOULD work, but it sometimes crashes the compiler
 // so we mostly use WeakAnyObject and feel angry about it
 class Weak<T: AnyObject> : ExpressibleByNilLiteral {
-    weak var value : T?
+    weak var value: T?
     init (_ value: T?) {
         self.value = value
     }
@@ -36,8 +36,8 @@ class Weak<T: AnyObject> : ExpressibleByNilLiteral {
     }
 }
 
-class WeakAnyObject : ExpressibleByNilLiteral {
-    weak var value : AnyObject?
+class WeakAnyObject: ExpressibleByNilLiteral {
+    weak var value: AnyObject?
     init (_ value: AnyObject?) {
         self.value = value
     }
@@ -48,8 +48,8 @@ class WeakAnyObject : ExpressibleByNilLiteral {
 
 // We use this to convert a Any value into an AnyObject
 // so it can be saved via objc_setAssociatedObject
-class Strong<T:Any> : ExpressibleByNilLiteral {
-    var value : T?
+class Strong<T: Any> : ExpressibleByNilLiteral {
+    var value: T?
     init (_ value: T?) {
         self.value = value
     }
@@ -58,15 +58,14 @@ class Strong<T:Any> : ExpressibleByNilLiteral {
     }
 }
 
-
-// So... you want to allocate stuff via UnsafeMutablePointer<T>, but don't want to have to remember 
+// So... you want to allocate stuff via UnsafeMutablePointer<T>, but don't want to have to remember
 // how to allocate and deallocate etc..
 // let's make a utility class that allocates, initializes, and deallocates
 
 class UnSafeMutableContainer<T> {
-    var unsafe_pointer : UnsafeMutablePointer<T>
-    
-    var memory : T {
+    var unsafe_pointer: UnsafeMutablePointer<T>
+
+    var memory: T {
         get {
             return unsafe_pointer.pointee
         }
@@ -91,75 +90,63 @@ class UnSafeMutableContainer<T> {
     }
 }
 
-
-
-// Allocate a single static (module level var) ExtensionVarHandler for EACH extension variable you want to add 
+// Allocate a single static (module level var) ExtensionVarHandler for EACH extension variable you want to add
 // to a class
-public struct ExtensionVarHandlerFor<A : AnyObject> {
-    
+public struct ExtensionVarHandlerFor<A: AnyObject> {
+
     fileprivate var keyValue = UnSafeMutableContainer<Int8>(0)
-    fileprivate var key : UnsafeMutablePointer<Int8>  { get { return keyValue.unsafe_pointer } }
-    
-    
+    fileprivate var key: UnsafeMutablePointer<Int8> { return keyValue.unsafe_pointer }
+
     public init() {
-        
+
     }
-    
+
     // Two STRONG implementations - Any and AnyObject.
     // AnyObject will match NSObject compatible values
     // Any will match any class, using the Strong<T> to wrap the object in a class so it can be set correctly
     // This is the "default set".
-    public func setStrongValueOn<T : Any>(_ object:A, value : T?)
-    {
+    public func setStrongValueOn<T: Any>(_ object: A, value: T?) {
         // so we can't 'test' for AnyObject but we can seem to test for NSObject
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
-        
+
         if let v = value {
             objc_setAssociatedObject(object, key, Strong<T>(v), policy)
-        }
-        else {
+        } else {
             objc_setAssociatedObject(object, key, nil, policy)
         }
     }
-    public func setStrongValueOn<T : AnyObject>(_ object:A, value : T?)
-    {
+    public func setStrongValueOn<T: AnyObject>(_ object: A, value: T?) {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         objc_setAssociatedObject(object, key, value, policy)
     }
-    
+
     // Any values cannot be captured weakly.  so we don't supply a Weak setter for Any
-    public func setWeakValueOn<T : AnyObject>(_ object:A, value : T?)
-    {
+    public func setWeakValueOn<T: AnyObject>(_ object: A, value: T?) {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         if let v = value {
             let wp = WeakAnyObject(v)
             objc_setAssociatedObject(object, key, wp, policy)
-        }
-        else {
+        } else {
             objc_setAssociatedObject(object, key, nil, policy)
         }
     }
-    
-    public func setCopyValueOn<T : AnyObject>(_ object:A, value : T?)
-    {
+
+    public func setCopyValueOn<T: AnyObject>(_ object: A, value: T?) {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_COPY
         objc_setAssociatedObject(object, key, value, policy)
     }
-    
+
     // convience - Set is always Strong by default
-    public func setValueOn<T : Any>(_ object:A, value : T?)
-    {
+    public func setValueOn<T: Any>(_ object: A, value: T?) {
         self.setStrongValueOn(object, value: value)
     }
-    
-    public func setValueOn<T : AnyObject>(_ object:A, value : T?)
-    {
+
+    public func setValueOn<T: AnyObject>(_ object: A, value: T?) {
         self.setStrongValueOn(object, value: value)
     }
-    
-    public func getValueFrom<T : Any>(_ object:A) -> T?
-    {
-        let v: AnyObject? = objc_getAssociatedObject(object,key) as AnyObject?
+
+    public func getValueFrom<T: Any>(_ object: A) -> T? {
+        let v: AnyObject? = objc_getAssociatedObject(object, key) as AnyObject?
         switch v {
         case nil:
             return nil
@@ -174,34 +161,29 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
             return nil
         }
     }
-    
-    public func getValueFrom<T : Any>(_ object:A, defaultvalue : T) -> T
-    {
+
+    public func getValueFrom<T: Any>(_ object: A, defaultvalue: T) -> T {
         let value: T? = getValueFrom(object)
         if let v = value {
             return v
-        }
-        else {
-            self.setStrongValueOn(object,value: defaultvalue)
+        } else {
+            self.setStrongValueOn(object, value: defaultvalue)
             return defaultvalue
         }
     }
-    
-    public func getValueFrom<T : Any>(_ object:A, defaultvalueblock : () -> T) -> T
-    {
+
+    public func getValueFrom<T: Any>(_ object: A, defaultvalueblock : () -> T) -> T {
         let value: T? = getValueFrom(object)
         if let v = value {
             return v
-        }
-        else {
+        } else {
             let defaultvalue = defaultvalueblock()
-            self.setStrongValueOn(object,value: defaultvalue)
+            self.setStrongValueOn(object, value: defaultvalue)
             return defaultvalue
         }
     }
-    
-    public func clear(_ object:A)
-    {
+
+    public func clear(_ object: A) {
         let policy = objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
         objc_setAssociatedObject(object, key, nil, policy)
     }
@@ -210,14 +192,11 @@ public struct ExtensionVarHandlerFor<A : AnyObject> {
 
 public typealias ExtensionVarHandler = ExtensionVarHandlerFor<AnyObject>
 
-
-
-
 /// EXAMPLE FOLLOWS :
 
-class __ExampleClass : NSObject {
-    var regularVar : Int = 99
-    
+private class ExampleClass: NSObject {
+    var regularVar: Int = 99
+
 }
 private var exampleIntOptionalHandler = ExtensionVarHandler()
 private var exampleIntHandler = ExtensionVarHandler()
@@ -225,22 +204,22 @@ private var exampleDelegateHandler = ExtensionVarHandler()
 private var exampleAnyObjectHandler = ExtensionVarHandler()
 private var exampleDictionaryHandler = ExtensionVarHandler()
 
-extension __ExampleClass {
-    var intOptional : Int? {
+extension ExampleClass {
+    var intOptional: Int? {
         get { return exampleIntOptionalHandler.getValueFrom(self) }
         set(newValue) {
             exampleIntOptionalHandler.setValueOn(self, value: newValue)
         }
     }
-    var intWithDefaultValue : Int {
+    var intWithDefaultValue: Int {
         get {
-            return exampleIntHandler.getValueFrom(self,defaultvalue: 55)
+            return exampleIntHandler.getValueFrom(self, defaultvalue: 55)
         }
         set(newValue) {
             exampleIntHandler.setValueOn(self, value: newValue)
         }
     }
-    var weakDelegatePtr : NSObject? {
+    var weakDelegatePtr: NSObject? {
         get {
             return exampleDelegateHandler.getValueFrom(self)
         }
@@ -249,7 +228,7 @@ extension __ExampleClass {
             exampleDelegateHandler.setWeakValueOn(self, value: newDelegate)
         }
     }
-    var anyObjectOptional : AnyObject? {
+    var anyObjectOptional: AnyObject? {
         get {
             return exampleAnyObjectHandler.getValueFrom(self)
         }
@@ -257,9 +236,9 @@ extension __ExampleClass {
             exampleAnyObjectHandler.setValueOn(self, value: newValue)
         }
     }
-    var dictionaryWithDefaultValues : [String : Int] {
+    var dictionaryWithDefaultValues: [String: Int] {
         get {
-            return exampleDictionaryHandler.getValueFrom(self,defaultvalue: ["Default" : 99, "Values" : 1])
+            return exampleDictionaryHandler.getValueFrom(self, defaultvalue: ["Default": 99, "Values": 1])
         }
         set(newValue) {
             exampleDictionaryHandler.setValueOn(self, value: newValue)
@@ -267,26 +246,21 @@ extension __ExampleClass {
     }
 }
 
-
 func _someExampleStuffs() {
-    
-    let e = __ExampleClass()
+
+    let e = ExampleClass()
     e.regularVar = 22   // this isn't an extension var, but defined in the original class
-    
+
     assert(e.intWithDefaultValue == 55, "default values should work!")
 
     e.intOptional = 5
     e.intOptional = nil
     let value = e.dictionaryWithDefaultValues["Default"]!
     assert(value == 99, "default values should work!")
-    
+
     e.weakDelegatePtr = e    // won't cause a RETAIN LOOP! cause it's a weak ptr
-    
+
     e.anyObjectOptional = e  // this will cause a RETAIN LOOP!  (bad idea, but legal)
     e.anyObjectOptional = nil  // let's not leave that retain loop alive
-    
+
 }
-
-
-
-

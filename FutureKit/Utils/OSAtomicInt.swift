@@ -24,83 +24,76 @@
 
 import Foundation
 
+public class OSAtomicInt32 {
 
+    var __value: UnSafeMutableContainer<Int32>
 
-
-open class OSAtomicInt32  {
-    
-    var __value : UnSafeMutableContainer<Int32>
-    
-    open var memory : Int32 {
-        get {
-            return __value.memory
-        }
+    public var memory: Int32 {
+        return __value.memory
     }
     public init(_ initialValue: Int32 = 0) {
         __value = UnSafeMutableContainer<Int32>(initialValue)
     }
 
-    open func increment() -> Int32 {
+    public func increment() -> Int32 {
         return OSAtomicIncrement32(__value.unsafe_pointer)
     }
-    open func decrement() -> Int32 {
+    public func decrement() -> Int32 {
         return OSAtomicDecrement32(__value.unsafe_pointer)
     }
-    open func incrementBarrier() -> Int32 {
+    public func incrementBarrier() -> Int32 {
         return OSAtomicIncrement32Barrier(__value.unsafe_pointer)
     }
-    open func decrementBarrier() -> Int32 {
+    public func decrementBarrier() -> Int32 {
         return OSAtomicDecrement32Barrier(__value.unsafe_pointer)
     }
-    open func add(_ theAmount: Int32) -> Int32 {
-        return OSAtomicAdd32(theAmount,__value.unsafe_pointer)
+    public func add(_ theAmount: Int32) -> Int32 {
+        return OSAtomicAdd32(theAmount, __value.unsafe_pointer)
     }
-    open func addBarrier(_ theAmount: Int32) -> Int32 {
-        return OSAtomicAdd32Barrier(theAmount,__value.unsafe_pointer)
+    public func addBarrier(_ theAmount: Int32) -> Int32 {
+        return OSAtomicAdd32Barrier(theAmount, __value.unsafe_pointer)
     }
-    open func ifEqualTo(_ value : Int32, thenReplaceWith : Int32) -> Bool {
-        return OSAtomicCompareAndSwap32(value,thenReplaceWith,__value.unsafe_pointer)
+    public func ifEqualTo(_ value: Int32, thenReplaceWith: Int32) -> Bool {
+        return OSAtomicCompareAndSwap32(value, thenReplaceWith, __value.unsafe_pointer)
     }
-    open func ifEqualToBarrier(_ value : Int32, thenReplaceWith : Int32) -> Bool {
-        return OSAtomicCompareAndSwap32Barrier(value,thenReplaceWith,__value.unsafe_pointer)
+    public func ifEqualToBarrier(_ value: Int32, thenReplaceWith: Int32) -> Bool {
+        return OSAtomicCompareAndSwap32Barrier(value, thenReplaceWith, __value.unsafe_pointer)
     }
-    
+
 }
-open class OSAtomicInt64 {
-    
-    var __value : UnSafeMutableContainer<Int64>
-    
-    open var memory : Int64 {
-        get {
-            return __value.memory
-        }
+public class OSAtomicInt64 {
+
+    var __value: UnSafeMutableContainer<Int64>
+
+    public var memory: Int64 {
+        return __value.memory
     }
     public init(_ initialValue: Int64 = 0) {
         __value = UnSafeMutableContainer<Int64>(initialValue)
     }
-    
-    open func increment() -> Int64 {
+
+    public func increment() -> Int64 {
         return OSAtomicIncrement64(__value.unsafe_pointer)
     }
-    open func decrement() -> Int64 {
+    public func decrement() -> Int64 {
         return OSAtomicDecrement64(__value.unsafe_pointer)
     }
-    open func incrementBarrier() -> Int64 {
+    public func incrementBarrier() -> Int64 {
         return OSAtomicIncrement64Barrier(__value.unsafe_pointer)
     }
-    open func decrementBarrier() -> Int64 {
+    public func decrementBarrier() -> Int64 {
         return OSAtomicDecrement64Barrier(__value.unsafe_pointer)
     }
-    open func add(_ theAmount: Int64) -> Int64 {
-        return OSAtomicAdd64(theAmount,__value.unsafe_pointer)
+    public func add(_ theAmount: Int64) -> Int64 {
+        return OSAtomicAdd64(theAmount, __value.unsafe_pointer)
     }
-    open func addBarrier(_ theAmount: Int64) -> Int64 {
-        return OSAtomicAdd64Barrier(theAmount,__value.unsafe_pointer)
+    public func addBarrier(_ theAmount: Int64) -> Int64 {
+        return OSAtomicAdd64Barrier(theAmount, __value.unsafe_pointer)
     }
-    open func ifEqualTo(_ value : Int64, thenReplaceWith : Int64) -> Bool {
-        return OSAtomicCompareAndSwap64(value,thenReplaceWith,__value.unsafe_pointer)
+    public func ifEqualTo(_ value: Int64, thenReplaceWith: Int64) -> Bool {
+        return OSAtomicCompareAndSwap64(value, thenReplaceWith, __value.unsafe_pointer)
     }
-    open func ifEqualToBarrier(_ value : Int64, thenReplaceWith : Int64) -> Bool {
-        return OSAtomicCompareAndSwap64Barrier(value,thenReplaceWith,__value.unsafe_pointer)
+    public func ifEqualToBarrier(_ value: Int64, thenReplaceWith: Int64) -> Bool {
+        return OSAtomicCompareAndSwap64Barrier(value, thenReplaceWith, __value.unsafe_pointer)
     }
 }

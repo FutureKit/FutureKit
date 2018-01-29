@@ -12,82 +12,99 @@ import Foundation
  *  A protocol for giving a Cache the ability to compute a cost even if using a Future.
  */
 public protocol HasCacheCost {
-    var cacheCost : Int { get }
+    var cacheCost: Int { get }
 }
 
+public class FutureCacheEntry<T> {
 
-open class FutureCacheEntry<T> {
-
-    var future : Future<T>
+    var future: Future<T>
     var expireTime: Date?
-    
-    public init(_ f: Future<T>,expireTime e: Date? = nil) {
+
+    public init(_ f: Future<T>, expireTime e: Date? = nil) {
         self.future = f
         self.expireTime = e
     }
 
-    public init(value: T,expireTime e: Date? = nil) {
+    public init(value: T, expireTime e: Date? = nil) {
         self.future = Future(success: value)
         self.expireTime = e
     }
 
 }
 
+final public class HashableBox<T: Hashable> {
+    public let value: T
+    public init(_ v: T) { self.value = v }
 
-open class FutureCache<KeyType : AnyObject, T> {
-    
-    
-    public init () {
-        
-    }
-    var cache = NSCache<KeyType,FutureCacheEntry<T>>()
-    
-    
-    open func object(forKey key: KeyType) -> T? {
-        return cache.object(forKey: key)?.future.value
+    public var hashValue: Int {
+        return value.hashValue
     }
 
-    open func setObject(_ obj: T, forKey key: KeyType) {
-        let entry = FutureCacheEntry(value:obj)
-        cache.setObject(entry, forKey: key)
+    public static func == (lhs: HashableBox<T>, rhs: HashableBox<T>) -> Bool {
+        return lhs.value == rhs.value
     }
 
-    open func setObject(_ obj: T, forKey key: KeyType, cost g: Int) {
-        let entry = FutureCacheEntry(value:obj)
-        cache.setObject(entry, forKey: key, cost: g)
+}
+
+public class FutureCache<KeyType: Hashable, T> {
+
+    let cache = NSCache<HashableBox<KeyType>, FutureCacheEntry<T>>()
+
+    private final func futureCacheEntry(forKey key: KeyType) -> FutureCacheEntry<T>? {
+        return cache.object(forKey: HashableBox(key))
     }
-    
-    open func removeObject(forKey key: KeyType) {
-        cache.removeObject(forKey: key)
+
+    private final func set(_ obj: FutureCacheEntry<T>, forKey key: KeyType) {
+        cache.setObject(obj, forKey: HashableBox(key))
     }
-    
-    open func removeAllObjects() {
+    private final func set(_ obj: FutureCacheEntry<T>, forKey key: KeyType, cost g: Int) {
+        cache.setObject(obj, forKey: HashableBox(key), cost: g)
+    }
+
+    public final func setObject(_ obj: T, forKey key: KeyType) {
+        let entry = FutureCacheEntry(value: obj)
+        cache.setObject(entry, forKey: HashableBox(key))
+    }
+
+    public final func setObject(_ obj: T, forKey key: KeyType, cost g: Int) {
+        let entry = FutureCacheEntry(value: obj)
+        cache.setObject(entry, forKey: HashableBox(key), cost: g)
+    }
+
+    public final func removeObject(forKey key: KeyType) {
+        cache.removeObject(forKey: HashableBox(key))
+    }
+
+    public final func removeAllObjects() {
         cache.removeAllObjects()
     }
-    
 
-    fileprivate func _findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> FutureCacheEntry<T> {
-        
-        if let entry = self.cache.object(forKey: key) {
+    private final func findOrFetchEntry<C: CompletionConvertable>(key: KeyType, expireTime: Date? = nil, onFetch:() throws -> C) -> FutureCacheEntry<T> where C.T == T {
+
+        if let entry = self.futureCacheEntry(forKey: key) {
             if let expireTime = entry.expireTime {
                 if expireTime.timeIntervalSinceNow > 0 {
                     return entry
                 }
-            }
-            else {
+            } else {
                 return entry
             }
         }
-        let f = onFetch()
-        let entry = FutureCacheEntry(f,expireTime: expireTime)
+        let future: Future<T>
+        do {
+            future = try onFetch().future
+        } catch {
+            future = .fail(error)
+        }
+        let entry = FutureCacheEntry(future, expireTime: expireTime)
         // it's important to call setObject before adding the onFailorCancel handler, since some futures will fail immediatey!
-        self.cache.setObject(entry, forKey: key)
-        f.onFailorCancel { (result) -> Void in
-            self.cache.removeObject(forKey: key)
+        self.set(entry, forKey: key)
+        future.onFailorCancel { _ -> Void in
+            self.removeObject(forKey: key)
         }
         return entry
     }
-    
+
     /**
     Utlity method for storing "Futures" inside a NSCache
      
@@ -98,13 +115,13 @@ open class FutureCache<KeyType : AnyObject, T> {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    public func findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> Future<T> {
-        
-        return _findOrFetch(key: key, expireTime: expireTime,onFetch: onFetch).future
+    public final func findOrFetch<C: CompletionConvertable>(key: KeyType, expireTime: Date? = nil, onFetch:() throws -> C) -> Future<T> where C.T == T {
+
+        return findOrFetchEntry(key: key, expireTime: expireTime, onFetch: onFetch).future
     }
 }
 
-public  extension FutureCache where T:HasCacheCost {
+public extension FutureCache where T: HasCacheCost {
 
     /**
      Utlity method for storing "Futures" inside a NSCache
@@ -116,14 +133,13 @@ public  extension FutureCache where T:HasCacheCost {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    public func findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> Future<T>  {
-        
-        let entry =  _findOrFetch(key: key,expireTime: expireTime,onFetch: onFetch)
+    public final func findOrFetch<C: CompletionConvertable>(key: KeyType, expireTime: Date? = nil, onFetch:() -> C) -> Future<T>  where C.T == T {
+
+        let entry = findOrFetchEntry(key: key, expireTime: expireTime, onFetch: onFetch)
         return entry.future.onSuccess { value in
-            self.cache.setObject(entry, forKey: key, cost: value.cacheCost)
+            self.set(entry, forKey: key, cost: value.cacheCost)
             return value
         }
     }
 
-    
 }

@@ -203,8 +203,8 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
     }
     
     // some typealias for the default recommended Objects
-    typealias LightAndFastSyncType = PThreadMutexSynchronization
-    typealias SlowOrComplexSyncType = QueueBarrierSynchronization
+    public typealias LightAndFastSyncType = PThreadMutexSynchronization
+    public typealias SlowOrComplexSyncType = QueueBarrierSynchronization
 
 }
 
@@ -427,7 +427,6 @@ open class PThreadMutexSynchronization : SynchronizationProtocol {
     
     deinit {
         pthread_mutex_destroy(mutex)
-        self.mutex.deinitialize()
     }
 
     final func synchronized<T>(_ block:() -> T) -> T {

@@ -365,9 +365,16 @@ public protocol AnyFuture {
     
     var futureAny : Future<Any> { get }
 
-    func mapAs<S>() -> Future<S>
+    func mapAs<S>(_ type: S.Type, _ file: StaticString, _ line: UInt) -> Future<S>
 
-    func mapAs() -> Future<Void>
+}
+
+extension AnyFuture {
+
+    @available(*, deprecated, renamed: "mapAs(_:_:_:)")
+    public func mapAs<S>(_ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
+        return self.mapAs(S.self, file, line)
+    }
 
 }
 
@@ -410,7 +417,7 @@ public protocol FutureProtocol : AnyFuture {
         let fofvoid: Future<Void> = f.As()
     
     */
-    func mapAs<S>() -> Future<S>
+    func mapAs<S>(_ type: S.Type, _ file: StaticString, _ line: UInt) -> Future<S>
 
     /**
     convert Future<T> into another type Future<S?>.
@@ -424,10 +431,10 @@ public protocol FutureProtocol : AnyFuture {
     
     you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
     */
-    func mapAsOptional<S>() -> Future<S?>
+    func mapAsOptional<S>(_ type: S.Type, _ file: StaticString, _ line: UInt) -> Future<S?>
  
     
-    func mapAs() -> Future<Void>
+//    func mapAs() -> Future<Void>
 
     
     var description: String { get }
@@ -437,9 +444,13 @@ public protocol FutureProtocol : AnyFuture {
 }
 
 public extension FutureProtocol  {
+
+    public func mapAs<S>(_ type: S.Type, file: StaticString = #file, line: UInt = #line) -> Future<S> {
+        return self.mapAs(type, file, line)
+    }
     
     var futureAny : Future<Any> {
-        return self.mapAs()
+        return self.mapAs(Any.self)
     }
 
 }
@@ -992,7 +1003,7 @@ open class Future<T> : FutureProtocol {
     
     - returns: a new Future of with the result type of __Type
     */
-    @available(*, deprecated: 1.1, message: "renamed to mapAs()")
+    @available(*, deprecated, renamed: "mapAs(type:_:_:)")
     public final func As<__Type>() -> Future<__Type> {
         return self.mapAs()
     }
@@ -1021,9 +1032,10 @@ open class Future<T> : FutureProtocol {
     
     - returns: a new Future of with the result type of __Type
     */
-    public final func mapAs<__Type>() -> Future<__Type> {
-        return self.map(.immediate) { (result) -> __Type in
-            return result as! __Type
+    public final func mapAs<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
+        return self.map(.immediate) { (result) -> S in
+            assert(result is S, "result \(result) is not convertable to \(S.self) \(file):\(line)")
+            return result as! S
         }
     }
 
@@ -1042,27 +1054,6 @@ open class Future<T> : FutureProtocol {
     
     example:
     
-        let f = Future<String>(success:"5")
-        let f2 : Future<[Int]?> = f.convertOptional()
-        assert(f2.result! == nil)
-    
-    you will need to formally declare the type of the new variable (ex: `f2`), in order for Swift to perform the correct conversion.
-    
-    - returns: a new Future of with the result type of __Type?
-
-    */
-    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
-    public final func convertOptional<__Type>() -> Future<__Type?> {
-        return mapAsOptional()
-    }
-
-    /**
-    convert `Future<T>` into another type `Future<__Type?>`.
-    
-    WARNING: if `T as! __Type` isn't legal, than all Success values may be converted to nil
-    
-    example:
-    
     let f = Future<String>(success:"5")
     let f2 : Future<[Int]?> = f.convertOptional()
     assert(f2.result! == nil)
@@ -1072,9 +1063,9 @@ open class Future<T> : FutureProtocol {
     - returns: a new Future of with the result type of __Type?
     
     */
-    public final func mapAsOptional<__Type>() -> Future<__Type?> {
-        return self.map(.immediate) { (result) -> __Type? in
-            return result as? __Type
+    public final func mapAsOptional<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
+        return self.map(.immediate) { (result) -> S? in
+            return result as? S
         }
     }
 
@@ -1815,7 +1806,7 @@ class classWithMethodsThatReturnFutures {
     
     func convertingAFuture() -> Future<NSString> {
         let f = convertNumbersToString()
-        return f.mapAs()
+        return f.mapAs(NSString.self)
     }
     
     

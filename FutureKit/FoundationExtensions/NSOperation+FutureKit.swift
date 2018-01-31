@@ -35,7 +35,7 @@ open class FutureOperation<T> : _FutureAnyOperation {
     }
 
     open var future : Future<T> {
-        return self.promise.future.mapAs()
+        return self.promise.future.mapAs(T.self)
     }
 
     public init(executor:Executor = .primary, block b: @escaping () throws -> Future<T>) {
@@ -134,17 +134,17 @@ open class _FutureAnyOperation : Operation, AnyFuture {
     open func As<S>() -> Future<S> {
         return self.mapAs()
     }
-    open func mapAs<S>() -> Future<S> {
-        return self.promise.future.mapAs()
+    open func mapAs<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
+        return self.promise.future.mapAs(S.self, file, line)
     }
     
     @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
-    open func convertOptional<S>() -> Future<S?> {
-        return self.mapAsOptional()
+    open func convertOptional<S>(_ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
+        return self.mapAsOptional(S.self, file, line)
     }
 
-    open func mapAsOptional<S>() -> Future<S?> {
-        return self.promise.future.mapAsOptional()
+    open func mapAsOptional<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
+        return self.promise.future.mapAsOptional(S.self, file, line)
     }
 
 }

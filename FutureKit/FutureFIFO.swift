@@ -44,7 +44,7 @@ open class FutureFIFO {
         let t = self.lastFuture.onComplete(executor) { _ in
             return try operation()
         }
-        self.lastFuture = t.mapAs()
+        self.lastFuture = t.mapAs(Any.self)
         return t
     }
 
@@ -53,7 +53,7 @@ open class FutureFIFO {
         let t = self.lastFuture.onComplete(executor) { _ in
             return try operation()
         }
-        self.lastFuture = t.mapAs()
+        self.lastFuture = t.mapAs(Any.self)
         return t
     }
 

@@ -188,7 +188,7 @@ open class FutureBatchOf<T> {
         for future in self.subFutures {
             future.onComplete { value in
                 if (!value.isSuccess) {
-                    promise.complete(value.mapAs())
+                    promise.complete(value.mapAs([T].self))
                 }
             }
             .ignoreFailures()
@@ -231,7 +231,7 @@ open class FutureBatchOf<T> {
     open class func convertArray<__Type>(_ array:[Future<T>]) -> [Future<__Type>] {
         var futures = [Future<__Type>]()
         for a in array {
-            futures.append(a.mapAs())
+            futures.append(a.mapAs(__Type.self))
         }
         return futures
         
@@ -245,9 +245,9 @@ open class FutureBatchOf<T> {
         - parameter array: array of Futures
         - returns: an array of Futures converted to return type <S>
     */
-    open class func convertArray<__Type>(_ array:[AnyFuture]) -> [Future<__Type>] {
+    open class func convertArray<__Type>(_ array:[AnyFuture], _ file: StaticString = #file, _ line: UInt = #line) -> [Future<__Type>] {
         
-        return array.map { $0.mapAs() }
+        return array.map { $0.mapAs(__Type.self, file, line) }
         
     }
     

@@ -45,7 +45,7 @@ public struct AnyCompletion : CompletionType {
     public var completion : Completion<Any>
    
     init<C:CompletionType>(completionType:C) {
-        self.completion = completionType.completion.mapAs()
+        self.completion = completionType.completion.mapAs(Any.self)
     }
     
 }
@@ -465,7 +465,7 @@ public extension CompletionType {
      - returns: a new result of type Completion<S?>
      
      */
-    public func mapAsOptional<O : OptionalProtocol>(type:O.Type) -> Completion<O.Wrapped?> {
+    public func mapAsOptional<O : OptionalProtocol>(_ type:O.Type) -> Completion<O.Wrapped?> {
 
         return self.map { v -> O.Wrapped? in
             return v as? O.Wrapped
@@ -495,23 +495,23 @@ public extension CompletionType {
      
      you will need to formally declare the type of the new variable, in order for Swift to perform the correct conversion.
      */
-    public func mapAs<__Type>() -> Completion<__Type> {
+    public func mapAs<S>(_ stype: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Completion<S> {
         switch self.completion {
         case let .success(t):
-            assert(t is __Type, "you can't cast \(type(of: t)) to \(__Type.self)")
-            if (t is __Type) {
-                let r = t as! __Type
+            assert(t is S, "you can't cast \(type(of: t)) to \(S.self) \(file):\(line)")
+            if (t is S) {
+                let r = t as! S
                 return .success(r)
             }
             else {
-                return Completion<__Type>(failWithErrorMessage:"can't cast  \(type(of: t)) to \(__Type.self)");
+                return Completion<S>(failWithErrorMessage:"can't cast  \(type(of: t)) to \(S.self)");
             }
         case let .fail(f):
             return .fail(f)
         case .cancelled:
             return .cancelled
         case let .completeUsing(f):
-            return .completeUsing(f.mapAs())
+            return .completeUsing(f.mapAs(S.self, file, line))
         }
     }
 
@@ -520,27 +520,13 @@ public extension CompletionType {
         return self.completion
     }
 
-    
-    public func mapAs() -> Completion<Void> {
-        switch self.completion {
-        case .success:
-            return .success(())
-        case let .fail(f):
-            return .fail(f)
-        case .cancelled:
-            return .cancelled
-        case let .completeUsing(f):
-            return .completeUsing(f.mapAs())
-        }
-    }
-
     public func As() -> Completion<T> {
         return self.completion
     }
     
     @available(*, deprecated: 1.1, message: "renamed to mapAs()")
-    public func As<__Type>() -> Completion<__Type> {
-        return self.mapAs()
+    public func As<S>() -> Completion<S> {
+        return self.mapAs(S.self)
     }
     
 }

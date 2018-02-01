@@ -382,11 +382,11 @@ public enum Executor {
         executionBlock()
     }
 
-    @available(*, deprecated: 1.1, message: "renamed to execute(afterDelay:)")
+    @available(*, deprecated, renamed: "execute(afterDelay:)")
     @discardableResult public func executeAfterDelay<__Type>(_ delay: TimeInterval, _ block: @escaping () throws -> __Type) -> Future<__Type> {
         return self.execute(afterDelay: delay, block: block)
     }
-    @available(*, deprecated: 1.1, message: "renamed to execute(after:)")
+    @available(*, deprecated, renamed: "execute(after:)")
     @discardableResult public func executeAt<__Type>(_ date: Date, _ block: @escaping () throws -> __Type) -> Future<__Type> {
         return self.execute(after: date, block: block)
     }

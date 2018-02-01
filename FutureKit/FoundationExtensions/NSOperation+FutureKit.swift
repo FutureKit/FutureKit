@@ -130,7 +130,7 @@ open class _FutureAnyOperation : Operation, AnyFuture {
         self.cancelToken?.cancel()
     }
     
-    @available(*, deprecated: 1.1, message: "renamed to mapAs()")
+    @available(*, deprecated, renamed: "mapAs(_:_:_:)")
     open func As<S>() -> Future<S> {
         return self.mapAs()
     }
@@ -138,7 +138,7 @@ open class _FutureAnyOperation : Operation, AnyFuture {
         return self.promise.future.mapAs(S.self, file, line)
     }
     
-    @available(*, deprecated: 1.1, message: "renamed to mapAsOptional()")
+    @available(*, deprecated, renamed: "mapAsOptional(_:_:_:)")
     open func convertOptional<S>(_ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
         return self.mapAsOptional(S.self, file, line)
     }

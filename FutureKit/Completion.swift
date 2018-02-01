@@ -515,16 +515,18 @@ public extension CompletionType {
         }
     }
 
+    @available(*, deprecated, renamed: "mapAs(_:_:_:)")
+    public func mapAs<S>(_ file: StaticString = #file, _ line: UInt = #line) -> Completion<S> {
+        return self.mapAs(S.self, file, line)
+    }
 
-    public func mapAs() -> Completion<T> {
+
+    public func mapAs<S>(_ stype: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Completion<S> where S == T {
         return self.completion
     }
 
-    public func As() -> Completion<T> {
-        return self.completion
-    }
-    
-    @available(*, deprecated: 1.1, message: "renamed to mapAs()")
+
+    @available(*, deprecated, renamed: "mapAs(_:_:_:)")
     public func As<S>() -> Completion<S> {
         return self.mapAs(S.self)
     }
@@ -598,12 +600,12 @@ public extension Completion { // initializers
 
 extension CompletionType {
     
-    @available(*, deprecated: 1.1, message: "depricated use completion",renamed: "completion")
+    @available(*, deprecated, renamed: "completion")
     func asCompletion() -> Completion<T> {
         return self.completion
     }
     
-    @available(*, deprecated: 1.1, message: "depricated use result",renamed: "result")
+    @available(*, deprecated, renamed: "result")
     func asResult() -> FutureResult<T> {
         return self.result
     }

@@ -101,7 +101,7 @@ open class Promise<T>  {
     }
     
     
-    @available(*, deprecated: 1.1, message: "renamed to automaticallyCancel(afterDelay:)")
+    @available(*, deprecated, renamed: "automaticallyCancel(afterDelay:)")
     public final func automaticallyCancelAfter(_ delay: TimeInterval) {
         self.automaticallyCancelOnRequestCancel()
         Executor.default.execute(afterDelay:delay) { () -> Void in
@@ -116,7 +116,7 @@ open class Promise<T>  {
         }
     }
 
-    @available(*, deprecated: 1.1, message: "renamed to automaticallyFail(afterDelay:with:)")
+    @available(*, deprecated, renamed: "automaticallyFail(afterDelay:with:)")
     public final func automaticallyFailAfter(_ delay: TimeInterval, error:Error) {
         self.automaticallyCancelOnRequestCancel()
         Executor.default.execute(afterDelay:delay) { () -> Void in

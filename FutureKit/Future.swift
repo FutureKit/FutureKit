@@ -1004,8 +1004,8 @@ open class Future<T> : FutureProtocol {
     - returns: a new Future of with the result type of __Type
     */
     @available(*, deprecated, renamed: "mapAs(type:_:_:)")
-    public final func As<__Type>() -> Future<__Type> {
-        return self.mapAs()
+    public final func As<S>() -> Future<S> {
+        return self.mapAs(S.self)
     }
     /**
     convert this future of type `Future<T>` into another future type `Future<__Type>`

@@ -525,6 +525,19 @@ public extension CompletionType {
         return self.completion
     }
 
+    public func mapAs(_ stype: Void.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Completion<Void> {
+        switch self.completion {
+        case .success:
+            return .success(())
+        case let .fail(f):
+            return .fail(f)
+        case .cancelled:
+            return .cancelled
+        case let .completeUsing(f):
+            return .completeUsing(f.mapAs(Void.self, file, line))
+        }
+    }
+
 
     @available(*, deprecated, renamed: "mapAs(_:_:_:)")
     public func As<S>() -> Completion<S> {

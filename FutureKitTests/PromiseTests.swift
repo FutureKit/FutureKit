@@ -576,7 +576,7 @@ private enum PromiseFunctions<T : Equatable> {
 
 
         case let .complete(completion):
-            promise.complete(completion.As())
+            promise.complete(completion.mapAs(T.self))
 
             
         case let .completeWithSuccess(result):
@@ -599,12 +599,12 @@ private enum PromiseFunctions<T : Equatable> {
 
         case let .completeWithBlock(block):
             promise.completeWithBlock { () -> Completion<T> in
-                return block().As()
+                return block().mapAs(T.self)
             }
             
         case let .completeWithBlocksOnAlreadyCompleted(completeBlock,_):
             promise.completeWithBlocks( { () -> Completion<T> in
-                return completeBlock().As()
+                return completeBlock().mapAs(T.self)
                 }, onAlreadyCompleted: { () -> Void in
                     if let ex = expectation {
                         ex.fulfill()
@@ -623,11 +623,11 @@ private enum PromiseFunctions<T : Equatable> {
 
 
         case let .tryComplete(completion,expectedReturnValue):
-            let r = promise.tryComplete(completion.As())
+            let r = promise.tryComplete(completion.mapAs(T.self))
             XCTAssert(r == expectedReturnValue, "tryComplete returned \(r)")
 
         case let .completeWithOnCompletionError(completion,_):
-            promise.complete(completion.As(),onCompletionError: { () -> Void in
+            promise.complete(completion.mapAs(T.self),onCompletionError: { () -> Void in
                 if let ex = expectation {
                     ex.fulfill()
                 }

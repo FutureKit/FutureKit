@@ -137,7 +137,11 @@ open class _FutureAnyOperation : Operation, AnyFuture {
     open func mapAs<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
         return self.promise.future.mapAs(S.self, file, line)
     }
-    
+
+    open func mapAs(_ type: Void.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<Void> {
+        return self.promise.future.mapAs(Void.self, file, line)
+    }
+
     @available(*, deprecated, renamed: "mapAsOptional(_:_:_:)")
     open func convertOptional<S>(_ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
         return self.mapAsOptional(S.self, file, line)

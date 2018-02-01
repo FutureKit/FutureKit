@@ -367,6 +367,8 @@ public protocol AnyFuture {
 
     func mapAs<S>(_ type: S.Type, _ file: StaticString, _ line: UInt) -> Future<S>
 
+    func mapAs(_ type: Void.Type, _ file: StaticString, _ line: UInt) -> Future<Void>
+
 }
 
 extension AnyFuture {
@@ -418,6 +420,8 @@ public protocol FutureProtocol : AnyFuture {
     
     */
     func mapAs<S>(_ type: S.Type, _ file: StaticString, _ line: UInt) -> Future<S>
+
+    func mapAs(_ type: Void.Type, _ file: StaticString, _ line: UInt) -> Future<Void>
 
     /**
     convert Future<T> into another type Future<S?>.
@@ -1032,12 +1036,19 @@ open class Future<T> : FutureProtocol {
     
     - returns: a new Future of with the result type of __Type
     */
-    public final func mapAs<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
+    public final func mapAs<S>(_ mappedType: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
         return self.map(.immediate) { (result) -> S in
             assert(result is S, "result \(result) is not convertable to \(S.self) \(file):\(line)")
             return result as! S
         }
     }
+
+    public final func mapAs(_ type: Void.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<Void> {
+        return self.map(.immediate) { (result) -> Void in
+            return ()
+        }
+    }
+
 
     
 

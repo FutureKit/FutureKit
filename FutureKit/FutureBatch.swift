@@ -77,8 +77,8 @@ open class FutureBatchOf<T> {
         takes a list of Futures.  Each future will be converted into a Future that returns T.
     
     */
-    public convenience init(_ futures : [AnyFuture]) {
-        let f : [Future<T>] = FutureBatch.convertArray(futures)
+    public convenience init(_ futures : [AnyFuture],  _ file: StaticString = #file, _ line: UInt = #line) {
+        let f : [Future<T>] = FutureBatch.convertArray(futures, file, line)
         self.init(futures:f)
     }
     
@@ -228,10 +228,11 @@ open class FutureBatchOf<T> {
         - parameter array: array of Futures
         - returns: an array of Futures converted to return type <S>
     */
-    open class func convertArray<__Type>(_ array:[Future<T>]) -> [Future<__Type>] {
-        var futures = [Future<__Type>]()
+    open class func convertArray<S>(_ array:[Future<T>],
+                                    _ file: StaticString = #file, _ line: UInt = #line) -> [Future<S>] {
+        var futures = [Future<S>]()
         for a in array {
-            futures.append(a.mapAs(__Type.self))
+            futures.append(a.mapAs(S.self, file, line))
         }
         return futures
         
@@ -245,9 +246,10 @@ open class FutureBatchOf<T> {
         - parameter array: array of Futures
         - returns: an array of Futures converted to return type <S>
     */
-    open class func convertArray<__Type>(_ array:[AnyFuture], _ file: StaticString = #file, _ line: UInt = #line) -> [Future<__Type>] {
+    open class func convertArray<S>(_ array:[AnyFuture],
+                                    _ file: StaticString = #file, _ line: UInt = #line) -> [Future<S>] {
         
-        return array.map { $0.mapAs(__Type.self, file, line) }
+        return array.map { $0.mapAs(S.self, file, line) }
         
     }
     

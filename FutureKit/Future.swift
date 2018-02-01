@@ -1040,7 +1040,8 @@ open class Future<T> : FutureProtocol {
     }
 
     
-    
+
+    @available(*, deprecated, renamed: "mapAs(_:_:_:)")
     public final func mapAs() -> Future<Void> {
         return self.map(.immediate) { (result) -> Void in
             return ()
@@ -1166,19 +1167,19 @@ extension FutureProtocol {
      
      the compile should automatically figure out which version of As() execute
      */
-    public func As() -> Self {
-        return self
-    }
-    
+//    public func As() -> Self {
+//        return self
+//    }
+//
     /**
      if we try to convert a future from type T to type T, just ignore the request.
      
      the swift compiler can automatically figure out which version of mapAs() execute
      */
-    public func mapAs() -> Self {
-        return self
-    }
-    
+//    public func mapAs() -> Self {
+//        return self
+//    }
+
     
 
     public func withCancelToken() -> (Self,CancellationToken) {

@@ -49,6 +49,7 @@ public enum FutureKitError : Error, Equatable {
     case continueWithConversionError(String)
     case errorForMultipleErrors(String,[Error])
     case exceptionCaught(NSException,[AnyHashable: Any]?)
+    case futureDeinitWithoutCompletion(FileLineInfo)
 
     public init(genericError : String) {
         self = .genericError(genericError)
@@ -71,50 +72,29 @@ public enum FutureKitError : Error, Equatable {
 }
 
 public func == (l: FutureKitError, r: FutureKitError) -> Bool {
-    
-    switch l {
-    case let .genericError(lhs):
-        switch r {
-        case let .genericError(rhs):
-            return (lhs == rhs)
-        default:
-            return false
-        }
-    case let .resultConversionError(lhs):
-        switch r {
-        case let .resultConversionError(rhs):
-            return (lhs == rhs)
-        default:
-            return false
-        }
-    case let .completionConversionError(lhs):
-        switch r {
-        case let .completionConversionError(rhs):
-            return (lhs == rhs)
-        default:
-            return false
-        }
-    case let .continueWithConversionError(lhs):
-        switch r {
-        case let .continueWithConversionError(rhs):
-            return (lhs == rhs)
-        default:
-            return false
-        }
-    case let .errorForMultipleErrors(lhs,_):
-        switch r {
-        case let .errorForMultipleErrors(rhs,_):
-            return (lhs == rhs)
-        default:
-            return false
-        }
-    case let .exceptionCaught(lhs,_):
-        switch r {
-        case let .exceptionCaught(rhs,_):
-            return (lhs.isEqual(rhs))
-        default:
-            return false
-        }
+
+    switch (l,r) {
+    case let (.genericError(lhs), .genericError(rhs)):
+        return (lhs == rhs)
+
+    case let (.resultConversionError(lhs), .resultConversionError(rhs)):
+        return (lhs == rhs)
+
+    case let (.completionConversionError(lhs), .completionConversionError(rhs)):
+        return (lhs == rhs)
+
+    case let (.continueWithConversionError(lhs), .continueWithConversionError(rhs)):
+        return (lhs == rhs)
+    case let (.errorForMultipleErrors(lhs, _), .errorForMultipleErrors(rhs, _)):
+        return (lhs == rhs)
+
+    case let (.exceptionCaught(lhs, _), .exceptionCaught(rhs, _)):
+        return (lhs == rhs)
+
+    case let (.futureDeinitWithoutCompletion(lhs), .futureDeinitWithoutCompletion(rhs)):
+        return (lhs == rhs)
+    default:
+        return false
     }
 }
 
@@ -390,9 +370,11 @@ public protocol FutureProtocol : AnyFuture {
     var result : FutureResult<T>? { get }
 
     var value : T? { get }
-    
-    
-    func onComplete<C: CompletionType>(_ executor : Executor,block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
+
+    func onComplete<C: CompletionType>(_ executor : Executor,
+                                       _ file: StaticString,
+                                       _ line: UInt,
+                                       block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
     
     /**
     convert this future of type `Future<T>` into another future type `Future<S>`
@@ -484,7 +466,7 @@ open class Future<T> : FutureProtocol {
         it is not thread-safe to read this directly. use `var synchObject`
     */
     fileprivate final var __result : FutureResult<T>?
-    
+
 //    private final let lock = NSObject()
     
     // Warning - reusing this lock for other purposes is dangerous when using LOCKING_STRATEGY.NSLock
@@ -501,6 +483,8 @@ open class Future<T> : FutureProtocol {
     is executed used `cancel()` has been requested.
     
     */
+
+    let creationLocation: FileLineInfo
 
     
     internal func addRequestHandler(_ h : @escaping CancellationHandler) {
@@ -595,7 +579,16 @@ open class Future<T> : FutureProtocol {
     /**
     You can't instanciate an incomplete Future directly.  You must use a Promsie, or use an Executor with a block.
     */
-    internal init() {
+    internal init(_ file: StaticString, _ line: UInt) {
+        self.creationLocation = FileLineInfo(file, line)
+    }
+
+    deinit {
+        if __result == nil {
+            NSLog("warning - future is freed without completion \(self.creationLocation.description)")
+            let error: FutureKitError = .futureDeinitWithoutCompletion(self.creationLocation)
+            self.completeWith(.fail(error))
+        }
     }
     
     
@@ -612,42 +605,48 @@ open class Future<T> : FutureProtocol {
     /**
         creates a completed Future with a completion == .Success(success)
     */
-    public required init(success:T) {  // returns an completed Task  with result T
+    public init(success:T, _ file: StaticString = #file, _ line: UInt = #line) {  // returns an completed Task  with result T
+        self.creationLocation = FileLineInfo(file, line)
         self.__result = .success(success)
     }
     /**
     creates a completed Future with a completion == .Error(failed)
     */
-    public required init(fail:Error) {  // returns an completed Task that has Failed with this error
+    public init(fail:Error, _ file: StaticString = #file, _ line: UInt = #line) {  // returns an completed Task that has Failed with this error
+        self.creationLocation = FileLineInfo(file, line)
         self.__result = .fail(fail)
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(failWithErrorMessage))
     */
-    public init(failWithErrorMessage errorMessage: String) {
+    public init(failWithErrorMessage errorMessage: String, _ file: StaticString = #file, _ line: UInt = #line) {
+        self.creationLocation = FileLineInfo(file, line)
         self.__result = FutureResult<T>(failWithErrorMessage:errorMessage)
     }
     /**
     creates a completed Future with a completion == .Error(FutureNSError(exception))
     */
-    public init(exception:NSException) {  // returns an completed Task that has Failed with this error
+    public init(exception:NSException, _ file: StaticString = #file, _ line: UInt = #line) {  // returns an completed Task that has Failed with this error
+        self.creationLocation = FileLineInfo(file, line)
         self.__result = FutureResult<T>(exception:exception)
     }
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
-    public init(cancelled:()) {  // returns an completed Task that has Failed with this error
+    public init(cancelled:(), _ file: StaticString = #file, _ line: UInt = #line) {  // returns an completed Task that has Failed with this error
+        self.creationLocation = FileLineInfo(file, line)
         self.__result = .cancelled
     }
 
     /**
     creates a completed Future with a completion == .Cancelled(cancelled)
     */
-    public init(completeUsing f:Future<T>) {  // returns an completed Task that has Failed with this error
+    public init(completeUsing f:Future<T>, _ file: StaticString = #file, _ line: UInt = #line) {  // returns an completed Task that has Failed with this error
+        self.creationLocation = FileLineInfo(file, line)
         self.completeWith(.completeUsing(f))
     }
 
-    public convenience init<C:CompletionType>(delay:TimeInterval, completeWith: C) where C.T == T {
+    public convenience init<C:CompletionType>(delay:TimeInterval, completeWith: C, _ file: StaticString = #file, _ line: UInt = #line) where C.T == T {
         let executor: Executor = .primary
         
         let p = Promise<T>()
@@ -655,10 +654,10 @@ open class Future<T> : FutureProtocol {
         executor.execute(afterDelay:delay) { () -> Void in
             p.complete(completeWith)
         }
-        self.init(completeUsing:p.future)
+        self.init(completeUsing:p.future, file, line)
     }
     
-    public convenience init(afterDelay delay:TimeInterval, success:T) {    // emits a .Success after delay
+    public convenience init(afterDelay delay:TimeInterval, success:T, _ file: StaticString = #file, _ line: UInt = #line) {    // emits a .Success after delay
         let executor: Executor = .primary
 
         let p = Promise<T>()
@@ -666,7 +665,7 @@ open class Future<T> : FutureProtocol {
         executor.execute(afterDelay:delay) {
             p.completeWithSuccess(success)
         }
-        self.init(completeUsing:p.future)
+        self.init(completeUsing:p.future, file, line)
     }
     
     /**
@@ -674,7 +673,8 @@ open class Future<T> : FutureProtocol {
     
     can only be used to a create a Future that should always succeed.
     */
-    public init(_ executor : Executor = .immediate , block: @escaping () throws -> T) {
+    public init(_ executor : Executor = .immediate , _ file: StaticString = #file, _ line: UInt = #line, block: @escaping () throws -> T) {
+        self.creationLocation = FileLineInfo(file, line)
         let wrappedBlock = executor.callbackBlockFor { () -> Void in
             do {
                 let r = try block()
@@ -701,8 +701,9 @@ open class Future<T> : FutureProtocol {
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init<C:CompletionType>(_ executor : Executor  = .immediate, block: @escaping () throws -> C) where C.T == T {
-        executor.execute { () -> Void in
+    public init<C:CompletionType>(_ executor : Executor  = .immediate, _ file: StaticString = #file, _ line: UInt = #line, block: @escaping () throws -> C) where C.T == T {
+        self.creationLocation = FileLineInfo(file, line)
+       executor.execute { () -> Void in
             self.completeWithBlocks(completionBlock: {
                 return try block()
             })
@@ -913,9 +914,13 @@ open class Future<T> : FutureProtocol {
     - returns: a tuple (promise,callbackblock) a new promise and a completion block that can be added to __callbacks
     
     */
-    internal final func createPromiseAndCallback<C:CompletionType>(_ forBlock: @escaping ((FutureResult<T>) throws -> C)) -> (promise : Promise<C.T> , completionCallback :completion_block_type) {
+    internal final func createPromiseAndCallback<C:CompletionType>(
+        _ file: StaticString,
+        _ line: UInt,
+        _ forBlock: @escaping ((FutureResult<T>
+        ) throws -> C)) -> (promise : Promise<C.T> , completionCallback :completion_block_type) {
         
-        let promise = Promise<C.T>()
+        let promise = Promise<C.T>(file, line)
 
         let completionCallback : completion_block_type = {(comp) -> Void in
             do {
@@ -1143,9 +1148,13 @@ open class Future<T> : FutureProtocol {
     - returns: a new Future that returns results of type __Type  (Future<__Type>)
     
     */
-    @discardableResult public final func onComplete<C: CompletionType>(_ executor : Executor,block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
+    @discardableResult public final func onComplete<C: CompletionType>(
+        _ executor : Executor,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
+        block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
         
-        let (promise, completionCallback) = self.createPromiseAndCallback(block)
+        let (promise, completionCallback) = self.createPromiseAndCallback(file, line, block)
         let block = executor.callbackBlockFor(completionCallback)
         
         self.runThisCompletionBlockNowOrLater(block,promise: promise)
@@ -1197,8 +1206,11 @@ extension FutureProtocol {
         return (self,self.getCancelToken())
     }
     
-    @discardableResult public func onComplete<C: CompletionType>(_ block: @escaping (FutureResult<T>) throws -> C) -> Future<C.T> {
-        return self.onComplete(.primary,block:block)
+    public func onComplete<C: CompletionType>(
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
+        _ block: @escaping (FutureResult<T>) throws -> C) -> Future<C.T> {
+        return self.onComplete(.primary,file, line, block:block)
     }
 
     
@@ -1212,8 +1224,12 @@ extension FutureProtocol {
     - parameter block: a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
     - returns: a new Future that returns results of type __Type
     */
-    @discardableResult public func onComplete<__Type>(_ executor: Executor = .primary, _ block:@escaping (_ result:FutureResult<T>) throws -> __Type) -> Future<__Type> {
-        return self.onComplete(executor) { (result) -> Completion<__Type> in
+    @discardableResult public func onComplete<S>(
+        _ executor: Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
+        _ block:@escaping (_ result:FutureResult<T>) throws -> S) -> Future<S> {
+        return self.onComplete(executor, file, line) { (result) -> Completion<S> in
             return .success(try block(result))
         }
     }
@@ -1238,11 +1254,13 @@ extension FutureProtocol {
     */
     public func waitForComplete<C:CompletionType>(_ timeout: TimeInterval,
         executor : Executor,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         didComplete:@escaping (FutureResult<T>) throws -> C,
         timedOut:@escaping () throws -> C
         ) -> Future<C.T> {
             
-            let p = Promise<C.T>()
+            let p = Promise<C.T>(file, line)
             p.automaticallyCancelOnRequestCancel()
             self.onComplete(executor) { (c) -> Void in
                 p.completeWithBlock({ () -> C in
@@ -1262,12 +1280,16 @@ extension FutureProtocol {
     
     public func waitForComplete<__Type>(_ timeout: TimeInterval,
         executor : Executor,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         didComplete:@escaping (FutureResult<T>) throws -> __Type,
         timedOut:@escaping () throws -> __Type
         ) -> Future<__Type> {
             
             return self.waitForComplete(timeout,
                 executor: executor,
+                file,
+                line,
                 didComplete: {
                     return Completion<__Type>.success(try didComplete($0))
                 },
@@ -1278,11 +1300,13 @@ extension FutureProtocol {
 
     public func waitForSuccess<C:CompletionType>(_ timeout: TimeInterval,
         executor : Executor,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         didSucceed:@escaping (T) throws -> C.T,
         timedOut:@escaping () throws -> C
         ) -> Future<C.T> {
             
-            let p = Promise<C.T>()
+            let p = Promise<C.T>(file, line)
             p.automaticallyCancelOnRequestCancel()
             self.onSuccess { (result) -> Void in
                 p.completeWithSuccess(try didSucceed(result))
@@ -1298,12 +1322,16 @@ extension FutureProtocol {
     }
     public func waitForSuccess<__Type>(_ timeout: TimeInterval,
         executor : Executor,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         didSucceed:(T) throws -> __Type,
         timedOut:() throws -> __Type
         ) -> Future<__Type> {
             
             return self.waitForSuccess(timeout,
                 executor: executor,
+                file,
+                line,
                 didSucceed: {
                     return try didSucceed($0)
                 },
@@ -1332,9 +1360,12 @@ extension FutureProtocol {
     - returns: a new Future of type Future<__Type>
     */
     
-    public func onSuccess<C: CompletionType>(_ executor : Executor = .primary,
+    public func onSuccess<C: CompletionType>(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (T) throws -> C) -> Future<C.T> {
-        return self.onComplete(executor)  { (result) -> Completion<C.T> in
+        return self.onComplete(executor, file, line)  { (result) -> Completion<C.T> in
             switch result {
             case let .success(value):
                 return try block(value).completion
@@ -1366,9 +1397,12 @@ extension FutureProtocol {
      - returns: a new Future of type Future<__Type>
      */
     
-    public func onSuccess<__Type>(_ executor : Executor = .primary,
+    public func onSuccess<__Type>(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (T) throws -> __Type) -> Future<__Type> {
-            return self.onSuccess(executor) { (value : T) -> Completion<__Type> in
+            return self.onSuccess(executor, file, line) { (value : T) -> Completion<__Type> in
                 return .success(try block(value))
             }
     }
@@ -1385,10 +1419,13 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.
     */
-    @discardableResult public func onFail(_ executor : Executor = .primary,
+    @discardableResult public func onFail(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (_ error:Error)-> Void) -> Future<T>
     {
-        return self.onComplete(executor) { (result) -> Completion<T> in
+        return self.onComplete(executor, file, line) { (result) -> Completion<T> in
             if (result.isFail) {
                 block(result.error)
             }
@@ -1406,10 +1443,13 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block can process the error of a future.
      */
-    @discardableResult public func onFail<C:CompletionType>(_ executor : Executor = .primary,
+    @discardableResult public func onFail<C:CompletionType>(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (_ error:Error)-> C) -> Future<T> where C.T == T
     {
-        return self.onComplete(executor) { (result) -> Completion<T> in
+        return self.onComplete(executor, file, line) { (result) -> Completion<T> in
             if (result.isFail) {
                 return block(result.error).completion
             }
@@ -1427,9 +1467,13 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
     */
-    @discardableResult public func onCancel(_ executor : Executor = .primary, block:@escaping ()-> Void) -> Future<T>
+    @discardableResult public func onCancel(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
+        block:@escaping ()-> Void) -> Future<T>
     {
-        return self.onComplete(executor) { (result) -> FutureResult<T> in
+        return self.onComplete(executor, file, line) { (result) -> FutureResult<T> in
             if (result.isCancelled) {
                 block()
             }
@@ -1447,9 +1491,13 @@ extension FutureProtocol {
      - parameter executor: an Executor to use to execute the block when it is ready to run.
      - parameter block: a block takes the canceltoken returned by the target Future and returns the completion value of the returned Future.
      */
-    @discardableResult public func onCancel<C:CompletionType>(_ executor : Executor = .primary, block:@escaping ()-> C) -> Future<T> where C.T == T
+    @discardableResult public func onCancel<C:CompletionType>(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
+        block:@escaping ()-> C) -> Future<T> where C.T == T
     {
-        return self.onComplete(executor) { (result) -> Completion<T> in
+        return self.onComplete(executor, file, line) { (result) -> Completion<T> in
             if (result.isCancelled) {
                 return block().completion
             }
@@ -1469,10 +1517,13 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    @discardableResult public func onFailorCancel(_ executor : Executor = .primary,
+    @discardableResult public func onFailorCancel(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (FutureResult<T>)-> Void) -> Future<T>
     {
-        return self.onComplete(executor) { (result) -> FutureResult<T> in
+        return self.onComplete(executor, file, line) { (result) -> FutureResult<T> in
         
             switch result {
             case .fail, .cancelled:
@@ -1497,10 +1548,13 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    @discardableResult public func onFailorCancel<C:CompletionType>(_ executor : Executor = .primary,
+    @discardableResult public func onFailorCancel<C:CompletionType>(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (FutureResult<T>)-> C) -> Future<T> where C.T == T
     {
-        return self.onComplete(executor) { (result) -> Completion<T> in
+        return self.onComplete(executor, file, line) { (result) -> Completion<T> in
             switch result {
                 case .fail, .cancelled:
                     return block(result).completion
@@ -1522,10 +1576,13 @@ extension FutureProtocol {
     - parameter executor: an Executor to use to execute the block when it is ready to run.
     - parameter block: a block can process the error of a future.  error will be nil when the Future was canceled
     */
-    public func onFailorCancel(_ executor : Executor = .primary,
+    public func onFailorCancel(
+        _ executor : Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
         block:@escaping (FutureResult<T>)-> Future<T>) -> Future<T>
     {
-        return self.onComplete(executor) { (result) -> Completion<T> in
+        return self.onComplete(executor, file, line) { (result) -> Completion<T> in
             switch result {
             case .fail, .cancelled:
                 return .completeUsing(block(result))
@@ -1564,13 +1621,19 @@ extension FutureProtocol {
     
     
     // rather use map?  Sure!
-    public func map<__Type>(_ executor : Executor = .primary, block:@escaping (T) throws -> __Type) -> Future<__Type> {
-        return self.onSuccess(executor,block:block)
+    public func map<__Type>(_ executor : Executor = .primary,
+                            _ file: StaticString = #file,
+                            _ line: UInt = #line,
+                            block:@escaping (T) throws -> __Type) -> Future<__Type> {
+        return self.onSuccess(executor, file, line, block:block)
     }
 
     
-    public func mapError(_ executor : Executor = .primary, block:@escaping (Error) throws -> Error) -> Future<T> {
-        return self.onComplete(executor)  { (result) -> FutureResult<T> in
+    public func mapError(_ executor : Executor = .primary,
+                         _ file: StaticString = #file,
+                         _ line: UInt = #line,
+                         block:@escaping (Error) throws -> Error) -> Future<T> {
+        return self.onComplete(executor, file, line)  { (result) -> FutureResult<T> in
             if case let .fail(error) = result {
                 return .fail(try block(error))
             }
@@ -1600,10 +1663,16 @@ extension FutureProtocol {
 
 extension Future {
   
-    final func then<C:CompletionType>(_ executor : Executor = .primary, block:@escaping (T) -> C) -> Future<C.T> {
-        return self.onSuccess(executor,block: block)
+    public final func then<C:CompletionType>(_ executor : Executor = .primary,
+                                      _ file: StaticString = #file,
+                                      _ line: UInt = #line,
+                                      block:@escaping (T) -> C) -> Future<C.T> {
+        return self.onSuccess(executor, file, line, block: block)
     }
-    final func then<__Type>(_ executor : Executor = .primary,block:@escaping (T) -> __Type) -> Future<__Type> {
+    public final func then<S>(_ executor : Executor = .primary,
+                              _ file: StaticString = #file,
+                              _ line: UInt = #line,
+                              block:@escaping (T) -> S) -> Future<S> {
         return self.onSuccess(executor,block: block)
     }
 }
@@ -1679,7 +1748,7 @@ extension FutureProtocol  {
 }
 
 
-private var futureWithNoResult = Future<Any>()
+private var futureWithNoResult = Future<Any>(#file, #line)
 
 class classWithMethodsThatReturnFutures {
     

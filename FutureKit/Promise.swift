@@ -34,20 +34,29 @@ open class Promise<T>  {
     
     open var future : Future<T>
 
-    public init() {
-        self.future = Future<T>()
+    public init(_ file: StaticString = #file,
+                _ line: UInt = #line) {
+        self.future = Future<T>(file, line)
     }
-    public required init(success:T) {
-        self.future = Future<T>(success: success)
+    public init(success:T,
+                         _ file: StaticString = #file,
+                         _ line: UInt = #line) {
+        self.future = Future<T>(success: success, file, line)
     }
-    public required init(fail:Error) {
-        self.future = Future<T>(fail: fail)
+    public init(fail:Error,
+                         _ file: StaticString = #file,
+                         _ line: UInt = #line) {
+        self.future = Future<T>(fail: fail, file, line)
     }
-    public required init(cancelled:()) {
-        self.future = Future<T>(cancelled: cancelled)
+    public init(cancelled:(),
+                         _ file: StaticString = #file,
+                         _ line: UInt = #line) {
+        self.future = Future<T>(cancelled: cancelled, file, line)
     }
-    public required init(completeUsing:Future<T>) {
-        self.future = Future<T>(completeUsing: completeUsing)
+    public init(completeUsing:Future<T>,
+                         _ file: StaticString = #file,
+                         _ line: UInt = #line) {
+        self.future = Future<T>(completeUsing: completeUsing, file, line)
     }
     
     // *  complete commands  */
@@ -80,24 +89,33 @@ open class Promise<T>  {
     }
 
 
-    public convenience init(automaticallyCancelAfter delay: TimeInterval) {
-        self.init()
+    public convenience init(automaticallyCancelAfter delay: TimeInterval,
+                            _ file: StaticString = #file,
+                            _ line: UInt = #line) {
+        self.init(file, line)
         self.automaticallyCancel(afterDelay:delay)
     }
 
-    public convenience init(automaticallyFailAfter delay: TimeInterval, error:Error ) {
-        self.init()
+    public convenience init(automaticallyFailAfter delay: TimeInterval,
+                            error:Error,
+                            _ file: StaticString = #file,
+                            _ line: UInt = #line) {
+        self.init(file, line)
         self.automaticallyFail(afterDelay:delay,with:error)
     }
 
-    public convenience init(automaticallyFailAfter delay: TimeInterval, errorMessage:String ) {
-        self.init()
+    public convenience init(automaticallyFailAfter delay: TimeInterval,
+                            errorMessage:String,
+                            _ file: StaticString = #file,
+                            _ line: UInt = #line) {
+        self.init(file, line)
         self.automaticallyFail(afterDelay:delay,with:FutureKitError(genericError: errorMessage))
     }
 
     // untestable?
-    public convenience init(automaticallyAssertAfter delay: TimeInterval, file : StaticString = #file, line : Int32 = #line) {
-        self.init()
+    public convenience init(automaticallyAssertAfter delay: TimeInterval,
+                            file : StaticString = #file, line : UInt = #line) {
+        self.init(file, line)
     }
     
     

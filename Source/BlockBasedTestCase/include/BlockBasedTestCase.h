@@ -6,12 +6,10 @@
 //  Copyright © 2015 Michael Gray. All rights reserved.
 //
 
-#ifndef BlockBasedTestCase_h
-#define BlockBasedTestCase_h
+@import Foundation;
+@import XCTest;
 
 typedef NSObject BlockBasedTest;
-
-
 
 @interface BlockBasedTestCase : XCTestCase
 
@@ -21,6 +19,3 @@ typedef NSObject BlockBasedTest;
 + (NSArray*) myBlockBasedTests;
 
 @end
-
-
-#endif /* BlockBasedTestCase_h */

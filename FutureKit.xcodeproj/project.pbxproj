@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00C779871FA000570080E85B /* BlockBasedTestCase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */; };
+		00C7798A1FA000640080E85B /* BlockBasedTestCase.h in Headers */ = {isa = PBXBuildFile; fileRef = 00035CE01F50CFF80009B4E8 /* BlockBasedTestCase.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00C7798B1FA000690080E85B /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */; };
+		00C7798D1FA003A80080E85B /* BlockBasedTestCase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */; };
+		00C7798E1FA003AB0080E85B /* BlockBasedTestCase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */; };
 		090112C11BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		090112C21BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
@@ -23,10 +28,6 @@
 		0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
 		0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
-		0D7502C61AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
-		0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
@@ -37,8 +38,6 @@
 		0D75B9CD1CEB8370002452F6 /* FutureCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D75B9CB1CEB8307002452F6 /* FutureCache.swift */; };
 		0D7CC61F1B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0D7CC6201B390D2500006CBF /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
-		0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
-		0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DB057301D8B6989003ABCB8 /* LockPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */; };
@@ -69,15 +68,11 @@
 		0DBB33251D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0DBB33261D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
-		0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0DBB332A1D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0DBB332B1D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0DBB332D1D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
-		0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
-		0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0DBB33311D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0DBB33321D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		0DBB33331D0F91E40092BF7B /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
@@ -97,7 +92,6 @@
 		0DDE326F1B38BD28007C39D9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDE326D1B38BD28007C39D9 /* LaunchScreen.xib */; };
 		0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDE327A1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift */; };
 		0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE35D981B389E480098930D /* BlockBasedTestCase.swift */; };
-		0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */; };
 		0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB979A01AE2A21100158386 /* BasicTests.swift */; };
 		0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */; };
@@ -130,6 +124,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		00C779881FA0005E0080E85B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00C7797E1F9FFF2B0080E85B;
+			remoteInfo = "BlockBasedTestCase iOS";
+		};
+		00C7798F1FA004010080E85B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00C7797E1F9FFF2B0080E85B;
+			remoteInfo = BlockBasedTestCase;
+		};
+		00C779911FA004060080E85B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00C7797E1F9FFF2B0080E85B;
+			remoteInfo = BlockBasedTestCase;
+		};
 		0D5203591EF078AF00245A0C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
@@ -168,6 +183,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockBasedTestCase.m; sourceTree = "<group>"; };
+		00035CE01F50CFF80009B4E8 /* BlockBasedTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockBasedTestCase.h; sourceTree = "<group>"; };
+		0025F9ED1FBBF29300C0E88E /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		00C779671F9FFC730080E85B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BlockBasedTestCase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		090112C01BD851CB002EB82D /* Tuples.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuples.swift; sourceTree = "<group>"; };
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -178,17 +198,11 @@
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ExtensionVars.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSObject-Ext-ThreadSafe.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCExceptionHandler.h; sourceTree = "<group>"; };
-		0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCExceptionHandler.m; sourceTree = "<group>"; };
 		0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = OSAtomicInt.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSFileManager-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "NSData-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D75B9CB1CEB8307002452F6 /* FutureCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureCache.swift; sourceTree = "<group>"; };
 		0D7CC61E1B390D2500006CBF /* OSFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSFeature.swift; sourceTree = "<group>"; };
-		0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit iOS Tests-Bridging-Header.h"; sourceTree = "<group>"; };
-		0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FutureKit OSX Tests-Bridging-Header.h"; sourceTree = "<group>"; };
-		0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockBasedTestCase.m; sourceTree = "<group>"; };
-		0D8D9A481B3643B0003FBADD /* BlockBasedTestCase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockBasedTestCase.h; sourceTree = "<group>"; };
 		0DA41FCE1ADAFE5A00B58B0B /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Future.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Synchronization.swift; sourceTree = "<group>"; };
 		0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyncWaitHandler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -221,7 +235,6 @@
 		0DEA1B911AE30853000E126F /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1B941AE30853000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1B951AE30853000E126F /* FutureKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = FutureKit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		0DEA1BA11AE30853000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1BAF1AE30872000E126F /* FutureKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FutureKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1BEA1AE3116A000E126F /* FutureKit iOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FutureKit iOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DEA1BED1AE3116A000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -231,10 +244,20 @@
 		0DEA1C021AE313DD000E126F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0DEA1C031AE313DD000E126F /* FutureKit_OSX_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = FutureKit_OSX_Tests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureThread.swift; sourceTree = "<group>"; };
+		79AA225C1F510AE3004E1275 /* FutureKit iOS Tests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FutureKit iOS Tests-Bridging-Header.h"; sourceTree = "<group>"; };
+		79AA225D1F510AE3004E1275 /* FutureKit OSX Tests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FutureKit OSX Tests-Bridging-Header.h"; sourceTree = "<group>"; };
+		79AA22601F510AEA004E1275 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = FutureKitTests/Info.plist; sourceTree = SOURCE_ROOT; };
 		DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromiseTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		00C7797B1F9FFF2B0080E85B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DBB32EB1D0F91640092BF7B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -253,6 +276,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00C7798E1FA003AB0080E85B /* BlockBasedTestCase.framework in Frameworks */,
 				0DBB33061D0F919C0092BF7B /* FutureKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -289,6 +313,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00C779871FA000570080E85B /* BlockBasedTestCase.framework in Frameworks */,
 				0DEA1BF01AE3116A000E126F /* FutureKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -297,6 +322,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00C7798D1FA003A80080E85B /* BlockBasedTestCase.framework in Frameworks */,
 				0DEA1C051AE313DD000E126F /* FutureKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -304,6 +330,42 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		00035CDD1F50CF950009B4E8 /* BlockBasedTestCase */ = {
+			isa = PBXGroup;
+			children = (
+				00C779671F9FFC730080E85B /* Info.plist */,
+				00035CDE1F50CFF80009B4E8 /* BlockBasedTestCase.m */,
+				00035CDF1F50CFF80009B4E8 /* include */,
+			);
+			name = BlockBasedTestCase;
+			path = Source/BlockBasedTestCase;
+			sourceTree = "<group>";
+		};
+		00035CDF1F50CFF80009B4E8 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				00035CE01F50CFF80009B4E8 /* BlockBasedTestCase.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		00035CE71F50D0360009B4E8 /* FutureKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				79AA225C1F510AE3004E1275 /* FutureKit iOS Tests-Bridging-Header.h */,
+				79AA225D1F510AE3004E1275 /* FutureKit OSX Tests-Bridging-Header.h */,
+				0DB9799E1AE2A21100158386 /* Supporting Files */,
+			);
+			path = FutureKitTests;
+			sourceTree = "<group>";
+		};
+		00C7796C1F9FFCC90080E85B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0D7502B61AE6B114009C3F63 /* FoundationExtensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -322,8 +384,6 @@
 				0D7CC61E1B390D2500006CBF /* OSFeature.swift */,
 				0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */,
 				0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */,
-				0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */,
-				0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */,
 				0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */,
 				090112C01BD851CB002EB82D /* Tuples.swift */,
 			);
@@ -333,12 +393,15 @@
 		0DA41FA41ADAFE3D00B58B0B = {
 			isa = PBXGroup;
 			children = (
+				0025F9ED1FBBF29300C0E88E /* Package.swift */,
 				0DBB33421D0F973A0092BF7B /* Cancellation.MD */,
 				09059C431BB23E3C00555E26 /* FutureKit.podspec */,
 				0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */,
 				0DA41FB01ADAFE3D00B58B0B /* FutureKit */,
+				00035CDD1F50CF950009B4E8 /* BlockBasedTestCase */,
 				0DB9799D1AE2A21100158386 /* FutureKitTests */,
 				0DEA1B921AE30853000E126F /* FutureKit */,
+				00035CE71F50D0360009B4E8 /* FutureKitTests */,
 				0DEA1BEB1AE3116A000E126F /* FutureKit iOS Tests */,
 				0DEA1C001AE313DD000E126F /* FutureKit OSX Tests */,
 				0DDE32611B38BD28007C39D9 /* FutureKit iOS Testing App */,
@@ -347,6 +410,7 @@
 				0DBB32FD1D0F919C0092BF7B /* FutureKit tvOS */,
 				0DBB33091D0F919C0092BF7B /* FutureKit tvOSTests */,
 				0DA41FAF1ADAFE3D00B58B0B /* Products */,
+				00C7796C1F9FFCC90080E85B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -362,6 +426,7 @@
 				0DBB32EF1D0F91640092BF7B /* FutureKit.framework */,
 				0DBB32FC1D0F919C0092BF7B /* FutureKit.framework */,
 				0DBB33051D0F919C0092BF7B /* FutureKit tvOSTests.xctest */,
+				00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -381,33 +446,31 @@
 				0D7502B91AE6B182009C3F63 /* Utils */,
 				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
 			);
-			path = FutureKit;
+			name = FutureKit;
+			path = Source/FutureKit;
 			sourceTree = "<group>";
 		};
 		0DB9799D1AE2A21100158386 /* FutureKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				0D8D9A481B3643B0003FBADD /* BlockBasedTestCase.h */,
 				0DE35D981B389E480098930D /* BlockBasedTestCase.swift */,
-				0D8D9A451B36384B003FBADD /* BlockBasedTestCase.m */,
 				0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */,
 				0DB979A01AE2A21100158386 /* BasicTests.swift */,
 				0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */,
 				0DEA1BF71AE31382000E126F /* Future-TestExtensions.swift */,
-				0DB9799E1AE2A21100158386 /* Supporting Files */,
-				0D8D9A431B36384B003FBADD /* FutureKit iOS Tests-Bridging-Header.h */,
-				0D8D9A441B36384B003FBADD /* FutureKit OSX Tests-Bridging-Header.h */,
 				DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */,
 			);
-			path = FutureKitTests;
+			name = FutureKitTests;
+			path = Tests/FutureKitTests;
 			sourceTree = "<group>";
 		};
 		0DB9799E1AE2A21100158386 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				0DEA1BA11AE30853000E126F /* Info.plist */,
+				79AA22601F510AEA004E1275 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			path = Tests/FutureKitTests;
 			sourceTree = "<group>";
 		};
 		0DBB32F01D0F91640092BF7B /* FutureKit watchOS */ = {
@@ -481,7 +544,8 @@
 				0DEA1B951AE30853000E126F /* FutureKit.h */,
 				0DEA1B931AE30853000E126F /* Supporting Files */,
 			);
-			path = FutureKit;
+			name = FutureKit;
+			path = Source/FutureKit;
 			sourceTree = "<group>";
 		};
 		0DEA1B931AE30853000E126F /* Supporting Files */ = {
@@ -529,12 +593,19 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		00C7797C1F9FFF2B0080E85B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00C7798A1FA000640080E85B /* BlockBasedTestCase.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DBB32EC1D0F91640092BF7B /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				0DBB32F21D0F91640092BF7B /* FutureKit watchOS.h in Headers */,
-				0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -543,7 +614,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DBB32FF1D0F919C0092BF7B /* FutureKit tvOS.h in Headers */,
-				0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,7 +622,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1B961AE30853000E126F /* FutureKit.h in Headers */,
-				0D7502C61AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -561,13 +630,30 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1BE51AE30B65000E126F /* FutureKit.h in Headers */,
-				0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		00C7797E1F9FFF2B0080E85B /* BlockBasedTestCase */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00C779841F9FFF2B0080E85B /* Build configuration list for PBXNativeTarget "BlockBasedTestCase" */;
+			buildPhases = (
+				00C7797A1F9FFF2B0080E85B /* Sources */,
+				00C7797B1F9FFF2B0080E85B /* Frameworks */,
+				00C7797C1F9FFF2B0080E85B /* Headers */,
+				00C7797D1F9FFF2B0080E85B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BlockBasedTestCase;
+			productName = "BlockBasedTestCase iOS";
+			productReference = 00C7797F1F9FFF2B0080E85B /* BlockBasedTestCase.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		0DBB32EE1D0F91640092BF7B /* FutureKit watchOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0DBB32F61D0F91640092BF7B /* Build configuration list for PBXNativeTarget "FutureKit watchOS" */;
@@ -615,6 +701,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				00C779921FA004060080E85B /* PBXTargetDependency */,
 				0DBB33081D0F919C0092BF7B /* PBXTargetDependency */,
 			);
 			name = "FutureKit tvOSTests";
@@ -704,6 +791,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				00C779891FA0005E0080E85B /* PBXTargetDependency */,
 				0DEA1BF21AE3116A000E126F /* PBXTargetDependency */,
 				0D52035A1EF078AF00245A0C /* PBXTargetDependency */,
 			);
@@ -723,6 +811,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				00C779901FA004010080E85B /* PBXTargetDependency */,
 				0DEA1C071AE313DD000E126F /* PBXTargetDependency */,
 			);
 			name = "FutureKit OSX Tests";
@@ -740,6 +829,10 @@
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
+					00C7797E1F9FFF2B0080E85B = {
+						CreatedOnToolsVersion = 9.0.1;
+						ProvisioningStyle = Automatic;
+					};
 					0DBB32EE1D0F91640092BF7B = {
 						CreatedOnToolsVersion = 7.3.1;
 						LastSwiftMigration = 0800;
@@ -765,7 +858,7 @@
 					0DEA1B901AE30853000E126F = {
 						CreatedOnToolsVersion = 6.3;
 						DevelopmentTeam = AUXUTTBC4T;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 					};
 					0DEA1BAE1AE30872000E126F = {
@@ -780,7 +873,7 @@
 					};
 					0DEA1BFE1AE313DD000E126F = {
 						CreatedOnToolsVersion = 6.3;
-						DevelopmentTeam = AUXUTTBC4T;
+						DevelopmentTeam = VVQUS5A346;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
@@ -808,11 +901,19 @@
 				0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */,
 				0DDE32731B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
 				0DBB33041D0F919C0092BF7B /* FutureKit tvOSTests */,
+				00C7797E1F9FFF2B0080E85B /* BlockBasedTestCase */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		00C7797D1F9FFF2B0080E85B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DBB32ED1D0F91640092BF7B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -882,6 +983,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		00C7797A1F9FFF2B0080E85B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00C7798B1FA000690080E85B /* BlockBasedTestCase.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0DBB32EA1D0F91640092BF7B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -902,7 +1011,6 @@
 				0DBB33171D0F91DA0092BF7B /* ErrorTypes.swift in Sources */,
 				0DBB33141D0F91DA0092BF7B /* Completion.swift in Sources */,
 				0DBB33181D0F91DA0092BF7B /* Executor.swift in Sources */,
-				0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
 				0DBB33371D0F91E40092BF7B /* FutureCache.swift in Sources */,
 				0DBB33161D0F91DA0092BF7B /* Promise.swift in Sources */,
 				0DBB331B1D0F91DA0092BF7B /* Synchronization.swift in Sources */,
@@ -929,7 +1037,6 @@
 				0DBB33201D0F91DB0092BF7B /* ErrorTypes.swift in Sources */,
 				0DBB331D1D0F91DB0092BF7B /* Completion.swift in Sources */,
 				0DBB33211D0F91DB0092BF7B /* Executor.swift in Sources */,
-				0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
 				0DBB33411D0F91E50092BF7B /* FutureCache.swift in Sources */,
 				0DBB331F1D0F91DB0092BF7B /* Promise.swift in Sources */,
 				0DBB33241D0F91DB0092BF7B /* Synchronization.swift in Sources */,
@@ -961,7 +1068,6 @@
 				0DDE328A1B38BD72007C39D9 /* XCTestCase-Ext.swift in Sources */,
 				0DDE327B1B38BD28007C39D9 /* FutureKit_iOS_Testing_AppTests.swift in Sources */,
 				0DDE328D1B38BD72007C39D9 /* Future-TestExtensions.swift in Sources */,
-				0DDE32891B38BD72007C39D9 /* BlockBasedTestCase.m in Sources */,
 				0DDE32881B38BD72007C39D9 /* BlockBasedTestCase.swift in Sources */,
 				0DDE328B1B38BD72007C39D9 /* BasicTests.swift in Sources */,
 			);
@@ -987,7 +1093,6 @@
 				0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
 				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
-				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0D75B9CC1CEB8307002452F6 /* FutureCache.swift in Sources */,
 				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
@@ -1014,7 +1119,6 @@
 				0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
-				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
 				0D75B9CD1CEB8370002452F6 /* FutureCache.swift in Sources */,
 				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
@@ -1027,7 +1131,6 @@
 			files = (
 				09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */,
 				0DEA1BFA1AE313BE000E126F /* Future-TestExtensions.swift in Sources */,
-				0D8D9A461B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
 				0DB057311D8B698A003ABCB8 /* LockPerformanceTests.swift in Sources */,
 				09059C411BB20A6E00555E26 /* BasicTests.swift in Sources */,
 				0DE35D9A1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
@@ -1041,7 +1144,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DEA1C0C1AE313F3000E126F /* Future-TestExtensions.swift in Sources */,
-				0D8D9A471B36384B003FBADD /* BlockBasedTestCase.m in Sources */,
 				0DE35D9B1B389E480098930D /* BlockBasedTestCase.swift in Sources */,
 				0DB057301D8B6989003ABCB8 /* LockPerformanceTests.swift in Sources */,
 				0DEA1C041AE313DD000E126F /* FutureKit_OSX_Tests.swift in Sources */,
@@ -1054,6 +1156,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		00C779891FA0005E0080E85B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00C7797E1F9FFF2B0080E85B /* BlockBasedTestCase */;
+			targetProxy = 00C779881FA0005E0080E85B /* PBXContainerItemProxy */;
+		};
+		00C779901FA004010080E85B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00C7797E1F9FFF2B0080E85B /* BlockBasedTestCase */;
+			targetProxy = 00C7798F1FA004010080E85B /* PBXContainerItemProxy */;
+		};
+		00C779921FA004060080E85B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00C7797E1F9FFF2B0080E85B /* BlockBasedTestCase */;
+			targetProxy = 00C779911FA004060080E85B /* PBXContainerItemProxy */;
+		};
 		0D52035A1EF078AF00245A0C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */;
@@ -1101,6 +1218,76 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		00C779851F9FFF2B0080E85B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks/",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Source/BlockBasedTestCase/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.BlockBasedTestCase-iOS";
+				PRODUCT_MODULE_NAME = BlockBasedTestCase;
+				PRODUCT_NAME = BlockBasedTestCase;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos macosx";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		00C779861F9FFF2B0080E85B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks/",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Source/BlockBasedTestCase/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.BlockBasedTestCase-iOS";
+				PRODUCT_MODULE_NAME = BlockBasedTestCase;
+				PRODUCT_NAME = BlockBasedTestCase;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvsimulator appletvos macosx";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		0DA41FC21ADAFE3D00B58B0B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1382,12 +1569,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = AUXUTTBC4T;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1407,12 +1588,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = AUXUTTBC4T;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(DEVELOPER_DIR)/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
-				);
 				INFOPLIST_FILE = "FutureKit iOS Testing AppTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futureKit.$(PRODUCT_NAME:rfc1034identifier)";
@@ -1427,6 +1602,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1439,7 +1615,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1447,7 +1623,8 @@
 				PRODUCT_NAME = FutureKit;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1455,6 +1632,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1463,7 +1641,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -1491,7 +1669,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -1513,7 +1691,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = FutureKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Source/FutureKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -1530,10 +1708,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = AUXUTTBC4T;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1553,10 +1727,6 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = AUXUTTBC4T;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
 				INFOPLIST_FILE = "FutureKit iOS Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
@@ -1572,13 +1742,10 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = AUXUTTBC4T;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
+				DEVELOPMENT_TEAM = VVQUS5A346;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1588,6 +1755,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit OSX Tests-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
@@ -1599,17 +1767,15 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = AUXUTTBC4T;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
+				DEVELOPMENT_TEAM = VVQUS5A346;
 				INFOPLIST_FILE = "FutureKit OSX Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_OBJC_BRIDGING_HEADER = "FutureKitTests/FutureKit OSX Tests-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
@@ -1619,6 +1785,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		00C779841F9FFF2B0080E85B /* Build configuration list for PBXNativeTarget "BlockBasedTestCase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00C779851F9FFF2B0080E85B /* Debug */,
+				00C779861F9FFF2B0080E85B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		0DA41FA81ADAFE3D00B58B0B /* Build configuration list for PBXProject "FutureKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

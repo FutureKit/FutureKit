@@ -24,6 +24,7 @@
 
 import XCTest
 import FutureKit
+import BlockBasedTestCase
 
 
 let iterationCount1 = (1024*1024*32)

@@ -21,7 +21,7 @@ extension StaticString {
 public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible {
     case fileLine(StaticString, UInt)
     case fileFunctionLine(StaticString, StaticString, UInt)
-    indirect case stackedFileLine(FileLineInfo, FileLineInfo)
+    case stackedFileLine(StaticString, UInt, StaticString, UInt)
     case unknownLocation
 
     public init(_ file: StaticString, _ line: UInt) {
@@ -29,7 +29,7 @@ public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible 
     }
 
     public init(_ file: StaticString, _ line: UInt, previous: FileLineInfo) {
-        self = .stackedFileLine(FileLineInfo(file, line), previous)
+        self = .stackedFileLine(file, line, previous.file, previous.line)
     }
 
     public init(_ current: FileLineInfo, previous: FileLineInfo) {
@@ -41,7 +41,7 @@ public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible 
                 return true
             }
         }(), "you can't stack a stacked FileLineInfo with a stacked FileLineInfo!")
-        self = .stackedFileLine(current,  previous)
+        self = .stackedFileLine(current.file, current.line,  previous.file, previous.line)
     }
 
     public init(_ tuple: (StaticString, UInt)) {
@@ -69,8 +69,8 @@ public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible 
             return file
         case let .fileFunctionLine(file, _, _):
             return file
-        case let .stackedFileLine(first, _):
-            return first.file
+        case let .stackedFileLine(file, _, _, _):
+            return file
         case .unknownLocation:
             return "???"
         }
@@ -81,8 +81,8 @@ public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible 
             return line
         case let .fileFunctionLine(_, _, line):
             return line
-        case let .stackedFileLine(first, _):
-            return first.line
+        case let .stackedFileLine(_, line, _ , _):
+            return line
         case .unknownLocation:
             return UInt.max
         }
@@ -97,36 +97,36 @@ public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible 
         }
     }
 
-    public var next: FileLineInfo? {
-        switch self {
-        case let .stackedFileLine(_, second):
-            return second
-        default:
-            return nil
-        }
-    }
-
-    public func reduce<U>(_ initialResult: U, _ nextPartialResult: (U, FileLineInfo) -> U) -> U {
-        var value = nextPartialResult(initialResult, self)
-        var next = self.next
-        while next != nil {
-            let fileLineInfo = next!
-            value = nextPartialResult(initialResult, fileLineInfo)
-            next = fileLineInfo.next
-        }
-        return value
-    }
-
-    public var size: Int {
-        return self.reduce(0) { sum,_ in sum + 1 }
-    }
+//    public var next: FileLineInfo? {
+//        switch self {
+//        case let .stackedFileLine(_, second):
+//            return second
+//        default:
+//            return nil
+//        }
+//    }
+//
+//    public func reduce<U>(_ initialResult: U, _ nextPartialResult: (U, FileLineInfo) -> U) -> U {
+//        var value = nextPartialResult(initialResult, self)
+//        var next = self.next
+//        while next != nil {
+//            let fileLineInfo = next!
+//            value = nextPartialResult(initialResult, fileLineInfo)
+//            next = fileLineInfo.next
+//        }
+//        return value
+//    }
+//
+//    public var size: Int {
+//        return self.reduce(0) { sum,_ in sum + 1 }
+//    }
 
     public var shortDescription: String {
         switch self {
         case let .fileLine(_, line):
             return "[\(shortFileName):\(line)]"
-        case let .stackedFileLine(first, _):
-            return first.shortDescription
+        case let .stackedFileLine(_, line, _, _):
+            return "[\(shortFileName):\(line)]"
         case let .fileFunctionLine(_, function, line):
             return "[\(shortFileName):\(function)\(line)]"
         case .unknownLocation:
@@ -136,12 +136,12 @@ public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible 
 
 
     public var description: String {
-        switch self {
-        case .stackedFileLine:
-            return self.reduce("StackedFile:\n") { "\($0)\($1.shortDescription)\n"}
-        default:
+//        switch self {
+//        case .stackedFileLine:
+//            return self.reduce("StackedFile:\n") { "\($0)\($1.shortDescription)\n"}
+//        default:
             return "File:[\(shortDescription)]"
-        }
+//        }
     }
 
     public var debugDescription: String {

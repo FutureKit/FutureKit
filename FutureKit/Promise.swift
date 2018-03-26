@@ -30,14 +30,19 @@ public enum CancelRequestResponse<T> {
 }
 
 
-open class Promise<T>  {
+public class Promise<T>  {
     
-    open var future : Future<T>
+    public var future : Future<T>
 
     public init(_ file: StaticString = #file,
                 _ line: UInt = #line) {
         self.future = Future<T>(file, line)
     }
+
+    public init(_ fileLineInfo: FileLineInfo) {
+        self.future = Future<T>(fileLineInfo)
+    }
+
     public init(success:T,
                          _ file: StaticString = #file,
                          _ line: UInt = #line) {
@@ -61,31 +66,64 @@ open class Promise<T>  {
     
     // *  complete commands  */
     
-    public final func complete<C:CompletionType>(_ completion : C) where C.T == T {
-        self.future.completeWith(completion.completion)
+    public final func complete<C:CompletionType>(_ completion : C,
+                                                 _ file: StaticString = #file,
+                                                 _ line: UInt = #line) where C.T == T {
+        self.future.completeWith(completion.completion, FileLineInfo(file, line))
+    }
+    public final func complete<C:CompletionType>(_ completion : C,
+                                                 _ fileLineInfo: FileLineInfo) where C.T == T {
+        self.future.completeWith(completion.completion, fileLineInfo)
+    }
+
+    public final func completeWithSuccess(_ result : T,
+                                          _ file: StaticString = #file,
+                                          _ line: UInt = #line) {
+        self.future.completeWith(.success(result), FileLineInfo(file, line))
+    }
+    public final func completeWithSuccess(_ result : T,
+                                          _ fileLineInfo: FileLineInfo) {
+        self.future.completeWith(.success(result), fileLineInfo)
+    }
+
+
+    public final func completeWithFail(_ error : Error,
+                                       _ file: StaticString = #file,
+                                       _ line: UInt = #line) {
+        self.future.completeWith(.fail(error), FileLineInfo(file, line))
+    }
+    public final func completeWithFail(_ error : Error,
+                                       _ fileLineInfo: FileLineInfo) {
+        self.future.completeWith(.fail(error), fileLineInfo)
+    }
+
+    public final func completeWithFail(_ errorMessage : String,
+                                       _ file: StaticString = #file,
+                                       _ line: UInt = #line) {
+        self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage), FileLineInfo(file, line))
+    }
+    public final func completeWithErrorMessage(_ errorMessage : String,
+                                               _ file: StaticString = #file,
+                                               _ line: UInt = #line) {
+        self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage), FileLineInfo(file, line))
     }
     
-    public final func completeWithSuccess(_ result : T) {
-        self.future.completeWith(.success(result))
+    public final func completeWithException(_ e : NSException,
+                                            _ file: StaticString = #file,
+                                            _ line: UInt = #line) {
+        self.future.completeWith(Completion<T>(exception: e), FileLineInfo(file, line))
     }
-    public final func completeWithFail(_ error : Error) {
-        self.future.completeWith(.fail(error))
+    public final func completeWithCancel(_ file: StaticString = #file, _ line: UInt = #line) {
+        self.future.completeWith(.cancelled, FileLineInfo(file, line))
     }
-    public final func completeWithFail(_ errorMessage : String) {
-        self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
+    public final func completeWithCancel(_ fileLineInfo: FileLineInfo) {
+        self.future.completeWith(.cancelled, fileLineInfo)
     }
-    public final func completeWithErrorMessage(_ errorMessage : String) {
-        self.future.completeWith(Completion<T>(failWithErrorMessage: errorMessage))
+    public final func completeUsingFuture(_ f : Future<T>, _ file: StaticString = #file, _ line: UInt = #line) {
+        self.future.completeWith(.completeUsing(f), FileLineInfo(file, line))
     }
-    
-    public final func completeWithException(_ e : NSException) {
-        self.future.completeWith(Completion<T>(exception: e))
-    }
-    public final func completeWithCancel() {
-        self.future.completeWith(.cancelled)
-    }
-    public final func completeUsingFuture(_ f : Future<T>) {
-        self.future.completeWith(.completeUsing(f))
+    public final func completeUsingFuture(_ f : Future<T>, _ fileLineInfo: FileLineInfo) {
+        self.future.completeWith(.completeUsing(f), fileLineInfo)
     }
 
 
@@ -150,19 +188,35 @@ open class Promise<T>  {
     }
 
     
-    public final func automaticallyAssertOnFail(_ message:String, file : StaticString = #file, line : Int32 = #line) {
+    public final func automaticallyAssertOnFail(_ message:String, _ file : StaticString = #file, _ line : Int32 = #line) {
         self.future.onFail { (error) -> Void in
             assertionFailure("\(message) on at:\(file):\(line)")
             return
         }
     }
 
+    internal final func onRequestCancelAdvanced(_ executor:Executor = .primary,
+                                                  handler: @escaping (_ arguments: CancellationArguments) -> CancelRequestResponse<T>) {
+        let newHandler : (CancellationArguments) -> Void  = { [weak self] (arguments) -> Void in
+            switch handler(arguments) {
+            case .complete(let completion):
+                self?.complete(completion, arguments.fileLineInfo)
+            default:
+                break
+            }
+
+        }
+        let wrappedNewHandler = Executor.primary.callbackBlockFor(newHandler)
+        self.future.addRequestHandler(wrappedNewHandler)
+
+    }
+
     
     public final func onRequestCancel(_ executor:Executor = .primary, handler: @escaping (_ options:CancellationOptions) -> CancelRequestResponse<T>) {
-        let newHandler : (CancellationOptions) -> Void  = { [weak self] (options) -> Void in
-            switch handler(options) {
+        let newHandler : (CancellationArguments) -> Void  = { [weak self] (arguments) -> Void in
+            switch handler(arguments.options) {
             case .complete(let completion):
-                self?.complete(completion)
+                self?.complete(completion, arguments.fileLineInfo)
             default:
                 break
             }
@@ -200,8 +254,12 @@ open class Promise<T>  {
     
     - parameter completionBlock: a block that will run iff the future has not yet been completed.  It must return a completion value for the promise.
     */
-    public final func completeWithBlock<C:CompletionType>(_ completionBlock : @escaping () throws ->C) where C.T == T {
-        self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock)
+    public final func completeWithBlock<C:CompletionType>(_ file : StaticString = #file,
+                                                          _ line : UInt = #line,
+                                                          _ completionBlock : @escaping () throws ->C) where C.T == T {
+        self.future.completeWithBlocks(FileLineInfo(file, line),
+                                       waitUntilDone: false,
+                                       completionBlock: completionBlock)
     }
     
     /**
@@ -217,24 +275,34 @@ open class Promise<T>  {
 
     - parameter onAlreadyCompleted: a block that will run iff the future has already been completed. 
     */
-    public final func completeWithBlocks<C:CompletionType>(_ completionBlock : @escaping () throws ->C, onAlreadyCompleted : @escaping () -> Void) where C.T == T
+    public final func completeWithBlocks<C:CompletionType>(_ file : StaticString = #file,
+                                                           _ line : UInt = #line,
+                                                           _ completionBlock : @escaping () throws ->C,
+                                                           onAlreadyCompleted : @escaping () -> Void) where C.T == T
     {
-        self.future.completeWithBlocks(waitUntilDone: false,completionBlock: completionBlock, onCompletionError: onAlreadyCompleted)
+        self.future.completeWithBlocks(FileLineInfo(file, line),
+                                       waitUntilDone: false,
+                                       completionBlock: completionBlock,
+                                       onCompletionError: onAlreadyCompleted)
     }
 
 
     @discardableResult
-    public final func failIfNotCompleted(_ e : Error) -> Bool {
+    public final func failIfNotCompleted(_ e : Error,
+                                         _ file : StaticString = #file,
+                                         _ line : UInt = #line) -> Bool {
         if (!self.isCompleted) {
-            return self.future.completeWithSync(.fail(e))
+            return self.future.completeWithSync(.fail(e), FileLineInfo(file, line))
         }
         return false
     }
 
     @discardableResult
-    public final func failIfNotCompleted(_ errorMessage : String) -> Bool {
+    public final func failIfNotCompleted(_ errorMessage : String,
+                                         _ file : StaticString = #file,
+                                         _ line : UInt = #line) -> Bool {
         if (!self.isCompleted) {
-            return self.future.completeWithSync(Completion<T>(failWithErrorMessage: errorMessage))
+            return self.future.completeWithSync(Completion<T>(failWithErrorMessage: errorMessage), FileLineInfo(file, line))
         }
         return false
     }
@@ -248,15 +316,20 @@ open class Promise<T>  {
     
     // can return true if completion was successful.
     // can block the current thread
-    public final func tryComplete<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
-        return self.future.completeWithSync(completion)
+    public final func tryComplete<C:CompletionType>(_ completion : C,
+                                                    _ file : StaticString = #file,
+                                                    _ line : UInt = #line) -> Bool where C.T == T {
+        return self.future.completeWithSync(completion, FileLineInfo(file, line))
     }
     
     public typealias CompletionErrorHandler = (() -> Void)
     // execute a block if the completion "fails" because the future is already completed.
     
-    public final func complete<C:CompletionType>(_ completion : C,onCompletionError errorBlock: @escaping () -> Void) where C.T == T {
-        self.future.completeWith(completion.completion,onCompletionError:errorBlock)
+    public final func complete<C:CompletionType>(_ completion : C,
+                                                 _ file : StaticString = #file,
+                                                 _ line : UInt = #line,
+                                                 onCompletionError errorBlock: @escaping () -> Void) where C.T == T {
+        self.future.completeWith(completion.completion, FileLineInfo(file, line), onCompletionError:errorBlock)
     }
     
     

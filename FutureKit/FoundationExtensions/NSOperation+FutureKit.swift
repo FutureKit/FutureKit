@@ -26,153 +26,165 @@ import Foundation
 
 
 
-open class FutureOperation<T> : _FutureAnyOperation {
-    
-    public typealias FutureOperationBlockType = () throws -> (Future<T>)
+//open class FutureOperation<T> : FutureAnyOperation {
+//
+//    public typealias FutureOperationBlockType = () throws -> (Future<T>)
+//
+//    open class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
+//        return FutureOperation<T>(executor: executor,block:b)
+//    }
+//
+//    open var future : Future<T> {
+//        return self.futureAny.mapAs(T.self)
+//    }
+//
+//    public init(executor:Executor = .primary, block b: @escaping () throws -> Future<T>) {
+//        super.init(executor: executor,block: { () throws -> AnyFuture in
+//            return try b()
+//        })
+//    }
+//
+//}
 
-    open class func OperationWithBlock(_ executor:Executor = .primary, block b: @escaping () throws -> Future<T>) -> FutureOperation<T> {
-        return FutureOperation<T>(executor: executor,block:b)
+open class FutureOperation<T> : Operation {
+    
+    //    private var getSubFuture : () -> FutureProtocol
+    public typealias FutureAnyOperationBlockType = () throws -> Future<Any>
+    fileprivate var getSubFuture: (() throws -> Future<T>)?
+    
+    
+    public let executor: Executor
+    
+    public var future: Future<T> {
+        return self.externalPromise.future
     }
+    private let externalPromise: Promise<T>
 
-    open var future : Future<T> {
-        return self.promise.future.mapAs(T.self)
-    }
+//    private let internalPromise: Promise<T>
 
-    public init(executor:Executor = .primary, block b: @escaping () throws -> Future<T>) {
-        super.init(executor: executor,block: { () throws -> AnyFuture in
-            return try b()
-        })
-    }
+    private var subFutureToken : CancellationToken?
+    private var subFuture: Future<T>?
 
-}
-
-
-open class _FutureAnyOperation : Operation, AnyFuture {
-    
-//    private var getSubFuture : () -> FutureProtocol
-    public typealias FutureAnyOperationBlockType = () throws -> AnyFuture
-    fileprivate var getSubFuture: FutureAnyOperationBlockType
-
-    
-    open var executor: Executor
-    
-    open var futureAny = Future<Any>(success: ())
-    
-    var cancelToken : CancellationToken?
-    
-    var promise = Promise<Any>()
+    private let fileLineInfo: FileLineInfo
     
     override open var isAsynchronous : Bool {
         return true
     }
     
-    fileprivate var _is_executing : Bool {
-        willSet {
-            self.willChangeValue(forKey: "isExecuting")
+    private var atomicIsExecuting = Atomic<Bool>(false)
+    private var atomicIsFinished = Atomic<Bool>(false)
+    
+    override open var isExecuting : Bool {
+        get {
+            return atomicIsExecuting.value
         }
-        didSet {
+        set(newValue) {
+            self.willChangeValue(forKey: "isExecuting")
+            atomicIsExecuting.swap(newValue)
             self.didChangeValue(forKey: "isExecuting")
         }
     }
-    fileprivate var _is_finished : Bool {
-        willSet {
-            self.willChangeValue(forKey: "isFinished")
+    
+    override open var isFinished : Bool {
+        get {
+            return atomicIsFinished.value
         }
-        didSet {
+        set(newValue) {
+            self.willChangeValue(forKey: "isFinished")
+            atomicIsFinished.swap(newValue)
             self.didChangeValue(forKey: "isFinished")
         }
     }
     
-    override open var isExecuting : Bool {
-        return _is_executing
-    }
-    
-    override open var isFinished : Bool {
-        return _is_finished
-    }
-    
-    public init(executor:Executor, block : @escaping () throws -> AnyFuture) {
-        self.executor = executor
-        self.getSubFuture = block
-        self._is_executing = false
-        self._is_finished = false
+    public init(executor exec:Executor,
+                _ file: StaticString = #file,
+                _ line: UInt = #line,
+                block : @escaping () throws -> Future<T>) {
+        fileLineInfo = FileLineInfo(file,line)
+        executor = exec
+        getSubFuture = block
+        externalPromise = Promise<T>()
+ //       internalPromise = Promise<T>()
         super.init()
+
+        externalPromise.onRequestCancel { (options) -> CancelRequestResponse<T> in
+            self.cancel()
+            return .complete(.cancelled)
+        }
     }
-    
-    
+    override open func start() {
+        super.start()
+        externalPromise.future.onComplete { _ in
+            self.isExecuting = false
+            self.isFinished = true
+        }
+    }
+
     override open func main() {
-        
-        if self.isCancelled {
-            self._is_executing = false
-            self._is_finished = true
-            self.promise.completeWithCancel()
+
+        guard !isCancelled, let getSubFutureBlock = getSubFuture else {
+            isExecuting = false
+            isFinished = true
             return
         }
-        
-        self._is_executing = true
 
-        
-        let f: Future<Any> = self.executor.execute { () -> Future<Any> in
-            return try self.getSubFuture().futureAny
+        let subFuture = executor.execute { () -> Future<T> in
+            return try getSubFutureBlock()
         }
-        self.futureAny = f
-        self.cancelToken = f.getCancelToken()
-        f.onComplete(executor) { (value) -> Void in
-            self._is_executing = false
-            self._is_finished = true
-            self.promise.complete(value)
-        }
-        .ignoreFailures()
-        
+        getSubFuture = nil
+        externalPromise.completeUsingFuture(subFuture)
+        isExecuting = true
+        subFutureToken = subFuture.getCancelToken()
+
+        self.subFuture = subFuture
     }
     override open func cancel() {
         super.cancel()
-        self.cancelToken?.cancel()
+
+        subFutureToken?.cancel()
+        externalPromise.completeWithCancel()
     }
-    
-    @available(*, deprecated, renamed: "mapAs(_:_:_:)")
-    open func As<S>() -> Future<S> {
-        return self.mapAs()
-    }
-    open func mapAs<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S> {
-        return self.promise.future.mapAs(S.self, file, line)
+    override open var description: String {
+        return "\(super.description) - \(self.externalPromise.future) \(String(describing: self.subFuture))"
     }
 
-    open func mapAs(_ type: Void.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<Void> {
-        return self.promise.future.mapAs(Void.self, file, line)
+    override open var debugDescription: String {
+        return "\(super.debugDescription) - \(self.externalPromise.future) - \(String(describing: self.subFuture))"
     }
-
-    @available(*, deprecated, renamed: "mapAsOptional(_:_:_:)")
-    open func convertOptional<S>(_ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
-        return self.mapAsOptional(S.self, file, line)
-    }
-
-    open func mapAsOptional<S>(_ type: S.Type, _ file: StaticString = #file, _ line: UInt = #line) -> Future<S?> {
-        return self.promise.future.mapAsOptional(S.self, file, line)
-    }
-
 }
 
 
 public extension OperationQueue {
     
     /*: just add an Operation using a block that returns a Future.
-    
-    returns a new Future<T> that can be used to compose when this operation runs and completes
-    
-    */
+     
+     returns a new Future<T> that can be used to compose when this operation runs and completes
+     
+     */
     public func add<T>(_ executor: Executor = .primary,
-
-                    priority : Operation.QueuePriority = .normal,
-                    block: @escaping FutureOperation<T>.FutureOperationBlockType) -> Future<T> {
+                       _ file: StaticString = #file,
+                       _ line: UInt = #line,
+                       priority : Operation.QueuePriority = .normal,
+                       block: @escaping () throws -> Future<T>) -> Future<T> {
         
-        let operation = FutureOperation.OperationWithBlock(executor,block: block)
+        let operation = FutureOperation<T>(executor: executor, file, line, block: block)
         operation.queuePriority = priority
-        
-        self.addOperation(operation)
+
+        if !operation.isFinished {
+            self.addOperation(operation)
+        }
         
         return operation.future
         
+    }
+
+    public var unfinishedOperationCount: Int {
+        return self.operations.reduce(0) { (total, operation) -> Int in
+            if !operation.isFinished {
+                return total + 1
+            }
+            return total
+        }
     }
     
     

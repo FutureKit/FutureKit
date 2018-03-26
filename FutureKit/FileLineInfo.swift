@@ -18,13 +18,30 @@ extension StaticString {
     }
 }
 
-public enum FileLineInfo: Equatable, CustomStringConvertible, CustomDebugStringConvertible {
+public enum FileLineInfo: CustomStringConvertible, CustomDebugStringConvertible {
     case fileLine(StaticString, UInt)
     case fileFunctionLine(StaticString, StaticString, UInt)
+    indirect case stackedFileLine(FileLineInfo, FileLineInfo)
     case unknownLocation
 
     public init(_ file: StaticString, _ line: UInt) {
         self = .fileLine(file, line)
+    }
+
+    public init(_ file: StaticString, _ line: UInt, previous: FileLineInfo) {
+        self = .stackedFileLine(FileLineInfo(file, line), previous)
+    }
+
+    public init(_ current: FileLineInfo, previous: FileLineInfo) {
+        assert({
+            switch current {
+            case .stackedFileLine:
+                return false
+            default:
+                return true
+            }
+        }(), "you can't stack a stacked FileLineInfo with a stacked FileLineInfo!")
+        self = .stackedFileLine(current,  previous)
     }
 
     public init(_ tuple: (StaticString, UInt)) {
@@ -36,47 +53,12 @@ public enum FileLineInfo: Equatable, CustomStringConvertible, CustomDebugStringC
         return FileLineInfo(file, line)
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
-    public static func == (lhs: FileLineInfo, rhs: FileLineInfo) -> Bool {
-        switch lhs {
-        case let .fileLine(lhsFile, lhsLine):
-            switch rhs {
-            case let .fileLine(rhsFile, rhsLine):
-                return lhsLine == rhsLine && lhsFile.string == rhsFile.string
-            case let .fileFunctionLine(rhsFile, _, rhsLine):
-                return lhsLine == rhsLine && lhsFile.string == rhsFile.string
-            case .unknownLocation:
-                return false
-            }
-        case let .fileFunctionLine(lhsFile, _, lhsLine):
-            switch rhs {
-            case let .fileLine(rhsFile, rhsLine):
-                return lhsLine == rhsLine && lhsFile.string == rhsFile.string
-            case let .fileFunctionLine(rhsFile, _, rhsLine):
-                return lhsLine == rhsLine && lhsFile.string == rhsFile.string
-            case .unknownLocation:
-                return false
-            }
-        case .unknownLocation:
-            switch rhs {
-            case .fileLine:
-                return false
-            case .fileFunctionLine:
-                return false
-            case .unknownLocation:
-                return true
-            }
-        }
-    }
-
 
     public var function: StaticString {
         switch self {
-        case .fileLine:
-            return "???"
         case let .fileFunctionLine(_, function, _):
             return function
-        case .unknownLocation:
+        default:
             return "???"
         }
     }
@@ -87,6 +69,8 @@ public enum FileLineInfo: Equatable, CustomStringConvertible, CustomDebugStringC
             return file
         case let .fileFunctionLine(file, _, _):
             return file
+        case let .stackedFileLine(first, _):
+            return first.file
         case .unknownLocation:
             return "???"
         }
@@ -97,6 +81,8 @@ public enum FileLineInfo: Equatable, CustomStringConvertible, CustomDebugStringC
             return line
         case let .fileFunctionLine(_, _, line):
             return line
+        case let .stackedFileLine(first, _):
+            return first.line
         case .unknownLocation:
             return UInt.max
         }
@@ -104,22 +90,57 @@ public enum FileLineInfo: Equatable, CustomStringConvertible, CustomDebugStringC
 
     public var shortFileName: String {
         switch self {
-        case let .fileLine(file, _):
-            return URL(fileURLWithPath: file.string).lastPathComponent
-        case let .fileFunctionLine(file, _, _):
-            return URL(fileURLWithPath: file.string).lastPathComponent
         case .unknownLocation:
             return "???"
+        default:
+            return URL(fileURLWithPath: file.string).lastPathComponent
         }
     }
-    public var description: String {
+
+    public var next: FileLineInfo? {
+        switch self {
+        case let .stackedFileLine(_, second):
+            return second
+        default:
+            return nil
+        }
+    }
+
+    public func reduce<U>(_ initialResult: U, _ nextPartialResult: (U, FileLineInfo) -> U) -> U {
+        var value = nextPartialResult(initialResult, self)
+        var next = self.next
+        while next != nil {
+            let fileLineInfo = next!
+            value = nextPartialResult(initialResult, fileLineInfo)
+            next = fileLineInfo.next
+        }
+        return value
+    }
+
+    public var size: Int {
+        return self.reduce(0) { sum,_ in sum + 1 }
+    }
+
+    public var shortDescription: String {
         switch self {
         case let .fileLine(_, line):
-            return "File:[\(shortFileName):\(line)]"
+            return "[\(shortFileName):\(line)]"
+        case let .stackedFileLine(first, _):
+            return first.shortDescription
         case let .fileFunctionLine(_, function, line):
-            return "File:[\(shortFileName):\(function)\(line)]"
+            return "[\(shortFileName):\(function)\(line)]"
         case .unknownLocation:
-            return "File:[???:???]"
+            return "[???:???]"
+        }
+    }
+
+
+    public var description: String {
+        switch self {
+        case .stackedFileLine:
+            return self.reduce("StackedFile:\n") { "\($0)\($1.shortDescription)\n"}
+        default:
+            return "File:[\(shortDescription)]"
         }
     }
 

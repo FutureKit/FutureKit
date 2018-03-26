@@ -13,6 +13,14 @@
 		09059C421BB20A8800555E26 /* PromiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBDAD3E1B3C5A78004310B9 /* PromiseTests.swift */; };
 		092794BC1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
 		092794BD1BB25DD300DFB56D /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092794BB1BB25DD300DFB56D /* Completion.swift */; };
+		0D0792E42069237E00231995 /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E32069237E00231995 /* FutureQueue.swift */; };
+		0D0792E52069237E00231995 /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E32069237E00231995 /* FutureQueue.swift */; };
+		0D0792E62069237E00231995 /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E32069237E00231995 /* FutureQueue.swift */; };
+		0D0792E72069237E00231995 /* FutureQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E32069237E00231995 /* FutureQueue.swift */; };
+		0D0792E9206923C800231995 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E8206923C700231995 /* Atomic.swift */; };
+		0D0792EA206923C800231995 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E8206923C700231995 /* Atomic.swift */; };
+		0D0792EB206923C800231995 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E8206923C700231995 /* Atomic.swift */; };
+		0D0792EC206923C800231995 /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0792E8206923C700231995 /* Atomic.swift */; };
 		0D2C4F4A1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D2C4F4B1B2A00C20090765F /* XCTestCase-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */; };
 		0D4FB3132024D4EB00791E8E /* FileLineInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4FB3122024D4EB00791E8E /* FileLineInfo.swift */; };
@@ -175,6 +183,8 @@
 		090112C01BD851CB002EB82D /* Tuples.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuples.swift; sourceTree = "<group>"; };
 		09059C431BB23E3C00555E26 /* FutureKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = FutureKit.podspec; sourceTree = "<group>"; };
 		092794BB1BB25DD300DFB56D /* Completion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Completion.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		0D0792E32069237E00231995 /* FutureQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureQueue.swift; sourceTree = "<group>"; };
+		0D0792E8206923C700231995 /* Atomic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		0D2C4F491B2A00C20090765F /* XCTestCase-Ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "XCTestCase-Ext.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D4FB3122024D4EB00791E8E /* FileLineInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLineInfo.swift; sourceTree = "<group>"; };
 		0D5810D41C4784E600ED5972 /* ErrorTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorTypes.swift; sourceTree = "<group>"; };
@@ -324,6 +334,7 @@
 		0D7502B91AE6B182009C3F63 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				0D0792E8206923C700231995 /* Atomic.swift */,
 				0D7CC61E1B390D2500006CBF /* OSFeature.swift */,
 				0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */,
 				0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */,
@@ -374,18 +385,19 @@
 		0DA41FB01ADAFE3D00B58B0B /* FutureKit */ = {
 			isa = PBXGroup;
 			children = (
-				0DA41FCE1ADAFE5A00B58B0B /* Future.swift */,
 				092794BB1BB25DD300DFB56D /* Completion.swift */,
-				0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */,
-				0DE3AD6F1ADCBBF8000345AD /* Promise.swift */,
 				0D5810D41C4784E600ED5972 /* ErrorTypes.swift */,
 				0DE3AD6D1ADCB55C000345AD /* Executor.swift */,
-				0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */,
-				0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */,
-				0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */,
-				0D7502B91AE6B182009C3F63 /* Utils */,
-				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
 				0D4FB3122024D4EB00791E8E /* FileLineInfo.swift */,
+				0D7502B61AE6B114009C3F63 /* FoundationExtensions */,
+				0DA41FCE1ADAFE5A00B58B0B /* Future.swift */,
+				0DE3AD711ADCBCBA000345AD /* FutureBatch.swift */,
+				0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */,
+				0D0792E32069237E00231995 /* FutureQueue.swift */,
+				0DE3AD6F1ADCBBF8000345AD /* Promise.swift */,
+				0DA41FDA1ADAFEC500B58B0B /* Synchronization.swift */,
+				0DA41FE21ADB483C00B58B0B /* SyncWaitHandler.swift */,
+				0D7502B91AE6B182009C3F63 /* Utils */,
 			);
 			path = FutureKit;
 			sourceTree = "<group>";
@@ -743,7 +755,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = "Michael Gray";
 				TargetAttributes = {
 					0DBB32EE1D0F91640092BF7B = {
@@ -906,6 +918,7 @@
 				0DBB33251D0F91DF0092BF7B /* OSFeature.swift in Sources */,
 				0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0DBB33171D0F91DA0092BF7B /* ErrorTypes.swift in Sources */,
+				0D0792E62069237E00231995 /* FutureQueue.swift in Sources */,
 				0DBB33141D0F91DA0092BF7B /* Completion.swift in Sources */,
 				0DBB33181D0F91DA0092BF7B /* Executor.swift in Sources */,
 				0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
@@ -913,6 +926,7 @@
 				0D4FB3152024D4EB00791E8E /* FileLineInfo.swift in Sources */,
 				0DBB33161D0F91DA0092BF7B /* Promise.swift in Sources */,
 				0DBB331B1D0F91DA0092BF7B /* Synchronization.swift in Sources */,
+				0D0792EB206923C800231995 /* Atomic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -934,6 +948,7 @@
 				0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */,
 				0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0DBB33201D0F91DB0092BF7B /* ErrorTypes.swift in Sources */,
+				0D0792E72069237E00231995 /* FutureQueue.swift in Sources */,
 				0DBB331D1D0F91DB0092BF7B /* Completion.swift in Sources */,
 				0DBB33211D0F91DB0092BF7B /* Executor.swift in Sources */,
 				0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */,
@@ -941,6 +956,7 @@
 				0D4FB3162024D4EB00791E8E /* FileLineInfo.swift in Sources */,
 				0DBB331F1D0F91DB0092BF7B /* Promise.swift in Sources */,
 				0DBB33241D0F91DB0092BF7B /* Synchronization.swift in Sources */,
+				0D0792EC206923C800231995 /* Atomic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -993,6 +1009,7 @@
 				0DEA1BD11AE30885000E126F /* SyncWaitHandler.swift in Sources */,
 				0DAA4C951B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */,
 				0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
+				0D0792E42069237E00231995 /* FutureQueue.swift in Sources */,
 				092794BC1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C41AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
@@ -1000,6 +1017,7 @@
 				0D4FB3132024D4EB00791E8E /* FileLineInfo.swift in Sources */,
 				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
+				0D0792E9206923C800231995 /* Atomic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1021,6 +1039,7 @@
 				0DEA1BDE1AE30886000E126F /* SyncWaitHandler.swift in Sources */,
 				0DAA4C961B22B3FB0023B02C /* NSOperation+FutureKit.swift in Sources */,
 				0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */,
+				0D0792E52069237E00231995 /* FutureQueue.swift in Sources */,
 				092794BD1BB25DD300DFB56D /* Completion.swift in Sources */,
 				0D7502C51AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift in Sources */,
 				0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */,
@@ -1028,6 +1047,7 @@
 				0D4FB3142024D4EB00791E8E /* FileLineInfo.swift in Sources */,
 				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
+				0D0792EA206923C800231995 /* Atomic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1438,7 +1458,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = AUXUTTBC4T;
@@ -1466,7 +1486,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = AUXUTTBC4T;

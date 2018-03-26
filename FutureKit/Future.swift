@@ -50,6 +50,7 @@ public enum FutureKitError : Error, Equatable {
     case errorForMultipleErrors(String,[Error])
     case exceptionCaught(NSException,[AnyHashable: Any]?)
     case futureDeinitWithoutCompletion(FileLineInfo)
+    case timedOutWaitingForResponse
 
     public init(genericError : String) {
         self = .genericError(genericError)
@@ -92,7 +93,7 @@ public func == (l: FutureKitError, r: FutureKitError) -> Bool {
         return (lhs == rhs)
 
     case let (.futureDeinitWithoutCompletion(lhs), .futureDeinitWithoutCompletion(rhs)):
-        return (lhs == rhs)
+        return (lhs.description == rhs.description)
     default:
         return false
     }
@@ -151,12 +152,14 @@ internal class CancellationTokenSource {
         self.tokens.removeAll()
     }
 
-    internal func getNewToken(_ synchObject : SynchronizationProtocol, lockWhenAddingToken : Bool) -> CancellationToken {
+    internal func getNewToken(_ synchObject : SynchronizationProtocol,
+                              lockWhenAddingToken : Bool,
+                              _ fileLineInfo: FileLineInfo) -> CancellationToken {
         
         if !self.canBeCancelled {
             return self._createUntrackedToken()
         }
-        let token = self._createTrackedToken(synchObject)
+        let token = self._createTrackedToken(synchObject, fileLineInfo)
         
         
         if (lockWhenAddingToken) {
@@ -184,16 +187,17 @@ internal class CancellationTokenSource {
             onDeinit:nil)
        
     }
-    fileprivate func _createTrackedToken(_ synchObject : SynchronizationProtocol) -> CancellationToken {
+    fileprivate func _createTrackedToken(_ synchObject : SynchronizationProtocol,
+                                         _ fileLineInfo: FileLineInfo) -> CancellationToken {
         
         return CancellationToken(
             
-            onCancel: { [weak self] (options, token) -> Void in
-                self?._cancelRequested(token, options, synchObject)
+            onCancel: { [weak self] (arguments, token) -> Void in
+                self?._cancelRequested(token, arguments, synchObject)
             },
             
             onDeinit:{ [weak self] (token) -> Void in
-                self?._clearInitializedToken(token,synchObject)
+                self?._clearInitializedToken(token,synchObject, fileLineInfo)
             })
         
     }
@@ -211,15 +215,15 @@ internal class CancellationTokenSource {
     }
     
 
-    fileprivate func _performCancel(_ options : CancellationOptions) {
+    fileprivate func _performCancel(_ arguments : CancellationArguments) {
         
         if self.canBeCancelled {
-            if (!options.contains(.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting)) {
+            if (!arguments.options.contains(.DoNotForwardCancelRequestIfThereAreOtherFuturesWaiting)) {
                 self.tokens.removeAll()
             }
             // there are no active tokens remaining, so allow the cancellation
             if (self.tokens.count == 0) {
-                self.handler?(options)
+                self.handler?(arguments)
                 self.canBeCancelled = false
                 self.handler = nil
             }
@@ -227,29 +231,35 @@ internal class CancellationTokenSource {
                 self.pendingCancelRequestActive = true
             }
         }
-        if options.contains(.ForceThisFutureToBeCancelledImmediately) {
-            self.forcedCancellationHandler(options)
+        if arguments.options.contains(.ForceThisFutureToBeCancelledImmediately) {
+            self.forcedCancellationHandler(arguments)
         }
         
     }
     
-    fileprivate func _cancelRequested(_ cancelingToken:CancellationToken, _ options : CancellationOptions,_ synchObject : SynchronizationProtocol) {
+    fileprivate func _cancelRequested(_ cancelingToken:CancellationToken,
+                                      _ arguments : CancellationArguments,
+                                      _ synchObject : SynchronizationProtocol) {
         
         synchObject.lockAndModify { () -> Void in
             self._removeToken(cancelingToken)
         }
-        self._performCancel(options)
+        self._performCancel(arguments)
        
     }
     
-    fileprivate func _clearInitializedToken(_ token:CancellationToken,_ synchObject : SynchronizationProtocol) {
+    fileprivate func _clearInitializedToken(_ token:CancellationToken,
+                                            _ synchObject : SynchronizationProtocol,
+                                            _ fileLineInfo: FileLineInfo) {
         
         synchObject.lockAndModifySync { () -> Void in
             self._removeToken(token)
             
             if (self.pendingCancelRequestActive && self.tokens.count == 0) {
                 self.canBeCancelled = false
-                self.handler?([])
+                let arguments = CancellationArguments(options: [],
+                                                      fileLineInfo: fileLineInfo)
+                self.handler?(arguments)
             }
         }
     }
@@ -306,12 +316,27 @@ public struct CancellationOptions : OptionSet{
     
 }
 
-internal typealias CancellationHandler = ((_ options:CancellationOptions) -> Void)
+internal struct CancellationArguments {
+    let options:CancellationOptions
+    let fileLineInfo: FileLineInfo
+}
+
+internal typealias CancellationHandler = ((CancellationArguments) -> Void)
 
 open class CancellationToken {
 
-    final public func cancel(_ options : CancellationOptions = []) {
-        self.onCancel?(options,self)
+    // TODO: add defaults back
+    final public func cancel(_ options : CancellationOptions = [],
+                             _ file: StaticString = #file,
+                             _ line: UInt = #line) {
+        return self.cancel(options, FileLineInfo(file,line))
+    }
+
+    final public func cancel(_ options : CancellationOptions = [],
+                             _ fileLineInfo: FileLineInfo) {
+
+        let arguments = CancellationArguments(options: options, fileLineInfo: fileLineInfo)
+        self.onCancel?(arguments,self)
         self.onCancel = nil
     }
 
@@ -327,7 +352,7 @@ open class CancellationToken {
     }
     
 
-    internal typealias OnCancelHandler = ((_ options : CancellationOptions,_ token:CancellationToken) -> Void)
+    internal typealias OnCancelHandler = ((_ arguments : CancellationArguments,_ token:CancellationToken) -> Void)
     internal typealias OnDenitHandler = ((_ token:CancellationToken) -> Void)
 
     fileprivate var onCancel : OnCancelHandler?
@@ -371,10 +396,11 @@ public protocol FutureProtocol : AnyFuture {
 
     var value : T? { get }
 
-    func onComplete<C: CompletionType>(_ executor : Executor,
-                                       _ file: StaticString,
-                                       _ line: UInt,
-                                       block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T>
+
+    func onCompleteAdvanced<C: CompletionType>(_ executor : Executor,
+                                               _ fileLineInfo: FileLineInfo,
+                                               block: @escaping (AdvancedFutureResult<T>) throws -> C) -> Future<C.T>
+
     
     /**
     convert this future of type `Future<T>` into another future type `Future<S>`
@@ -425,11 +451,23 @@ public protocol FutureProtocol : AnyFuture {
     
     var description: String { get }
     
-    func getCancelToken() -> CancellationToken
+    func getCancelToken(_ file: StaticString,
+                        _ line: UInt) -> CancellationToken
     
 }
 
 public extension FutureProtocol  {
+
+    public func onComplete<C: CompletionType>(_ executor : Executor,
+                                       _ file: StaticString,
+                                       _ line: UInt,
+                                       block: @escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
+        let fileLineInfo = FileLineInfo(file, line)
+        return self.onCompleteAdvanced(executor, fileLineInfo) { advResult throws -> C in
+            return try block(advResult.result)
+        }
+    }
+
 
     public func mapAs<S>(_ type: S.Type, file: StaticString = #file, line: UInt = #line) -> Future<S> {
         return self.mapAs(type, file, line)
@@ -455,11 +493,11 @@ open class Future<T> : FutureProtocol {
     public typealias ReturnType = T
     
     internal typealias CompletionErrorHandler = Promise<T>.CompletionErrorHandler
-    internal typealias completion_block_type = ((FutureResult<T>) -> Void)
-    internal typealias cancellation_handler_type = (()-> Void)
+    internal typealias CompletionBlockType = ((AdvancedFutureResult<T>) -> Void)
+    internal typealias CancellationHandlerType = (()-> Void)
     
     
-    fileprivate final var __callbacks : [completion_block_type]?
+    fileprivate final var __callbacks : [CompletionBlockType]?
 
     /**
         this is used as the internal storage for `var completion`
@@ -485,6 +523,7 @@ open class Future<T> : FutureProtocol {
     */
 
     let creationLocation: FileLineInfo
+    var completionLocation: FileLineInfo?
 
     
     internal func addRequestHandler(_ h : @escaping CancellationHandler) {
@@ -495,10 +534,10 @@ open class Future<T> : FutureProtocol {
     }
 
     lazy var cancellationSource: CancellationTokenSource = {
-        return CancellationTokenSource(forcedCancellationHandler: { [weak self] (options) -> Void in
+        return CancellationTokenSource(forcedCancellationHandler: { [weak self] (arguments) -> Void in
             
-            assert(options.contains(.ForceThisFutureToBeCancelledImmediately), "the forced cancellation handler is only supposed to run when the .ForceThisFutureToBeCancelledImmediately option is on")
-            self?.completeWith(.cancelled)
+            assert(arguments.options.contains(.ForceThisFutureToBeCancelledImmediately), "the forced cancellation handler is only supposed to run when the .ForceThisFutureToBeCancelledImmediately option is on")
+            self?.completeWith(.cancelled, arguments.fileLineInfo)
         })
     }()
 
@@ -583,11 +622,15 @@ open class Future<T> : FutureProtocol {
         self.creationLocation = FileLineInfo(file, line)
     }
 
+    internal init(_ fileLineInfo: FileLineInfo) {
+        self.creationLocation = fileLineInfo
+    }
+
     deinit {
         if __result == nil {
             NSLog("warning - future is freed without completion \(self.creationLocation.description)")
             let error: FutureKitError = .futureDeinitWithoutCompletion(self.creationLocation)
-            self.completeWith(.fail(error))
+            self.completeWith(.fail(error), self.creationLocation)
         }
     }
     
@@ -643,7 +686,7 @@ open class Future<T> : FutureProtocol {
     */
     public init(completeUsing f:Future<T>, _ file: StaticString = #file, _ line: UInt = #line) {  // returns an completed Task that has Failed with this error
         self.creationLocation = FileLineInfo(file, line)
-        self.completeWith(.completeUsing(f))
+        self.completeWith(.completeUsing(f), self.creationLocation)
     }
 
     public convenience init<C:CompletionType>(delay:TimeInterval, completeWith: C, _ file: StaticString = #file, _ line: UInt = #line) where C.T == T {
@@ -678,10 +721,10 @@ open class Future<T> : FutureProtocol {
         let wrappedBlock = executor.callbackBlockFor { () -> Void in
             do {
                 let r = try block()
-                self.completeWith(.success(r))
+                self.completeWith(.success(r), self.creationLocation)
             }
             catch {
-                self.completeWith(.fail(error))
+                self.completeWith(.fail(error), self.creationLocation)
 
             }
         }
@@ -701,10 +744,14 @@ open class Future<T> : FutureProtocol {
     
     the block can return a value of .CompleteUsing(Future<T>) if it wants this Future to complete with the results of another future.
     */
-    public init<C:CompletionType>(_ executor : Executor  = .immediate, _ file: StaticString = #file, _ line: UInt = #line, block: @escaping () throws -> C) where C.T == T {
-        self.creationLocation = FileLineInfo(file, line)
+    public init<C:CompletionType>(_ executor : Executor  = .immediate,
+                                  _ file: StaticString = #file,
+                                  _ line: UInt = #line,
+                                  block: @escaping () throws -> C) where C.T == T {
+        let fileLineInfo = FileLineInfo(file, line)
+        self.creationLocation = fileLineInfo
        executor.execute { () -> Void in
-            self.completeWithBlocks(completionBlock: {
+            self.completeWithBlocks(fileLineInfo, completionBlock: {
                 return try block()
             })
         }
@@ -725,9 +772,10 @@ open class Future<T> : FutureProtocol {
         - parameter completion: the value to complete the Future with
     
     */
-    internal final func completeAndNotify<C:CompletionType>(_ completion : C) where C.T == T {
+    internal final func completeAndNotify<C:CompletionType>(_ completion : C,
+                                                            _ fileLineInfo: FileLineInfo) where C.T == T {
         
-        return self.completeWithBlocks(waitUntilDone: false,
+        return self.completeWithBlocks(fileLineInfo, waitUntilDone: false,
             completionBlock: { () -> C in
                 completion
             })
@@ -748,10 +796,12 @@ open class Future<T> : FutureProtocol {
 
     */
 
-    internal final func completeAndNotify<C:CompletionType>(_ completion : C, onCompletionError : @escaping CompletionErrorHandler) where C.T == T {
+    internal final func completeAndNotify<C:CompletionType>(_ completion : C,
+                                                            _ fileLineInfo: FileLineInfo,
+                                                            onCompletionError : @escaping CompletionErrorHandler) where C.T == T {
         
         
-        self.completeWithBlocks(waitUntilDone: false, completionBlock: { () -> C in
+        self.completeWithBlocks(fileLineInfo, waitUntilDone: false, completionBlock: { () -> C in
             return completion
         }, onCompletionError: onCompletionError)
         
@@ -770,10 +820,11 @@ open class Future<T> : FutureProtocol {
     - returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
 
     */
-    internal final func completeAndNotifySync<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
+    internal final func completeAndNotifySync<C:CompletionType>(_ completion : C,
+                                                                _ fileLineInfo: FileLineInfo) -> Bool where C.T == T {
         
         var ret = true
-        self.completeWithBlocks(waitUntilDone: true, completionBlock: { () -> C in
+        self.completeWithBlocks(fileLineInfo, waitUntilDone: true, completionBlock: { () -> C in
             return completion
         }) { () -> Void in
             ret = false
@@ -783,15 +834,16 @@ open class Future<T> : FutureProtocol {
    }
     
     internal final func completeWithBlocks<C:CompletionType>(
+            _ fileLineInfo: FileLineInfo,
             waitUntilDone wait:Bool = false,
             completionBlock : @escaping () throws -> C,
             onCompletionError : @escaping () -> Void = {} ) where C.T == T {
     
-        typealias ModifyBlockReturnType = (callbacks:[completion_block_type]?,
+        typealias ModifyBlockReturnType = (callbacks:[CompletionBlockType]?,
                                             result:FutureResult<T>?,
                                             continueUsing:Future?)
-        
-        
+
+
         self.synchObject.lockAndModify(waitUntilDone: wait, modifyBlock: { () -> ModifyBlockReturnType in
             if let _ = self.__result {
                 // future was already complete!
@@ -812,24 +864,27 @@ open class Future<T> : FutureProtocol {
                 self.__callbacks = nil
                 self.cancellationSource.clear()
                 self.__result = c.result
+                self.completionLocation = fileLineInfo
                 return ModifyBlockReturnType(callbacks,self.__result,nil)
             }
         }, then:{ (modifyBlockReturned:ModifyBlockReturnType) -> Void in
             if let callbacks = modifyBlockReturned.callbacks {
                 for callback in callbacks {
-                    callback(modifyBlockReturned.result!)
+                    let newResult = AdvancedFutureResult<T>(result: modifyBlockReturned.result!, fileLineInfo: fileLineInfo)
+                    callback(newResult)
                 }
             }
             if let f = modifyBlockReturned.continueUsing {
-                f.onComplete(.immediate)  { (nextComp) -> Void in
-                    self.completeWith(nextComp.completion)
+                f.onCompleteAdvanced(.immediate, fileLineInfo.file, fileLineInfo.line)  { (nextComp) -> Void in
+                    let nextFileLineInfo = FileLineInfo(fileLineInfo.file, fileLineInfo.line, previous: nextComp.fileLineInfo)
+                    self.completeWith(nextComp.completion, nextFileLineInfo)
                 }
                 .ignoreFailures()
                 let token = f.getCancelToken()
                 if token.cancelCanBeRequested {
-                    self.addRequestHandler { (options : CancellationOptions) in
-                        if !options.contains(.DoNotForwardRequest) {
-                            token.cancel(options)
+                    self.addRequestHandler { (arguments : CancellationArguments) in
+                        if !arguments.options.contains(.DoNotForwardRequest) {
+                            token.cancel(arguments.options, arguments.fileLineInfo)
                         }
                     }
                 }
@@ -854,12 +909,14 @@ open class Future<T> : FutureProtocol {
     - parameter completion: the value to complete the Future with
 
     */
-    internal func completeWith(_ completion : Completion<T>) {
-        return self.completeAndNotify(completion)
+    internal func completeWith(_ completion : Completion<T>,
+                               _ fileLineInfo: FileLineInfo) {
+        return self.completeAndNotify(completion, fileLineInfo)
     }
     
-    internal func completeWith<C:CompletionType>(_ completion : C) where C.T == T {
-        return self.completeAndNotify(completion)
+    internal func completeWith<C:CompletionType>(_ completion : C,
+                                                 _ fileLineInfo: FileLineInfo) where C.T == T {
+        return self.completeAndNotify(completion, fileLineInfo)
     }
 
 
@@ -874,14 +931,16 @@ open class Future<T> : FutureProtocol {
     
     - returns: true if Future was successfully completed.  Returns false if the Future has already been completed.
     */
-    internal func completeWithSync<C:CompletionType>(_ completion : C) -> Bool where C.T == T {
+    internal func completeWithSync<C:CompletionType>(_ completion : C,
+                                                     _ fileLineInfo: FileLineInfo) -> Bool where C.T == T {
         
-        return self.completeAndNotifySync(completion)
+        return self.completeAndNotifySync(completion, fileLineInfo)
     }
 
-    internal func completeWithSync(_ completion : Completion<T>) -> Bool {
+    internal func completeWithSync(_ completion : Completion<T>,
+                                   _ fileLineInfo: FileLineInfo) -> Bool {
         
-        return self.completeAndNotifySync(completion)
+        return self.completeAndNotifySync(completion, fileLineInfo)
     }
 
     
@@ -899,8 +958,11 @@ open class Future<T> : FutureProtocol {
     - parameter onCompletionError: a block to execute if the Future has already been completed.
     */
     
-    internal func completeWith<C:CompletionType>(_ completion : C, onCompletionError errorBlock: @escaping CompletionErrorHandler) where C.T == T {
-        return self.completeAndNotify(completion,onCompletionError: errorBlock)
+    internal func completeWith<C:CompletionType>
+        (_ completion : C,
+         _ fileLineInfo: FileLineInfo,
+         onCompletionError errorBlock: @escaping CompletionErrorHandler) where C.T == T {
+        return self.completeAndNotify(completion, fileLineInfo, onCompletionError: errorBlock)
     }
     
     /**
@@ -914,26 +976,39 @@ open class Future<T> : FutureProtocol {
     - returns: a tuple (promise,callbackblock) a new promise and a completion block that can be added to __callbacks
     
     */
-    internal final func createPromiseAndCallback<C:CompletionType>(
-        _ file: StaticString,
-        _ line: UInt,
-        _ forBlock: @escaping ((FutureResult<T>
-        ) throws -> C)) -> (promise : Promise<C.T> , completionCallback :completion_block_type) {
-        
-        let promise = Promise<C.T>(file, line)
+    internal struct PromiseCallback<T, C:CompletionType> {
+        let promise: Promise<C.T>
+        let completionCallback: ((AdvancedFutureResult<T>) -> Void)
+        let executor: Executor
 
-        let completionCallback : completion_block_type = {(comp) -> Void in
-            do {
-                let c = try forBlock(comp)
-                promise.complete(c.completion)
-            }
-            catch {
-                promise.completeWithFail(error)
-            }
-            return
+        var future: Future<C.T> {
+            return promise.future
         }
-        return (promise,completionCallback)
-        
+
+        init(_ fileLineInfo: FileLineInfo,
+             _ executor: Executor,
+             _ forBlock: @escaping ((AdvancedFutureResult<T>) throws -> C)) {
+
+            self.executor = executor
+            let promise = Promise<C.T>(fileLineInfo)
+            self.promise = promise
+
+            self.completionCallback = {(comp) -> Void in
+                do {
+                    let c = try forBlock(comp)
+                    promise.complete(c.completion, comp.fileLineInfo)
+                }
+                catch {
+                    promise.completeWithFail(error, comp.fileLineInfo)
+                }
+                return
+            }
+         }
+
+        var callbackBlock: ((AdvancedFutureResult<T>) -> Void) {
+            let block = executor.callbackBlockFor(completionCallback)
+            return block
+        }
     }
 
     
@@ -948,15 +1023,18 @@ open class Future<T> : FutureProtocol {
    
     - parameter callback: a callback block to be run if and when the future is complete
    */
-    fileprivate final func runThisCompletionBlockNowOrLater<S>(_ callback : @escaping completion_block_type,promise: Promise<S>) {
+    fileprivate final func runThisCompletionBlockNowOrLater<S>(_ callback : @escaping CompletionBlockType,
+                                                               promise: Promise<S>,
+                                                               _ fileLineInfo: FileLineInfo) {
         
         // lock my object, and either return the current completion value (if it's set)
         // or add the block to the __callbacks if not.
-        self.synchObject.lockAndModifyAsync(modifyBlock: { () -> FutureResult<T>? in
+        self.synchObject.lockAndModifyAsync(modifyBlock: { () -> AdvancedFutureResult<T>? in
             
             // we are done!  return the current completion value.
             if let c = self.__result {
-                return c
+                let cfileLineInfo = self.completionLocation ?? fileLineInfo
+                return AdvancedFutureResult<T>(result: c, fileLineInfo: cfileLineInfo)
             }
             else
             {
@@ -970,19 +1048,19 @@ open class Future<T> : FutureProtocol {
                 case .none:
                     self.__callbacks = [callback]
                 }
-                let t = self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken: false)
-                promise.onRequestCancel(.immediate) { (options) -> CancelRequestResponse<S> in
-                    if !options.contains(.DoNotForwardRequest) {
-                        t.cancel(options)
+                let t = self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken: false, fileLineInfo)
+                promise.onRequestCancelAdvanced(.immediate) { (arguments) -> CancelRequestResponse<S> in
+                    if !arguments.options.contains(.DoNotForwardRequest) {
+                        t.cancel(arguments.options, arguments.fileLineInfo)
                     }
                     return .continue
                 }
                 return nil
             }
-        }, then: { (currentCompletionValue) -> Void in
+        }, then: { result -> Void in
             // if we got a completion value, than we can execute the callback now.
-            if let c = currentCompletionValue {
-                callback(c)
+            if let result = result {
+                callback(result)
             }
         })
     }
@@ -1086,6 +1164,35 @@ open class Future<T> : FutureProtocol {
         }
     }
 
+
+    public func finally(_ executor: Executor = .primary,
+                        _ file: StaticString = #file,
+                        _ line: UInt = #line,
+                        block:@escaping () throws -> Void) -> Future<T> {
+        return self.onComplete(executor, file, line) { result -> FutureResult<T> in
+            try block()
+            return result
+        }
+    }
+
+    public func finally<C: CompletionType>(_ executor: Executor = .primary,
+                                           _ file: StaticString = #file,
+                                           _ line: UInt = #line,
+                                           block:@escaping () throws -> C) -> Future<T> {
+        return self
+            .onComplete(executor, file, line) { result -> Completion<T> in
+                let completion =  try block().completion
+                switch completion {
+                case let .completeUsing(f):
+                    let newf = f.onComplete { _ in result }
+                    return .completeUsing(newf)
+                default:
+                    return result.completion
+                }
+        }
+    }
+
+
     
     /**
      executes a block only if the Future has not completed.  Will prevent the Future from completing until AFTER the block finishes.
@@ -1148,24 +1255,44 @@ open class Future<T> : FutureProtocol {
     - returns: a new Future that returns results of type __Type  (Future<__Type>)
     
     */
-    @discardableResult public final func onComplete<C: CompletionType>(
-        _ executor : Executor,
-        _ file: StaticString = #file,
-        _ line: UInt = #line,
-        block:@escaping (_ result:FutureResult<T>) throws -> C) -> Future<C.T> {
-        
-        let (promise, completionCallback) = self.createPromiseAndCallback(file, line, block)
-        let block = executor.callbackBlockFor(completionCallback)
-        
-        self.runThisCompletionBlockNowOrLater(block,promise: promise)
-        
-        return promise.future
+
+    public final func onCompleteAdvanced<C: CompletionType>(_ executor : Executor,
+                                                    _ fileLineInfo: FileLineInfo,
+                                                    block: @escaping (AdvancedFutureResult<T>) throws -> C) -> Future<C.T> {
+
+        let promiseCallBack = PromiseCallback<T,C>(fileLineInfo, executor, block)
+        let block = executor.callbackBlockFor(promiseCallBack.completionCallback)
+        self.runThisCompletionBlockNowOrLater(block, promise: promiseCallBack.promise, fileLineInfo)
+
+        return promiseCallBack.promise.future
     }
-    
+
+    public final func onCompleteAdvanced<C: CompletionType>(_ executor : Executor,
+                                                            _ file: StaticString = #file,
+                                                            _ line: UInt = #line,
+                                                            block: @escaping (AdvancedFutureResult<T>) throws -> C) -> Future<C.T> {
+        let fileLineInfo = FileLineInfo(file, line)
+        return self.onCompleteAdvanced(executor, fileLineInfo, block: block)
+    }
+
+    @discardableResult
+    public final func onComplete<C: CompletionType>(_ executor : Executor,
+                                                    _ file: StaticString = #file,
+                                                    _ line: UInt = #line,
+                                                    block: @escaping (FutureResult<T>) throws -> C) -> Future<C.T> {
+
+        return self.onCompleteAdvanced(executor, file, line) { advResult -> C in
+            return try block(advResult.result)
+        }
+    }
+
+
+
     /**
      */
-    public final func getCancelToken() -> CancellationToken {
-        return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true)
+    public final func getCancelToken(_ file: StaticString = #file, _ line: UInt = #line) -> CancellationToken {
+        let fileLineInfo = FileLineInfo(file, line)
+        return self.cancellationSource.getNewToken(self.synchObject, lockWhenAddingToken:true, fileLineInfo)
     }
     
     
@@ -1202,8 +1329,9 @@ extension FutureProtocol {
 
     
 
-    public func withCancelToken() -> (Self,CancellationToken) {
-        return (self,self.getCancelToken())
+    public func withCancelToken(_ file: StaticString = #file,
+                                _ line: UInt = #line) -> (Self,CancellationToken) {
+        return (self,self.getCancelToken(file, line))
     }
     
     public func onComplete<C: CompletionType>(
@@ -1224,7 +1352,8 @@ extension FutureProtocol {
     - parameter block: a block that will execute when this future completes, a `.Success(result)` using the return value of the block.
     - returns: a new Future that returns results of type __Type
     */
-    @discardableResult public func onComplete<S>(
+    @discardableResult
+    public func onComplete<S>(
         _ executor: Executor = .primary,
         _ file: StaticString = #file,
         _ line: UInt = #line,
@@ -1233,6 +1362,20 @@ extension FutureProtocol {
             return .success(try block(result))
         }
     }
+
+    @discardableResult
+    public func onCompleteAdvanced<S>(
+        _ executor: Executor = .primary,
+        _ file: StaticString = #file,
+        _ line: UInt = #line,
+        _ block:@escaping (_ result:AdvancedFutureResult<T>) throws -> S) -> Future<S> {
+
+        let fileLineInfo = FileLineInfo(file, line)
+        return self.onCompleteAdvanced(executor, fileLineInfo) { (result) -> Completion<S> in
+            return .success(try block(result))
+        }
+    }
+
     
       
     /**
@@ -1252,30 +1395,29 @@ extension FutureProtocol {
     - returns: a `Future<Void>` that completes after this block has executed.
     
     */
-    public func waitForComplete<C:CompletionType>(_ timeout: TimeInterval,
+    public func waitForComplete<C:CompletionType>(
+        _ timeout: TimeInterval,
         executor : Executor,
         _ file: StaticString = #file,
         _ line: UInt = #line,
         didComplete:@escaping (FutureResult<T>) throws -> C,
         timedOut:@escaping () throws -> C
         ) -> Future<C.T> {
-            
-            let p = Promise<C.T>(file, line)
-            p.automaticallyCancelOnRequestCancel()
-            self.onComplete(executor) { (c) -> Void in
-                p.completeWithBlock({ () -> C in
-                    return try didComplete(c)
-                })
+
+        let p = Promise<C.T>(file, line)
+        p.automaticallyCancelOnRequestCancel()
+        self.onComplete(executor, file, line) { (c) -> Void in
+            p.completeWithBlock(file, line) { () -> C in
+                return try didComplete(c)
             }
-            .ignoreFailures()
-            
-            executor.execute(afterDelay:timeout)  {
-                p.completeWithBlock { () -> C in
-                    return try timedOut()
-                }
+        }.ignoreFailures()
+
+        executor.execute(afterDelay:timeout)  {
+            p.completeWithBlock(file, line)  { () -> C in
+                return try timedOut()
             }
-            
-            return p.future
+        }
+        return p.future
     }
     
     public func waitForComplete<__Type>(_ timeout: TimeInterval,
@@ -1659,6 +1801,54 @@ extension FutureProtocol {
     }
 }
 
+
+extension Future where T == Void {
+    public static var success: Future<Void> {
+        return Future(success: ())
+    }
+}
+
+extension Future {
+
+    public static func success(_ value: T) -> Future<T> {
+        return Future(success: value)
+    }
+    public static var cancelled: Future<T> {
+        return Future(cancelled: ())
+    }
+
+    public static func fail(_ error: Error,
+                            _ file: StaticString = #file,
+                            _ line: UInt = #line) -> Future<T> {
+        return Future(fail: error, file, line)
+    }
+
+    public static func failWithErrorMessage(_ errorMessage: String,
+                                            _ file: StaticString = #file,
+                                            _ line: UInt = #line) -> Future<T> {
+        return Future(failWithErrorMessage: errorMessage, file, line)
+    }
+
+    public static func delay(_ delay: TimeInterval) -> Future<Void> {
+        if delay == 0.0 {
+            return Future<Void>(success: ())
+        }
+        return Future<Void>(afterDelay: delay, success: ())
+    }
+
+    public final func automaticallyCancel(afterDelay delay: TimeInterval) -> Future<T> {
+        let p = Promise<T>(automaticallyCancelAfter: delay)
+        p.completeUsingFuture(self)
+        return p.future
+    }
+    public final func automaticallyFail(with error: Error, afterDelay delay: TimeInterval) -> Future<T> {
+        let p = Promise<T>(automaticallyFailAfter: delay, error: error)
+        p.completeUsingFuture(self)
+        return p.future
+    }
+
+
+}
 
 
 extension Future {

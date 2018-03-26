@@ -86,19 +86,19 @@ open class FutureBatchOf<T> {
         will forward a cancel request to each subFuture
         Doesn't guarantee that a particular future gets canceled
     */
-    func cancel(_ option:CancellationOptions = []) {
+    func cancel(_ option:CancellationOptions = [], _ file: StaticString, _ line: UInt) {
         for t in self.tokens {
-            t.cancel(option)
+            t.cancel(option, file, line)
         }
     }
     
     /**
         will cause any other Futures to automatically be cancelled, if one of the subfutures future fails or is cancelled
     */
-    func cancelRemainingFuturesOnFirstFailOrCancel() {
+    func cancelRemainingFuturesOnFirstFailOrCancel(_ file: StaticString, _ line: UInt) {
         self.future.onComplete { (completion) -> Void in
             if (!completion.isSuccess) {
-                self.cancel()
+                self.cancel([], file, line)
             }
         }
         .ignoreFailures()
@@ -107,10 +107,10 @@ open class FutureBatchOf<T> {
     /**
         will cause any other subfutures to automatically be cancelled, if one of the subfutures future fails.  Cancellations are ignored.
     */
-    func cancelRemainingFuturesOnFirstFail() {
+    func cancelRemainingFuturesOnFirstFail(_ file: StaticString, _ line: UInt) {
         self.future.onComplete { (completion) -> Void in
             if (completion.isFail) {
-                self.cancel()
+                self.cancel([], file, line)
             }
         }
         .ignoreFailures()

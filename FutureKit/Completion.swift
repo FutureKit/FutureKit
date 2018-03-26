@@ -98,6 +98,16 @@ public enum Completion<T>  {
 }
 
 
+public struct AdvancedFutureResult<T>: CompletionType  {
+    public let result: FutureResult<T>
+    public let fileLineInfo: FileLineInfo
+
+    public var completion : Completion<T> {
+        return result.completion
+    }
+}
+
+
 
 extension Future : CompletionType {
     
@@ -573,6 +583,34 @@ extension FutureResult : CustomStringConvertible, CustomDebugStringConvertible {
         return self.debugDescription as AnyObject?
     }
 }
+
+extension AdvancedFutureResult : CustomStringConvertible, CustomDebugStringConvertible {
+
+    public var description: String {
+        switch self.result {
+        case let .success(result):
+            return ".Success<\(T.self)>(\(result)) from: \(self.fileLineInfo)"
+        case let .fail(error):
+            return ".Fail<\(T.self)>(\(error))  from: \(self.fileLineInfo)"
+        case .cancelled:
+            return ".Cancelled<\(T.self)>)  from: \(self.fileLineInfo)"
+        }
+    }
+    public var debugDescription: String {
+        return self.description
+    }
+
+    /**
+     This doesn't seem to work yet in the XCode Debugger or Playgrounds.
+     it seems that only NSObjectProtocol objects can use this method.
+     Since this is a Swift Generic, it seems to be ignored.
+     Sigh.
+     */
+    func debugQuickLookObject() -> AnyObject? {
+        return self.debugDescription as AnyObject?
+    }
+}
+
 
 
 

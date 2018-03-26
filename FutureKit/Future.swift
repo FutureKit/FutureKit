@@ -118,15 +118,15 @@ internal class CancellationTokenSource {
     fileprivate var pendingCancelRequestActive = false
     
     
-    fileprivate var handler : CancellationHandler?
-    fileprivate var forcedCancellationHandler : CancellationHandler
+    fileprivate var handlers: [CancellationHandler] = []
+    fileprivate var forcedCancellationHandler: CancellationHandler
     
     init(forcedCancellationHandler h: @escaping CancellationHandler) {
         self.forcedCancellationHandler = h
     }
 
     fileprivate var cancellationIsSupported : Bool {
-        return (self.handler != nil)
+        return !self.handlers.isEmpty
     }
     
     // add blocks that will be called as soon as we initiate cancelation
@@ -134,20 +134,21 @@ internal class CancellationTokenSource {
         if !self.canBeCancelled {
             return
         }
-        if let oldhandler = self.handler
-        {
-            self.handler = { (options) in
-                oldhandler(options)
-                h(options)
-            }
-        }
-        else {
-            self.handler = h
-        }
+        self.handlers.append(h)
+//        if let oldhandler = self.handler
+//        {
+//            self.handler = { (options) in
+//                oldhandler(options)
+//                h(options)
+//            }
+//        }
+//        else {
+//            self.handler = h
+//        }
     }
     
     internal func clear() {
-        self.handler = nil
+        self.handlers = []
         self.canBeCancelled = false
         self.tokens.removeAll()
     }
@@ -223,9 +224,11 @@ internal class CancellationTokenSource {
             }
             // there are no active tokens remaining, so allow the cancellation
             if (self.tokens.count == 0) {
-                self.handler?(arguments)
+                for handler in self.handlers {
+                    handler(arguments)
+                }
                 self.canBeCancelled = false
-                self.handler = nil
+                self.handlers = []
             }
             else {
                 self.pendingCancelRequestActive = true
@@ -259,7 +262,9 @@ internal class CancellationTokenSource {
                 self.canBeCancelled = false
                 let arguments = CancellationArguments(options: [],
                                                       fileLineInfo: fileLineInfo)
-                self.handler?(arguments)
+                for handler in self.handlers {
+                    handler(arguments)
+                }
             }
         }
     }

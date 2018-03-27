@@ -186,9 +186,9 @@ open class FutureBatchOf<T> {
         let promise = Promise<[T]>()
 
         for future in self.subFutures {
-            future.onComplete { value in
-                if (!value.isSuccess) {
-                    promise.complete(value.mapAs([T].self))
+            future.onCompleteAdvanced { result in
+                if (!result.result.isSuccess) {
+                    promise.complete(result.mapAs([T].self), result.fileLineInfo)
                 }
             }
             .ignoreFailures()

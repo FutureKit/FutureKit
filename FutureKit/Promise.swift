@@ -71,6 +71,12 @@ public class Promise<T>  {
                                                  _ line: UInt = #line) where C.T == T {
         self.future.completeWith(completion.completion, FileLineInfo(file, line))
     }
+
+
+    public final func complete(_ result : AdvancedFutureResult<T>) {
+        self.future.completeWith(result.completion, result.fileLineInfo)
+    }
+
     public final func complete<C:CompletionType>(_ completion : C,
                                                  _ fileLineInfo: FileLineInfo) where C.T == T {
         self.future.completeWith(completion.completion, fileLineInfo)

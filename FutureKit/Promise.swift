@@ -158,38 +158,49 @@ public class Promise<T>  {
 
     // untestable?
     public convenience init(automaticallyAssertAfter delay: TimeInterval,
-                            file : StaticString = #file, line : UInt = #line) {
+                            file : StaticString = #file,
+                            line : UInt = #line) {
         self.init(file, line)
     }
     
     
     @available(*, deprecated, renamed: "automaticallyCancel(afterDelay:)")
-    public final func automaticallyCancelAfter(_ delay: TimeInterval) {
+    public final func automaticallyCancelAfter(_ delay: TimeInterval,
+                                               _ file: StaticString = #file,
+                                               _ line: UInt = #line) {
         self.automaticallyCancelOnRequestCancel()
         Executor.default.execute(afterDelay:delay) { () -> Void in
-            self.completeWithCancel()
+            self.completeWithCancel(file, line)
         }
     }
 
-    public final func automaticallyCancel(afterDelay delay: TimeInterval) {
+    public final func automaticallyCancel(afterDelay delay: TimeInterval,
+                                          _ file: StaticString = #file,
+                                          _ line: UInt = #line) {
         self.automaticallyCancelOnRequestCancel()
         Executor.default.execute(afterDelay:delay) { () -> Void in
-            self.completeWithCancel()
+            self.completeWithCancel(file, line)
         }
     }
 
     @available(*, deprecated, renamed: "automaticallyFail(afterDelay:with:)")
-    public final func automaticallyFailAfter(_ delay: TimeInterval, error:Error) {
+    public final func automaticallyFailAfter(_ delay: TimeInterval,
+                                             error:Error,
+                                             _ file: StaticString = #file,
+                                             _ line: UInt = #line) {
         self.automaticallyCancelOnRequestCancel()
         Executor.default.execute(afterDelay:delay) { () -> Void in
-            self.failIfNotCompleted(error)
+            self.failIfNotCompleted(error, file, line)
         }
     }
 
-    public final func automaticallyFail(afterDelay delay: TimeInterval, with:Error) {
+    public final func automaticallyFail(afterDelay delay: TimeInterval,
+                                        with:Error,
+                                        _ file: StaticString = #file,
+                                        _ line: UInt = #line) {
         self.automaticallyCancelOnRequestCancel()
         Executor.default.execute(afterDelay:delay) { () -> Void in
-            self.failIfNotCompleted(with)
+            self.failIfNotCompleted(with, file, line)
         }
     }
 
@@ -219,18 +230,9 @@ public class Promise<T>  {
 
     
     public final func onRequestCancel(_ executor:Executor = .primary, handler: @escaping (_ options:CancellationOptions) -> CancelRequestResponse<T>) {
-        let newHandler : (CancellationArguments) -> Void  = { [weak self] (arguments) -> Void in
-            switch handler(arguments.options) {
-            case .complete(let completion):
-                self?.complete(completion, arguments.fileLineInfo)
-            default:
-                break
-            }
-            
-        }
-        let wrappedNewHandler = Executor.primary.callbackBlockFor(newHandler)
-        self.future.addRequestHandler(wrappedNewHandler)
-        
+        return self.onRequestCancelAdvanced(executor, handler: { (arguments) -> CancelRequestResponse<T> in
+            return handler(arguments.options)
+        })
     }
     public final func automaticallyCancelOnRequestCancel() {
         self.onRequestCancel { (force) -> CancelRequestResponse<T> in
@@ -340,23 +342,30 @@ public class Promise<T>  {
     
     
     // public convenience methods
-    public final func futureWithCancel() -> Future<T>{
-        self.completeWithCancel()
+    public final func futureWithCancel(_ file : StaticString = #file,
+                                       _ line : UInt = #line) -> Future<T>{
+        self.completeWithCancel(file, line)
         return future
     }
     
-    public final func futureWithSuccess(result : T) -> Future<T>{
-        self.completeWithSuccess(result)
+    public final func futureWithSuccess(result : T,
+                                        _ file : StaticString = #file,
+                                        _ line : UInt = #line) -> Future<T>{
+        self.completeWithSuccess(result, file, line)
         return future
     }
     
-    public final func futureWithFailure(error : Error) -> Future<T>{
-        self.completeWithFail(error)
+    public final func futureWithFailure(error : Error,
+                                        _ file : StaticString = #file,
+                                        _ line : UInt = #line) -> Future<T>{
+        self.completeWithFail(error, file, line)
         return future
     }
     
-    public final func futureWithFailure(errorMessage : String) -> Future<T>{
-        self.completeWithFail(errorMessage)
+    public final func futureWithFailure(errorMessage : String,
+                                        _ file : StaticString = #file,
+                                        _ line : UInt = #line) -> Future<T>{
+        self.completeWithFail(errorMessage, file, line)
         return future
     }
 

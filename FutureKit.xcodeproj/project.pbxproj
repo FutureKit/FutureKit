@@ -6,6 +6,23 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		0DC9683520740F35000829B6 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 0DC9683620740F35000829B6 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				0DC9683A20740F47000829B6 /* PBXTargetDependency */,
+				0DC9683C20740F47000829B6 /* PBXTargetDependency */,
+				0DC9683E20740F47000829B6 /* PBXTargetDependency */,
+				0DC9684020740F47000829B6 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		090112C11BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		090112C21BD851CB002EB82D /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
@@ -35,8 +52,6 @@
 		0D7502C71AE6B182009C3F63 /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
 		0D7502C81AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
 		0D7502C91AE6B182009C3F63 /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
-		0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
-		0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0D7502CD1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
 		0D7502CE1AE6B29B009C3F63 /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
 		0D7502D01AE6B76D009C3F63 /* NSData-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */; };
@@ -79,14 +94,12 @@
 		0DBB33271D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
 		0DBB33281D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
 		0DBB33291D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
-		0DBB332A1D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0DBB332B1D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		0DBB332C1D0F91DF0092BF7B /* OSFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7CC61E1B390D2500006CBF /* OSFeature.swift */; };
 		0DBB332D1D0F91DF0092BF7B /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
 		0DBB332E1D0F91DF0092BF7B /* NSObject-Ext-ThreadSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BC1AE6B182009C3F63 /* NSObject-Ext-ThreadSafe.swift */; };
 		0DBB332F1D0F91DF0092BF7B /* ObjectiveCExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D7502BD1AE6B182009C3F63 /* ObjectiveCExceptionHandler.h */; };
 		0DBB33301D0F91DF0092BF7B /* ObjectiveCExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BE1AE6B182009C3F63 /* ObjectiveCExceptionHandler.m */; };
-		0DBB33311D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BF1AE6B182009C3F63 /* OSAtomicInt.swift */; };
 		0DBB33321D0F91DF0092BF7B /* Tuples.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090112C01BD851CB002EB82D /* Tuples.swift */; };
 		0DBB33331D0F91E40092BF7B /* NSOperation+FutureKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAA4C941B22B3FB0023B02C /* NSOperation+FutureKit.swift */; };
 		0DBB33341D0F91E40092BF7B /* NSFileManager-Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502CC1AE6B29B009C3F63 /* NSFileManager-Ext.swift */; };
@@ -150,6 +163,34 @@
 			remoteInfo = "FutureKit iOS Testing App";
 		};
 		0DBB33071D0F919C0092BF7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DBB32FB1D0F919C0092BF7B;
+			remoteInfo = "FutureKit tvOS";
+		};
+		0DC9683920740F47000829B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DEA1B901AE30853000E126F;
+			remoteInfo = "FutureKit iOS";
+		};
+		0DC9683B20740F47000829B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DEA1BAE1AE30872000E126F;
+			remoteInfo = "FutureKit OSX";
+		};
+		0DC9683D20740F47000829B6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DBB32EE1D0F91640092BF7B;
+			remoteInfo = "FutureKit watchOS";
+		};
+		0DC9683F20740F47000829B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0DA41FA51ADAFE3D00B58B0B /* Project object */;
 			proxyType = 1;
@@ -770,6 +811,10 @@
 						CreatedOnToolsVersion = 7.3.1;
 						DevelopmentTeam = AUXUTTBC4T;
 					};
+					0DC9683520740F35000829B6 = {
+						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
+					};
 					0DDE325F1B38BD27007C39D9 = {
 						CreatedOnToolsVersion = 6.3.2;
 						DevelopmentTeam = AUXUTTBC4T;
@@ -826,6 +871,7 @@
 				0DDE325F1B38BD27007C39D9 /* FutureKit iOS Testing App */,
 				0DDE32731B38BD28007C39D9 /* FutureKit iOS Testing AppTests */,
 				0DBB33041D0F919C0092BF7B /* FutureKit tvOSTests */,
+				0DC9683520740F35000829B6 /* All */,
 			);
 		};
 /* End PBXProject section */
@@ -911,7 +957,6 @@
 				0DBB33351D0F91E40092BF7B /* NSData-Ext.swift in Sources */,
 				0DBB33191D0F91DA0092BF7B /* FutureBatch.swift in Sources */,
 				0DBB33131D0F91DA0092BF7B /* Future.swift in Sources */,
-				0DBB332A1D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */,
 				0DBB33361D0F91E40092BF7B /* FutureThread.swift in Sources */,
 				0DBB33331D0F91E40092BF7B /* NSOperation+FutureKit.swift in Sources */,
 				0DBB33151D0F91DA0092BF7B /* FutureFIFO.swift in Sources */,
@@ -941,7 +986,6 @@
 				0DBB333F1D0F91E50092BF7B /* NSData-Ext.swift in Sources */,
 				0DBB33221D0F91DB0092BF7B /* FutureBatch.swift in Sources */,
 				0DBB331C1D0F91DB0092BF7B /* Future.swift in Sources */,
-				0DBB33311D0F91DF0092BF7B /* OSAtomicInt.swift in Sources */,
 				0DBB33401D0F91E50092BF7B /* FutureThread.swift in Sources */,
 				0DBB333D1D0F91E50092BF7B /* NSOperation+FutureKit.swift in Sources */,
 				0DBB331E1D0F91DB0092BF7B /* FutureFIFO.swift in Sources */,
@@ -996,7 +1040,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */,
-				0D7502CA1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */,
 				0DF7A2771B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BC81AE30885000E126F /* Future.swift in Sources */,
 				0DEA1BD01AE30885000E126F /* FutureBatch.swift in Sources */,
@@ -1026,7 +1069,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D7502C31AE6B182009C3F63 /* ExtensionVars.swift in Sources */,
-				0D7502CB1AE6B182009C3F63 /* OSAtomicInt.swift in Sources */,
 				0DF7A2781B34F0B90031BEA6 /* FutureThread.swift in Sources */,
 				0DEA1BD51AE30886000E126F /* Future.swift in Sources */,
 				0DEA1BDD1AE30886000E126F /* FutureBatch.swift in Sources */,
@@ -1093,6 +1135,26 @@
 			isa = PBXTargetDependency;
 			target = 0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */;
 			targetProxy = 0DBB33071D0F919C0092BF7B /* PBXContainerItemProxy */;
+		};
+		0DC9683A20740F47000829B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DEA1B901AE30853000E126F /* FutureKit iOS */;
+			targetProxy = 0DC9683920740F47000829B6 /* PBXContainerItemProxy */;
+		};
+		0DC9683C20740F47000829B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DEA1BAE1AE30872000E126F /* FutureKit OSX */;
+			targetProxy = 0DC9683B20740F47000829B6 /* PBXContainerItemProxy */;
+		};
+		0DC9683E20740F47000829B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DBB32EE1D0F91640092BF7B /* FutureKit watchOS */;
+			targetProxy = 0DC9683D20740F47000829B6 /* PBXContainerItemProxy */;
+		};
+		0DC9684020740F47000829B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DBB32FB1D0F919C0092BF7B /* FutureKit tvOS */;
+			targetProxy = 0DC9683F20740F47000829B6 /* PBXContainerItemProxy */;
 		};
 		0DDE32761B38BD28007C39D9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1178,7 +1240,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1229,7 +1291,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -1362,6 +1424,22 @@
 				SDKROOT = appletvos;
 				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Release;
+		};
+		0DC9683720740F35000829B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0DC9683820740F35000829B6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -1524,7 +1602,7 @@
 				INFOPLIST_FILE = FutureKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
@@ -1546,7 +1624,7 @@
 				INFOPLIST_FILE = FutureKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.futurekit.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FutureKit;
 				SDKROOT = macosx;
@@ -1681,6 +1759,15 @@
 			buildConfigurations = (
 				0DBB33111D0F919C0092BF7B /* Debug */,
 				0DBB33121D0F919C0092BF7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0DC9683620740F35000829B6 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DC9683720740F35000829B6 /* Debug */,
+				0DC9683820740F35000829B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

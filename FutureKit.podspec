@@ -8,10 +8,10 @@ Pod::Spec.new do |s|
   s.authors = { 'Michael Gray' => 'michael@futurekit.org' }
   s.source = { :git => 'https://github.com/FutureKit/FutureKit.git', :tag => s.version }
 
-  s.ios.deployment_target = '8.0'
-  s.tvos.deployment_target = '9.0'
-  s.watchos.deployment_target = '2.0'
-  s.osx.deployment_target = '10.10'
+  s.ios.deployment_target = '10.0'
+  s.tvos.deployment_target = '10.0'
+  s.watchos.deployment_target = '3.0'
+  s.osx.deployment_target = '10.12'
 
   s.source_files = "FutureKit/*.swift", "FutureKit/**/*.swift"
   s.requires_arc = true

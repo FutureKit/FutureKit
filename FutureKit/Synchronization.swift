@@ -142,8 +142,7 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
     case nsLock
     case nsRecursiveLock
     case pThreadMutex
-//	case NSLockWithSafetyChecks
-//	case NSRecursiveLockWithSafetyChecks
+    case osUnfair
     case unsafe
     
     public var maxLockWaitTimeAllowed : TimeInterval {
@@ -168,10 +167,8 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
             return NSRecursiveLockSynchronization()
         case .pThreadMutex:
             return PThreadMutexSynchronization()
-/*        case NSLockWithSafetyChecks:
-            return NSLockSynchronizationWithSafetyChecks()
-        case NSRecursiveLockWithSafetyChecks:
-            return NSRecursiveLockSynchronizationWithSafetyChecks() */
+        case .osUnfair:
+            return OsUnfairLock()
         case .unsafe:
             return UnsafeSynchronization()
         }
@@ -193,6 +190,8 @@ public enum SynchronizationType : CustomStringConvertible, CustomDebugStringConv
             return "NSRecursiveLock"
         case .pThreadMutex:
             return "PThreadMutex"
+        case .osUnfair:
+            return "OsUnfairLock"
         case .unsafe:
             return "Unsafe"
         }
@@ -453,6 +452,54 @@ open class PThreadMutexSynchronization : SynchronizationProtocol {
     
     
     
+}
+
+func synchronizedUnFairLock<T>(_ lock: os_unfair_lock_t, closure:  ()->T) -> T {
+    os_unfair_lock_lock(lock)
+    let retVal: T = closure()
+    os_unfair_lock_unlock(lock)
+    return retVal
+}
+
+open class OsUnfairLock : SynchronizationProtocol {
+
+    private let _lock: os_unfair_lock_t
+
+    required public init() {
+
+        _lock = .allocate(capacity: 1)
+        _lock.initialize(to: os_unfair_lock())
+    }
+
+    deinit {
+        _lock.deinitialize(count: 1)
+        _lock.deallocate()
+    }
+
+    final func synchronized<T>(_ block:() -> T) -> T {
+        return synchronizedUnFairLock(_lock) { () -> T in
+            return block()
+        }
+    }
+
+    public final func lockAndModify<T>(
+        waitUntilDone wait: Bool = false,
+        modifyBlock: @escaping () -> T,
+        then : @escaping (T) -> Void) {
+
+        then(self.synchronized(modifyBlock))
+    }
+
+    public final func lockAndRead<T>(
+        waitUntilDone wait: Bool = false,
+        readBlock:@escaping () -> T,
+        then : @escaping ((T) -> Void)) {
+
+        self.lockAndModify(waitUntilDone: wait, modifyBlock: readBlock, then: then)
+    }
+
+
+
 }
 
 open class NSRecursiveLockSynchronization : SynchronizationProtocol {

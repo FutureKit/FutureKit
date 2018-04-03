@@ -38,7 +38,7 @@ public struct GLOBAL_PARMS {
     static var CONVERT_COMMON_NSERROR_VALUES_TO_CANCELLATIONS = true
 
     
-    public static var LOCKING_STRATEGY : SynchronizationType = .pThreadMutex
+    public static let LOCKING_STRATEGY : SynchronizationType = .osUnfair
     
 }
 
@@ -520,7 +520,11 @@ open class Future<T> : FutureProtocol {
         type of synchronization can be configured via GLOBAL_PARMS.LOCKING_STRATEGY
     
     */
-    internal final var synchObject : SynchronizationProtocol = GLOBAL_PARMS.LOCKING_STRATEGY.lockObject()
+    #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    internal let synchObject = OsUnfairLock()
+    #else
+    internal let synchObject = PThreadMutexSynchronization()
+    #endif
     
     /**
     is executed used `cancel()` has been requested.

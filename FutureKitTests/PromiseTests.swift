@@ -603,7 +603,7 @@ private enum PromiseFunctions<T : Equatable> {
             }
             
         case let .completeWithBlocksOnAlreadyCompleted(completeBlock,_):
-            promise.completeWithBlocks( { () -> Completion<T> in
+            promise.completeWithBlocks(#file,#line, { () -> Completion<T> in
                 return completeBlock().mapAs(T.self)
                 }, onAlreadyCompleted: { () -> Void in
                     if let ex = expectation {
@@ -858,7 +858,7 @@ class PromiseTests: FKTestCase {
         
         // TODO: Can we get this to compile?
         
-        f.onSuccess(futureExecutor) { (result:()) -> Void in
+        f.onSuccess(futureExecutor) { (result) -> Void in
             
             successExpectation.fulfill()
             

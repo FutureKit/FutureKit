@@ -853,17 +853,17 @@ open class Future<T> : FutureProtocol {
                                             continueUsing:Future?)
 
 
+        let c : Completion<T>
+        do {
+            c = try completionBlock().completion
+        }
+        catch {
+            c = .fail(error)
+        }
         self.synchObject.lockAndModify(waitUntilDone: wait, modifyBlock: { () -> ModifyBlockReturnType in
             if let _ = self.__result {
                 // future was already complete!
                 return ModifyBlockReturnType(nil,nil,nil)
-            }
-            let c : Completion<T>
-            do {
-                c = try completionBlock().completion
-            }
-            catch {
-                c = .fail(error)
             }
             if (c.isCompleteUsing) {
                 return ModifyBlockReturnType(callbacks:nil,result:nil,continueUsing:c.completeUsingFuture)

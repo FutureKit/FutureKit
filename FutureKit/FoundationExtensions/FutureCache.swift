@@ -79,8 +79,25 @@ public class FutureCache<KeyType : Hashable, T> {
         cache.setObject(entry, forKey: KeyWrapper(key))
     }
 
-    public func setObject(_ obj: T, forKey key: KeyType, cost g: Int) {
-        let entry = FutureCacheEntry(value:obj)
+    public func setObject(_ obj: T, expireTime: Date? = nil, forKey key: KeyType) {
+        let entry = FutureCacheEntry(value: obj, expireTime: expireTime)
+
+        if T.self is HasCacheCost.Type {
+            if let cacheCost = (obj as? HasCacheCost)?.cacheCost {
+                self.cache.setObject(entry, forKey: KeyWrapper(key), cost: cacheCost)
+                return
+            }
+        }
+        cache.setObject(entry, forKey: KeyWrapper(key))
+    }
+
+    public func setObject(_ obj: T, expireAfter: TimeInterval, forKey key: KeyType) {
+        self.setObject(obj, expireTime: Date(timeIntervalSinceNow: expireAfter), forKey: key)
+    }
+
+
+    public func setObject(_ obj: T, expireTime: Date? = nil, forKey key: KeyType, cost g: Int) {
+        let entry = FutureCacheEntry(value:obj, expireTime: expireTime)
         cache.setObject(entry, forKey: KeyWrapper(key), cost: g)
     }
     
@@ -93,9 +110,9 @@ public class FutureCache<KeyType : Hashable, T> {
     }
     
 
-    private func getCacheEntry(wrappedKey : KeyWrapper<KeyType>, onFetch:() -> Future<T>, mapExpireTime: ((FutureResult<T>) -> Date?)? = nil) -> FutureCacheEntry<T> {
+    private func getCacheEntry(wrappedKey : KeyWrapper<KeyType>, onFetch:() -> Future<T>, forceRefresh: Bool, mapExpireTime: ((FutureResult<T>) -> Date?)? = nil) -> FutureCacheEntry<T> {
 
-        if let entry = self.cache.object(forKey: wrappedKey) {
+        if !forceRefresh, let entry = self.cache.object(forKey: wrappedKey) {
             if let expireTime = entry.expireTime {
                 if expireTime.timeIntervalSinceNow > 0 {
                     return entry
@@ -125,10 +142,10 @@ public class FutureCache<KeyType : Hashable, T> {
         return entry
     }
 
-    public func findOrFetch(key : KeyType, mapExpireTime: @escaping ((FutureResult<T>) -> Date?), onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch(key : KeyType, forceRefresh: Bool = false, mapExpireTime: @escaping ((FutureResult<T>) -> Date?), onFetch:() -> Future<T>) -> Future<T> {
 
         let wrappedKey = KeyWrapper(key)
-        return getCacheEntry(wrappedKey: wrappedKey, onFetch: onFetch, mapExpireTime: mapExpireTime).future
+        return getCacheEntry(wrappedKey: wrappedKey, onFetch: onFetch, forceRefresh: forceRefresh, mapExpireTime: mapExpireTime).future
     }
 
     /**
@@ -141,7 +158,7 @@ public class FutureCache<KeyType : Hashable, T> {
      
      - returns: Either a copy of the cached future, or the result of the onFetch() block
      */
-    public func findOrFetch(key : KeyType, expireTime: Date? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch(key : KeyType, forceRefresh: Bool = false, expireTime: Date? = nil, onFetch:() -> Future<T>) -> Future<T> {
 
         let mapExpireTime: ((FutureResult<T>) -> Date?)
         if let expireTime = expireTime {
@@ -157,10 +174,10 @@ public class FutureCache<KeyType : Hashable, T> {
             mapExpireTime = { _ in return nil }
         }
 
-        return self.findOrFetch(key: key, mapExpireTime:mapExpireTime, onFetch: onFetch)
+        return self.findOrFetch(key: key, forceRefresh: forceRefresh, mapExpireTime:mapExpireTime, onFetch: onFetch)
     }
 
-    public func findOrFetch(key : KeyType, expireAfter: TimeInterval, onFailExpireAfter: TimeInterval? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch(key : KeyType, forceRefresh: Bool = false, expireAfter: TimeInterval, onFailExpireAfter: TimeInterval? = nil, onFetch:() -> Future<T>) -> Future<T> {
 
         return self.findOrFetch(key: key,
                                 mapExpireTime: { (result) -> Date? in

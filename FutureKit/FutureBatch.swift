@@ -338,6 +338,38 @@ open class FutureBatchOf<T> {
             return .success(results)
         }
     }
+
+    public func firstSuccess() -> Future<T> {
+        let p = Promise<T>()
+
+        self
+            .onEachComplete { result, _, _ -> Bool in
+                switch result {
+                case let .success(value):
+                    p.completeWithSuccess(value)
+                    return false
+                default:
+                    return true
+                }
+            }
+            .onSuccess { successes -> Void in
+                for i in successes where !i {
+                    return
+                }
+                self.batchFuture.onComplete { result in
+                    switch result {
+                    case let .fail(error):
+                        p.completeWithFail(error)
+                    case .cancelled:
+                        p.completeWithCancel()
+                    default:
+                        break
+                    }
+                }
+            }
+        return p.future
+    }
+
     
     
     /**

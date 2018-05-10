@@ -177,13 +177,13 @@ public class FutureCache<KeyType : Hashable, T> {
         return self.findOrFetch(key: key, forceRefresh: forceRefresh, mapExpireTime:mapExpireTime, onFetch: onFetch)
     }
 
-    public func findOrFetch(key : KeyType, forceRefresh: Bool = false, expireAfter: TimeInterval, onFailExpireAfter: TimeInterval? = nil, onFetch:() -> Future<T>) -> Future<T> {
+    public func findOrFetch(key : KeyType, forceRefresh: Bool = false, expireAfter: TimeInterval?, onFailExpireAfter: TimeInterval? = nil, onFetch:() -> Future<T>) -> Future<T> {
 
         return self.findOrFetch(key: key,
                                 mapExpireTime: { (result) -> Date? in
                                     switch result {
                                     case .success:
-                                        return Date(timeIntervalSinceNow: expireAfter)
+                                        return expireAfter.flatMap { Date(timeIntervalSinceNow: $0) }
                                     case .fail:
                                         return onFailExpireAfter.flatMap { Date(timeIntervalSinceNow: $0) }
                                     case .cancelled:
@@ -193,7 +193,78 @@ public class FutureCache<KeyType : Hashable, T> {
 
     }
 
-
-
 }
+
+public struct CacheOptions {
+
+    public let forceRefresh: Bool
+    public let expireAfter: TimeInterval?
+    public let onFailExpireAfter: TimeInterval?
+    public let useExistingValueOnFail: Bool
+
+    public init(forceRefresh: Bool,
+                expireAfter: TimeInterval?,
+                onFailExpireAfter: TimeInterval?,
+                useExistingValueOnFail: Bool) {
+        self.forceRefresh = forceRefresh
+        self.expireAfter = expireAfter
+        self.onFailExpireAfter = onFailExpireAfter
+        self.useExistingValueOnFail = useExistingValueOnFail
+    }
+
+    public static func retryFailures(after: TimeInterval) -> CacheOptions {
+        return CacheOptions(forceRefresh: false,
+                            expireAfter: nil,
+                            onFailExpireAfter: after,
+                            useExistingValueOnFail: true)
+    }
+
+    public static var useCache = CacheOptions(forceRefresh: false,
+                                              expireAfter: nil,
+                                              onFailExpireAfter: nil,
+                                              useExistingValueOnFail: true)
+
+    public static var forceRefresh = CacheOptions(forceRefresh: true,
+                                                  expireAfter: nil,
+                                                  onFailExpireAfter: nil,
+                                                  useExistingValueOnFail: false)
+
+    public static var tryRefresh = CacheOptions(forceRefresh: true,
+                                                expireAfter: nil,
+                                                onFailExpireAfter: nil,
+                                                useExistingValueOnFail: true)
+}
+
+
+extension FutureCache {
+
+    public func fetchAndCache(key: KeyType, options: CacheOptions = .useCache, fetchCommand: @escaping () -> Future<T>) -> Future<T> {
+
+        if options.useExistingValueOnFail, let currentValue = self.object(forKey: key) {
+            return self.findOrFetch(
+                key: key,
+                forceRefresh: options.forceRefresh,
+                expireAfter: options.expireAfter,
+                onFailExpireAfter: options.onFailExpireAfter) {
+                    return fetchCommand().onComplete { result -> Completion<T> in
+                        switch result {
+                        case .success(let value):
+                            return .success(value)
+                        case .fail:
+                            return .success(currentValue)
+                        case .cancelled:
+                            return .cancelled
+                        }
+                    }
+            }
+
+        }
+        return self.findOrFetch(key: key,
+                                forceRefresh: options.forceRefresh,
+                                expireAfter: options.expireAfter,
+                                onFailExpireAfter: options.onFailExpireAfter,
+                                onFetch: fetchCommand)
+    }
+}
+
 

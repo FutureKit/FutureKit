@@ -180,6 +180,7 @@ public class FutureCache<KeyType : Hashable, T> {
     public func findOrFetch(key : KeyType, forceRefresh: Bool = false, expireAfter: TimeInterval?, onFailExpireAfter: TimeInterval? = nil, onFetch:() -> Future<T>) -> Future<T> {
 
         return self.findOrFetch(key: key,
+                                forceRefresh: forceRefresh,
                                 mapExpireTime: { (result) -> Date? in
                                     switch result {
                                     case .success:

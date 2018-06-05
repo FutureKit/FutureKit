@@ -1471,19 +1471,19 @@ extension FutureProtocol {
         executor : Executor,
         _ file: StaticString = #file,
         _ line: UInt = #line,
-        didSucceed:(T) throws -> __Type,
-        timedOut:() throws -> __Type
+        didSucceed:@escaping (T) throws -> __Type,
+        timedOut:@escaping () throws -> __Type
         ) -> Future<__Type> {
             
             return self.waitForSuccess(timeout,
                 executor: executor,
                 file,
                 line,
-                didSucceed: {
-                    return try didSucceed($0)
+                didSucceed: { t -> __Type in
+                    try didSucceed(t)
                 },
-                timedOut: {
-                    try timedOut()
+                timedOut: { () -> Completion<__Type> in
+                    return .success(try timedOut())
             })
     }
 

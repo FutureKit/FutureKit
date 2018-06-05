@@ -172,11 +172,6 @@ internal extension DispatchQueue {
 
 // remove in Swift 2.0
 
-extension qos_class_t {
-    var rawValue : UInt32 {
-        return self.rawValue
-    }
-}
 public enum Executor {
     case primary                    // use the default configured executor.  Current set to Immediate.
                                     // There are deep philosphical arguments about Immediate vs Async.
@@ -220,7 +215,7 @@ public enum Executor {
     
     case managedObjectContext(NSManagedObjectContext)   // block will run inside the managed object's context via context.performBlock()
     
-    case custom(((@escaping () -> Void) -> Void))         // Don't like any of these?  Bake your own Executor!
+    case custom(((() -> Void) -> Void))         // Don't like any of these?  Bake your own Executor!
     
     
     public var description : String {

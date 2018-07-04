@@ -216,12 +216,8 @@ public enum Executor {
     case managedObjectContext(NSManagedObjectContext)   // block will run inside the managed object's context via context.performBlock()
 
 
-    #if swift(>=4.1.50)
-        case custom(((() -> Void) -> Void))         // Don't like any of these?  Bake your own Executor!
-    #else
-        case custom(((@escaping () -> Void) -> Void))
-    #endif
-    
+    case custom(((@escaping () -> Void) -> Void))
+
     
     public var description : String {
         switch self {

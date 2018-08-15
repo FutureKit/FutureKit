@@ -26,37 +26,60 @@ import Foundation
 
 // this class really SHOULD work, but it sometimes crashes the compiler
 // so we mostly use WeakAnyObject and feel angry about it
-class Weak<T: AnyObject> : ExpressibleByNilLiteral {
-    weak var value : T?
-    init (_ value: T?) {
+public final class Weak<T: AnyObject> : ExpressibleByNilLiteral {
+    public weak var value : T?
+    public init (_ value: T?) {
         self.value = value
     }
-    required init(nilLiteral: ()) {
+    required public init(nilLiteral: ()) {
         self.value = nil
     }
 }
 
-class WeakAnyObject : ExpressibleByNilLiteral {
-    weak var value : AnyObject?
-    init (_ value: AnyObject?) {
-        self.value = value
-    }
-    required init(nilLiteral: ()) {
-        self.value = nil
+#if swift(>=4.0)
+extension Weak: Equatable where T: Equatable {
+    public static func == (lhs: Weak<T>, rhs: Weak<T>) -> Bool {
+        return lhs.value == rhs.value
     }
 }
+
+extension Weak: Hashable where T: Hashable {
+    public var hashValue: Int {
+        return self.value?.hashValue ?? 0
+    }
+
+}
+
+#endif
+
+public typealias WeakAnyObject = Weak<AnyObject>
 
 // We use this to convert a Any value into an AnyObject
 // so it can be saved via objc_setAssociatedObject
-class Strong<T:Any> : ExpressibleByNilLiteral {
-    var value : T?
-    init (_ value: T?) {
+public final class Strong<T> : ExpressibleByNilLiteral {
+    public var value : T?
+    public init (_ value: T?) {
         self.value = value
     }
-    required init(nilLiteral: ()) {
+    public required init(nilLiteral: ()) {
         self.value = nil
     }
 }
+
+#if swift(>=4.0)
+extension Strong: Equatable where T: Equatable {
+    public static func == (lhs: Strong<T>, rhs: Strong<T>) -> Bool {
+        return lhs.value == rhs.value
+    }
+}
+
+extension Strong: Hashable where T: Hashable {
+    public var hashValue: Int {
+        return self.value?.hashValue ?? 0
+    }
+}
+
+#endif
 
 
 // So... you want to allocate stuff via UnsafeMutablePointer<T>, but don't want to have to remember 

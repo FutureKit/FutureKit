@@ -50,6 +50,7 @@ public enum FutureKitError : Error, Equatable {
     case errorForMultipleErrors(String,[Error])
     case exceptionCaught(NSException,[AnyHashable: Any]?)
     case futureDeinitWithoutCompletion(FileLineInfo)
+    case refreshFailed(key: Any)
     case timedOutWaitingForResponse
 
     public init(genericError : String) {

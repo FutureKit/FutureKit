@@ -42,17 +42,17 @@ private class ObjectWrapper {
     }
 }
 
-private class KeyWrapper<KeyType: Hashable>: NSObject {
+public class KeyWrapper<KeyType: Hashable>: NSObject {
     let key: KeyType
     init(_ key: KeyType) {
         self.key = key
     }
 
-    override var hash: Int {
+    override public var hash: Int {
         return key.hashValue
     }
 
-    override func isEqual(_ object: Any?) -> Bool {
+    override public func isEqual(_ object: Any?) -> Bool {
         guard let other = object as? KeyWrapper<KeyType> else {
             return false
         }

@@ -42,6 +42,10 @@
 		0D4FB3162024D4EB00791E8E /* FileLineInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4FB3122024D4EB00791E8E /* FileLineInfo.swift */; };
 		0D5810D51C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
 		0D5810D61C4784E600ED5972 /* ErrorTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5810D41C4784E600ED5972 /* ErrorTypes.swift */; };
+		0D5C569721387E990031B10D /* RefeshingCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5C569621387E990031B10D /* RefeshingCache.swift */; };
+		0D5C569821387EA20031B10D /* RefeshingCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5C569621387E990031B10D /* RefeshingCache.swift */; };
+		0D5C569921387EA20031B10D /* RefeshingCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5C569621387E990031B10D /* RefeshingCache.swift */; };
+		0D5C569A21387EA30031B10D /* RefeshingCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5C569621387E990031B10D /* RefeshingCache.swift */; };
 		0D746A4F1AF7FD3C006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D746A501AF7FF14006EEDA2 /* FutureFIFO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */; };
 		0D7502C21AE6B182009C3F63 /* ExtensionVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */; };
@@ -230,6 +234,7 @@
 		0D4FB3122024D4EB00791E8E /* FileLineInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLineInfo.swift; sourceTree = "<group>"; };
 		0D5810D41C4784E600ED5972 /* ErrorTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorTypes.swift; sourceTree = "<group>"; };
 		0D5A14E41B378FC200E69B85 /* convertPerfToCsv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = convertPerfToCsv.swift; path = FutureKitTests/convertPerfToCsv.swift; sourceTree = "<group>"; };
+		0D5C569621387E990031B10D /* RefeshingCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefeshingCache.swift; sourceTree = "<group>"; };
 		0D746A4E1AF7FD3C006EEDA2 /* FutureFIFO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FutureFIFO.swift; sourceTree = "<group>"; };
 		0D7502B11AE5FD4B009C3F63 /* LockPerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LockPerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		0D7502BB1AE6B182009C3F63 /* ExtensionVars.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ExtensionVars.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -368,6 +373,7 @@
 				0D7502CF1AE6B76D009C3F63 /* NSData-Ext.swift */,
 				0DF7A2761B34F0B90031BEA6 /* FutureThread.swift */,
 				0D75B9CB1CEB8307002452F6 /* FutureCache.swift */,
+				0D5C569621387E990031B10D /* RefeshingCache.swift */,
 			);
 			path = FoundationExtensions;
 			sourceTree = "<group>";
@@ -972,6 +978,7 @@
 				0DBB33161D0F91DA0092BF7B /* Promise.swift in Sources */,
 				0DBB331B1D0F91DA0092BF7B /* Synchronization.swift in Sources */,
 				0DF56F61207407E5001CAA86 /* Atomic.swift in Sources */,
+				0D5C569921387EA20031B10D /* RefeshingCache.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1001,6 +1008,7 @@
 				0DBB331F1D0F91DB0092BF7B /* Promise.swift in Sources */,
 				0DBB33241D0F91DB0092BF7B /* Synchronization.swift in Sources */,
 				0DF56F62207407E5001CAA86 /* Atomic.swift in Sources */,
+				0D5C569A21387EA30031B10D /* RefeshingCache.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1061,6 +1069,7 @@
 				090112C11BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BC91AE30885000E126F /* Promise.swift in Sources */,
 				0DF56F5F207407E4001CAA86 /* Atomic.swift in Sources */,
+				0D5C569721387E990031B10D /* RefeshingCache.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1090,6 +1099,7 @@
 				090112C21BD851CB002EB82D /* Tuples.swift in Sources */,
 				0DEA1BD61AE30886000E126F /* Promise.swift in Sources */,
 				0DF56F60207407E5001CAA86 /* Atomic.swift in Sources */,
+				0D5C569821387EA20031B10D /* RefeshingCache.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

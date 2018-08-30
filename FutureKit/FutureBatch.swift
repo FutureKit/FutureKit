@@ -367,6 +367,7 @@ open class FutureBatchOf<T> {
                     }
                 }
             }
+            .ignoreFailures()
         return p.future
     }
 

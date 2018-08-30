@@ -61,22 +61,38 @@ private class KeyWrapper<KeyType: Hashable>: NSObject {
 }
 
 
-public class FutureCache<KeyType : Hashable, T> {
+open class FutureCache<KeyType : Hashable, T> {
     
-    
-    public init () {
-        
+
+    let onCacheChange: ((KeyType, T?) -> Void)?
+    public init (onFetchResult onChange: @escaping ((KeyType, T?) -> Void)) {
+        onCacheChange = onChange
     }
 
-    private let cache: NSCache<KeyWrapper<KeyType>, FutureCacheEntry<T>> = NSCache()
+    public init () {
+        onCacheChange = nil
+    }
+
+    private let innerCache: NSCache<KeyWrapper<KeyType>, FutureCacheEntry<T>> = NSCache()
 
     public func object(forKey key: KeyType) -> T? {
-        return cache.object(forKey: KeyWrapper(key))?.future.value
+        return innerCache.object(forKey: KeyWrapper(key))?.future.value
     }
 
+    private func setCacheObject(entry: FutureCacheEntry<T>, wrappedKey: KeyWrapper<KeyType>, cost: Int? = nil) {
+        if let cost = cost {
+            innerCache.setObject(entry, forKey: wrappedKey, cost: cost)
+        } else {
+            innerCache.setObject(entry, forKey: wrappedKey)
+        }
+        if let onFetchResult = self.onCacheChange {
+            entry.future.onComplete { onFetchResult(wrappedKey.key, $0.value) }
+        }
+
+    }
     public func setObject(_ obj: T, forKey key: KeyType) {
         let entry = FutureCacheEntry(value: obj)
-        cache.setObject(entry, forKey: KeyWrapper(key))
+        self.setCacheObject(entry: entry, wrappedKey: KeyWrapper(key))
     }
 
     public func setObject(_ obj: T, expireTime: Date? = nil, forKey key: KeyType) {
@@ -84,11 +100,11 @@ public class FutureCache<KeyType : Hashable, T> {
 
         if T.self is HasCacheCost.Type {
             if let cacheCost = (obj as? HasCacheCost)?.cacheCost {
-                self.cache.setObject(entry, forKey: KeyWrapper(key), cost: cacheCost)
+                self.setCacheObject(entry: entry, wrappedKey: KeyWrapper(key), cost: cacheCost)
                 return
             }
         }
-        cache.setObject(entry, forKey: KeyWrapper(key))
+        self.setCacheObject(entry: entry, wrappedKey: KeyWrapper(key))
     }
 
     public func setObject(_ obj: T, expireAfter: TimeInterval, forKey key: KeyType) {
@@ -98,21 +114,22 @@ public class FutureCache<KeyType : Hashable, T> {
 
     public func setObject(_ obj: T, expireTime: Date? = nil, forKey key: KeyType, cost g: Int) {
         let entry = FutureCacheEntry(value:obj, expireTime: expireTime)
-        cache.setObject(entry, forKey: KeyWrapper(key), cost: g)
+        self.setCacheObject(entry: entry, wrappedKey: KeyWrapper(key), cost: g)
     }
     
     public func removeObject(forKey key: KeyType) {
-        cache.removeObject(forKey: KeyWrapper(key))
+        innerCache.removeObject(forKey: KeyWrapper(key))
+        self.onCacheChange?(key, nil)
     }
     
     public func removeAllObjects() {
-        cache.removeAllObjects()
+        innerCache.removeAllObjects()
     }
     
 
     private func getCacheEntry(wrappedKey : KeyWrapper<KeyType>, onFetch:() -> Future<T>, forceRefresh: Bool, mapExpireTime: ((FutureResult<T>) -> Date?)? = nil) -> FutureCacheEntry<T> {
 
-        if !forceRefresh, let entry = self.cache.object(forKey: wrappedKey) {
+        if !forceRefresh, let entry = self.innerCache.object(forKey: wrappedKey) {
             if let expireTime = entry.expireTime {
                 if expireTime.timeIntervalSinceNow > 0 {
                     return entry
@@ -125,18 +142,18 @@ public class FutureCache<KeyType : Hashable, T> {
         let f = onFetch()
         let entry = FutureCacheEntry(f)
         // it's important to call setObject before adding the onFailorCancel handler, since some futures will fail immediatey!
-        self.cache.setObject(entry, forKey: wrappedKey)
+        self.setCacheObject(entry: entry, wrappedKey: wrappedKey)
 
         f.onComplete { result in
             if T.self is HasCacheCost.Type {
                 if let cacheCost = (result.value as? HasCacheCost)?.cacheCost {
-                    self.cache.setObject(entry, forKey: wrappedKey, cost: cacheCost)
+                    self.setCacheObject(entry: entry, wrappedKey: wrappedKey, cost: cacheCost)
                 }
             }
             if let expireTime = mapExpireTime?(result) {
                 entry.expireTime = expireTime
             } else if !result.isSuccess {
-                self.cache.removeObject(forKey: wrappedKey)
+                self.removeObject(forKey: wrappedKey.key)
             }
         }
         return entry
